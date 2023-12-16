@@ -455,10 +455,7 @@ void rrandomize(void) {
 }
 
 int rrand(int range) {
-    int r;
-
-    r=rand();
-    return (range*r/(RAND_MAX+1));
+    return rand()%range;
 }
 
 // wsa network

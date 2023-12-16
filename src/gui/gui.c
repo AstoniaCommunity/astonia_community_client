@@ -8,6 +8,7 @@
  *
  */
 
+#include <inttypes.h>
 #include <time.h>
 #include <SDL2/SDL.h>
 
@@ -697,12 +698,12 @@ display_graphs:
         dd_drawtext_fmt(px,py+=10,IRGB(8,31,8),DD_NOCACHE|DD_LEFT|DD_FRAME,"TT %d %d",tick_min,tick_max);
 #endif
         size=gui_frametime/2;
-        dd_drawtext_fmt(px,py+=10,IRGB(8,31,8),DD_NOCACHE|DD_LEFT|DD_FRAME,"Frametime %lld",gui_frametime);
+        dd_drawtext_fmt(px,py+=10,IRGB(8,31,8),DD_NOCACHE|DD_LEFT|DD_FRAME,"Frametime %" PRId64,gui_frametime);
         sdl_bargraph_add(sizeof(pre2_graph),pre2_graph,size<42?size:42);
         sdl_bargraph(px,py+=40,sizeof(pre2_graph),pre2_graph,x_offset,y_offset);
 
         size=gui_ticktime/2;
-        dd_drawtext_fmt(px,py+=10,IRGB(8,31,8),DD_NOCACHE|DD_LEFT|DD_FRAME,"Ticktime %lld",gui_ticktime);
+        dd_drawtext_fmt(px,py+=10,IRGB(8,31,8),DD_NOCACHE|DD_LEFT|DD_FRAME,"Ticktime %" PRId64,gui_ticktime);
         sdl_bargraph_add(sizeof(pre3_graph),pre3_graph,size<42?size:42);
         sdl_bargraph(px,py+=40,sizeof(pre3_graph),pre3_graph,x_offset,y_offset);
 #if 0
@@ -2186,7 +2187,8 @@ int calc_tick_delay_normal(int size) {
 
 int main_loop(void) {
     void prefetch_game(int attick);
-    int tmp,timediff,ltick=0,attick;
+    int64_t timediff;
+    int tmp,ltick=0,attick;
     long long start;
     int do_one_tick=1;
     uint64_t gui_last_frame=0,gui_last_tick=0;
