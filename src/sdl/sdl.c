@@ -8,6 +8,7 @@
  *
  */
 
+#include <inttypes.h>
 #include <stdint.h>
 #include <fcntl.h>
 #include <SDL2/SDL.h>
@@ -199,7 +200,7 @@ int sdl_init(int width,int height,char *title) {
         else if (YRES>=580) game_options=GO_DEFAULTS|GO_SMALLBOT;
         else game_options=GO_DEFAULTS|GO_SMALLBOT|GO_SMALLTOP;
     }
-    note("SDL using %dx%d scale %d, options=%llu",XRES,YRES,sdl_scale,game_options);
+    note("SDL using %dx%d scale %d, options=%" PRIu64,XRES,YRES,sdl_scale,game_options);
 
     sdl_create_cursors();
 
@@ -409,7 +410,7 @@ struct png_helper {
     png_infop info_ptr;
 };
 
-void png_helper_read(png_struct *ps,unsigned char *buf,long long unsigned len) {
+void png_helper_read(png_struct *ps,unsigned char *buf,uint64_t len) {
     zip_fread(png_get_io_ptr(ps),buf,len);
 }
 
