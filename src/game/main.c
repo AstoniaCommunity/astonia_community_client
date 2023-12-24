@@ -9,7 +9,6 @@
  */
 
 #include <windows.h>
-#include <shlobj.h>
 #include <stdint.h>
 #include <fcntl.h>
 #include <time.h>
@@ -25,7 +24,7 @@
 
 int quit=0;
 
-char localdata[MAX_PATH];
+char *localdata;
 
 static int panic_reached=0;
 static int xmemcheck_failed=0;
@@ -479,7 +478,7 @@ int net_exit(void) {
 // parsing command line
 
 void display_messagebox(char *title,char *text) {
-    MessageBox(NULL,text,title,MB_APPLMODAL|MB_OK|MB_ICONEXCLAMATION);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,title,text,NULL);
 }
 
 void display_usage(void) {
@@ -508,7 +507,7 @@ void display_usage(void) {
     buf+=sprintf(buf,"cachesize is the size of the texture cache. Default is 8000. Lower numbers might crash!\n\n");
     buf+=sprintf(buf,"framespersecond will set the display rate in frames per second.\n\n");
 
-    MessageBox(NULL,txt,"Usage",MB_APPLMODAL|MB_OK|MB_ICONEXCLAMATION);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION,"Usage",txt,NULL);
 
     printf("%s",txt);
 
@@ -592,7 +591,7 @@ void save_options(void) {
     int handle;
     char filename[MAX_PATH];
 
-    if (game_options&GO_APPDATA) sprintf(filename,"%s\\Astonia\\%s",localdata,"moac.dat");
+    if (localdata) sprintf(filename,"%s%s",localdata,"moac.dat");
     else sprintf(filename,"%s","bin/data/moac.dat");
 
     handle=open(filename,O_WRONLY|O_CREAT|O_TRUNC|O_BINARY,0666);
@@ -609,7 +608,7 @@ void load_options(void) {
     int handle;
     char filename[MAX_PATH];
 
-    if (game_options&GO_APPDATA) sprintf(filename,"%s\\Astonia\\%s",localdata,"moac.dat");
+    if (localdata) sprintf(filename,"%s%s",localdata,"moac.dat");
     else sprintf(filename,"%s","bin/data/moac.dat");
 
     handle=open(filename,O_RDONLY|O_BINARY);
@@ -651,11 +650,8 @@ int main(int argc,char *args[]) {
     if ((ret=parse_cmd(buffer))!=0) return -1;
 
     if (game_options&GO_APPDATA) {
-        SHGetFolderPath(NULL,CSIDL_APPDATA,NULL,0,localdata);
-        sprintf(filename,"%s\\Astonia",localdata);
-        mkdir(filename);
-
-        sprintf(filename,"%s\\Astonia\\%s",localdata,"moac.log");
+        localdata=SDL_GetPrefPath(ORG_NAME,APP_NAME);
+        sprintf(filename,"%s%s",localdata,"moac.log");
     } else sprintf(filename,"%s","moac.log");
 
     errorfp=fopen(filename,"a");
@@ -684,7 +680,7 @@ int main(int argc,char *args[]) {
 
     // next init (only once)
     if (net_init()==-1) {
-        MessageBox(NULL,"Can't Initialize Windows Networking Libraries.","Error",MB_APPLMODAL|MB_OK|MB_ICONSTOP);
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"Error","Can't Initialize Networking Libraries.",NULL);
         return -1;
     }
 
@@ -754,10 +750,12 @@ int main(int argc,char *args[]) {
 
     list_mem();
 
-    if (panic_reached) MessageBox(NULL,panic_reached_str,"recursion panic",MB_APPLMODAL|MB_OK|MB_ICONSTOP);
-    if (xmemcheck_failed) MessageBox(NULL,memcheck_failed_str,"memory panic",MB_APPLMODAL|MB_OK|MB_ICONSTOP);
+    if (panic_reached) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"recursion panic",panic_reached_str,NULL);
+    if (xmemcheck_failed) SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,"memory panic",memcheck_failed_str,NULL);
 
     net_exit();
+
+    if (localdata) SDL_free(localdata);
 
     xlog(errorfp,"Clean client shutdown. Thank you for playing!");
     fclose(errorfp);
