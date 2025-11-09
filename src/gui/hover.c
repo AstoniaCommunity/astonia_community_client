@@ -274,7 +274,7 @@ int tactics2spell(int val) {
     return val*0.125;
 }
 
-static char *basename(int v) {
+static char *vbasename(int v) {
     switch (v) {
         case V_WIS: return "WIS";
         case V_INT: return "INT";
@@ -396,8 +396,8 @@ static int display_hover_skill(void) {
 
         if (base) {
             if (cap && v!=V_SPEED)
-                dd_drawtext_fmt(sx+4,sy,0xffff,0,"Gets +%d from (%s+%s+%s) (capped at %d)",base,basename(v1),basename(v2),basename(v3),cap);
-            else dd_drawtext_fmt(sx+4,sy,0xffff,0,"Gets +%d from (%s+%s+%s)",base,basename(v1),basename(v2),basename(v3));
+                dd_drawtext_fmt(sx+4,sy,0xffff,0,"Gets +%d from (%s+%s+%s) (capped at %d)",base,vbasename(v1),vbasename(v2),vbasename(v3),cap);
+            else dd_drawtext_fmt(sx+4,sy,0xffff,0,"Gets +%d from (%s+%s+%s)",base,vbasename(v1),vbasename(v2),vbasename(v3));
             sy+=10;
         }
         if (v==V_SPEED && value[0][V_SPEEDSKILL]) {
