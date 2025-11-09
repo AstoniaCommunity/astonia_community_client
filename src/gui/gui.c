@@ -1344,13 +1344,10 @@ static void set_cmd_states(void) {
 
     plrmn=mapmn(MAPDX/2,MAPDY/2);
 
-    sprintf(buf,"%s - Astonia 3 v%d.%d.%d - (%u.%u.%u.%u:%u)",
+    sprintf(buf,"%s - Astonia 3 v%d.%d.%d - (%s:%u)",
             (map[plrmn].cn && player[map[plrmn].cn].name[0])?player[map[plrmn].cn].name:"Someone",
             (VERSION>>16)&255,(VERSION>>8)&255,(VERSION)&255,
-            (target_server>>24)&255,
-            (target_server>>16)&255,
-            (target_server>>8)&255,
-            (target_server>>0)&255,
+            target_server,
             target_port);
     if (strcmp(title,buf)) {
         strcpy(title,buf);
