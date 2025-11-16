@@ -18,7 +18,9 @@
 #define ARRAYSIZE(a) (sizeof(a)/sizeof((a)[0]))
 #endif
 
+#ifndef bzero
 #define bzero(ptr,size) memset(ptr,0,size)
+#endif
 
 #define V_MAX	        200
 #define DIST		    25

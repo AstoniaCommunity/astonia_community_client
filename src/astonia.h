@@ -37,7 +37,9 @@
 
 #define PARANOIA(a) a
 
+#ifndef bzero
 #define bzero(ptr,size) memset(ptr,0,size)
+#endif
 
 #define MEM_NONE        0
 #define MEM_GLOB        1

@@ -74,6 +74,53 @@ docker run --rm -i -e HOST_UID=$(id -u) -e HOST_GID=$(id -g) -v "$PWD:/app" -w /
 
 The built binaries will be in `bin/`.
 
+### macOS Build
+
+#### Prerequisites
+Install Xcode Command Line Tools:
+```
+xcode-select --install
+```
+
+#### Install Dependencies
+
+**Option 1: SDL2**
+```
+brew install zig sdl2 sdl2_mixer libpng zlib libzip
+```
+
+**Option 2: SDL3 with SDL2-compat**
+SDL2-compat provides SDL2 API compatibility while using SDL3 underneath:
+```
+brew install zig sdl2_mixer sdl3 libpng zlib libzip
+```
+
+# Build and install SDL2-compat
+
+```
+git clone https://github.com/libsdl-org/sdl2-compat
+cd sdl2-compat
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+sudo cmake --install build
+cd ..
+```
+
+#### Install Rust
+
+```
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
+rustup target add aarch64-apple-darwin
+```
+
+#### Build
+```
+zig build --release=fast install --prefix .
+```
+
+The built binaries will be in `bin/`.
+
 ### Make A Mod
 ```
 make amod

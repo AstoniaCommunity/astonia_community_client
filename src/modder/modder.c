@@ -57,6 +57,8 @@ int amod_init(void) {
     for (int i=0; i<MAXMOD; i++) {
         #ifdef _WIN32
         sprintf(fname,"bin\\%cmod.dll",i+'a');
+        #elif defined(__APPLE__)
+        sprintf(fname,"bin/%cmod.dylib",i+'a');
         #else
         sprintf(fname,"bin/%cmod.so",i+'a');
         #endif

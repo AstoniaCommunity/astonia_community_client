@@ -410,7 +410,7 @@ struct png_helper {
     png_infop info_ptr;
 };
 
-void png_helper_read(png_struct *ps,unsigned char *buf,uint64_t len) {
+void png_helper_read(png_structp ps,png_bytep buf,png_size_t len) {
     zip_fread(png_get_io_ptr(ps),buf,len);
 }
 
