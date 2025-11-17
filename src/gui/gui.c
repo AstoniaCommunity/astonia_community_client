@@ -1813,8 +1813,13 @@ void gui_sdl_keyproc(int wparam) {
         case SDLK_F6:           cmd_speed(0); return;
         case SDLK_F7:           cmd_speed(2); return;
 
-        case SDLK_SPACE:        // Space bar acts as stop key (like ESC)
-                                cmd_stop(); context_stop(); cmd_reset(); return;
+        case SDLK_SPACE:        // Space bar acts as stop key (like ESC) when not typing
+                                if (!context_key_isset()) {
+                                    cmd_stop(); context_stop(); cmd_reset();
+                                    return;
+                                }
+                                // Otherwise fall through to allow space in text input
+                                goto spellbindkey;
 
         case SDLK_F8:		    nocut^=1; return;
 
