@@ -351,6 +351,112 @@ uint32_t mix_argb(uint32_t c1,uint32_t c2,float w1,float w2) {
     return IRGBA(r,g,b,a);
 }
 
+// Helper function to compare colors for Scale2x (ignoring fully transparent pixels)
+static inline int colors_equal(uint32_t c1,uint32_t c2) {
+    // Treat fully transparent pixels as always different to prevent bleeding
+    if (IGET_A(c1)==0 || IGET_A(c2)==0) return 0;
+    return c1==c2;
+}
+
+// Scale2x/EPX algorithm - better for pixel art and tiles than bilinear
+// Preserves sharp edges and only uses original colors (no blending/bleeding)
+void sdl_scale2x(uint32_t *pixel,int xres,int yres,int orig_xres,int orig_yres) {
+    int x,y,sx,sy;
+    uint32_t B,D,E,F,H;
+    uint32_t E0,E1,E2,E3;
+
+    // Process from bottom-right to top-left to avoid overwriting source data
+    for (sy=orig_yres-1; sy>=0; sy--) {
+        for (sx=orig_xres-1; sx>=0; sx--) {
+            // Get source pixel position in scaled array
+            x=sx*2;
+            y=sy*2;
+
+            // Get center pixel E
+            E=pixel[x+y*xres];
+
+            // Get neighbors (with bounds checking, reusing edge pixels at borders)
+            B=(sy>0) ? pixel[x+(y-2)*xres] : E;                    // top
+            D=(sx>0) ? pixel[(x-2)+y*xres] : E;                    // left
+            F=(sx<orig_xres-1) ? pixel[(x+2)+y*xres] : E;          // right
+            H=(sy<orig_yres-1) ? pixel[x+(y+2)*xres] : E;          // bottom
+
+            // Scale2x algorithm:
+            // If B!=H and D!=F (we have an edge), propagate colors from matching corners
+            // Otherwise just duplicate the pixel
+            if (!colors_equal(B,H) && !colors_equal(D,F)) {
+                E0=colors_equal(D,B) ? D : E;  // top-left
+                E1=colors_equal(B,F) ? F : E;  // top-right
+                E2=colors_equal(D,H) ? D : E;  // bottom-left
+                E3=colors_equal(H,F) ? F : E;  // bottom-right
+            } else {
+                E0=E1=E2=E3=E;
+            }
+
+            // Write 2x2 output block
+            pixel[x+y*xres]=E0;
+            pixel[x+1+y*xres]=E1;
+            pixel[x+(y+1)*xres]=E2;
+            pixel[x+1+(y+1)*xres]=E3;
+        }
+    }
+}
+
+// Scale3x algorithm - 3x upscaling variant of Scale2x/EPX
+void sdl_scale3x(uint32_t *pixel,int xres,int yres,int orig_xres,int orig_yres) {
+    int x,y,sx,sy;
+    uint32_t A,B,C,D,E,F,G,H,I;
+    uint32_t E0,E1,E2,E3,E4,E5,E6,E7,E8;
+
+    // Process from bottom-right to top-left to avoid overwriting source data
+    for (sy=orig_yres-1; sy>=0; sy--) {
+        for (sx=orig_xres-1; sx>=0; sx--) {
+            // Get source pixel position in scaled array
+            x=sx*3;
+            y=sy*3;
+
+            // Get center pixel E
+            E=pixel[x+y*xres];
+
+            // Get all 8 neighbors (with bounds checking)
+            B=(sy>0) ? pixel[x+(y-3)*xres] : E;                        // top
+            D=(sx>0) ? pixel[(x-3)+y*xres] : E;                        // left
+            F=(sx<orig_xres-1) ? pixel[(x+3)+y*xres] : E;              // right
+            H=(sy<orig_yres-1) ? pixel[x+(y+3)*xres] : E;              // bottom
+            A=(sy>0 && sx>0) ? pixel[(x-3)+(y-3)*xres] : E;            // top-left
+            C=(sy>0 && sx<orig_xres-1) ? pixel[(x+3)+(y-3)*xres] : E;  // top-right
+            G=(sy<orig_yres-1 && sx>0) ? pixel[(x-3)+(y+3)*xres] : E;  // bottom-left
+            I=(sy<orig_yres-1 && sx<orig_xres-1) ? pixel[(x+3)+(y+3)*xres] : E; // bottom-right
+
+            // Scale3x algorithm
+            if (!colors_equal(B,H) && !colors_equal(D,F)) {
+                E0=colors_equal(D,B) ? D : E;
+                E1=(colors_equal(D,B) && !colors_equal(E,C)) || (colors_equal(B,F) && !colors_equal(E,A)) ? B : E;
+                E2=colors_equal(B,F) ? F : E;
+                E3=(colors_equal(D,B) && !colors_equal(E,G)) || (colors_equal(D,H) && !colors_equal(E,A)) ? D : E;
+                E4=E;
+                E5=(colors_equal(B,F) && !colors_equal(E,I)) || (colors_equal(F,H) && !colors_equal(E,C)) ? F : E;
+                E6=colors_equal(D,H) ? D : E;
+                E7=(colors_equal(D,H) && !colors_equal(E,I)) || (colors_equal(H,F) && !colors_equal(E,G)) ? H : E;
+                E8=colors_equal(H,F) ? F : E;
+            } else {
+                E0=E1=E2=E3=E4=E5=E6=E7=E8=E;
+            }
+
+            // Write 3x3 output block
+            pixel[x+y*xres]=E0;
+            pixel[x+1+y*xres]=E1;
+            pixel[x+2+y*xres]=E2;
+            pixel[x+(y+1)*xres]=E3;
+            pixel[x+1+(y+1)*xres]=E4;
+            pixel[x+2+(y+1)*xres]=E5;
+            pixel[x+(y+2)*xres]=E6;
+            pixel[x+1+(y+2)*xres]=E7;
+            pixel[x+2+(y+2)*xres]=E8;
+        }
+    }
+}
+
 void sdl_smoothify(uint32_t *pixel,int xres,int yres,int scale) {
     int x,y;
     uint32_t c1,c2,c3,c4;
@@ -736,10 +842,26 @@ int sdl_load_image_png(struct sdl_image *si,char *filename,zip_t *zip,int smooth
         }
     }
 
-    if (sdl_scale>1 && smoothify) {
+    if (sdl_scale>1 && smoothify==1) {
+        // Bilinear smoothing for non-tiles
         sdl_smoothify(si->pixel,si->xres*sdl_scale,si->yres*sdl_scale,sdl_scale);
         sdl_premulti(si->pixel,si->xres*sdl_scale,si->yres*sdl_scale,sdl_scale);
-    } else sdl_premulti(si->pixel,si->xres*sdl_scale,si->yres*sdl_scale,sdl_scale);
+    } else if (smoothify==2) {
+        // Scale2x/EPX/Scale3x for tiles
+        if (sdl_scale==2) {
+            sdl_scale2x(si->pixel,si->xres*sdl_scale,si->yres*sdl_scale,si->xres,si->yres);
+        } else if (sdl_scale==3) {
+            sdl_scale3x(si->pixel,si->xres*sdl_scale,si->yres*sdl_scale,si->xres,si->yres);
+        } else if (sdl_scale==4) {
+            // Scale4x = Scale2x applied twice
+            sdl_scale2x(si->pixel,si->xres*2,si->yres*2,si->xres,si->yres);
+            sdl_scale2x(si->pixel,si->xres*4,si->yres*4,si->xres*2,si->yres*2);
+        }
+        sdl_premulti(si->pixel,si->xres*sdl_scale,si->yres*sdl_scale,sdl_scale);
+    } else {
+        // Nearest neighbor (no smoothing)
+        sdl_premulti(si->pixel,si->xres*sdl_scale,si->yres*sdl_scale,sdl_scale);
+    }
 
     png_load_helper_exit(&p);
 
@@ -749,14 +871,14 @@ int sdl_load_image_png(struct sdl_image *si,char *filename,zip_t *zip,int smooth
 
 int do_smoothify(int sprite) {
 
-    // Tile sprites should NOT be smoothified (to avoid edge artifacts)
+    // Tile sprites use Scale2x/EPX algorithm (no edge artifacts, preserves pixel art)
     // These are floor and wall tiles that tile seamlessly
-    if (sprite>=1 && sprite<=100) return 0;         // Basic floor/wall tiles
-    if (sprite>=5000 && sprite<6000) return 0;      // Extended tile set
-    if (sprite>=50000 && sprite<51000) return 0;    // Special tiles (terrain, water, etc)
-    if (sprite>=60000 && sprite<61000) return 0;    // Additional tile variations
+    if (sprite>=1 && sprite<=100) return 2;         // Basic floor/wall tiles
+    if (sprite>=5000 && sprite<6000) return 2;      // Extended tile set
+    if (sprite>=50000 && sprite<51000) return 2;    // Special tiles (terrain, water, etc)
+    if (sprite>=60000 && sprite<61000) return 2;    // Additional tile variations
 
-    // Non-tile sprites SHOULD be smoothified (upscaling looks good)
+    // Non-tile sprites use bilinear smoothing (upscaling looks good)
     if (sprite>100 && sprite<=1000) return 1;       // GUI elements
     if (sprite>=10000 && sprite<11000) return 1;    // Items
     if (sprite>=11000 && sprite<12000) return 1;    // Coffin, berries, farn, ...
@@ -767,6 +889,7 @@ int do_smoothify(int sprite) {
     if (sprite>=20086 && sprite<20119) return 1;    // Chests, chairs
     if (sprite>=100000) return 1;                   // All character sprites
 
+    // Return values: 0=nearest neighbor, 1=bilinear, 2=scale2x
     return 0;
 }
 
