@@ -1,12 +1,21 @@
 all: bin/moac.exe
 
 CC=gcc
+WINDRES=windres
 OPT=-O3
 DEBUG=-gdwarf-4
 CFLAGS=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fno-omit-frame-pointer
 LDFLAGS=$(OPT) $(DEBUG) -Wl,-subsystem,windows
 
-LIBS = -lwsock32 -lws2_32 -lz -lpng -lsdl2 -lSDL2_mixer -lSDL2_ttf -lSDL2_net -lsdl2main -lzip -ldwarfstack
+# Core libraries required for all builds
+LIBS = -lwsock32 -lws2_32 -lz -lpng -lSDL2 -lSDL2_mixer -lSDL2_ttf -lSDL2main -lzip
+
+# Optional libraries (dwarfstack is only available in MSYS2, not in cross-compilation)
+# To build with dwarfstack, use: make LIBS_OPTIONAL=-ldwarfstack
+LIBS_OPTIONAL ?=
+
+# All libraries combined
+LIBS_ALL = $(LIBS) $(LIBS_OPTIONAL)
 
 OBJS	=		src/gui/gui.o src/client/client.o src/client/skill.o src/game/dd.o src/game/font.o\
 			src/game/main.o src/game/sprite.o src/game/game.o src/modder/modder.o\
@@ -16,7 +25,7 @@ OBJS	=		src/gui/gui.o src/client/client.o src/client/skill.o src/game/dd.o src/g
 			src/gui/minimap.o
 
 bin/moac.exe lib/moac.a &:	$(OBJS)
-			$(CC) $(LDFLAGS) -Wl,--out-implib,lib/moac.a -o bin/moac.exe $(OBJS) src/game/version.c $(LIBS)
+			$(CC) $(LDFLAGS) -Wl,--out-implib,lib/moac.a -o bin/moac.exe $(OBJS) src/game/version.c $(LIBS_ALL)
 
 bin/amod.dll:		src/amod/amod.o lib/moac.a
 			$(CC) $(LDFLAGS) $(OPT) $(DEBUG) -shared -o bin/amod.dll src/amod/amod.o lib/moac.a
@@ -60,7 +69,7 @@ src/sdl/sdl.o:		src/sdl/sdl.c src/astonia.h src/sdl.h src/sdl/_sdl.h
 src/sdl/sound.o:      	src/sdl/sound.c src/astonia.h src/sdl.h src/sdl/_sdl.h
 
 src/game/resource.o:	src/game/resource.rc src/game/resource.h res/moa3.ico
-			windres -F pe-x86-64 src/game/resource.rc src/game/resource.o
+			$(WINDRES) -F pe-x86-64 src/game/resource.rc src/game/resource.o
 
 clean:
 		-rm src/client/*.o src/game/*.o src/gui/*.o helper/*.o src/sdl/*.o src/amod/*.o
@@ -74,4 +83,16 @@ distrib:
 amod:		bin/amod.dll bin/moac.exe
 convert:	bin/convert.exe
 anicopy:	bin/anicopy.exe
+
+# Docker build targets
+.PHONY: docker-build docker-image docker-distrib
+
+docker-image:
+	docker build -t astonia-windows-builder .
+
+docker-build: docker-image
+	docker run --rm -v "$(shell pwd):/workspace" -u "$(shell id -u):$(shell id -g)" astonia-windows-builder
+
+docker-distrib: docker-build
+	docker run --rm -v "$(shell pwd):/workspace" -u "$(shell id -u):$(shell id -g)" astonia-windows-builder make distrib
 

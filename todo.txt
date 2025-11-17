@@ -4,42 +4,16 @@ Astonia To-Do List
 
 Bugs
 ----
-
-- Shaded text in 2X has single pixel gaps.
-
-- When you examine an item without a name, there is no response
-
-- When spell icons option is enabled, you are able to see the active pent record for that mirror by toggling the show icons tab, it shows when icons show, does not show when icons are hidden. However if you are playing with Spell Icons disabled in launcher, you are unable to see the active pent record at all and you only see the current pent number you have activated in that session. This happens when both compact top and bottom are enabled
-
 - cmd_some_spell() gives "Warning: unknow spell 0". Caused by exec_cmd(): case CMD_SLF_CAST_K: ... Seems to be connected to the new keyboard shortcuts.
 
 Soon
 ----
 
-- Re-write text chat scroll logic to be more understandable (and fix the stuck chat bug)
-
-- "Use With" needs to trump "Give" when using the new keyboard shortcuts. Otherwise Fire Underground station
-  reloading is almost impossible.
-
 - "Clean up" zoomed map so it looks less pixelated
-
-- Flash the "action icon", no matter how the spell was cast
 
 - A nice QoL change around stats now that have have tooltips could be when hovering over each
   stat display a tooltip that shows information such as current max mod, amount of mods added
   from equipment, percentage exp to raise
-
-- Multi-Monitor support (command line option to determine on which monitor the game window is opened).
-
-- Find an up-scaling algorithm that works with floor and wall tiles without creating edges around the tiles.
-- ... or, add a list of all non-tile sprites to do_smoothify().
-
-- Create the bigger fonts, not just use the pixel-doubled ones.
-
-- Lighting calculations are better now, but not completely right. Fix them again. Re-add shaded lighting for items.
-
-- Have right-click on items (old client mode) just give the hover item description text (if already cached)
-  instead of sending a look-at-item command to the server.
 
 Possibly
 --------
@@ -51,11 +25,6 @@ Possibly
 - Add stuff to the client window to make it 960 pixels wide to fill a standard 16:9 display.
 
 - Create mod for V3.5.
-
-- Also is it possible to have a way to bind the space bar key? And is it possible to bind the stop
-  action (currently 'esc' to another key). it'd be great to also have the toggles for fast/normal/stealth
-  mode on the mousewheel now that there's no mouse menu e.g. mouse up for fast mode, down to bring it back
-  to normal and down again to stealth
 
 
 Maybe Later: Bugs

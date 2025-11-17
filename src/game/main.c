@@ -15,7 +15,9 @@
 #include <time.h>
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
+#ifdef HAVE_DWARFSTACK
 #include <dwarfstack.h>
+#endif
 
 #include "../../src/astonia.h"
 #include "../../src/game.h"
@@ -711,6 +713,7 @@ void convert_cmd_line(char *d,int argc,char *args[],int maxsize) {
     *d=0;
 }
 
+#ifdef HAVE_DWARFSTACK
 static void errPrint(uint64_t addr,const char *filename,int lineno,const char *funcname,void *context,int columnno) {
   int *count = context;
   const char *delim = strrchr( filename,'/' );
@@ -760,6 +763,7 @@ static void errPrint(uint64_t addr,const char *filename,int lineno,const char *f
       break;
   }
 }
+#endif
 
 static LONG WINAPI exceptionPrinter( LPEXCEPTION_POINTERS ep )
 {
@@ -817,7 +821,12 @@ static LONG WINAPI exceptionPrinter( LPEXCEPTION_POINTERS ep )
     }
 
     int count=0;
+#ifdef HAVE_DWARFSTACK
     dwstOfException(ep->ContextRecord,&errPrint,&count);
+#else
+    fprintf( stderr,"Stack trace not available (built without dwarfstack)\n");
+    fprintf( errorfp,"Stack trace not available (built without dwarfstack)\n");
+#endif
 
     fflush( stderr );
     fflush( errorfp ); fclose(errorfp);

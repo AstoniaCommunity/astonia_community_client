@@ -1,0 +1,31 @@
+# Build artifacts
+bin/
+lib/
+*.exe
+*.dll
+*.o
+*.a
+
+# Archives
+*.zip
+*.tar.gz
+
+# Git
+.git/
+.github/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-build.sh
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
