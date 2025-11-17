@@ -16,6 +16,7 @@
 #include "../../src/gui.h"
 #include "../../src/gui/_gui.h"
 #include "../../src/game.h"
+#include "../../src/game/_game.h"
 #include "../../src/client.h"
 #include "../../src/sdl.h"
 #include "../../src/modder.h"
