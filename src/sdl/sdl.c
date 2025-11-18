@@ -233,15 +233,25 @@ int sdl_init(int width,int height,char *title,int monitor) {
     if (width!=XRES || height!=YRES) {
         int tmp_scale=1,off=0;
 
+        // Check 4:3 aspect ratio (YRES0=600)
         if (width/XRES>=4 && height/YRES0>=4) sdl_scale=4;
         else if (width/XRES>=3 && height/YRES0>=3) sdl_scale=3;
         else if (width/XRES>=2 && height/YRES0>=2) sdl_scale=2;
 
+        // Check 16:10 aspect ratio (YRES2=500)
         if (width/XRES>=4 && height/YRES2>=4) tmp_scale=4;
         else if (width/XRES>=3 && height/YRES2>=3) tmp_scale=3;
         else if (width/XRES>=2 && height/YRES2>=2) tmp_scale=2;
 
         if (tmp_scale>sdl_scale || height<YRES0) { sdl_scale=tmp_scale; YRES=height/sdl_scale; }
+
+        // Check 16:9 widescreen aspect ratio (YRES3=450) - most permissive
+        tmp_scale=1;
+        if (width/XRES>=4 && height/YRES3>=4) tmp_scale=4;
+        else if (width/XRES>=3 && height/YRES3>=3) tmp_scale=3;
+        else if (width/XRES>=2 && height/YRES3>=2) tmp_scale=2;
+
+        if (tmp_scale>sdl_scale) { sdl_scale=tmp_scale; YRES=height/sdl_scale; }
 
         YRES=height/sdl_scale;
 

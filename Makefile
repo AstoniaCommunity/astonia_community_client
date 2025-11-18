@@ -8,7 +8,7 @@ CFLAGS=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fno-omit-fr
 LDFLAGS=$(OPT) $(DEBUG) -Wl,-subsystem,windows
 
 # Core libraries required for all builds
-LIBS = -lwsock32 -lws2_32 -lz -lpng -lSDL2 -lSDL2_mixer -lSDL2_ttf -lSDL2main -lzip -ldwarfstack
+LIBS = -lwsock32 -lws2_32 -lz -lpng -lSDL2 -lSDL2_mixer -lSDL2_ttf -lSDL2main -lzip
 
 # Optional libraries (dwarfstack is only available in MSYS2, not in cross-compilation)
 # To build with dwarfstack, use: make LIBS_OPTIONAL=-ldwarfstack
