@@ -119,6 +119,17 @@ clean:
 		-rm -rf astonia_net/target
 
 distrib:
+	@echo "Copying required dynamic libraries..."
+	@otool -L bin/moac | grep -E "($(BREW_PREFIX)|/usr/local|/opt/homebrew)" | awk '{print $$1}' | while read lib; do \
+		if [ -f "$$lib" ]; then \
+			cp -v "$$lib" bin/ || true; \
+		fi; \
+	done
+	@otool -L bin/libastonia_net.dylib | grep -E "($(BREW_PREFIX)|/usr/local|/opt/homebrew)" | awk '{print $$1}' | while read lib; do \
+		if [ -f "$$lib" ]; then \
+			cp -v "$$lib" bin/ || true; \
+		fi; \
+	done
 	tar czf macos_client.tar.gz --exclude='bin/*.dSYM' bin res
 
 amod:		bin/amod.dylib bin/moac

@@ -80,6 +80,17 @@ clean:
 		-rm -rf astonia_net/target
 
 distrib:
+	@echo "Copying required shared libraries..."
+	@ldd bin/moac | grep "=> /" | awk '{print $$3}' | while read lib; do \
+		if echo $$lib | grep -E "(libSDL2|libpng|libzip|libz\.so)" > /dev/null; then \
+			cp -v $$lib bin/ || true; \
+		fi; \
+	done
+	@ldd bin/libastonia_net.so | grep "=> /" | awk '{print $$3}' | while read lib; do \
+		if echo $$lib | grep -E "(libSDL2|libpng|libzip|libz\.so)" > /dev/null; then \
+			cp -v $$lib bin/ || true; \
+		fi; \
+	done
 	tar czf linux_client.tar.gz bin res
 
 amod:		bin/amod.so bin/moac
