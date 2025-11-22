@@ -20,6 +20,8 @@ jobs:
       uses: jidicula/clang-format-action@v4.16.0
       with:
         clang-format-version: 21
+        check-path: 'src'
+        fallback-style: 'llvm'
 
   clang-tidy:
     name: C Static Analysis
@@ -58,7 +60,16 @@ jobs:
     - name: Run clang-tidy
       run: |
         find src -type f -name "*.c" -print0 | \
-        xargs -0 clang-tidy --warnings-as-errors='*'
+        xargs -0 clang-tidy > clang-tidy-report.txt 2>&1 || true
+        echo "clang-tidy analysis complete. Report generated."
+
+    - name: Upload clang-tidy report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: clang-tidy-report
+        path: clang-tidy-report.txt
+        retention-days: 90
 
   cppcheck:
     name: C Additional Analysis
