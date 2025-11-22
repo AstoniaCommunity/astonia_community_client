@@ -1,0 +1,173 @@
+# Dockerfile for building Astonia AppImage
+# This creates a portable AppImage that works on any Linux distribution
+#
+# Build the AppImage:
+#   docker build -f Dockerfile.appimage -t astonia-appimage-build .
+#
+# Run it to create the AppImage:
+#   docker run --rm -v "$PWD:/output" astonia-appimage-build
+#
+# The AppImage will be created in your current directory.
+
+FROM cachyos/cachyos:latest
+
+ARG ZEN4=0
+
+# If ZEN4=1, append Zen4 repos to pacman.conf
+RUN if [ "$ZEN4" = "1" ]; then \
+      echo ">>> Enabling CachyOS Zen4 repos"; \
+      printf "\n[cachyos-znver4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n" >> /etc/pacman.conf; \
+      printf "\n[cachyos-core-znver4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n" >> /etc/pacman.conf; \
+      printf "\n[cachyos-extra-znver4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n" >> /etc/pacman.conf; \
+    fi
+
+# Upgrade system with auto-resolve enabled
+RUN pacman -Syyu --noconfirm --ask=4 --overwrite="*"
+
+# Add -march=znver4 only if ZEN4=1
+ENV EXTRA_ARCH_FLAGS=""
+RUN if [ "$ZEN4" = "1" ]; then \
+      EXTRA_ARCH_FLAGS="-march=znver4"; \
+      echo ">>> Using -march=znver4"; \
+    fi && \
+    echo "$EXTRA_ARCH_FLAGS" > /extra_arch
+
+ENV EXTRA_ARCH_FLAGS="$(cat /extra_arch)"
+
+
+# Install build dependencies
+RUN pacman -S --noconfirm --ask=4 --overwrite="*" \
+      base-devel \
+      clang \
+      binutils \
+      git \
+      curl \
+      wget \
+      file \
+      sdl3 \
+      sdl2-compat \
+      sdl2_mixer \
+      libpng \
+      libzip \
+      zlib \
+      patchelf \
+      desktop-file-utils \
+      fuse2 \
+      imagemagick \
+    && pacman -Scc --noconfirm
+
+# Install Rust
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+# Set working directory
+WORKDIR /build
+
+# Copy the project files
+COPY . .
+
+# Download linuxdeploy and appimagetool
+RUN wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage && \
+    chmod +x linuxdeploy-x86_64.AppImage && \
+    ./linuxdeploy-x86_64.AppImage --appimage-extract && \
+    mv squashfs-root linuxdeploy-root && \
+    rm linuxdeploy-x86_64.AppImage
+
+RUN wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage && \
+    chmod +x appimagetool-x86_64.AppImage && \
+    ./appimagetool-x86_64.AppImage --appimage-extract && \
+    mv squashfs-root appimagetool-root && \
+    rm appimagetool-x86_64.AppImage
+
+# Build the application
+RUN make linux && \
+    make linux amod && \
+    strip bin/moac && \
+    strip bin/libastonia_net.so && \
+    strip bin/amod.so
+
+# Create AppDir structure
+RUN mkdir -p AppDir/usr/bin && \
+    mkdir -p AppDir/usr/lib && \
+    mkdir -p AppDir/usr/share/astonia && \
+    cp bin/moac AppDir/usr/bin/ && \
+    cp bin/libastonia_net.so AppDir/usr/lib/ && \
+    cp bin/amod.so AppDir/usr/lib/ && \
+    cp -r res AppDir/usr/share/astonia/
+
+# Create wrapper script
+RUN printf '#!/bin/bash\n\
+# Get the AppImage'\''s AppDir location\n\
+APPDIR="${APPDIR:-$(cd "$(dirname "$0")/../.." && pwd)}"\n\
+\n\
+# Set library path\n\
+export LD_LIBRARY_PATH="$APPDIR/usr/lib:${LD_LIBRARY_PATH}"\n\
+\n\
+# Change to the resource directory\n\
+cd "$APPDIR/usr/share/astonia" || exit 1\n\
+\n\
+# Execute the actual binary\n\
+exec "$APPDIR/usr/bin/moac" "$@"\n' > AppDir/usr/bin/moac-wrapper && \
+    chmod +x AppDir/usr/bin/moac-wrapper
+
+# Create desktop file
+RUN printf '[Desktop Entry]\n\
+Type=Application\n\
+Name=Astonia Community Client\n\
+Comment=Community-maintained client for Astonia 3\n\
+Exec=moac-wrapper\n\
+Icon=astonia\n\
+Categories=Game;\n\
+Terminal=false\n' > AppDir/astonia.desktop && \
+    desktop-file-validate AppDir/astonia.desktop || true
+
+# Convert icon
+RUN convert res/moa3.ico[0] AppDir/astonia.png || cp res/moa3.ico AppDir/astonia.png
+
+# Deploy all dependencies but don't create AppImage yet
+# NO_STRIP=1 because we already stripped our binaries and linuxdeploy's strip is too old
+RUN LD_LIBRARY_PATH=/build/AppDir/usr/lib:$LD_LIBRARY_PATH \
+    NO_STRIP=1 \
+    ./linuxdeploy-root/AppRun \
+      --appdir=AppDir \
+      --executable=AppDir/usr/bin/moac \
+      --desktop-file=AppDir/astonia.desktop \
+      --icon-file=AppDir/astonia.png \
+      --library=AppDir/usr/lib/libastonia_net.so \
+      --library=AppDir/usr/lib/amod.so \
+      --library=/usr/lib/libSDL3.so.0 \
+      --library=/usr/lib/libSDL2-2.0.so.0 \
+      --library=/usr/lib/libSDL2_mixer-2.0.so.0
+
+# Now replace AppRun with our custom wrapper
+RUN printf '#!/bin/bash\n\
+# Get the AppImage'\''s AppDir location\n\
+APPDIR="${APPDIR:-$(cd "$(dirname "$0")" && pwd)}"\n\
+\n\
+# Set library path (linuxdeploy already set this up, but we ensure it'\''s there)\n\
+export LD_LIBRARY_PATH="$APPDIR/usr/lib:${LD_LIBRARY_PATH}"\n\
+\n\
+# Change to the resource directory\n\
+cd "$APPDIR/usr/share/astonia" || exit 1\n\
+\n\
+# Execute the actual binary\n\
+exec "$APPDIR/usr/bin/moac" "$@"\n' > AppDir/AppRun && \
+    chmod +x AppDir/AppRun
+
+# Create the final AppImage
+RUN ARCH=x86_64 ./appimagetool-root/AppRun AppDir astonia-client-x86_64.AppImage && \
+    ls -lh astonia-client-*.AppImage
+
+# Create a simple script to copy the AppImage to the output directory
+RUN echo '#!/bin/bash' > /entrypoint.sh && \
+    echo 'set -e' >> /entrypoint.sh && \
+    echo 'echo "Copying AppImage to /output..."' >> /entrypoint.sh && \
+    echo 'cp /build/astonia-client-*.AppImage /output/' >> /entrypoint.sh && \
+    echo 'chown ${HOST_UID:-1000}:${HOST_GID:-1000} /output/astonia-client-*.AppImage 2>/dev/null || true' >> /entrypoint.sh && \
+    echo 'echo "AppImage created successfully:"' >> /entrypoint.sh && \
+    echo 'ls -lh /output/astonia-client-*.AppImage' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+# Set the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+

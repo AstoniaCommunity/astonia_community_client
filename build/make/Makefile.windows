@@ -41,7 +41,7 @@ OPT=-O3
 DEBUG=-gdwarf-4
 SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
 SDL_PREFIX=$(shell $(SDL_CONFIG) --prefix)
-CFLAGS=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fno-omit-frame-pointer -fvisibility=hidden -DSTORE_UNIQUE -DENABLE_CRASH_HANDLER -DENABLE_SHAREDMEM -DENABLE_DRAGHACK $(SDL_CFLAGS) -I$(SDL_PREFIX)/include
+CFLAGS=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fno-omit-frame-pointer -flto -fvisibility=hidden -DSTORE_UNIQUE -DENABLE_CRASH_HANDLER -DENABLE_SHAREDMEM -DENABLE_DRAGHACK $(SDL_CFLAGS) -I$(SDL_PREFIX)/include
 LDFLAGS=$(OPT) $(DEBUG) -Wl,-subsystem,windows
 LDFLAGS_CONSOLE=$(OPT) $(DEBUG) -Wl,-subsystem,console
 

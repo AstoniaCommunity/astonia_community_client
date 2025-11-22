@@ -40,6 +40,37 @@ Or use Docker (no dependencies needed):
 make docker-linux
 ```
 
+### AppImage (Universal Linux Binary)
+
+Build a portable AppImage that runs on any Linux distribution:
+
+```bash
+make appimage
+```
+
+This creates `astonia-client.AppImage` which bundles all dependencies (including SDL3) and works on any modern Linux distribution without installation.
+
+**Requirements**: FUSE2 must be installed to run AppImages. Most distributions include it by default, but if needed:
+```bash
+# Arch Linux
+sudo pacman -S fuse2
+
+# Ubuntu/Debian
+sudo apt install libfuse2
+```
+
+To run the AppImage:
+```bash
+chmod +x astonia-client-*.AppImage
+./astonia-client-*.AppImage
+```
+
+Alternatively, extract and run without FUSE:
+```bash
+./astonia-client-*.AppImage --appimage-extract
+./squashfs-root/AppRun
+```
+
 ### macOS
 
 Install Xcode Command Line Tools:

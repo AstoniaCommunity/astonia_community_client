@@ -3,10 +3,16 @@ all: bin/moac
 SDL_CONFIG=sdl2-config
 CC=clang
 OPT=-O3
+EXTRA_ARCH_FLAGS ?=
+ifneq (,$(findstring znver4,$(EXTRA_ARCH_FLAGS)))
+RUST_CPU_FLAGS=-C target-cpu=znver4
+else
+RUST_CPU_FLAGS=
+endif
 DEBUG=-gdwarf-4
 SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
-CFLAGS=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) -Iinclude -Isrc
-CFLAGS_PIC=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) -Iinclude -Isrc
+CFLAGS=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
+CFLAGS_PIC=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,\$$ORIGIN
 
 SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
@@ -29,6 +35,7 @@ bin/moac:	$(OBJS) $(ASTONIA_NET_LIB)
 
 $(ASTONIA_NET_LIB):
 		rustup target add $(ASTONIA_NET_TGT)
+		export RUSTFLAGS="$(RUST_CPU_FLAGS)"
 		cargo build --release --manifest-path $(ASTONIA_NET_DIR)/Cargo.toml --target $(ASTONIA_NET_TGT)
 
 bin/amod.so:	src/amod/amod.o bin/moac
