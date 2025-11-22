@@ -15,7 +15,7 @@ void main_dump(FILE *fp)
 
 	fprintf(fp, "Main datadump:\n");
 
-	fprintf(fp, "game_options: %llu\n", game_options);
+	fprintf(fp, "game_options: %llu\n", (unsigned long long)game_options);
 	for (i = 0; i < 64; i++) {
 		tmp = 1llu << i;
 		if (game_options & tmp)

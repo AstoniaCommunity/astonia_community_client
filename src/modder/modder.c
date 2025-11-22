@@ -289,7 +289,7 @@ void amod_update_hover_texts(void)
 	}
 }
 
-int amod_client_cmd(char *buf)
+int amod_client_cmd(const char *buf)
 {
 	int ret = 0, tmp;
 	for (int i = 0; i < MAXMOD; i++)
@@ -309,14 +309,14 @@ int amod_display_skill_line(int v, int base, int curr, int cn, char *buf)
 	return 0;
 }
 
-int amod_process(char *buf)
+int amod_process(const char *buf)
 {
 	if (_amod_process)
 		return _amod_process(buf);
 	return 0;
 }
 
-int amod_prefetch(char *buf)
+int amod_prefetch(const char *buf)
 {
 	if (_amod_prefetch)
 		return _amod_prefetch(buf);

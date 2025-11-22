@@ -2706,6 +2706,13 @@ DLL_EXPORT uint32_t *sdl_load_png(char *filename, int *dx, int *dy)
 	pixel = xmalloc(xres * yres * sizeof(uint32_t), MEM_TEMP8);
 #endif
 
+	if (!pixel) {
+		fclose(fp);
+		png_destroy_read_struct(&png_ptr, &info_ptr, (png_infopp)NULL);
+		warn("failed to allocate memory for pixel buffer\n");
+		return NULL;
+	}
+
 	if (format == 4) {
 		for (y = 0; y < yres; y++) {
 			for (x = 0; x < xres; x++) {
@@ -2750,7 +2757,7 @@ SDL_Cursor *sdl_create_cursor(char *filename)
 {
 	FILE *fp;
 	unsigned char mask[128], data[128], buf[326];
-	unsigned char mask2[128 * 16], data2[128 * 16];
+	unsigned char mask2[128 * 16] = {0}, data2[128 * 16] = {0};
 
 	fp = fopen(filename, "rb");
 	if (!fp) {
@@ -2760,6 +2767,7 @@ SDL_Cursor *sdl_create_cursor(char *filename)
 
 	if (fread(buf, 1, 326, fp) != 326) {
 		warn("SDL Error: Read cursor file failed.\n");
+		fclose(fp);
 		return NULL;
 	}
 	fclose(fp);

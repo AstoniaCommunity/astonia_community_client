@@ -117,8 +117,11 @@ DLL_EXPORT int dd_copysprite_fx(DDFX *ddfx, int scrx, int scry)
 {
 	int stx;
 
+	// cppcheck-suppress nullPointerRedundantCheck
 	PARANOIA(if (!ddfx) paranoia("dd_copysprite_fx: ddfx=NULL");)
+	// cppcheck-suppress nullPointerRedundantCheck
 	PARANOIA(if (ddfx->light < 0 || ddfx->light > 16) paranoia("dd_copysprite_fx: ddfx->light=%d", ddfx->light);)
+	// cppcheck-suppress nullPointerRedundantCheck
 	PARANOIA(if (ddfx->freeze < 0 || ddfx->freeze >= DDFX_MAX_FREEZE)
 	        paranoia("dd_copysprite_fx: ddfx->freeze=%d", ddfx->freeze);)
 

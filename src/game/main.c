@@ -431,11 +431,18 @@ void *xrealloc(void *ptr, int size, int ID)
 
 	memused -= 8 + sizeof(memcheck) + mem->size + sizeof(memcheck);
 
-	mem = realloc(mem, 8 + sizeof(memcheck) + size + sizeof(memcheck));
-	if (!mem) {
+	struct memhead *new_mem = realloc(mem, 8 + sizeof(memcheck) + size + sizeof(memcheck));
+	if (!new_mem) {
+		// Restore counters since realloc failed
+		memsize[mem->ID] += mem->size;
+		memptrs[mem->ID] += 1;
+		memsize[0] += mem->size;
+		memptrs[0] += 1;
+		memused += 8 + sizeof(memcheck) + mem->size + sizeof(memcheck);
 		fail("xrealloc: OUT OF MEMORY !!!");
 		return NULL;
 	}
+	mem = new_mem;
 
 	memused += 8 + sizeof(memcheck) + size + sizeof(memcheck);
 
@@ -486,16 +493,24 @@ void *xrecalloc(void *ptr, int size, int ID)
 
 	memused -= 8 + sizeof(memcheck) + mem->size + sizeof(memcheck);
 
-	mem = realloc(mem, 8 + sizeof(memcheck) + size + sizeof(memcheck));
-	if (!mem) {
+	int old_size = mem->size;
+	struct memhead *new_mem = realloc(mem, 8 + sizeof(memcheck) + size + sizeof(memcheck));
+	if (!new_mem) {
+		// Restore counters since realloc failed
+		memsize[mem->ID] += old_size;
+		memptrs[mem->ID] += 1;
+		memsize[0] += old_size;
+		memptrs[0] += 1;
+		memused += 8 + sizeof(memcheck) + old_size + sizeof(memcheck);
 		fail("xrecalloc: OUT OF MEMORY !!!");
 		return NULL;
 	}
+	mem = new_mem;
 
 	memused += 8 + sizeof(memcheck) + size + sizeof(memcheck);
 
-	if (size - mem->size > 0) {
-		bzero(((unsigned char *)(mem)) + 8 + sizeof(memcheck) + mem->size, size - mem->size);
+	if (size - old_size > 0) {
+		bzero(((unsigned char *)(mem)) + 8 + sizeof(memcheck) + old_size, size - old_size);
 	}
 
 	mem->ID = ID;
@@ -545,6 +560,7 @@ void display_usage(void)
 	char *buf, *txt;
 
 	txt = buf = malloc(1024 * 8);
+	*buf = '\0'; // Initialize buffer
 	buf += sprintf(
 	    buf, "The Astonia Client can only be started from the command line or with a specially created shortcut.\n\n");
 	buf += sprintf(buf, "Usage: moac -u playername -p password -d url\n ... [-w width] [-h height]\n");
@@ -601,7 +617,7 @@ int parse_cmd(char *s)
 				while (isspace(*s))
 					s++;
 				n = 0;
-				while (n < 40 && *s && !isspace(*s))
+				while (n < 39 && *s && !isspace(*s))
 					username[n++] = *s++;
 				username[n] = 0;
 			} else if (tolower(*s) == 'p') { // -p <password>
@@ -609,7 +625,7 @@ int parse_cmd(char *s)
 				while (isspace(*s))
 					s++;
 				n = 0;
-				while (n < 16 && *s && !isspace(*s))
+				while (n < 15 && *s && !isspace(*s))
 					password[n++] = *s++;
 				password[n] = 0;
 			} else if (tolower(*s) == 'd') { // -d <server url>

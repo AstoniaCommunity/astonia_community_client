@@ -758,17 +758,24 @@ void set_map_values(struct map *cmap, int attick)
 
 static int trans_x(int frx, int fry, int tox, int toy, int step, int start)
 {
-	int x, y, dx, dy;
+	int x, y, dx, dy, abs_dx, abs_dy;
 
 	dx = (tox - frx);
 	dy = (toy - fry);
 
-	if (abs(dx) > abs(dy)) {
-		dy = dy * step / abs(dx);
-		dx = dx * step / abs(dx);
+	abs_dx = abs(dx);
+	abs_dy = abs(dy);
+
+	if (abs_dx > abs_dy) {
+		if (abs_dx > 0) {
+			dy = dy * step / abs_dx;
+			dx = dx * step / abs_dx;
+		}
 	} else {
-		dx = dx * step / abs(dy);
-		dy = dy * step / abs(dy);
+		if (abs_dy > 0) {
+			dx = dx * step / abs_dy;
+			dy = dy * step / abs_dy;
+		}
 	}
 
 	x = frx * 1024 + 512;
@@ -785,17 +792,24 @@ static int trans_x(int frx, int fry, int tox, int toy, int step, int start)
 
 static int trans_y(int frx, int fry, int tox, int toy, int step, int start)
 {
-	int x, y, dx, dy;
+	int x, y, dx, dy, abs_dx, abs_dy;
 
 	dx = (tox - frx);
 	dy = (toy - fry);
 
-	if (abs(dx) > abs(dy)) {
-		dy = dy * step / abs(dx);
-		dx = dx * step / abs(dx);
+	abs_dx = abs(dx);
+	abs_dy = abs(dy);
+
+	if (abs_dx > abs_dy) {
+		if (abs_dx > 0) {
+			dy = dy * step / abs_dx;
+			dx = dx * step / abs_dx;
+		}
 	} else {
-		dx = dx * step / abs(dy);
-		dy = dy * step / abs(dy);
+		if (abs_dy > 0) {
+			dx = dx * step / abs_dy;
+			dy = dy * step / abs_dy;
+		}
 	}
 
 	x = frx * 1024 + 512;

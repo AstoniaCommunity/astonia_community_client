@@ -1870,7 +1870,7 @@ void cmd_log(char *text)
 
 	buf[0] = CL_LOG;
 
-	for (len = 0; text[len] && len < 254; len++)
+	for (len = 0; len < 254 && text[len]; len++)
 		buf[len + 2] = text[len];
 
 	buf[2 + len] = 0;
@@ -2017,10 +2017,10 @@ int close_client(void)
 }
 
 #define MAXPASSWORD 16
-void decrypt(char *name, char *password)
+void decrypt(const char *name, char *password)
 {
 	int i;
-	static char secret[4][MAXPASSWORD] = {"\000cgf\000de8etzdf\000dx", "jrfa\000v7d\000drt\000edm",
+	static const char secret[4][MAXPASSWORD] = {"\000cgf\000de8etzdf\000dx", "jrfa\000v7d\000drt\000edm",
 	    "t6zh\000dlr\000fu4dms\000", "jkdm\000u7z5g\000j77\000g"};
 
 	for (i = 0; i < MAXPASSWORD; i++) {
@@ -2307,7 +2307,7 @@ int next_tick(void)
 		size = ticksize - indone;
 		memcpy(queue[q_in].buf, inbuf + indone, size);
 	}
-	attick = queue[q_in].size = size;
+	queue[q_in].size = size;
 
 	auto_tick(map2);
 	attick = prefetch(queue[q_in].buf, queue[q_in].size);

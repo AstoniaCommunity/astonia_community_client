@@ -111,7 +111,7 @@ void play_sdl_sound(int nr, int distance, int angle)
 	if (!(game_options & GO_SOUND))
 		return;
 
-	if (nr < 1 || nr >= sfx_name_cnt)
+	if (nr < 1 || nr >= sfx_name_cnt || nr >= MAXSOUND)
 		return;
 
 	// For debugging/optimization

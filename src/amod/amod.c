@@ -38,7 +38,7 @@ DLL_EXPORT void amod_gamestart(void)
 	note("Restart Client Demo v0.4 loaded.");
 }
 
-DLL_EXPORT int amod_client_cmd(char *buf)
+DLL_EXPORT int amod_client_cmd(const char *buf)
 {
 	static unsigned long long option_ovr = 0;
 
@@ -96,7 +96,7 @@ DLL_EXPORT int amod_is_playersprite(int sprite)
 }
 
 
-DLL_EXPORT int amod_process(char *buf)
+DLL_EXPORT int amod_process(const char *buf)
 {
 	switch (buf[0]) {
 	case SV_MOD1:
@@ -105,7 +105,7 @@ DLL_EXPORT int amod_process(char *buf)
 	}
 	return 0;
 }
-DLL_EXPORT int amod_prefetch(char *buf)
+DLL_EXPORT int amod_prefetch(const char *buf)
 {
 	switch (buf[0]) {
 	case SV_MOD1:

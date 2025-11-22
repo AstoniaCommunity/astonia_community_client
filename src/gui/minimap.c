@@ -353,11 +353,13 @@ static void map_save(void)
 	filename = mapname(mapnr);
 	// note("saving area map to %s",filename);
 	fp = fopen(filename, "wb");
-	fwrite(_mmap, sizeof(_mmap), 1, fp);
-	fclose(fp);
+	if (fp) {
+		fwrite(_mmap, sizeof(_mmap), 1, fp);
+		fclose(fp);
+	}
 }
 
-static int map_compare(char *tmap, char *xmap)
+static int map_compare(const char *tmap, const char *xmap)
 {
 	int i, hit, miss;
 
@@ -385,7 +387,7 @@ static int map_compare(char *tmap, char *xmap)
 	return hit;
 }
 
-static void map_merge(char *xmap, char *tmap)
+static void map_merge(char *xmap, const char *tmap)
 {
 	int i;
 

@@ -19,9 +19,9 @@ int amod_keydown(int key);
 int amod_keyup(int key);
 int amod_textinput(int key);
 void amod_update_hover_texts(void);
-int amod_client_cmd(char *buf);
-int amod_process(char *buf);
-int amod_prefetch(char *buf);
+int amod_client_cmd(const char *buf);
+int amod_process(const char *buf);
+int amod_prefetch(const char *buf);
 int amod_is_playersprite(int sprite);
 
 int sharedmem_init(void);

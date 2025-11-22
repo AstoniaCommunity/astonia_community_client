@@ -194,7 +194,7 @@ DLL_EXPORT char *game_skilldesc[] = {
 
 DLL_EXPORT int get_skltab_index(int n)
 {
-	static int itab[] = {
+	static const int itab[] = {
 	    -1, 0, 1, 2, // powers
 	    3, 4, 5, 6, // bases
 	    7, 8, 9, 10, 38, 41, // armor etc

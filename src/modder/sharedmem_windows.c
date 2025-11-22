@@ -33,6 +33,7 @@ static void random_dungeon_tracker(void)
 {
 	sm->base = (char *)GetModuleHandle(NULL);
 
+	// cppcheck-suppress comparePointers
 	if ((char *)&originx < (char *)&originy) {
 		sm->key = (char *)&originx - sm->base;
 		sm->swapped = 0;

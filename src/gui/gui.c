@@ -1878,7 +1878,7 @@ static void set_cmd_states(void)
 
 	sprintf(buf, "%s - Astonia 3 v%d.%d.%d - (%s:%u)",
 	    (map[plrmn].cn && player[map[plrmn].cn].name[0]) ? player[map[plrmn].cn].name : "Someone",
-	    (VERSION >> 16) & 255, (VERSION >> 8) & 255, (VERSION) & 255, target_server, target_port);
+	    (VERSION >> 16) & 255, (VERSION >> 8) & 255, (VERSION) & 255, target_server, (unsigned int)target_port);
 	if (strcmp(title, buf)) {
 		strcpy(title, buf);
 		sdl_set_title(title);

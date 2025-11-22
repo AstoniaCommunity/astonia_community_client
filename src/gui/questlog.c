@@ -199,7 +199,7 @@ DLL_EXPORT int _do_display_random(void)
 	for (n = 1; n < 10; n++) {
 		m = n + 30;
 		idx = m / 32;
-		bit = 1 << (m & 31);
+		bit = 1U << (m & 31);
 		if (shrine.used[idx] & bit) {
 			x = dd_drawtext(x, y, graycolor, 0, "- ");
 		} else {
