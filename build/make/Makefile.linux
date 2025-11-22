@@ -79,19 +79,21 @@ clean:
 		-rm -f src/*/*.o bin/moac bin/*.so bin/convert bin/anicopy
 		-rm -rf astonia_net/target
 
-distrib:
-	@echo "Copying required shared libraries..."
-	@ldd bin/moac | grep "=> /" | awk '{print $$3}' | while read lib; do \
-		if echo $$lib | grep -E "(libSDL2|libpng|libzip|libz\.so)" > /dev/null; then \
-			cp -v $$lib bin/ || true; \
-		fi; \
+distrib: bin/moac
+	@echo "Copying shared library dependencies to bin/..."
+	@# Copy main dependencies (SDL2, SDL2_mixer, libpng, libzip)
+	@ldd bin/moac | grep -E "libSDL2|libpng|libzip" | awk '{print $$3}' | xargs -I {} cp -v {} bin/ 2>/dev/null || true
+	@# Check if SDL2-compat is used (i.e., libSDL2 depends on libSDL3) and bundle SDL3 if so
+	@for lib in bin/libSDL2-*.so*; do \
+	    if ldd "$$lib" 2>/dev/null | grep -q "libSDL3"; then \
+	        echo "SDL2-compat detected. Bundling libSDL3."; \
+	        ldd "$$lib" | grep libSDL3 | awk '{print $$3}' | xargs -I {} cp -v {} bin/ 2>/dev/null || true; \
+	        break; \
+	    fi; \
 	done
-	@ldd bin/libastonia_net.so | grep "=> /" | awk '{print $$3}' | while read lib; do \
-		if echo $$lib | grep -E "(libSDL2|libpng|libzip|libz\.so)" > /dev/null; then \
-			cp -v $$lib bin/ || true; \
-		fi; \
-	done
+	@# Create tarball with binary, libraries, and resources
 	tar czf linux_client.tar.gz bin res
+	@echo "Distribution package created: linux_client.tar.gz"
 
 amod:		bin/amod.so bin/moac
 convert:	bin/convert
