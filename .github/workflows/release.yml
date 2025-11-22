@@ -148,7 +148,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        brew install sdl2 sdl2_mixer libpng libzip zlib
+        brew install sdl2 sdl2_mixer libzip zlib
 
     - name: Setup Rust
       uses: actions-rust-lang/setup-rust-toolchain@v1
