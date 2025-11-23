@@ -71,13 +71,13 @@ echo "  - gcovr, lcov (code coverage)"\n\
 echo "  - zig (build system)"\n\
 echo ""\n\
 echo "Quick commands:"\n\
-echo "  make linux              - Build for Linux"\n\
-echo "  make sanitizer          - Build with AddressSanitizer"\n\
-echo "  make coverage           - Build with coverage"\n\
-echo "  ./run-valgrind.sh       - Run with Valgrind checks"\n\
-echo "  ./run-sanitizer.sh      - Run with AddressSanitizer"\n\
-echo "  ./run-coverage.sh       - Generate coverage report"\n\
-echo "  ./run-clang-tidy.sh fix - Run clang-tidy with fixes"\n\
+echo "  make linux                    - Build for Linux"\n\
+echo "  make sanitizer                - Build with AddressSanitizer"\n\
+echo "  make coverage                 - Build with coverage"\n\
+echo "  scripts/run-valgrind.sh       - Run with Valgrind checks"\n\
+echo "  scripts/run-sanitizer.sh      - Run with AddressSanitizer"\n\
+echo "  scripts/run-coverage.sh       - Generate coverage report"\n\
+echo "  scripts/run-clang-tidy.sh fix - Run clang-tidy with fixes"\n\
 echo ""\n\
 exec /bin/bash "$@"\n' > /usr/local/bin/dev-shell.sh && \
     chmod +x /usr/local/bin/dev-shell.sh
