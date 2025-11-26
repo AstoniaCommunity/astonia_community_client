@@ -7,20 +7,20 @@
  *
  */
 
-#include "../../src/dll.h"
-#include "../../include/astonia_net.h"
+#include "dll.h"
+#include "astonia_net.h"
 #include <SDL2/SDL_timer.h>
 #include <time.h>
 #include <zlib.h>
 #include <SDL2/SDL.h>
 
-#include "../../src/astonia.h"
-#include "../../src/client.h"
-#include "../../src/client/_client.h"
-#include "../../src/sdl.h"
-#include "../../src/sdl/_sdl.h"
-#include "../../src/gui.h"
-#include "../../src/modder.h"
+#include "astonia.h"
+#include "client.h"
+#include "client/_client.h"
+#include "sdl.h"
+#include "sdl/_sdl.h"
+#include "gui.h"
+#include "modder.h"
 
 int display_gfx = 0, display_time = 0;
 static int rec_bytes = 0;

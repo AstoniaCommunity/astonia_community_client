@@ -12,13 +12,13 @@
 #include <time.h>
 #include <SDL2/SDL.h>
 
-#include "../../src/astonia.h"
-#include "../../src/gui.h"
-#include "../../src/gui/_gui.h"
-#include "../../src/client.h"
-#include "../../src/game.h"
-#include "../../src/sdl.h"
-#include "../../src/modder.h"
+#include "astonia.h"
+#include "gui.h"
+#include "gui/_gui.h"
+#include "client.h"
+#include "game.h"
+#include "sdl.h"
+#include "modder.h"
 
 uint64_t gui_time_misc = 0;
 
@@ -955,7 +955,7 @@ static void display(void)
 	context_display(mousex, mousey);
 	display_helpandquest(); // display last because it is on top
 
-display_graphs:
+display_graphs:;
 
 	int duration = SDL_GetTicks64() - start;
 
@@ -1948,31 +1948,29 @@ void set_cmd_consel(void)
 	}
 }
 
-static void set_cmd_states(void)
+static void update_ui_layout(void)
 {
-	int i, c, x, y;
-	static int oldconcnt = 0; // ;-)
-	static char title[256];
-	char buf[256];
+	static int last_con_cnt = 0;
 
-	set_cmd_key_states();
-	set_map_values(map, tick);
-	set_mapadd(-map[mapmn(MAPDX / 2, MAPDY / 2)].xadd, -map[mapmn(MAPDX / 2, MAPDY / 2)].yadd);
-
-	// update
 	if (update_skltab) {
 		set_skltab();
 		update_skltab = 0;
 	}
-	if (oldconcnt != con_cnt) {
+	if (last_con_cnt != con_cnt) {
 		conoff = 0;
 		max_conoff = (con_cnt / CONDX) - CONDY;
-		oldconcnt = con_cnt;
+		last_con_cnt = con_cnt;
 		set_conoff(0, conoff);
 		set_skloff(0, skloff);
 	}
 	max_invoff = ((INVENTORYSIZE - 30) / INVDX) - INVDY;
 	set_button_flags();
+}
+
+static void update_window_title(void)
+{
+	static char title[256];
+	char buf[256];
 
 	plrmn = mapmn(MAPDX / 2, MAPDY / 2);
 
@@ -1983,8 +1981,11 @@ static void set_cmd_states(void)
 		strcpy(title, buf);
 		sdl_set_title(title);
 	}
+}
 
-	// update fkeyitem
+static void update_fkeyitems(void)
+{
+	int i, c;
 	fkeyitem[0] = fkeyitem[1] = fkeyitem[2] = fkeyitem[3] = 0;
 	for (i = 30; i < INVENTORYSIZE; i++) {
 		c = (i - 2) % 4;
@@ -1992,10 +1993,11 @@ static void set_cmd_states(void)
 			fkeyitem[c] = i;
 		}
 	}
+}
 
-	// a button captured - we leave all as is was (i know it's hard to update before, but i have to for the scrollbars)
+static int handle_captured_button(void)
+{
 	if (capbut != -1) {
-		// some very simple stuff is right here
 		if (capbut == BUT_GLD) {
 			takegold += (mousedy / 2) * (mousedy / 2) * (mousedy <= 0 ? 1 : -1);
 
@@ -2008,10 +2010,15 @@ static void set_cmd_states(void)
 
 			mousedy = 0;
 		}
-		return;
+		return 1;
 	}
+	return 0;
+}
 
-	// reset
+static void detect_hover_target(void)
+{
+	int i, x, y;
+
 	butsel = mapsel = itmsel = chrsel = invsel = weasel = consel = sklsel = sklsel2 = telsel = helpsel = colsel =
 	    skl_look_sel = questsel = actsel = -1;
 
@@ -2037,11 +2044,11 @@ static void set_cmd_states(void)
 			}
 
 			if (display_quest && mousex >= dotx(DOT_HLP) + 165 && mousex <= dotx(DOT_HLP) + 199) {
-				int tmp, y;
+				int tmp, qy;
 
 				tmp = (mousey - (doty(DOT_HLP) + 16)) / 40;
-				y = tmp * 40 + doty(DOT_HLP) + 16;
-				if (tmp >= 0 && tmp <= 8 && mousey >= y && mousey <= y + 10) {
+				qy = tmp * 40 + doty(DOT_HLP) + 16;
+				if (tmp >= 0 && tmp <= 8 && mousey >= qy && mousey <= qy + 10) {
 					int qos = questonscreen[tmp];
 					if ((qos != -1) && (game_questlog[qos].flags & QLF_REPEATABLE) && (quest[qos].flags & QF_DONE) &&
 					    quest[qos].done < 10) {
@@ -2175,13 +2182,16 @@ static void set_cmd_states(void)
 			sklsel = skloff + butsel - BUT_SKL_BEG;
 		}
 	}
+}
 
-	// set lcmd
+static void calculate_lcmd_logic(void)
+{
 	lcmd = CMD_NONE;
 
 	if (context_key_set_cmd())
-		;
-	else if (action_ovr != -1) {
+		return;
+	
+	if (action_ovr != -1) {
 		if (action_ovr == 0 && chrsel != -1) {
 			lcmd = CMD_CHR_ATTACK;
 		} else if (action_ovr == 1 && chrsel != -1) {
@@ -2238,21 +2248,10 @@ static void set_cmd_states(void)
 			lcmd = CMD_CHR_GIVE;
 		}
 	}
+}
 
-	set_cmd_invsel();
-	set_cmd_weasel();
-	set_cmd_consel();
-
-	if (telsel != -1) {
-		lcmd = CMD_TELEPORT;
-	}
-	if (colsel != -1) {
-		lcmd = CMD_COLOR;
-	}
-	if (actsel != -1) {
-		lcmd = CMD_ACTION;
-	}
-
+static void handle_special_buttons_logic(void)
+{
 	if (lcmd == CMD_NONE) {
 		if (butsel == BUT_SCR_UP) {
 			lcmd = CMD_INV_OFF_UP;
@@ -2349,8 +2348,10 @@ static void set_cmd_states(void)
 			lcmd = CMD_WEAR_LOCK;
 		}
 	}
+}
 
-	// set rcmd
+static void calculate_rcmd_logic(void)
+{
 	rcmd = CMD_NONE;
 	if (action_ovr == -1) {
 		skl_look_sel = get_skl_look(mousex, mousey);
@@ -2398,7 +2399,10 @@ static void set_cmd_states(void)
 	} else {
 		rcmd = CMD_ACTION_CANCEL;
 	}
+}
 
+static void apply_gear_lock_logic(void)
+{
 	if (gear_lock) { // gear lock resets cmds to none if on
 		// no fast-equip from inventory
 		if (invsel != -1 && lcmd == CMD_INV_USE && !(item_flags[invsel] & IF_USE)) {
@@ -2424,6 +2428,44 @@ static void set_cmd_states(void)
 			rcmd = CMD_NONE;
 		}
 	}
+}
+
+static void set_cmd_states(void)
+{
+	set_cmd_key_states();
+	set_map_values(map, tick);
+	set_mapadd(-map[mapmn(MAPDX / 2, MAPDY / 2)].xadd, -map[mapmn(MAPDX / 2, MAPDY / 2)].yadd);
+
+	update_ui_layout();
+	update_window_title();
+	update_fkeyitems();
+
+	if (handle_captured_button()) {
+		return;
+	}
+
+	detect_hover_target();
+
+	calculate_lcmd_logic();
+	
+	set_cmd_invsel();
+	set_cmd_weasel();
+	set_cmd_consel();
+
+	if (telsel != -1) {
+		lcmd = CMD_TELEPORT;
+	}
+	if (colsel != -1) {
+		lcmd = CMD_COLOR;
+	}
+	if (actsel != -1) {
+		lcmd = CMD_ACTION;
+	}
+
+	handle_special_buttons_logic();
+
+	calculate_rcmd_logic();
+	apply_gear_lock_logic();
 
 	// set cursor
 	if (vk_rbut) {
