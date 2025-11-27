@@ -90,3 +90,87 @@ int sdl_create_cursors(void);
 struct png_helper;
 int png_load_helper(struct png_helper *p);
 void png_load_helper_exit(struct png_helper *p);
+
+// ============================================================================
+// Shared variables from sdl_core.c
+// ============================================================================
+extern SDL_Window *sdlwnd;
+extern SDL_Renderer *sdlren;
+extern zip_t *sdl_zip1;
+extern zip_t *sdl_zip2;
+extern zip_t *sdl_zip1p;
+extern zip_t *sdl_zip2p;
+extern zip_t *sdl_zip1m;
+extern zip_t *sdl_zip2m;
+extern SDL_sem *prework;
+extern SDL_mutex *premutex;
+extern int pre_in, pre_1, pre_2, pre_3;
+
+// ============================================================================
+// Shared variables from sdl_texture.c
+// ============================================================================
+extern struct sdl_texture *sdlt;
+extern int sdlt_best, sdlt_last;
+extern int *sdlt_cache;
+extern struct sdl_image *sdli;
+
+extern int texc_used;
+extern long long mem_png, mem_tex;
+extern long long texc_hit, texc_miss, texc_pre;
+
+extern long long sdl_time_preload;
+extern long long sdl_time_make;
+extern long long sdl_time_make_main;
+extern long long sdl_time_load;
+extern long long sdl_time_alloc;
+extern long long sdl_time_tex;
+extern long long sdl_time_tex_main;
+extern long long sdl_time_text;
+extern long long sdl_time_blit;
+extern long long sdl_time_pre1;
+extern long long sdl_time_pre2;
+extern long long sdl_time_pre3;
+
+extern int maxpanic;
+
+// ============================================================================
+// Internal functions from sdl_texture.c
+// ============================================================================
+void sdl_tx_best(int stx);
+int sdl_tx_load(int sprite, int sink, int freeze, int scale, int cr, int cg, int cb, int light, int sat, int c1, int c2,
+    int c3, int shine, int ml, int ll, int rl, int ul, int dl, const char *text, int text_color, int text_flags,
+    void *text_font, int checkonly, int preload, int fortick);
+
+#ifdef DEVELOPER
+void sdl_dump_spritecache(void);
+#endif
+
+// ============================================================================
+// Internal functions from sdl_image.c
+// ============================================================================
+uint32_t mix_argb(uint32_t c1, uint32_t c2, float w1, float w2);
+void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale);
+void sdl_premulti(uint32_t *pixel, int xres, int yres, int scale);
+void png_helper_read(png_structp ps, png_bytep buf, png_size_t len);
+int sdl_load_image_png_(struct sdl_image *si, char *filename, zip_t *zip);
+int sdl_load_image_png(struct sdl_image *si, char *filename, zip_t *zip, int smoothify);
+int do_smoothify(int sprite);
+int sdl_load_image(struct sdl_image *si, int sprite);
+int sdl_ic_load(int sprite);
+void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload);
+
+// ============================================================================
+// Internal functions from sdl_effects.c
+// ============================================================================
+uint32_t sdl_light(int light, uint32_t irgb);
+uint32_t sdl_freeze(int freeze, uint32_t irgb);
+uint32_t sdl_shine_pix(uint32_t irgb, unsigned short shine);
+uint32_t sdl_colorize_pix(uint32_t irgb, unsigned short c1v, unsigned short c2v, unsigned short c3v);
+uint32_t sdl_colorize_pix2(uint32_t irgb, unsigned short c1v, unsigned short c2v, unsigned short c3v, int x,
+    int y, int xres, int yres, uint32_t *pixel, int sprite);
+uint32_t sdl_colorbalance(uint32_t irgb, char cr, char cg, char cb, char light, char sat);
+
+// ============================================================================
+// Internal functions from sdl_draw.c
+// ============================================================================
+SDL_Texture *sdl_maketext(const char *text, struct ddfont *font, uint32_t color, int flags);
