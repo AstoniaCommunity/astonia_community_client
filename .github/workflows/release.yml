@@ -51,15 +51,15 @@ jobs:
           strip bin/moac
           strip bin/libastonia_net.so
 
-      - name: Create distribution package
-        run: make distrib
+      - name: Prepare distribution staging
+        run: make distrib-stage
 
-      - name: Upload distribution
+      - name: Upload distribution staging
         uses: actions/upload-artifact@v4
         with:
-          name: linux-release
-          path: linux_client.tar.gz
-          retention-days: 90
+          name: linux-staging
+          path: distrib/linux_client/
+          retention-days: 7
 
   build-windows-release:
     name: Build Windows Release
@@ -100,7 +100,6 @@ jobs:
             mingw-w64-clang-x86_64-libzip
             mingw-w64-clang-x86_64-dwarfstack
             make
-            zip
 
       - name: Build release
         run: make windows
@@ -113,15 +112,15 @@ jobs:
           strip bin/moac.exe
           strip bin/astonia_net.dll
 
-      - name: Create distribution package
-        run: make distrib
+      - name: Prepare distribution staging
+        run: make distrib-stage
 
-      - name: Upload distribution
+      - name: Upload distribution staging
         uses: actions/upload-artifact@v4
         with:
-          name: windows-release
-          path: windows_client.zip
-          retention-days: 90
+          name: windows-staging
+          path: distrib/windows_client/
+          retention-days: 7
 
   build-macos-release:
     name: Build macOS Release
@@ -157,15 +156,15 @@ jobs:
           strip bin/moac
           strip -x bin/libastonia_net.dylib
 
-      - name: Create distribution package
-        run: make distrib
+      - name: Prepare distribution staging
+        run: make distrib-stage
 
-      - name: Upload distribution
+      - name: Upload distribution staging
         uses: actions/upload-artifact@v4
         with:
-          name: macos-release
-          path: macos_client.tar.gz
-          retention-days: 90
+          name: macos-staging
+          path: distrib/macos_client/
+          retention-days: 7
 
   build-appimage-release:
     name: Build AppImage Release
@@ -189,7 +188,7 @@ jobs:
         with:
           name: appimage-release
           path: astonia-client.AppImage
-          retention-days: 90
+          retention-days: 7
 
   create-release:
     name: Create GitHub Release
@@ -205,28 +204,41 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-
-      - name: Download Linux release
+      - name: Download Linux staging
         uses: actions/download-artifact@v4
         with:
-          name: linux-release
+          name: linux-staging
+          path: linux_client
 
-      - name: Download Windows release
+      - name: Download Windows staging
         uses: actions/download-artifact@v4
         with:
-          name: windows-release
+          name: windows-staging
+          path: windows_client
 
-      - name: Download macOS release
+      - name: Download macOS staging
         uses: actions/download-artifact@v4
         with:
-          name: macos-release
+          name: macos-staging
+          path: macos_client
 
-      - name: Download Linux AppImage release
+      - name: Download AppImage
         uses: actions/download-artifact@v4
         with:
           name: appimage-release
+
+      - name: Create distribution archives
+        run: |
+          tar czf linux_client.tar.gz linux_client
+          zip -q -r windows_client.zip windows_client
+          tar czf macos_client.tar.gz macos_client
+
+      - name: Generate checksums
+        run: |
+          sha256sum linux_client.tar.gz > checksums.txt
+          sha256sum windows_client.zip >> checksums.txt
+          sha256sum macos_client.tar.gz >> checksums.txt
+          sha256sum astonia-client.AppImage >> checksums.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -236,6 +248,7 @@ jobs:
             windows_client.zip
             macos_client.tar.gz
             astonia-client.AppImage
+            checksums.txt
           draft: false
           prerelease: false
           generate_release_notes: true

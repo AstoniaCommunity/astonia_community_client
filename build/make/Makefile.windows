@@ -204,7 +204,7 @@ bin/moac_dbg.exe lib/moac_dbg.a:	$(OBJS) $(ASTONIA_NET_LIB)
 			$(CC) $(LDFLAGS_CONSOLE) -Wl,--out-implib,lib/moac_dbg.a -o bin/moac_dbg.exe $(OBJS) $(ASTONIA_NET_LIB) $(LIBS)
 
 $(ASTONIA_NET_LIB):
-			cargo build --release --manifest-path $(ASTONIA_NET_DIR)/Cargo.toml --target $(ASTONIA_NET_TGT)
+			cd $(ASTONIA_NET_DIR) && cargo build --release --target $(ASTONIA_NET_TGT)
 
 bin/amod.dll:		src/amod/amod.o lib/moac.a
 			$(CC) $(LDFLAGS) $(OPT) $(DEBUG) -shared -o bin/amod.dll src/amod/amod.o lib/moac.a
@@ -301,14 +301,22 @@ clean:
 	-rm -f .clang-tidy-*
 	@echo "Cleaning Rust artifacts..."
 	-rm -rf astonia_net/target
+	@echo "Cleaning distribution artifacts..."
+	-rm -rf distrib
+	-rm -f windows_client.zip
 
-distrib:
-	@echo "Copying required DLLs to bin directory..."
-	@# Function to recursively find and copy DLL dependencies
-	@# Create a temporary file to track processed DLLs
+# Prepare distribution staging directory
+distrib-stage:
+	@echo "Preparing Windows distribution staging..."
+	@mkdir -p distrib/windows_client/bin
 	@rm -f /tmp/dll_processed.txt
 	@touch /tmp/dll_processed.txt
-	@# Copy initial DLLs and recursively find their dependencies
+	@echo "Copying binaries and resources..."
+	@cp -r bin/* distrib/windows_client/bin/
+	@cp -r res distrib/windows_client/
+	@cp create_shortcut.bat distrib/windows_client/
+	@cp eula.txt distrib/windows_client/
+	@echo "Collecting DLL dependencies..."
 	@bash -c ' \
 		process_dll() { \
 			local dll_path="$$1"; \
@@ -319,7 +327,7 @@ distrib:
 			echo "$$dll_name" >> /tmp/dll_processed.txt; \
 			if [ -f "$$dll_path" ]; then \
 				echo "  Copying $$dll_name..."; \
-				cp "$$dll_path" bin/ 2>/dev/null || true; \
+				cp "$$dll_path" distrib/windows_client/bin/ 2>/dev/null || true; \
 				x86_64-w64-mingw32-objdump -p "$$dll_path" 2>/dev/null | grep "DLL Name:" | awk "{print \$$3}" | while read dep_dll; do \
 					dep_path=$$(find $(SYSROOT) -name "$$dep_dll" 2>/dev/null | head -n1); \
 					if [ -n "$$dep_path" ]; then \
@@ -329,7 +337,7 @@ distrib:
 			fi; \
 		}; \
 		export -f process_dll; \
-		x86_64-w64-mingw32-objdump -p bin/moac.exe 2>/dev/null | grep "DLL Name:" | awk "{print \$$3}" | while read dll; do \
+		x86_64-w64-mingw32-objdump -p distrib/windows_client/bin/moac.exe 2>/dev/null | grep "DLL Name:" | awk "{print \$$3}" | while read dll; do \
 			dll_path=$$(find $(SYSROOT) -name "$$dll" 2>/dev/null | head -n1); \
 			if [ -n "$$dll_path" ]; then \
 				process_dll "$$dll_path"; \
@@ -338,8 +346,12 @@ distrib:
 		process_dll "$(ASTONIA_NET_DIR)/target/$(ASTONIA_NET_TGT)/release/astonia_net.dll"; \
 	'
 	@rm -f /tmp/dll_processed.txt
+	@echo "Windows distribution staging complete: distrib/windows_client/"
+
+# Legacy target for local development (creates archive)
+distrib: distrib-stage
 	@echo "Creating distribution archive..."
-	@zip -q windows_client.zip -r bin res create_shortcut.bat eula.txt
+	@cd distrib && zip -q -r ../windows_client.zip windows_client
 	@echo "Distribution package created: windows_client.zip"
 
 
