@@ -131,9 +131,24 @@ clean:
 	-rm -f .clang-tidy-*
 	@echo "Cleaning Rust artifacts..."
 	-rm -rf astonia_net/target
+	@echo "Cleaning distribution artifacts..."
+	-rm -rf distrib
+	-rm -f linux_client.tar.gz
 
-distrib:
-	tar czf linux_client.tar.gz bin res
+# Prepare distribution staging directory
+distrib-stage:
+	@echo "Preparing Linux distribution staging..."
+	@mkdir -p distrib/linux_client
+	@echo "Copying binaries and resources..."
+	@cp -r bin distrib/linux_client/
+	@cp -r res distrib/linux_client/
+	@echo "Linux distribution staging complete: distrib/linux_client/"
+
+# Legacy target for local development (creates archive)
+distrib: distrib-stage
+	@echo "Creating distribution archive..."
+	@cd distrib && tar czf ../linux_client.tar.gz linux_client
+	@echo "Distribution package created: linux_client.tar.gz"
 
 amod:		bin/amod.so bin/moac
 convert:	bin/convert

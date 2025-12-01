@@ -162,9 +162,26 @@ clean:
 	-rm -f .clang-tidy-*
 	@echo "Cleaning Rust artifacts..."
 	-rm -rf astonia_net/target
+	@echo "Cleaning distribution artifacts..."
+	-rm -rf distrib
+	-rm -f macos_client.tar.gz
 
-distrib:
-	tar czf macos_client.tar.gz --exclude='bin/*.dSYM' bin res
+# Prepare distribution staging directory
+distrib-stage:
+	@echo "Preparing macOS distribution staging..."
+	@mkdir -p distrib/macos_client
+	@echo "Copying binaries and resources..."
+	@cp -r bin distrib/macos_client/
+	@cp -r res distrib/macos_client/
+	@echo "Removing debug symbols..."
+	@find distrib/macos_client/bin -name "*.dSYM" -exec rm -rf {} + 2>/dev/null || true
+	@echo "macOS distribution staging complete: distrib/macos_client/"
+
+# Legacy target for local development (creates archive)
+distrib: distrib-stage
+	@echo "Creating distribution archive..."
+	@cd distrib && tar czf ../macos_client.tar.gz macos_client
+	@echo "Distribution package created: macos_client.tar.gz"
 
 amod:		bin/amod.dylib bin/moac
 convert:	bin/convert

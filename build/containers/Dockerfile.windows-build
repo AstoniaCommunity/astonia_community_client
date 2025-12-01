@@ -43,7 +43,8 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup target add x86_64-pc-windows-gnullvm
 
-# Note: Cargo config for Windows cross-compilation is already in astonia_net/.cargo/config.toml
+# Note: Cargo config for Windows cross-compilation is in astonia_net/.cargo/config.toml
+# The Makefile invokes cargo from within the astonia_net directory to ensure it picks up the config
 
 # Create sdl2-config wrapper for the build environment
 RUN mkdir -p /clang64/bin && \

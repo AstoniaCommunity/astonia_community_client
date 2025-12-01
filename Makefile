@@ -96,6 +96,11 @@ clean:
 	@echo "Cleaning all platforms..."
 	@$(foreach platform,$(ALL_PLATFORMS),$(MAKE) -f build/make/Makefile.$(platform) clean 2>/dev/null || true;)
 
+# Distribution staging target (delegates to platform-specific Makefile)
+distrib-stage:
+	@echo "Preparing distribution staging for $(PLATFORM)..."
+	@$(MAKE) -f build/make/Makefile.$(PLATFORM) distrib-stage
+
 # Distribution target (delegates to platform-specific Makefile)
 distrib:
 	@echo "Creating distribution for $(PLATFORM)..."
@@ -180,4 +185,4 @@ docker-distrib-linux:
 # Include quality checks makefile (see build/make/Makefile.quality)
 include build/make/Makefile.quality
 
-.PHONY: all windows linux macos clean distrib amod convert anicopy zig-build docker-linux docker-windows docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage
+.PHONY: all windows linux macos clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-windows docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage
