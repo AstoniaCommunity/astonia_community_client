@@ -88,6 +88,7 @@ RUN make linux && \
 
 # Create AppDir structure
 RUN mkdir -p AppDir/usr/lib && \
+    mkdir -p AppDir/usr/bin && \
     mkdir -p AppDir/usr/share/astonia/bin && \
     cp bin/moac AppDir/usr/share/astonia/bin/ && \
     cp bin/libastonia_net.so AppDir/usr/lib/ && \
