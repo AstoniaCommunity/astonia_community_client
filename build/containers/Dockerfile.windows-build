@@ -4,12 +4,9 @@ FROM archlinux:latest
 # Use this for CI/CD and production builds
 
 # Configure MSYS2 clang64 repository
-RUN cat >> /etc/pacman.conf <<EOF
+RUN printf '\n[clang64]\nSigLevel = Optional TrustAll\nServer = https://mirror.msys2.org/mingw/clang64\n' >> /etc/pacman.conf
 
-[clang64]
-SigLevel = Optional TrustAll
-Server = https://mirror.msys2.org/mingw/clang64
-EOF
+RUN pacman-key --init && pacman -Syu --noconfirm
 
 # Install minimal build essentials
 RUN pacman -Syu --noconfirm \
@@ -38,13 +35,30 @@ RUN pacman -S --noconfirm \
     mingw-w64-clang-x86_64-dwarfstack \
     && pacman -Scc --noconfirm
 
+ENV USER=root \
+    HOME=/root \
+    CARGO_HOME=/root/.cargo \
+    RUSTUP_HOME=/root/.rustup
+
 # Install Rust for astonia_net component
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN rustup target add x86_64-pc-windows-gnullvm
 
-# Note: Cargo config for Windows cross-compilation is in astonia_net/.cargo/config.toml
-# The Makefile invokes cargo from within the astonia_net directory to ensure it picks up the config
+# Container-local Cargo config for Windows cross-compilation
+RUN mkdir -p /root/.cargo && \
+    printf '%s\n' \
+'[target.x86_64-pc-windows-gnullvm]' \
+'linker = "clang"' \
+'rustflags = [' \
+'  "-C", "link-arg=--target=x86_64-w64-mingw32",' \
+'  "-C", "link-arg=--sysroot=/clang64",' \
+'  "-C", "link-arg=-fuse-ld=lld",' \
+'  "-C", "link-arg=--rtlib=compiler-rt",' \
+'  "-C", "link-arg=-resource-dir=/clang64/lib/clang/21",' \
+'  "-C", "link-arg=-L/clang64/lib",' \
+']' \
+    > /root/.cargo/config.toml
 
 # Create sdl2-config wrapper for the build environment
 RUN mkdir -p /clang64/bin && \

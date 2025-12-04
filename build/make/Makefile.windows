@@ -204,7 +204,7 @@ bin/moac_dbg.exe lib/moac_dbg.a:	$(OBJS) $(ASTONIA_NET_LIB)
 			$(CC) $(LDFLAGS_CONSOLE) -Wl,--out-implib,lib/moac_dbg.a -o bin/moac_dbg.exe $(OBJS) $(ASTONIA_NET_LIB) $(LIBS)
 
 $(ASTONIA_NET_LIB):
-			cd $(ASTONIA_NET_DIR) && cargo build --release --target $(ASTONIA_NET_TGT)
+			cargo build --release --manifest-path $(ASTONIA_NET_DIR)/Cargo.toml --target $(ASTONIA_NET_TGT)
 
 bin/amod.dll:		src/amod/amod.o lib/moac.a
 			$(CC) $(LDFLAGS) $(OPT) $(DEBUG) -shared -o bin/amod.dll src/amod/amod.o lib/moac.a
