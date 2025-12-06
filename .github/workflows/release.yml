@@ -123,9 +123,9 @@ jobs:
           retention-days: 7
 
   build-macos-release:
-    name: Build macOS Release
+    name: Build MacOS Release
     runs-on: macos-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Checkout code
@@ -138,7 +138,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install sdl2 sdl2_mixer libzip zlib
+          brew install sdl2 sdl2_mixer libzip zlib imagemagick
 
       - name: Setup Rust
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -148,7 +148,7 @@ jobs:
           cache: true
           cache-workspaces: astonia_net
 
-      - name: Build release
+      - name: Build release (moac + Rust lib)
         run: make macos
 
       - name: Strip debug symbols
@@ -156,15 +156,103 @@ jobs:
           strip bin/moac
           strip -x bin/libastonia_net.dylib
 
-      - name: Prepare distribution staging
-        run: make distrib-stage
+      # Build unsigned .app bundle
+      - name: Build .app bundle
+        run: make macos-appbundle
 
-      - name: Upload distribution staging
+      # Materialize the signing certificate from a base64-encoded secret
+      - name: Install signing certificate
+        run: |
+          mkdir -p certs
+          echo "${{ secrets.APPLE_CERT_P12 }}" | base64 --decode > certs/dist.p12
+
+      # Materialize the App Store Connect API key file in ./private_keys
+      # File name must match the api_key (KEY_ID) used later.
+      - name: Install App Store Connect API key
+        run: |
+          mkdir -p private_keys
+          echo '${{ secrets.APP_STORE_CONNECT_KEY }}' > "private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
+      
+      - name: Install App Store Connect API key JSON
+        run: |
+          echo '${{ secrets.APP_STORE_CONNECT_KEY_JSON }}' > private_keys/appstore_key.json
+
+      - name: Rename app with to tmp name
+        run: |
+          mv distrib/Astonia.app distrib/Astonia-unsigned.app
+
+      # 1) Sign app bundle
+      - name: Sign Astonia.app
+        uses: indygreg/apple-code-sign-action@v1
+        with:
+          input_path: distrib/Astonia-unsigned.app
+          output_path: distrib/Astonia.app
+
+          # Code signing certificate
+          p12_file: certs/dist.p12
+          p12_password: ${{ secrets.APPLE_CERT_P12_PASSWORD }}
+
+          notarize: false
+          staple: false
+
+          rcodesign_version: 0.29.0
+
+          # Extra arguments passed directly to `rcodesign sign`
+          sign_args: |
+            --binary-identifier
+            com.prismaphonic.astonia
+            --for-notarization
+
+      - name: Remove unsigned app bundle
+        run: rm -rf distrib/Astonia-unsigned.app
+
+      # 2) Create an unsigned DMG wrapping the notarized .app
+      - name: Create unsigned DMG from notarized app
+        run: |
+          cd distrib
+          hdiutil create \
+            -volname "Astonia" \
+            -srcfolder "Astonia.app" \
+            -ov \
+            -format UDZO \
+            "Astonia-macOS-unsigned.dmg"
+          cd ..
+          ls -lh distrib/Astonia-macOS-unsigned.dmg
+
+      # 3) Sign + notarize + staple the DMG
+      - name: Sign, notarize, and staple DMG
+        uses: indygreg/apple-code-sign-action@v1
+        with:
+          input_path: distrib/Astonia-macOS-unsigned.dmg
+          output_path: distrib/Astonia-macOS.dmg
+
+          # Code signing certificate
+          p12_file: certs/dist.p12
+          p12_password: ${{ secrets.APPLE_CERT_P12_PASSWORD }}
+
+          rcodesign_version: 0.29.0
+
+          sign_args: |
+            --for-notarization
+
+          # Notarization
+          notarize: true
+          staple: true
+          app_store_connect_api_key_json_file: private_keys/appstore_key.json
+          app_store_connect_api_issuer: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          app_store_connect_api_key: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+
+
+      - name: Remove unsigned DMG
+        run: rm -f distrib/Astonia-macOS-unsigned.dmg
+
+      - name: Upload signed DMG
         uses: actions/upload-artifact@v4
         with:
-          name: macos-staging
-          path: distrib/macos_client/
+          name: macos-dmg
+          path: distrib/Astonia-macOS.dmg
           retention-days: 7
+          if-no-files-found: error
 
   build-appimage-release:
     name: Build AppImage Release
@@ -216,11 +304,11 @@ jobs:
           name: windows-staging
           path: windows_client
 
-      - name: Download macOS staging
+      - name: Download macOS DMG
         uses: actions/download-artifact@v4
         with:
-          name: macos-staging
-          path: macos_client
+          name: macos-dmg
+          path: .
 
       - name: Download AppImage
         uses: actions/download-artifact@v4
@@ -231,14 +319,13 @@ jobs:
         run: |
           tar czf linux_client.tar.gz linux_client
           zip -q -r windows_client.zip windows_client
-          tar czf macos_client.tar.gz macos_client
 
       - name: Generate checksums
         run: |
           sha256sum linux_client.tar.gz > checksums.txt
           sha256sum windows_client.zip >> checksums.txt
-          sha256sum macos_client.tar.gz >> checksums.txt
           sha256sum astonia-client.AppImage >> checksums.txt
+          sha256sum Astonia-macOS.dmg >> checksums.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -246,8 +333,8 @@ jobs:
           files: |
             linux_client.tar.gz
             windows_client.zip
-            macos_client.tar.gz
             astonia-client.AppImage
+            Astonia-macOS.dmg
             checksums.txt
           draft: false
           prerelease: false

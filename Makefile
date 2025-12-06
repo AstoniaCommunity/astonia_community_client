@@ -91,6 +91,14 @@ macos:
 	@echo "Building for macOS..."
 	@$(MAKE) -f build/make/Makefile.macos
 
+macos-appbundle:
+	@echo "Building for macOS..."
+	@$(MAKE) -f build/make/Makefile.macos appbundle
+
+macos-signed-bundle:
+	@echo "Building (locally) signing bundle for macOS..."
+	@$(MAKE) -f build/make/Makefile.macos sign
+
 # Clean for all platforms
 clean:
 	@echo "Cleaning all platforms..."
@@ -185,4 +193,4 @@ docker-distrib-linux:
 # Include quality checks makefile (see build/make/Makefile.quality)
 include build/make/Makefile.quality
 
-.PHONY: all windows linux macos clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-windows docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage
+.PHONY: all windows linux macos macos-appbundle macos-signed-bundle clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-windows docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage

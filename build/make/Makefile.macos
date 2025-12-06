@@ -55,6 +55,10 @@ else
 endif
 ASTONIA_NET_LIB=$(ASTONIA_NET_DIR)/target/$(ASTONIA_NET_TGT)/release/libastonia_net.dylib
 
+# Tiny Mach-O launcher used as CFBundleExecutable inside Astonia.app
+LAUNCHER_SRC := build/tools/macos_launcher.c
+LAUNCHER_BIN := bin/astonia_launcher
+
 OBJS	=		src/gui/gui_core.o src/gui/gui_input.o src/gui/gui_display.o src/gui/gui_inventory.o src/gui/gui_buttons.o src/gui/gui_map.o\
 			src/client/client.o src/client/protocol.o src/client/skill.o\
 			src/game/game_core.o src/game/game_effects.o src/game/game_lighting.o src/game/game_display.o\
@@ -74,6 +78,11 @@ bin/moac:	$(OBJS) $(ASTONIA_NET_LIB)
 $(ASTONIA_NET_LIB):
 		rustup target add $(ASTONIA_NET_TGT)
 		cd $(ASTONIA_NET_DIR) && cargo build --release --target $(ASTONIA_NET_TGT)
+
+# Build the tiny Mach-O launcher binary used as CFBundleExecutable
+$(LAUNCHER_BIN): $(LAUNCHER_SRC)
+		$(CC) -O2 -Wall -Wextra -mmacosx-version-min=11.0 \
+		      -o $(LAUNCHER_BIN) $(LAUNCHER_SRC)
 
 bin/amod.dylib:	src/amod/amod.o bin/moac
 		$(CC) $(LDFLAGS) -dynamiclib -undefined dynamic_lookup -o bin/amod.dylib src/amod/amod.o
@@ -143,7 +152,7 @@ clean:
 	@echo "Cleaning build artifacts..."
 	-rm -f src/*/*.o src/*/*-sanitizer.o src/*/*-coverage.o
 	-rm -f bin/moac bin/moac-sanitizer bin/moac-coverage
-	-rm -f bin/*.dylib bin/convert bin/anicopy
+	-rm -f bin/*.dylib bin/convert bin/anicopy bin/astonia_launcher
 	-rm -rf bin/*.dSYM
 	@echo "Cleaning coverage files..."
 	-find . -type f -name '*.gcda' -delete
@@ -187,3 +196,51 @@ distrib: distrib-stage
 amod:		bin/amod.dylib bin/moac
 convert:	bin/convert
 anicopy:	bin/anicopy
+
+# ---------------------------------------------------------------------------
+# macOS app bundle / signing (local)
+# ---------------------------------------------------------------------------
+
+MACOS_APP_BUNDLE       := distrib/Astonia.app
+MACOS_UNSIGNED_APP_TMP := distrib/Astonia-unsigned.app
+
+# Build the unsigned .app bundle.
+# Relies on:
+#   - bin/moac
+#   - bin/astonia_launcher
+appbundle: bin/moac $(LAUNCHER_BIN)
+	@echo "Building unsigned macOS .app bundle..."
+	@APP_VERSION=$(VERSION) build/tools/package_macos.sh
+
+sign: $(MACOS_APP_BUNDLE)
+	@echo "Signing macOS .app bundle with rcodesign..."
+	@[ -n "$$APPLE_CERT_P12" ] || { echo "ERROR: APPLE_CERT_P12 is not set"; exit 1; }
+	@[ -n "$$APPLE_CERT_P12_PASSWORD" ] || { echo "ERROR: APPLE_CERT_P12_PASSWORD is not set"; exit 1; }
+
+	@echo "Preparing unsigned bundle for signing..."
+	@rm -rf "$(MACOS_UNSIGNED_APP_TMP)"
+	@mv "$(MACOS_APP_BUNDLE)" "$(MACOS_UNSIGNED_APP_TMP)"
+
+	@echo "Running rcodesign (input: $(MACOS_UNSIGNED_APP_TMP), output: $(MACOS_APP_BUNDLE))..."
+	rcodesign sign \
+	  --p12-file "$$APPLE_CERT_P12" \
+	  --p12-password "$$APPLE_CERT_P12_PASSWORD" \
+	  --binary-identifier "com.prismaphonic.astonia" \
+      --for-notarization \
+	  "$(MACOS_UNSIGNED_APP_TMP)" \
+	  "$(MACOS_APP_BUNDLE)" \
+	|| { \
+	  echo "ERROR: rcodesign failed, restoring unsigned app bundle..."; \
+	  rm -rf "$(MACOS_APP_BUNDLE)"; \
+	  mv "$(MACOS_UNSIGNED_APP_TMP)" "$(MACOS_APP_BUNDLE)"; \
+	  exit 1; \
+	}
+
+	@echo "Cleaning up temporary unsigned bundle..."
+	@rm -rf "$(MACOS_UNSIGNED_APP_TMP)"
+
+	@echo "Signed app bundle at $(MACOS_APP_BUNDLE)"
+
+# Convenience: build + sign in one step
+appbundle-sign: appbundle sign
+	@echo "Signed app bundle at $(MACOS_APP_BUNDLE)"
