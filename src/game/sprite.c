@@ -5913,9 +5913,9 @@ DLL_EXPORT int _additional_sprite(int sprite, int attick)
 	}
 }
 
-int (*opt_sprite)(int sprite) = _opt_sprite;
+unsigned int (*opt_sprite)(int sprite) = _opt_sprite;
 
-DLL_EXPORT int _opt_sprite(int sprite)
+DLL_EXPORT unsigned int _opt_sprite(int sprite)
 {
 	switch (sprite) {
 	case 13:

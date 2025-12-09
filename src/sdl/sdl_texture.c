@@ -86,7 +86,7 @@ void sdl_tx_best(int stx)
 	}
 }
 
-static inline unsigned int hashfunc(int sprite, int ml, int ll, int rl, int ul, int dl)
+static inline unsigned int hashfunc(unsigned int sprite, int ml, int ll, int rl, int ul, int dl)
 {
 	unsigned int hash;
 
@@ -128,21 +128,21 @@ extern int next_job_id(void); // in sdl_core.c
 extern SDL_mutex *premutex;
 extern int sdl_pre_worker(struct zip_handles *zips); // in sdl_core.c
 
-int sdl_tx_load(int sprite, int sink, int freeze, int scale, int cr, int cg, int cb, int light, int sat, int c1, int c2,
-    int c3, int shine, int ml, int ll, int rl, int ul, int dl, const char *text, int text_color, int text_flags,
-    void *text_font, int checkonly, int preload, int fortick)
+int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
+    char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl,
+    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload, int fortick)
 {
 	int stx, ptx, ntx, panic = 0;
 	int hash;
 
 	if (!text) {
-		hash = hashfunc(sprite, ml, ll, rl, ul, dl);
+		hash = hashfunc((int)sprite, (int)ml, (int)ll, (int)rl, (int)ul, (int)dl);
 	} else {
 		hash = hashfunc_text(text, text_color, text_flags);
 	}
 
-	if (sprite >= MAXSPRITE || sprite < 0) {
-		note("illegal sprite %d wanted in sdl_tx_load", sprite);
+	if (sprite >= MAXSPRITE) {
+		note("illegal sprite %u wanted in sdl_tx_load", sprite);
 		return STX_NONE;
 	}
 

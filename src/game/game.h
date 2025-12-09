@@ -3,6 +3,7 @@
  */
 
 #include "dll.h"
+#include <stdio.h>
 
 // Sprite alignment constants
 #define RENDER_ALIGN_OFFSET 0 // Use sprite's built-in offset (must be zero for bzero default)
@@ -111,11 +112,15 @@ DLL_EXPORT int render_text_break(int x, int y, int breakx, unsigned short color,
 DLL_EXPORT int render_text_break_length(int x, int y, int breakx, unsigned short color, int flags, const char *ptr);
 int render_text_char(int sx, int sy, int c, unsigned short int color);
 int render_char_len(char c);
+void render_dump(FILE *fp);
+struct renderfont;
+typedef struct renderfont RenderFont;
+int render_create_font_png(RenderFont *dst, uint32_t *pixel, int dx, int dy, int yoff, int scale);
 
 // Sprite rendering functions
 DLL_EXPORT int render_sprite_fx(RenderFX *fx, int scrx, int scry);
-DLL_EXPORT void render_sprite(int sprite, int scrx, int scry, int light, int align);
-void render_sprite_callfx(int sprite, int scrx, int scry, int light, int mli, int align);
+DLL_EXPORT void render_sprite(unsigned int sprite, int scrx, int scry, char light, char align);
+void render_sprite_callfx(unsigned int sprite, int scrx, int scry, char light, char mli, char align);
 
 // Primitive drawing functions
 DLL_EXPORT void render_rect(int sx, int sy, int ex, int ey, unsigned short int color);
@@ -156,8 +161,8 @@ DLL_EXPORT int _additional_sprite(int sprite, int attick);
 extern int (*get_player_sprite)(int nr, int zdir, int action, int step, int duration, int attick);
 DLL_EXPORT int _get_player_sprite(int nr, int zdir, int action, int step, int duration, int attick);
 void save_options(void);
-extern int (*opt_sprite)(int sprite);
-DLL_EXPORT int _opt_sprite(int sprite);
+extern unsigned int (*opt_sprite)(int sprite);
+DLL_EXPORT unsigned int _opt_sprite(int sprite);
 extern int (*no_lighting_sprite)(int sprite);
 DLL_EXPORT int _no_lighting_sprite(int sprite);
 

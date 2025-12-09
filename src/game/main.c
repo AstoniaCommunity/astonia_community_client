@@ -24,6 +24,11 @@
 #include "client/client.h"
 #include "modder/modder.h"
 
+// Forward declarations
+void xlog(FILE *logfp, char *format, ...) __attribute__((format(printf, 2, 3)));
+void addlinesep(void);
+int rread(FILE *fp, void *ptr, int size);
+
 int quit = 0;
 
 char *localdata;
@@ -168,7 +173,7 @@ int rread(FILE *fp, void *ptr, int size)
 	int n;
 
 	while (size > 0) {
-		n = fread(ptr, 1, size, fp);
+		n = (int)fread(ptr, 1, (size_t)size, fp);
 		if (n < 0) {
 			return -1;
 		}

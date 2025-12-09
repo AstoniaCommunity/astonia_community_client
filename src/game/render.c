@@ -251,16 +251,14 @@ DLL_EXPORT int render_sprite_fx(RenderFX *fx, int scrx, int scry)
  * @param ml Multi-directional lighting value
  * @param align Alignment mode (RENDER_ALIGN_OFFSET, RENDER_ALIGN_CENTER, RENDER_ALIGN_NORMAL)
  */
-void render_sprite_callfx(int sprite, int scrx, int scry, int light, int ml, int align)
+void render_sprite_callfx(unsigned int sprite, int scrx, int scry, char light, char ml, char align)
 {
 	RenderFX fx;
 
 	bzero(&fx, sizeof(RenderFX));
 
 	fx.sprite = sprite;
-	if (light < 1000) {
-		fx.light = RENDERFX_NORMAL_LIGHT;
-	}
+	fx.light = light;
 	fx.align = align;
 
 	fx.ml = fx.ll = fx.rl = fx.ul = fx.dl = ml;
@@ -283,7 +281,7 @@ void render_sprite_callfx(int sprite, int scrx, int scry, int light, int ml, int
  * @param light Lighting value (applied to all directions)
  * @param align Alignment mode (RENDER_ALIGN_OFFSET, RENDER_ALIGN_CENTER, RENDER_ALIGN_NORMAL)
  */
-DLL_EXPORT void render_sprite(int sprite, int scrx, int scry, int light, int align)
+DLL_EXPORT void render_sprite(unsigned int sprite, int scrx, int scry, char light, char align)
 {
 	RenderFX fx;
 
@@ -370,14 +368,14 @@ void render_display_strike(int64_t fx, int64_t fy, int64_t tx, int64_t ty)
 	if (dx >= dy) {
 		for (d = -4; d < 5; d++) {
 			l = (4 - abs(d)) * 4;
-			col = IRGB(l, l, 31);
+			col = (unsigned short)IRGB(l, l, 31);
 			render_line(ifx, ify, mx, my + d, col);
 			render_line(mx, my + d, itx, ity, col);
 		}
 	} else {
 		for (d = -4; d < 5; d++) {
 			l = (4 - abs(d)) * 4;
-			col = IRGB(l, l, 31);
+			col = (unsigned short)IRGB(l, l, 31);
 			render_line(ifx, ify, mx + d, my, col);
 			render_line(mx + d, my, itx, ity, col);
 		}
@@ -391,8 +389,8 @@ void render_draw_curve(int64_t cx, int64_t cy, int64_t nr, int64_t size, int64_t
 	unsigned short ucol = (unsigned short)col;
 
 	for (n = inr * 90; n < inr * 90 + 90; n += 4) {
-		x = sin(n / 360.0 * M_PI * 2) * isize + icx;
-		y = cos(n / 360.0 * M_PI * 2) * isize * 2 / 3 + icy;
+		x = (int)(sin(n / 360.0 * M_PI * 2) * isize) + icx;
+		y = (int)(cos(n / 360.0 * M_PI * 2) * isize * 2 / 3) + icy;
 
 		if (x < clipsx) {
 			continue;
@@ -438,14 +436,14 @@ void render_display_pulseback(int64_t fx, int64_t fy, int64_t tx, int64_t ty)
 	if (dx >= dy) {
 		for (d = -4; d < 5; d++) {
 			l = (4 - abs(d)) * 4;
-			col = IRGB(l, 31, l);
+			col = (unsigned short)IRGB(l, 31, l);
 			render_line(ifx, ify, mx, my + d, col);
 			render_line(mx, my + d, itx, ity, col);
 		}
 	} else {
 		for (d = -4; d < 5; d++) {
 			l = (4 - abs(d)) * 4;
-			col = IRGB(l, 31, l);
+			col = (unsigned short)IRGB(l, 31, l);
 			render_line(ifx, ify, mx + d, my, col);
 			render_line(mx + d, my, itx, ity, col);
 		}
@@ -477,7 +475,7 @@ DLL_EXPORT int render_text_length(int flags, const char *text)
 	}
 
 	for (x = 0, c = text; *c && *c != RENDER_TEXT_TERMINATOR; c++) {
-		x += font[*c].dim;
+		x += font[(unsigned char)*c].dim;
 	}
 
 	return x;
@@ -502,7 +500,7 @@ int render_text_len(int flags, const char *text, int n)
 	}
 
 	for (x = 0, c = text; *c && *c != RENDER_TEXT_TERMINATOR && n; c++, n--) {
-		x += font[*c].dim;
+		x += font[(unsigned char)*c].dim;
 	}
 
 	return x;
@@ -647,6 +645,7 @@ DLL_EXPORT int render_text_nl(int x, int y, int unsigned short color, int flags,
 
 DLL_EXPORT int render_text_break_length(int x, int y, int breakx, unsigned short color, int flags, const char *ptr)
 {
+	(void)color; // unused parameter
 	char buf[256];
 	int xp, n;
 	int size;
@@ -726,7 +725,7 @@ static int bless_sin[36];
 static int bless_cos[36];
 static int bless_hight[200];
 
-void render_draw_bless_pix(int x, int y, int nr, int color, int front)
+static void render_draw_bless_pix(int x, int y, int nr, int color, int front)
 {
 	int sy;
 
@@ -745,10 +744,10 @@ void render_draw_bless_pix(int x, int y, int nr, int color, int front)
 		return;
 	}
 
-	sdl_pixel(x, y, color, x_offset, y_offset);
+	sdl_pixel(x, y, (unsigned short)color, x_offset, y_offset);
 }
 
-void render_draw_rain_pix(int x, int y, int nr, int color, int front)
+static void render_draw_rain_pix(int x, int y, int nr, int color, int front)
 {
 	int sy;
 
@@ -767,7 +766,7 @@ void render_draw_rain_pix(int x, int y, int nr, int color, int front)
 		return;
 	}
 
-	sdl_pixel(x, y, color, x_offset, y_offset);
+	sdl_pixel(x, y, (unsigned short)color, x_offset, y_offset);
 }
 
 void render_draw_bless(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front)
@@ -778,11 +777,11 @@ void render_draw_bless(int64_t x, int64_t y, int64_t ticker, int64_t strength, i
 
 	if (!bless_init) {
 		for (nr = 0; nr < 36; nr++) {
-			bless_sin[nr] = sin((nr % 36) / 36.0 * M_PI * 2) * 8;
-			bless_cos[nr] = cos((nr % 36) / 36.0 * M_PI * 2) * 16;
+			bless_sin[nr] = (int)(sin((nr % 36) / 36.0 * M_PI * 2) * 8);
+			bless_cos[nr] = (int)(cos((nr % 36) / 36.0 * M_PI * 2) * 16);
 		}
 		for (nr = 0; nr < 200; nr++) {
-			bless_hight[nr] = -20 + sin((nr % 200) / 200.0 * M_PI * 2) * 20;
+			bless_hight[nr] = -20 + (int)(sin((nr % 200) / 200.0 * M_PI * 2) * 20);
 		}
 		bless_init = 1;
 	}
@@ -815,11 +814,11 @@ void render_draw_potion(int64_t x, int64_t y, int64_t ticker, int64_t strength, 
 
 	if (!bless_init) {
 		for (nr = 0; nr < 36; nr++) {
-			bless_sin[nr] = sin((nr % 36) / 36.0 * M_PI * 2) * 8;
-			bless_cos[nr] = cos((nr % 36) / 36.0 * M_PI * 2) * 16;
+			bless_sin[nr] = (int)(sin((nr % 36) / 36.0 * M_PI * 2) * 8);
+			bless_cos[nr] = (int)(cos((nr % 36) / 36.0 * M_PI * 2) * 16);
 		}
 		for (nr = 0; nr < 200; nr++) {
-			bless_hight[nr] = -20 + sin((nr % 200) / 200.0 * M_PI * 2) * 20;
+			bless_hight[nr] = -20 + (int)(sin((nr % 200) / 200.0 * M_PI * 2) * 20);
 		}
 		bless_init = 1;
 	}
@@ -857,7 +856,7 @@ void render_draw_rain(int64_t x, int64_t y, int64_t ticker, int64_t strength, in
 	}
 }
 
-void render_create_letter(unsigned char *rawrun, int sx, int sy, int val, char letter[64][64])
+static void render_create_letter(unsigned char *rawrun, int sx, int sy, int val, char letter[64][64])
 {
 	int x = sx, y = sy;
 
@@ -871,11 +870,11 @@ void render_create_letter(unsigned char *rawrun, int sx, int sy, int val, char l
 
 		x += *rawrun++;
 
-		letter[y][x] = val;
+		letter[y][x] = (char)val;
 	}
 }
 
-char *render_create_rawrun(char letter[64][64])
+static unsigned char *render_create_rawrun(char letter[64][64])
 {
 	char *ptr, *fon, *last;
 	int x, y, step;
@@ -886,7 +885,7 @@ char *render_create_rawrun(char letter[64][64])
 		step = 0;
 		for (x = sdl_scale * 3; x < 64; x++) {
 			if (letter[y][x] == 2) {
-				*ptr++ = step;
+				*ptr++ = (char)step;
 				last = ptr;
 				step = 1;
 			} else {
@@ -898,11 +897,11 @@ char *render_create_rawrun(char letter[64][64])
 	ptr = last;
 	*ptr++ = (char)255;
 
-	fon = xrealloc(fon, ptr - fon, MEM_GLOB);
-	return fon;
+	fon = xrealloc(fon, (size_t)(ptr - fon), MEM_GLOB);
+	return (unsigned char *)fon;
 }
 
-void create_shade_font(RenderFont *src, RenderFont *dst)
+static void create_shade_font(RenderFont *src, RenderFont *dst)
 {
 	char letter[64][64];
 	int c;
@@ -917,7 +916,7 @@ void create_shade_font(RenderFont *src, RenderFont *dst)
 	}
 }
 
-void create_frame_font(RenderFont *src, RenderFont *dst)
+static void create_frame_font(RenderFont *src, RenderFont *dst)
 {
 	char letter[64][64];
 	int c, x, y;
@@ -939,6 +938,7 @@ int render_create_font_png(RenderFont *dst, uint32_t *pixel, int dx, int dy, int
 {
 	int c, x, y, sx, sy;
 	char letter[64][64];
+	(void)dy; // unused parameter
 
 	for (c = 32; c < 128; c++) {
 		if (c < 80) {
@@ -1029,21 +1029,21 @@ int render_text_char(int sx, int sy, int c, unsigned short int color)
 	       sx;
 }
 
-int render_text_len_internal(const char *text)
+static int render_text_len_internal(const char *text)
 {
 	int x;
 	const char *c;
 
 	for (x = 0, c = text; *c; c++) {
-		x += textfont[*c].dim;
+		x += textfont[(unsigned char)*c].dim;
 	}
 
-	return (int)(x + 0.5f);
+	return (int)((float)x + 0.5f);
 }
 
 int render_char_len(char c)
 {
-	return textfont[c].dim;
+	return textfont[(unsigned char)c].dim;
 }
 
 // ---------------------> Chat Window <-----------------------------
@@ -1122,7 +1122,7 @@ void render_display_text(void)
 {
 	int n, m, rn, x, y, pos;
 	char buf[256], *bp;
-	unsigned short lastcolor = -1;
+	unsigned short lastcolor = (unsigned short)-1;
 
 	for (n = textdisplayline, y = doty(DOT_TXT); y <= doty(DOT_TXT) + TEXTDISPLAY_SY - TEXTDISPLAY_DY;
 	    n++, y += TEXTDISPLAY_DY) {
@@ -1157,7 +1157,7 @@ void render_display_text(void)
 
 				// better display for numbers
 				for (i = pos + 1; isdigit(text[i].c) || text[i].c == '-'; i++) {
-					x -= textfont[text[i].c].dim;
+					x -= textfont[(unsigned char)text[i].c].dim;
 				}
 				continue;
 			}
@@ -1243,8 +1243,8 @@ void render_add_text(char *ptr)
 			for (m = 0; m < 2; m++) {
 				text[pos].c = 32;
 				x += textfont[32].dim;
-				text[pos].color = color;
-				text[pos].link = link;
+				text[pos].color = (unsigned char)color;
+				text[pos].link = (unsigned char)link;
 				pos++;
 			}
 
@@ -1254,13 +1254,13 @@ void render_add_text(char *ptr)
 
 		for (m = 0; m < n; m++, pos++) {
 			text[pos].c = buf[m];
-			text[pos].color = color;
-			text[pos].link = link;
+			text[pos].color = (unsigned char)color;
+			text[pos].link = (unsigned char)link;
 		}
 		text[pos].c = 32;
 		x += textfont[32].dim;
-		text[pos].color = color;
-		text[pos].link = link;
+		text[pos].color = (unsigned char)color;
+		text[pos].link = (unsigned char)link;
 
 		pos++;
 	}
@@ -1318,12 +1318,12 @@ int render_scantext(int x, int y, char *hit)
 		if (text[pos].c > 0 && text[pos].c < 32) {
 			dx = ((int)text[pos].c) * 12;
 			for (int i = pos + 1; isdigit(text[i].c) || text[i].c == '-'; i++) {
-				dx -= textfont[text[i].c].dim;
+				dx -= textfont[(unsigned char)text[i].c].dim;
 			}
 			continue;
 		}
 
-		dx += textfont[text[pos].c].dim;
+		dx += textfont[(unsigned char)text[pos].c].dim;
 
 		if (dx + dotx(DOT_TXT) > x) {
 			if ((link = text[pos].link)) { // link palette color
@@ -1365,11 +1365,6 @@ int render_scantext(int x, int y, char *hit)
 void render_list_text(void)
 {
 	note("textlines=%d, textdisplayline=%d", textlines, textdisplayline);
-}
-
-void render_sceweup(void)
-{
-	textdisplayline = textlines + rand() % 16;
 }
 
 void render_text_lineup(void)

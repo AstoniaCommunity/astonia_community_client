@@ -186,9 +186,9 @@ extern int maxpanic;
 // Internal functions from sdl_texture.c
 // ============================================================================
 void sdl_tx_best(int stx);
-int sdl_tx_load(int sprite, int sink, int freeze, int scale, int cr, int cg, int cb, int light, int sat, int c1, int c2,
-    int c3, int shine, int ml, int ll, int rl, int ul, int dl, const char *text, int text_color, int text_flags,
-    void *text_font, int checkonly, int preload, int fortick);
+int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
+    char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl,
+    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload, int fortick);
 
 #ifdef DEVELOPER
 void sdl_dump_spritecache(void);
