@@ -29,10 +29,10 @@ void set_mapadd(int addx, int addy)
 	mapaddy = addy;
 }
 
-void mtos(int mapx, int mapy, int *scrx, int *scry)
+void mtos(unsigned int mapx, unsigned int mapy, int *scrx, int *scry)
 {
-	*scrx = (mapoffx + mapaddx) + (mapx - mapy) * (FDX / 2);
-	*scry = (mapoffy + mapaddy) + (mapx + mapy) * (FDY / 2);
+	*scrx = (mapoffx + mapaddx) + ((int)mapx - (int)mapy) * (FDX / 2);
+	*scry = (mapoffy + mapaddy) + ((int)mapx + (int)mapy) * (FDY / 2);
 }
 
 int stom(int scrx, int scry, int *mapx, int *mapy)
@@ -51,39 +51,50 @@ int stom(int scrx, int scry, int *mapx, int *mapy)
 	return 1;
 }
 
-DLL_EXPORT int get_near_ground(int x, int y)
+DLL_EXPORT unsigned int get_near_ground(int x, int y)
 {
 	int mapx, mapy;
+	unsigned int ux, uy;
 
 	if (!stom(x, y, &mapx, &mapy)) {
-		return -1;
+		return MAXMN;
 	}
 
-	if (mapx < 0 || mapy < 0 || mapx >= MAPDX || mapy >= MAPDY) {
-		return -1;
+	if (mapx < 0 || mapy < 0 || (unsigned int)mapx >= MAPDX || (unsigned int)mapy >= MAPDY) {
+		return MAXMN;
 	}
 
-	return mapmn(mapx, mapy);
+	ux = (unsigned int)mapx;
+	uy = (unsigned int)mapy;
+	return mapmn(ux, uy);
 }
 
-DLL_EXPORT int get_near_item(int x, int y, unsigned int flag, int looksize)
+DLL_EXPORT unsigned int get_near_item(int x, int y, unsigned int flag, unsigned int looksize)
 {
-	int mapx, mapy, sx, sy, ex, ey, mn, scrx, scry, nearest = -1;
+	int mapx, mapy, scrx, scry;
+	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u, mn;
+	unsigned int nearest = MAXMN;
 	double dist, nearestdist = 100000000;
 
 	if (!stom(mousex, mousey, &mapx, &mapy)) {
-		return -1;
+		return MAXMN;
 	}
 
-	sx = max(0, mapx - looksize);
-	sy = max(0, mapy - looksize);
-	;
-	ex = min(MAPDX - 1, mapx + looksize);
-	ey = min(MAPDY - 1, mapy + looksize);
+	if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
+		return MAXMN;
+	}
 
-	for (mapy = sy; mapy <= ey; mapy++) {
-		for (mapx = sx; mapx <= ex; mapx++) {
-			mn = mapmn(mapx, mapy);
+	ux = (unsigned int)mapx;
+	uy = (unsigned int)mapy;
+
+	sx = max(0U, ux - looksize);
+	sy = max(0U, uy - looksize);
+	ex = min(MAPDX - 1, ux + looksize);
+	ey = min(MAPDY - 1, uy + looksize);
+
+	for (mapy_u = sy; mapy_u <= ey; mapy_u++) {
+		for (mapx_u = sx; mapx_u <= ex; mapx_u++) {
+			mn = mapmn(mapx_u, mapy_u);
 
 			if (!(map[mn].rlight)) {
 				continue;
@@ -95,7 +106,7 @@ DLL_EXPORT int get_near_item(int x, int y, unsigned int flag, int looksize)
 				continue;
 			}
 
-			mtos(mapx, mapy, &scrx, &scry);
+			mtos(mapx_u, mapy_u, &scrx, &scry);
 
 			dist = (x - scrx) * (x - scrx) + (y - scry) * (y - scry);
 
@@ -109,32 +120,40 @@ DLL_EXPORT int get_near_item(int x, int y, unsigned int flag, int looksize)
 	return nearest;
 }
 
-DLL_EXPORT int get_near_char(int x, int y, int looksize)
+DLL_EXPORT unsigned int get_near_char(int x, int y, unsigned int looksize)
 {
-	int mapx, mapy, sx, sy, ex, ey, mn, scrx, scry, nearest = -1;
+	int mapx, mapy, scrx, scry;
+	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u, mn;
+	unsigned int nearest = MAXMN;
 	double dist, nearestdist = 100000000;
 
 	if (!stom(mousex, mousey, &mapx, &mapy)) {
-		return -1;
+		return MAXMN;
 	}
 
-	mn = mapmn(mapx, mapy);
+	if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
+		return MAXMN;
+	}
+
+	ux = (unsigned int)mapx;
+	uy = (unsigned int)mapy;
+
+	mn = mapmn(ux, uy);
 	if (mn == MAPDX * MAPDY / 2) {
-		return mn; // return player character if clicked directly
+		return mn;
 	}
 
-	sx = max(0, mapx - looksize);
-	sy = max(0, mapy - looksize);
-	;
-	ex = min(MAPDX - 1, mapx + looksize);
-	ey = min(MAPDY - 1, mapy + looksize);
+	sx = max(0U, ux - looksize);
+	sy = max(0U, uy - looksize);
+	ex = min(MAPDX - 1, ux + looksize);
+	ey = min(MAPDY - 1, uy + looksize);
 
-	for (mapy = sy; mapy <= ey; mapy++) {
-		for (mapx = sx; mapx <= ex; mapx++) {
-			mn = mapmn(mapx, mapy);
+	for (mapy_u = sy; mapy_u <= ey; mapy_u++) {
+		for (mapx_u = sx; mapx_u <= ex; mapx_u++) {
+			mn = mapmn(mapx_u, mapy_u);
 
 			if (context_key_enabled() && mn == MAPDX * MAPDY / 2) {
-				continue; // ignore player character if NOT clicked directly
+				continue;
 			}
 
 			if (!(map[mn].rlight)) {
@@ -144,7 +163,7 @@ DLL_EXPORT int get_near_char(int x, int y, int looksize)
 				continue;
 			}
 
-			mtos(mapx, mapy, &scrx, &scry);
+			mtos(mapx_u, mapy_u, &scrx, &scry);
 
 			dist = (x - scrx) * (x - scrx) + (y - scry) * (y - scry);
 

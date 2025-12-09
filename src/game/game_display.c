@@ -98,7 +98,7 @@ static void display_game_spells(void)
 	start = SDL_GetTicks();
 
 	for (i = 0; i < maxquick; i++) {
-		int mn = quick[i].mn[4];
+		unsigned int mn = quick[i].mn[4];
 		int scrx = mapaddx + quick[i].cx;
 		int scry = mapaddy + quick[i].cy;
 		int light = map[mn].rlight;
@@ -178,10 +178,14 @@ static void display_game_spells(void)
 
 				case 3: // strike
 				        // set source coords - mna is source
-					mapx = ceffect[nr].strike.x - originx + DIST;
-					mapy = ceffect[nr].strike.y - originy + DIST;
-					mna = mapmn(mapx, mapy);
-					mtos(mapx, mapy, &x1, &y1);
+					mapx = (int)((int)ceffect[nr].strike.x - (int)originx + (int)DIST);
+					mapy = (int)((int)ceffect[nr].strike.y - (int)originy + (int)DIST);
+					if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
+						mna = MAXMN;
+					} else {
+						mna = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
+					}
+					mtos((unsigned int)mapx, (unsigned int)mapy, &x1, &y1);
 
 					if (map[mna].cn == 0) { // no char, so source should be a lightning ball
 						h1 = 20;
@@ -337,8 +341,8 @@ static void display_game_spells(void)
 					dl_call_rain2(GME_LAY, scrx, scry, (int64_t)tick, ceffect[nr].earthrain.strength, 0);
 					break;
 				case 16: // earth-mud
-					mapx = mn % MAPDX + originx - MAPDX / 2;
-					mapy = mn / MAPDX + originy - MAPDY / 2;
+					mapx = (int)((unsigned int)mn % MAPDX) + (int)originx - (int)(MAPDX / 2);
+					mapy = (int)((unsigned int)mn / MAPDX) + (int)originy - (int)(MAPDY / 2);
 					dl = dl_next_set(GME_LAY - 1, 50254U + (unsigned int)(mapx % 3) + ((unsigned int)(mapy / 3) % 3),
 					    scrx, scry, (unsigned char)light);
 					if (!dl) {
@@ -358,10 +362,14 @@ static void display_game_spells(void)
 					break;
 				case 22: // pulseback
 				         // set source coords - mna is source
-					mapx = ceffect[nr].pulseback.x - originx + DIST;
-					mapy = ceffect[nr].pulseback.y - originy + DIST;
-					mna = mapmn(mapx, mapy);
-					mtos(mapx, mapy, &x1, &y1);
+					mapx = (int)((int)ceffect[nr].pulseback.x - (int)originx + (int)DIST);
+					mapy = (int)((int)ceffect[nr].pulseback.y - (int)originy + (int)DIST);
+					if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
+						mna = MAXMN;
+					} else {
+						mna = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
+					}
+					mtos((unsigned int)mapx, (unsigned int)mapy, &x1, &y1);
 
 					if (map[mna].cn == 0) { // no char, so source should be a lightning ball
 						h1 = 20;
@@ -434,8 +442,12 @@ static void display_game_spells2(void)
 			    ceffect[nr].ball.start);
 
 			stom(x, y, &mapx, &mapy);
-			mn = mapmn(mapx, mapy);
-			if (!map[mn].rlight) {
+			if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
+				mn = MAXMN;
+			} else {
+				mn = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
+			}
+			if (mn == MAXMN || !map[mn].rlight) {
 				break;
 			}
 
@@ -458,8 +470,12 @@ static void display_game_spells2(void)
 			    ceffect[nr].fireball.toy, 1024, ceffect[nr].fireball.start);
 
 			stom(x, y, &mapx, &mapy);
-			mn = mapmn(mapx, mapy);
-			if (!map[mn].rlight) {
+			if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
+				mn = MAXMN;
+			} else {
+				mn = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
+			}
+			if (mn == MAXMN || !map[mn].rlight) {
 				break;
 			}
 
@@ -490,8 +506,12 @@ static void display_game_spells2(void)
 			    ceffect[nr].edemonball.toy, 256, ceffect[nr].edemonball.start);
 
 			stom(x, y, &mapx, &mapy);
-			mn = mapmn(mapx, mapy);
-			if (!map[mn].rlight) {
+			if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
+				mn = MAXMN;
+			} else {
+				mn = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
+			}
+			if (mn == MAXMN || !map[mn].rlight) {
 				break;
 			}
 
@@ -625,7 +645,7 @@ static void display_game_names(void)
 	clancolor[32] = IRGB(31, 8, 31);
 
 	for (i = 0; i < maxquick; i++) {
-		int mn = quick[i].mn[4];
+		unsigned int mn = quick[i].mn[4];
 		int scrx = mapaddx + quick[i].cx;
 		int scry = mapaddy + quick[i].cy;
 
@@ -643,7 +663,7 @@ static void display_game_names(void)
 		}
 
 		x = scrx + map[mn].xadd;
-		y = scry + 4 + (int)map[mn].yadd + get_chr_height((int)map[mn].csprite) - 25 + get_sink(mn, map);
+		y = scry + 4 + (int)map[mn].yadd + get_chr_height(map[mn].csprite) - 25 + get_sink(mn, map);
 
 		col = whitecolor;
 		frame = RENDER_TEXT_FRAMED;
@@ -783,9 +803,16 @@ static void display_game_act(void)
 	}
 
 	if (acttyp != -1 && actstr) {
-		int mn = mapmn(actx - originx + MAPDX / 2, acty - originy + MAPDY / 2);
-		int mapx = mn % MAPDX;
-		int mapy = mn / MAPDX;
+		int mx = (int)actx - (int)originx + (int)(MAPDX / 2);
+		int my = (int)acty - (int)originy + (int)(MAPDY / 2);
+		unsigned int mn;
+		if (mx < 0 || my < 0 || mx >= (int)MAPDX || my >= (int)MAPDY) {
+			mn = MAXMN;
+		} else {
+			mn = mapmn((unsigned int)mx, (unsigned int)my);
+		}
+		unsigned int mapx = mn % MAPDX;
+		unsigned int mapy = mn / MAPDX;
 		int scrx, scry;
 		mtos(mapx, mapy, &scrx, &scry);
 		if (acttyp == 0) {
@@ -796,46 +823,47 @@ static void display_game_act(void)
 	}
 }
 
-int get_sink(int mn, struct map *cmap)
+int get_sink(unsigned int mn, struct map *cmap)
 {
-	int x, y, mn2 = -1, xp, yp, tot;
+	int x, y, xp, yp, tot;
+	unsigned int mn2 = MAXMN;
 
 	x = cmap[mn].xadd;
 	y = cmap[mn].yadd;
 
-	xp = mn % MAPDX;
-	yp = mn / MAPDX;
+	xp = (int)((unsigned int)mn % MAPDX);
+	yp = (int)((unsigned int)mn / MAPDX);
 
 	if (x == 0 && y == 0) {
 		return cmap[mn].sink;
 	}
 
-	if (x > 0 && y == 0 && xp < MAPDX - 1) {
+	if (x > 0 && y == 0 && xp < (int)(MAPDX - 1)) {
 		tot = 40;
-		mn2 = mn - MAPDX + 1;
+		mn2 = mn + 1;
 	}
 	if (x < 0 && y == 0 && xp > 0) {
 		tot = 40;
-		mn2 = mn + MAPDX - 1;
+		mn2 = mn - 1;
 	}
-	if (x == 0 && y > 0 && yp < MAPDY - 1) {
+	if (x == 0 && y > 0 && yp < (int)(MAPDY - 1)) {
 		tot = 20;
-		mn2 = mn + MAPDX + 1;
+		mn2 = mn + MAPDX;
 	}
 	if (x == 0 && y < 0 && yp > 0) {
 		tot = 20;
-		mn2 = mn - MAPDX - 1;
+		mn2 = mn - MAPDX;
 	}
 
-	if (x > 0 && y > 0 && xp < MAPDX - 1 && yp < MAPDY - 1) {
+	if (x > 0 && y > 0 && xp < (int)(MAPDX - 1) && yp < (int)(MAPDY - 1)) {
 		tot = 30;
 		mn2 = mn + 1;
 	}
-	if (x > 0 && y < 0 && xp < MAPDY - 1 && yp > 0) {
+	if (x > 0 && y < 0 && xp < (int)(MAPDY - 1) && yp > 0) {
 		tot = 30;
 		mn2 = mn - MAPDX;
 	}
-	if (x < 0 && y > 0 && xp > 0 && yp < MAPDY - 1) {
+	if (x < 0 && y > 0 && xp > 0 && yp < (int)(MAPDY - 1)) {
 		tot = 30;
 		mn2 = mn + MAPDX;
 	}
@@ -844,7 +872,7 @@ int get_sink(int mn, struct map *cmap)
 		mn2 = mn - 1;
 	}
 
-	if (mn2 == -1) {
+	if (mn2 == MAXMN) {
 		return cmap[mn].sink;
 	}
 
@@ -856,7 +884,8 @@ int get_sink(int mn, struct map *cmap)
 
 void display_game_map(struct map *cmap)
 {
-	int i, nr, mapx, mapy, mn, scrx, scry, light, mna, sprite, sink, xoff, yoff;
+	int i, nr, scrx, scry, light, sprite, sink, xoff, yoff;
+	unsigned int mn, mna;
 	Uint32 start;
 	DL *dl;
 	int heightadd;
@@ -1025,12 +1054,12 @@ void display_game_map(struct map *cmap)
 				dl->renderfx.dl = (char)light;
 			}
 
-			if (no_lighting_sprite(cmap[mn].fsprite)) {
+			if (no_lighting_sprite((unsigned int)cmap[mn].fsprite)) {
 				dl->renderfx.ll = dl->renderfx.rl = dl->renderfx.ul = dl->renderfx.dl = dl->renderfx.ml;
 			}
 
 			// fsprite can increase the height of items and fsprite2
-			heightadd = is_yadd_sprite((int)cmap[mn].rf.sprite);
+			heightadd = is_yadd_sprite(cmap[mn].rf.sprite);
 
 			dl->renderfx.scale = cmap[mn].rf.scale;
 			dl->renderfx.cr = (char)cmap[mn].rf.cr;
@@ -1092,7 +1121,7 @@ void display_game_map(struct map *cmap)
 				dl->renderfx.dl = (char)light;
 			}
 
-			if (no_lighting_sprite(cmap[mn].fsprite2)) {
+			if (no_lighting_sprite((unsigned int)cmap[mn].fsprite2)) {
 				dl->renderfx.ll = dl->renderfx.rl = dl->renderfx.ul = dl->renderfx.dl = dl->renderfx.ml;
 			}
 
@@ -1130,7 +1159,7 @@ void display_game_map(struct map *cmap)
 		// blit items
 		if (cmap[mn].isprite) {
 			dl = dl_next_set(get_lay_sprite((int)cmap[mn].isprite, GME_LAY), cmap[mn].ri.sprite, scrx, scry - 8,
-			    (unsigned char)(itmsel == mn ? RENDERFX_BRIGHT : light));
+			    (unsigned char)(itmsel == (unsigned int)mn ? RENDERFX_BRIGHT : light));
 			if (!dl) {
 				note("error in game #8 (%d,%d)", cmap[mn].ri.sprite, cmap[mn].isprite);
 				continue;
@@ -1193,7 +1222,7 @@ void display_game_map(struct map *cmap)
 		// blit chars
 		if (cmap[mn].csprite) {
 			dl = dl_next_set(GME_LAY, cmap[mn].rc.sprite, scrx + cmap[mn].xadd, scry + cmap[mn].yadd,
-			    (unsigned char)(chrsel == mn ? RENDERFX_BRIGHT : light));
+			    (unsigned char)(chrsel == (unsigned int)mn ? RENDERFX_BRIGHT : light));
 			if (!dl) {
 				note("error in game #9");
 				continue;
@@ -1256,14 +1285,14 @@ void display_game_map(struct map *cmap)
 				dl->renderfx.clight = -80;
 				dl->renderfx.shine = 50;
 				dl->renderfx.ml = dl->renderfx.ll = dl->renderfx.rl = dl->renderfx.ul = dl->renderfx.dl =
-				    chrsel == mn ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
+				    chrsel == (unsigned int)mn ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
 			} else if (cmap[mn].gsprite == 51067) {
 				dl->renderfx.sat = 20;
 				dl->renderfx.cb = 80;
 				dl->renderfx.clight = -80;
 				dl->renderfx.shine = 50;
 				dl->renderfx.ml = dl->renderfx.ll = dl->renderfx.rl = dl->renderfx.ul = dl->renderfx.dl =
-				    chrsel == mn ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
+				    chrsel == (unsigned int)mn ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
 			} else {
 				if (cmap[mn].flags & CMF_INFRA) {
 					dl->renderfx.cr = min(120, dl->renderfx.cr + 80);
@@ -1283,14 +1312,15 @@ void display_game_map(struct map *cmap)
 
 	if (cmap == map) { // avoid acting on prefetch
 		// selection on ground
-		if (mapsel != -1 || context_getnm() != -1) {
+		if (mapsel != MAXMN || context_getnm() != -1) {
+			unsigned int mn;
 			if (context_getnm() != -1) {
-				mn = context_getnm();
+				mn = (unsigned int)context_getnm();
 			} else {
 				mn = mapsel;
 			}
-			mapx = mn % MAPDX;
-			mapy = mn / MAPDX;
+			unsigned int mapx = mn % MAPDX;
+			unsigned int mapy = mn / MAPDX;
 			mtos(mapx, mapy, &scrx, &scry);
 			if (cmap[mn].rlight == 0 || (cmap[mn].mmf & MMF_SIGHTBLOCK)) {
 				sprite = SPR_FFIELD;

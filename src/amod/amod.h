@@ -60,10 +60,10 @@ DLL_IMPORT int doty(int didx);
 DLL_IMPORT int butx(int bidx);
 DLL_IMPORT int buty(int bidx);
 // gui helperls
-DLL_IMPORT int get_near_ground(int x, int y);
-DLL_IMPORT int get_near_item(int x, int y, int flag, int looksize);
-DLL_IMPORT int get_near_char(int x, int y, int looksize);
-DLL_IMPORT int mapmn(int x, int y);
+DLL_IMPORT unsigned int get_near_ground(int x, int y);
+DLL_IMPORT unsigned int get_near_item(int x, int y, unsigned int flag, unsigned int looksize);
+DLL_IMPORT unsigned int get_near_char(int x, int y, unsigned int looksize);
+DLL_IMPORT unsigned int mapmn(unsigned int x, unsigned int y);
 // misc
 DLL_IMPORT void set_teleport(int idx, int x, int y);
 DLL_IMPORT int exp2level(int val);
@@ -164,11 +164,11 @@ DLL_IMPORT int game_slowdown;
 
 // ---------------- override-able functions, also exported from client ----------------
 DLL_IMPORT int _is_cut_sprite(unsigned int sprite);
-DLL_IMPORT int _is_mov_sprite(int sprite, int itemhint);
+DLL_IMPORT int _is_mov_sprite(unsigned int sprite, int itemhint);
 DLL_IMPORT int _is_door_sprite(unsigned int sprite);
-DLL_IMPORT int _is_yadd_sprite(int sprite);
-DLL_IMPORT int _get_chr_height(int csprite);
-DLL_IMPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
+DLL_IMPORT int _is_yadd_sprite(unsigned int sprite);
+DLL_IMPORT int _get_chr_height(unsigned int csprite);
+DLL_IMPORT unsigned int _trans_asprite(unsigned int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
 DLL_IMPORT int _trans_charno(int csprite, int *pscale, int *pcr, int *pcg, int *pcb, int *plight, int *psat, int *pc1,
@@ -177,9 +177,9 @@ DLL_IMPORT int _get_player_sprite(int nr, int zdir, int action, int step, int du
 DLL_IMPORT void _trans_csprite(int mn, struct map *cmap, uint32_t attick);
 DLL_IMPORT int _get_lay_sprite(int sprite, int lay);
 DLL_IMPORT int _get_offset_sprite(int sprite, int *px, int *py);
-DLL_IMPORT int _additional_sprite(int sprite, int attick);
+DLL_IMPORT int _additional_sprite(unsigned int sprite, int attick);
 DLL_IMPORT int _opt_sprite(int sprite);
-DLL_IMPORT int _no_lighting_sprite(int sprite);
+DLL_IMPORT int _no_lighting_sprite(unsigned int sprite);
 DLL_IMPORT int _get_skltab_sep(int i);
 DLL_IMPORT int _get_skltab_index(int n);
 DLL_IMPORT int _get_skltab_show(int i);
@@ -188,10 +188,10 @@ DLL_IMPORT int _do_display_help(int nr);
 
 // ------------ declarations for functions the mod might provide -------------------
 int is_cut_sprite(unsigned int sprite);
-int is_mov_sprite(int sprite, int itemhint);
+int is_mov_sprite(unsigned int sprite, int itemhint);
 int is_door_sprite(unsigned int sprite);
-int is_yadd_sprite(int sprite);
-int get_chr_height(int csprite);
+int is_yadd_sprite(unsigned int sprite);
+int get_chr_height(unsigned int csprite);
 unsigned int trans_asprite(int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale, unsigned char *pcr,
     unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat, unsigned short *pc1,
     unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
@@ -201,9 +201,9 @@ int get_player_sprite(int nr, int zdir, int action, int step, int duration, int 
 void trans_csprite(int mn, struct map *cmap, int attick);
 int get_lay_sprite(int sprite, int lay);
 int get_offset_sprite(int sprite, int *px, int *py);
-int additional_sprite(int sprite, int attick);
-int opt_sprite(int sprite);
-int no_lighting_sprite(int sprite);
+int additional_sprite(unsigned int sprite, int attick);
+int opt_sprite(unsigned int sprite);
+int no_lighting_sprite(unsigned int sprite);
 int get_skltab_sep(int i);
 int get_skltab_index(int n);
 int get_skltab_show(int i);

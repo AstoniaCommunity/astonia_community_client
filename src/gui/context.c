@@ -529,11 +529,11 @@ int context_key_set_cmd(void)
 	case CMD_MAP_LOOK:
 		itmsel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, 3);
 		lcmd_override = CMD_ITM_LOOK;
-		if (itmsel == -1) {
+		if (itmsel == MAXMN) {
 			chrsel = get_near_char(mousex, mousey, 3);
 			lcmd_override = CMD_CHR_LOOK;
 		}
-		if (itmsel == -1 && chrsel == -1) {
+		if (itmsel == MAXMN && chrsel == MAXMN) {
 			mapsel = get_near_ground(mousex, mousey);
 			lcmd_override = CMD_MAP_LOOK;
 		}
@@ -548,29 +548,29 @@ int context_key_set_cmd(void)
 		itmsel = get_near_item(mousex, mousey, CMF_TAKE | CMF_USE, csprite ? 0 : 3);
 		mapsel = get_near_ground(mousex, mousey);
 		if (csprite) {
-			if (chrsel != -1) {
-				itmsel = -1;
+			if (chrsel != MAXMN) {
+				itmsel = MAXMN;
 				lcmd_override = CMD_CHR_GIVE;
-			} else if (itmsel != -1) {
+			} else if (itmsel != MAXMN) {
 				if (map[itmsel].flags & CMF_USE) {
 					lcmd_override = CMD_ITM_USE_WITH;
 				} else {
-					itmsel = -1;
+					itmsel = MAXMN;
 				}
-			} else if (mapsel != -1) {
+			} else if (mapsel != MAXMN) {
 				lcmd_override = CMD_MAP_DROP;
 			}
 		} else {
-			if (itmsel != -1) {
+			if (itmsel != MAXMN) {
 				if (map[itmsel].flags & CMF_TAKE) {
 					lcmd_override = CMD_ITM_TAKE;
 				} else if (map[itmsel].flags & CMF_USE) {
 					lcmd_override = CMD_ITM_USE;
 				} else {
-					itmsel = -1;
+					itmsel = MAXMN;
 				}
 			}
-			chrsel = -1;
+			chrsel = MAXMN;
 		}
 		break;
 	}

@@ -534,7 +534,7 @@ DLL_EXPORT extern struct quest quest[];
 DLL_EXPORT extern struct shrine_ppd shrine;
 
 void cmd_text(char *text);
-DLL_EXPORT int mapmn(int x, int y);
+DLL_EXPORT unsigned int mapmn(unsigned int x, unsigned int y);
 int find_cn_ceffect(int cn, int skip);
 int find_ceffect(unsigned int fn);
 DLL_EXPORT int level2exp(int level);

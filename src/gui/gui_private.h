@@ -336,9 +336,9 @@ extern unsigned int vk_special_time;
 extern struct special_tab special_tab[];
 extern int max_special;
 extern int plrmn;
-extern int mapsel;
-extern int itmsel;
-extern int chrsel;
+extern unsigned int mapsel;
+extern unsigned int itmsel;
+extern unsigned int chrsel;
 extern int last_right_click_invsel;
 extern int mapoffx, mapoffy;
 extern int mapaddx, mapaddy;
@@ -443,9 +443,9 @@ void cmd_color(int nr);
 void cmd_reset(void);
 void cmd_proc(int key);
 
-DLL_EXPORT int get_near_char(int x, int y, int looksize);
-DLL_EXPORT int get_near_item(int x, int y, unsigned int flag, int looksize);
-DLL_EXPORT int get_near_ground(int x, int y);
+DLL_EXPORT unsigned int get_near_char(int x, int y, unsigned int looksize);
+DLL_EXPORT unsigned int get_near_item(int x, int y, unsigned int flag, unsigned int looksize);
+DLL_EXPORT unsigned int get_near_ground(int x, int y);
 
 int context_open(int mx, int my);
 void context_display(int mx, int my);

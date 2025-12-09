@@ -27,7 +27,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 11105:
 	case 11106:
 	case 11107:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 11176:
 		return 17006;
@@ -36,34 +36,34 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 13005:
 	case 13006:
 	case 13007:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 14000:
 	case 14001:
 	case 14002:
 	case 14003:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 14010:
 	case 14011:
-		return sprite + 2;
+		return (int)(sprite + 2);
 	case 14014:
 	case 14015:
 	case 14016:
 	case 14017:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 14030:
 	case 14031:
 	case 14032:
 	case 14033:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 14040:
 	case 14041:
-		return sprite + 2;
+		return (int)(sprite + 2);
 	case 14060:
 	case 14061:
 	case 14062:
 	case 14063:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 14068:
 	case 14069:
 		return 0;
@@ -71,12 +71,12 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 14075:
 	case 14076:
 	case 14077:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 14090:
 	case 14091:
 	case 14092:
 	case 14093:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 14098:
 	case 14099:
 		return 0;
@@ -84,27 +84,27 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 14113:
 	case 14114:
 	case 14115:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 14120:
 	case 14121:
 	case 14122:
 	case 14123:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 14128:
 	case 14129:
 	case 14130:
 	case 14131:
-		return -(sprite + 4);
+		return -(int)(sprite + 4);
 	case 14167:
 	case 14168:
 	case 14169:
 	case 14170:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 14179:
 	case 14180:
 	case 14181:
 	case 14182:
-		return -(sprite + 4);
+		return -(int)(sprite + 4);
 	case 14303:
 	case 14304:
 	case 14305:
@@ -114,24 +114,24 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 14309:
 	case 14310:
 	case 14311:
-		return sprite + 18;
+		return (int)(sprite + 18);
 	case 14339:
 	case 14340:
 	case 14341:
 	case 14342:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 14433:
 	case 14434:
 	case 14435:
 	case 14436:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 14447:
 	case 14448:
 	case 14449:
 	case 14450:
-		return -(sprite + 4);
+		return -(int)(sprite + 4);
 
 	case 15000:
 	case 15001:
@@ -142,13 +142,13 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 15006:
 	case 15007:
 	case 15008:
-		return sprite + 10;
+		return (int)(sprite + 10);
 
 	case 15040:
 	case 15041:
 	case 15042:
 	case 15043:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 15070:
 		return 15077;
@@ -161,13 +161,13 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 15224:
 	case 15225:
 	case 15226:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 15246:
 	case 15247:
 	case 15248:
 	case 15249:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 15254:
 	case 15255:
@@ -175,94 +175,94 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 
 	case 15256:
 	case 15257:
-		return sprite + 2;
+		return (int)(sprite + 2);
 
 	case 15260:
 	case 15261:
 	case 15262:
 	case 15263:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 15340:
 	case 15341:
 	case 15342:
 	case 15343:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 15348:
 	case 15349:
-		return sprite + 2;
+		return (int)(sprite + 2);
 
 	case 15446:
 	case 15447:
 	case 15448:
 	case 15449:
 	case 15450:
-		return sprite + 5;
+		return (int)(sprite + 5);
 
 	case 15456:
 	case 15457:
 	case 15458:
 	case 15459:
 	case 15460:
-		return sprite + 5;
+		return (int)(sprite + 5);
 
 	case 15466:
 	case 15467:
 	case 15468:
 	case 15469:
 	case 15470:
-		return sprite + 5;
+		return (int)(sprite + 5);
 
 	case 15476:
 	case 15477:
 	case 15478:
 	case 15479:
 	case 15480:
-		return sprite + 5;
+		return (int)(sprite + 5);
 
 	case 15486:
-		return sprite + 1;
+		return (int)(sprite + 1);
 	case 15488:
-		return sprite + 1;
+		return (int)(sprite + 1);
 
 	case 15490:
 	case 15491:
 	case 15492:
 	case 15493:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 15498:
 	case 15499:
-		return sprite + 2;
+		return (int)(sprite + 2);
 
 	case 15502:
 	case 15503:
-		return sprite + 2;
+		return (int)(sprite + 2);
 
 	case 16225:
 	case 16226:
 	case 16227:
 	case 16228:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 16233:
 	case 16234:
 	case 16235:
 	case 16236:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 16245:
 	case 16246:
 	case 16247:
 	case 16248:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 16253:
 	case 16254:
 	case 16255:
 	case 16256:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 16316:
 	case 16318:
@@ -272,13 +272,13 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 16326:
 	case 16328:
 	case 16330:
-		return sprite + 1;
+		return (int)(sprite + 1);
 
 	case 16406:
 	case 16407:
 	case 16408:
 	case 16409:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 17000:
 	case 17001:
@@ -296,13 +296,13 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 17041:
 	case 17042:
 	case 17043:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 17032:
 	case 17033:
 	case 17034:
 	case 17035:
-		return -(sprite + 4);
+		return -(int)(sprite + 4);
 
 	case 17024:
 	case 17025:
@@ -318,28 +318,28 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 20669:
 	case 20670:
 	case 20671:
-		return -(sprite + 4);
+		return -(int)(sprite + 4);
 
 	case 20695:
 	case 20696:
 	case 20699:
 	case 20700:
-		return -(sprite + 2);
+		return -(int)(sprite + 2);
 	case 20776:
 	case 20778:
-		return sprite - 1;
+		return (int)(sprite - 1);
 
 	case 20163:
 	case 20164:
 	case 20165:
 	case 20166:
-		return 40000 + (sprite - 20163) + 4;
+		return 40000 + (int)(sprite - 20163) + 4;
 
 	case 20167:
 	case 20168:
 	case 20169:
 	case 20170:
-		return 40012 + (sprite - 20167) + 4;
+		return 40012 + (int)(sprite - 20167) + 4;
 
 	case 20195:
 	case 20196:
@@ -351,7 +351,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 20911:
 	case 20912:
 	case 20913:
-		return sprite + 5;
+		return (int)(sprite + 5);
 
 	case 40000:
 	case 40001:
@@ -389,20 +389,20 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 20629:
 	case 20630:
 	case 20631:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 20654:
 	case 20655:
 	case 20659:
 	case 20660:
-		return sprite + 3;
+		return (int)(sprite + 3);
 
 	case 40008:
 	case 40009:
 	case 20763:
 	case 20764:
 		// case 20423: case 20424: // dungeon_cdoor_ls
-		return sprite + 2;
+		return (int)(sprite + 2);
 
 	case 21000:
 	case 21001:
@@ -447,7 +447,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 40026:
 	case 20481:
 	case 20483:
-		return sprite + 1;
+		return (int)(sprite + 1);
 
 		// case 21203:
 	case 21204:
@@ -461,13 +461,13 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 21351:
 	case 21352:
 	case 21353:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 21430:
 	case 21431:
 	case 21432:
 	case 21433:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 21450:
 	case 21452:
@@ -516,7 +516,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 21540:
 	case 21542:
 	case 21544:
-		return sprite + 1;
+		return (int)(sprite + 1);
 
 
 	case 20512:
@@ -540,7 +540,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 50078:
 	case 50080:
 	case 50082:
-		return sprite + 1;
+		return (int)(sprite + 1);
 
 	case 50116:
 		return 21001;
@@ -581,13 +581,13 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 20867:
 	case 20868:
 	case 20869:
-		return sprite + 24;
+		return (int)(sprite + 24);
 
 	case 23093:
 	case 23094:
 	case 23095:
 	case 23096:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 22000:
 	case 22001:
@@ -598,7 +598,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 22006:
 	case 22007:
 	case 22008:
-		return sprite + 9;
+		return (int)(sprite + 9);
 
 	case 22027:
 	case 22028:
@@ -607,10 +607,10 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 22031:
 	case 22032:
 	case 22033:
-		return sprite + 8;
+		return (int)(sprite + 8);
 
 	case 50189:
-		return sprite + 2;
+		return (int)(sprite + 2);
 
 	case 50190:
 		return 0;
@@ -619,7 +619,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 22455:
 	case 22456:
 	case 22457:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 22471:
 	case 22473:
@@ -627,7 +627,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 22475:
 	case 22476:
 	case 22478:
-		return sprite + 8;
+		return (int)(sprite + 8);
 
 	case 22472:
 	case 22477:
@@ -637,17 +637,17 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 23117:
 	case 23118:
 	case 23119:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 23126:
 	case 23127:
-		return sprite + 2;
+		return (int)(sprite + 2);
 
 	case 23235:
 	case 23236:
 	case 23237:
 	case 23238:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 23102:
 	case 23103:
@@ -679,7 +679,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 59046:
 	case 59047:
 	case 59048:
-		return sprite + 5;
+		return (int)(sprite + 5);
 
 	case 59155:
 	case 59156:
@@ -697,7 +697,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 59186:
 	case 59187:
 	case 59188:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 59179:
 	case 59180:
@@ -705,7 +705,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 
 	case 59181:
 	case 59182:
-		return sprite + 2;
+		return (int)(sprite + 2);
 
 	case 59193:
 		return 14092 + 4;
@@ -723,7 +723,7 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 59791:
 	case 59792:
 	case 59793:
-		return sprite + 4;
+		return (int)(sprite + 4);
 
 	case 60038:
 	case 60039:
@@ -733,41 +733,41 @@ DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 	case 14457:
 	case 14458:
 	case 14459: // DB - check this in your maps, we have a small bug here
-		return -(sprite - 19);
+		return -(int)(sprite - 19);
 
 	case 26020:
 	case 26021:
 	case 26022:
 	case 26023:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 26040:
 	case 26041:
 	case 26042:
 	case 26043:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 26560:
 	case 26561:
 	case 26562:
 	case 26563:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 26570:
 	case 26571:
 	case 26572:
 	case 26573:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	case 26580:
 	case 26581:
 	case 26582:
 	case 26583:
-		return sprite + 4;
+		return (int)(sprite + 4);
 	}
 
-	return sprite;
+	return (int)sprite;
 }
 
-int (*is_mov_sprite)(int sprite, int itemhint) = _is_mov_sprite;
+int (*is_mov_sprite)(unsigned int sprite, int itemhint) = _is_mov_sprite;
 
-DLL_EXPORT int _is_mov_sprite(int sprite, int itemhint)
+DLL_EXPORT int _is_mov_sprite(unsigned int sprite, int itemhint)
 {
 	switch (sprite) {
 	case 20039:
@@ -871,9 +871,9 @@ DLL_EXPORT int _is_door_sprite(unsigned int sprite)
 	return 0;
 }
 
-int (*is_yadd_sprite)(int sprite) = _is_yadd_sprite;
+int (*is_yadd_sprite)(unsigned int sprite) = _is_yadd_sprite;
 
-DLL_EXPORT int _is_yadd_sprite(int sprite)
+DLL_EXPORT int _is_yadd_sprite(unsigned int sprite)
 {
 	switch (sprite) {
 	case 13103:
@@ -963,9 +963,9 @@ DLL_EXPORT int _is_yadd_sprite(int sprite)
 	return 0;
 }
 
-int (*get_chr_height)(int csprite) = _get_chr_height;
+int (*get_chr_height)(unsigned int csprite) = _get_chr_height;
 
-DLL_EXPORT int _get_chr_height(int csprite)
+DLL_EXPORT int _get_chr_height(unsigned int csprite)
 {
 	switch (csprite) {
 	case 20:
@@ -3009,11 +3009,11 @@ DLL_EXPORT int _trans_charno(int csprite, int *pscale, int *pcr, int *pcg, int *
 }
 
 // asprite
-unsigned int (*trans_asprite)(int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale, unsigned char *pcr,
-    unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat, unsigned short *pc1,
-    unsigned short *pc2, unsigned short *pc3, unsigned short *pshine) = _trans_asprite;
+unsigned int (*trans_asprite)(unsigned int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
+    unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
+    unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine) = _trans_asprite;
 
-DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
+DLL_EXPORT unsigned int _trans_asprite(unsigned int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine)
 {
@@ -3022,33 +3022,33 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 
 	switch (sprite) {
 	case 60042:
-		sprite = 1012 + ((attick / 8) % 8);
+		sprite = 1012 + (unsigned int)((attick / 8) % 8);
 		break; // north pent
 	case 60043:
-		sprite = 1012 + ((attick / 4) % 8);
+		sprite = 1012 + (unsigned int)((attick / 4) % 8);
 		break;
 	case 60044:
-		sprite = 1012 + ((attick / 2) % 8);
+		sprite = 1012 + (unsigned int)((attick / 2) % 8);
 		break;
 	case 60045:
-		sprite = 1012 + ((attick / 1) % 8);
+		sprite = 1012 + (unsigned int)((attick / 1) % 8);
 		break;
 
 	case 11204:
-		sprite = sprite + ((attick / 4) % 3);
+		sprite = sprite + (unsigned int)((attick / 4) % 3);
 		break; // xmas tree
 
 	case 11127: // lab5_regen
 		help = (attick / 4) % 16;
 		if (help < 8) {
-			sprite = sprite + help;
+			sprite = sprite + (unsigned int)help;
 		} else {
-			sprite = sprite + 15 - help;
+			sprite = sprite + (unsigned int)(15 - help);
 		}
 		break;
 
 	case 11139:
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 4)) % 8);
 		break; // lab5_light
 
 	case 13063:
@@ -3058,22 +3058,28 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 	case 13095:
 	case 13214:
 	case 13223:
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 5) % 8;
+		sprite = sprite + (unsigned int)(((unsigned int)(mn % MAPDX + originx) +
+		                                     (unsigned int)(mn / MAPDX + originy) * 256 + (attick / 5)) %
+		                                 8);
 		break;
 
 	case 13232:
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 5) % 16;
+		sprite = sprite + (unsigned int)(((unsigned int)(mn % MAPDX + originx) +
+		                                     (unsigned int)(mn / MAPDX + originy) * 256 + (attick / 5)) %
+		                                 16);
 		break;
 		//--
 	case 12163:
 	case 14353: // lava_ground_circle
 		help = (mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 31);
 		if (help % 17 < 14) {
-			sprite = 14353 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 5) % 8;
+			sprite = 14353 + (unsigned int)(((unsigned int)(mn % MAPDX + originx) +
+			                                    (unsigned int)(mn / MAPDX + originy) * 256 + (attick / 5)) %
+			                                8);
 		} else if (help % 17 < 16) {
-			sprite = 14353 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 9) % 8;
+			sprite = 14353 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 9)) % 8);
 		} else {
-			sprite = 14353 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 8;
+			sprite = 14353 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 2)) % 8);
 		}
 		// c3=IRGB(16,0,0);
 		break;
@@ -3081,14 +3087,14 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 	case 12165:
 	case 12166:
 	case 14361: // lava_ground_noise
-		sprite = 14361 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 5) % 8;
+		sprite = 14361 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 5)) % 8);
 		// c3=IRGB(16,0,0);
 		break;
 	case 1024: // lava_fire - spell misuse
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 10;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 10);
 		break;
 	case 1034: // lava_zish - spell misuse
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 24;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 24);
 		break;
 
 	case 1060: // labyrinth gate
@@ -3168,22 +3174,22 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 
 
 	case 14363: // special lava
-		sprite = 14361 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 8) % 8;
+		sprite = 14361 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 8)) % 8);
 		light = -30;
 		cr = -10;
 		break;
 	case 14364: // special lava
-		sprite = 14361 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 16) % 8;
+		sprite = 14361 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 16)) % 8);
 		light = -60;
 		cr = -20;
 		break;
 	case 14365: // special lava
-		sprite = 14361 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 32) % 8;
+		sprite = 14361 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 32)) % 8);
 		light = -90;
 		cr = -30;
 		break;
 	case 14366: // special lava
-		sprite = 14361 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 64) % 8;
+		sprite = 14361 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 64)) % 8);
 		light = -120;
 		cr = -40;
 		break;
@@ -3200,7 +3206,7 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		c2 = IRGB(4, 4, 4);
 		break;
 	case 14136: // green edemon tube on
-		sprite = 14136 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14136 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(0, 16, 0);
 		break;
 	case 14137: // edemon tube off
@@ -3208,90 +3214,90 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		c2 = IRGB(4, 4, 4);
 		break;
 	case 14138: // orange edemon tube on
-		sprite = 14136 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14136 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 12, 0);
 		break;
 	case 14139: // red edemon tube on
-		sprite = 14136 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14136 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 14140: // blue edemon tube on
-		sprite = 14136 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14136 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(0, 0, 16);
 		break;
 	case 14141: // white edemon tube on
-		sprite = 14136 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14136 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 16, 24);
 		break;
 	case 14159: // green edemon cannon on
-		sprite = 14159 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14159 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(0, 16, 0);
 		break;
 	case 14160: // edemon cannon off
 		c2 = IRGB(4, 4, 4);
 		break;
 	case 14161: // orange edemon cannon on
-		sprite = 14159 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14159 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 12, 0);
 		break;
 	case 14162: // red edemon cannon on
-		sprite = 14159 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14159 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 14163: // blue edemon cannon on
-		sprite = 14159 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14159 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(0, 0, 16);
 		break;
 	case 14164: // white edemon cannon on
-		sprite = 14159 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14159 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 16, 24);
 		break;
 	case 14190: // green edemon light
-		sprite = 14190 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14190 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(0, 16, 0);
 		break;
 	case 14191: // orange edemon light
-		sprite = 14190 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14190 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 12, 0);
 		break;
 	case 14192: // red edemon light
-		sprite = 14190 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14190 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 14193: // blue edemon light
-		sprite = 14190 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14190 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(0, 0, 16);
 		break;
 	case 14194: // white edemon light
-		sprite = 14190 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14190 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 16, 24);
 		break;
 	case 14200: // edemon suspensor green
-		sprite = 14200 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 4;
+		sprite = 14200 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 4);
 		c2 = IRGB(0, 16, 0);
 		break;
 	case 14201: // edemon suspensor orange
-		sprite = 14200 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 4;
+		sprite = 14200 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 4);
 		c2 = IRGB(16, 12, 0);
 		break;
 	case 14202: // edemon suspensor red
-		sprite = 14200 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 4;
+		sprite = 14200 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 4);
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 14203: // edemon suspensor blue
-		sprite = 14200 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 4;
+		sprite = 14200 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 4);
 		c2 = IRGB(0, 0, 16);
 		break;
 	case 14275: // edemon gate green
-		sprite = 14275 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14275 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(0, 16, 0);
 		break;
 	case 14276: // edemon gate orange
-		sprite = 14275 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14275 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 12, 0);
 		break;
 	case 14277: // edemon gate red
-		sprite = 14275 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14275 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 14256: // edemon crystal orange
@@ -3307,7 +3313,7 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		c2 = IRGB(16, 12, 0);
 		break;
 	case 14248: // edemon loader ground orange
-		sprite = 14248 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14248 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 12, 0);
 		break;
 	case 14257: // edemon loader platform orange
@@ -3325,7 +3331,7 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		c2 = IRGB(4, 4, 4);
 		break;
 	case 14379: // red edemon cannon on
-		sprite = 14378 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14378 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 14380: // edemon cannon off
@@ -3333,7 +3339,7 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		c2 = IRGB(4, 4, 4);
 		break;
 	case 14381: // red edemon cannon on
-		sprite = 14386 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14386 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 14382: // edemon cannon off
@@ -3341,7 +3347,7 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		c2 = IRGB(4, 4, 4);
 		break;
 	case 14383: // red edemon cannon on
-		sprite = 14394 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14394 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 14384: // edemon cannon off
@@ -3349,11 +3355,11 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		c2 = IRGB(4, 4, 4);
 		break;
 	case 14385: // red edemon cannon on
-		sprite = 14402 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14402 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 14411:
-		sprite = 14411 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14411 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		break;
 
 	case 16035:
@@ -3396,7 +3402,7 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break; // moving door to correct sprite no
 
 	case 21340:
-		c2 = IRGB(0, 0, abs(31 - (attick % 63)));
+		c2 = IRGB(0, 0, abs(31 - (int)(attick % 63)));
 		break;
 
 	case 21681:
@@ -3426,26 +3432,26 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break;
 
 	case 20026: // standinglight
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		break;
 	case 50022: // torch
 	case 10004: // mr_torch
-		sprite = 10004 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 8;
+		sprite = 10004 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 2)) % 8);
 		break;
 	case 20044: // mr_wall_torch_ds
 	case 20054: // mr_wall_torch_ls
 	case 20064: // mr_wall_torch_lh
 	case 20074: // mr_wall_torch_dh
 	case 20283: // transport red
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 4)) % 8);
 		break;
 	case 20284: // transport green
-		sprite = 20283 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = 20283 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 4)) % 8);
 		c3 = IRGB(0, 12, 4);
 		break;
 
 	case 20926:
-		sprite = 20926 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 20926 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 8);
 		break;
 
 		/*case 20934:
@@ -3455,7 +3461,7 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 	case 21086: // mr_redcandela_on
 	case 21090: // mr_redcandelb_on
 	case 21094: // mr_redcandelc_on
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 3;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 2)) % 3);
 		break;
 	case 11113: // gnalb_fireplace_key_on
 	case 20111: // lr_ruinlight
@@ -3465,22 +3471,25 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 	case 20713:
 	case 20722:
 	case 20731:
-		sprite = sprite + (int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 8;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 2)) % 8);
 		break;
 	case 20754: // grave_firecan_on                                             // _FRED_
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 3; // _FRED_
+		sprite = sprite +
+		         (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 4)) % 3); // _FRED_
 		break; // _FRED_
 	case 20388: // dungeon_walllight_se_on
 	case 20397: // dungeon_walllight_sw_on
 	case 20406: // dungeon_walllight_nw_on
 	case 20415: // dungeon_walllight_ne_on
-		help = ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + attick / 10 + rrand(2));
+		help =
+		    (int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 10)) +
+		    rrand(2);
 		if ((help %= 50) > 15) {
 			sprite = sprite + 5;
 		} else if (help < 8) {
-			sprite = sprite + help;
+			sprite = sprite + (unsigned int)help;
 		} else {
-			sprite = sprite + 15 - help;
+			sprite = sprite + (unsigned int)(15 - help);
 		}
 		break;
 
@@ -3495,10 +3504,10 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		case 20805:	light=10; break;*/
 
 	case 22500: // sewer outlet
-		sprite = sprite + (int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 8;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 2)) % 8);
 		break;
 	case 22508: // sewer ground
-		sprite = sprite + (int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 8;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 2)) % 8);
 		break;
 
 	case 26040:
@@ -3516,7 +3525,7 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 	case 26070:
 	case 26170:
 	case 26270:
-		sprite = sprite + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + attick * 2) % 64;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick * 2)) % 64);
 		break;
 
 	case 26050:
@@ -3562,43 +3571,47 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 
 	case 50132: // green creeper lights
 	case 50136:
-		sprite = sprite + (int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 4;
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 2)) % 4);
 		break;
 	case 50265:
-		sprite = sprite + ((int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 16);
+		sprite = sprite + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 2)) % 16);
 		break;
 	case 50289:
-		help = ((int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 16);
+		help = (int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		             (attick / 2) % 16);
 		if (help > 7) {
 			help = 15 - help;
 		}
-		sprite = sprite + help;
+		sprite = sprite + (unsigned int)help;
 		break;
 	case 50297:
-		help = ((int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 16);
+		help = (int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		             (attick / 2) % 16);
 		if (help > 7) {
 			help = 15 - help;
 		}
-		sprite = sprite + help;
+		sprite = sprite + (unsigned int)help;
 		break;
 
 	case 51085:
 	case 51086:
-		c2 = IRGB(0, 0, abs(30 - (attick % 61)) / 2 + 10);
-		light = abs(30 - (attick % 61)) / 2;
+		c2 = IRGB(0, 0, abs(30 - (int)(attick % 61)) / 2 + 10);
+		light = abs(30 - (int)(attick % 61)) / 2;
 		cg = 10;
 		shine = 5;
 		break;
 
 	case 51098:
-		c2 = IRGB(0, 0, abs(30 - (attick % 61)) / 2 + 10);
+		c2 = IRGB(0, 0, abs(30 - (int)(attick % 61)) / 2 + 10);
 		break;
 
 	case 51600:
-		sprite = sprite + ((int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick)) % 8) * 2);
+		sprite =
+		    sprite + (unsigned int)(((int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + attick) % 8)) * 2);
 		break;
 	case 51601:
-		sprite = sprite + ((int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick)) % 8) * 2);
+		sprite =
+		    sprite + (unsigned int)(((int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + attick) % 8)) * 2);
 		break;
 
 	case 51617:
@@ -3606,11 +3619,11 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break; // leather gloves
 
 	case 51625:
-		help = ((int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 10); // glowing steel door
+		help = ((int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 2)) % 10); // glowing steel door
 		if (help > 4) {
 			help = 9 - help;
 		}
-		sprite = sprite + help;
+		sprite = sprite + (unsigned int)help;
 		break;
 
 	case 51632:
@@ -3622,9 +3635,9 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 	case 56002:
 		help = (attick / 2) % 8;
 		if (help > 3) {
-			sprite = 56002 + 7 - help;
+			sprite = 56002 + 7 - (unsigned int)help;
 		} else {
-			sprite = 56002 + help;
+			sprite = 56002 + (unsigned int)help;
 		}
 		break; // pulsing ring
 
@@ -3679,7 +3692,9 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 59029: // edemon loader ground red
-		sprite = 14248 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 14248 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 3)) %
+		                     8;
 		c2 = IRGB(16, 0, 0);
 		break;
 
@@ -4006,25 +4021,34 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break;
 
 	case 59195:
-		c2 = IRGB(abs(30 - (attick % 61)) / 4, abs(30 - (attick % 61)) / 2 + 5, abs(30 - (attick % 61)) / 4);
+		c2 = IRGB(
+		    abs(30 - (int)(attick % 61)) / 4, abs(30 - (int)(attick % 61)) / 2 + 5, abs(30 - (int)(attick % 61)) / 4);
 		light = abs(30 - (attick % 61)) / 3;
 		shine = 5;
 		sprite = 51085;
 		break;
 	case 59196:
-		sprite = 51110 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 51110 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 3)) %
+		                     8;
 		c2 = IRGB(0, 16, 0);
 		break;
 	case 59197:
-		sprite = 51110 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 51110 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 3)) %
+		                     8;
 		c2 = IRGB(16, 12, 0);
 		break;
 	case 59198:
-		sprite = 51110 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 51110 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 3)) %
+		                     8;
 		c2 = IRGB(16, 0, 0);
 		break;
 	case 59199:
-		sprite = 51110 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 51110 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 3)) %
+		                     8;
 		c2 = IRGB(0, 0, 16);
 		break;
 
@@ -4716,25 +4740,37 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 
 
 	case 59494: // green mr_wall_torch_ds
-		sprite = sprite - 59494 + 20044 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite - 59494 + 20044 +
+		         (unsigned int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		                        (attick / 4)) %
+		             8;
 		light = -20;
 		cg = 50;
 		cr = -100;
 		break;
 	case 59495: // green mr_wall_torch_ls
-		sprite = sprite - 59495 + 20054 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite - 59495 + 20054 +
+		         (unsigned int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		                        (attick / 4)) %
+		             8;
 		light = -20;
 		cg = 50;
 		cr = -100;
 		break;
 	case 59496: // green mr_wall_torch_lh
-		sprite = sprite - 59496 + 20064 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite - 59496 + 20064 +
+		         (unsigned int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		                        (attick / 4)) %
+		             8;
 		light = -20;
 		cg = 50;
 		cr = -100;
 		break;
 	case 59497: // green mr_wall_torch_dh
-		sprite = sprite - 59497 + 20074 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite - 59497 + 20074 +
+		         (unsigned int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		                        (attick / 4)) %
+		             8;
 		light = -20;
 		cg = 50;
 		cr = -100;
@@ -4777,25 +4813,37 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break; // empty green lighted skelly chair
 
 	case 59515: // red mr_wall_torch_ds
-		sprite = sprite - 59515 + 20044 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite - 59515 + 20044 +
+		         (unsigned int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		                        (attick / 4)) %
+		             8;
 		light = -20;
 		cr = 50;
 		cg = -50;
 		break;
 	case 59516: // red mr_wall_torch_ls
-		sprite = sprite - 59516 + 20054 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite - 59516 + 20054 +
+		         (unsigned int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		                        (attick / 4)) %
+		             8;
 		light = -20;
 		cr = 50;
 		cg = -50;
 		break;
 	case 59517: // red mr_wall_torch_lh
-		sprite = sprite - 59517 + 20064 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite - 59517 + 20064 +
+		         (unsigned int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		                        (attick / 4)) %
+		             8;
 		light = -20;
 		cr = 50;
 		cg = -50;
 		break;
 	case 59518: // red mr_wall_torch_dh
-		sprite = sprite - 59518 + 20074 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = sprite - 59518 + 20074 +
+		         (unsigned int)((mn % MAPDX + (unsigned int)originx) + (mn / MAPDX + (unsigned int)originy) * 256 +
+		                        (attick / 4)) %
+		             8;
 		light = -20;
 		cr = 50;
 		cg = -50;
@@ -5131,7 +5179,9 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break; // nomad: white wolf
 
 	case 59665:
-		sprite = 51110 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 8;
+		sprite = 51110 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 3)) %
+		                     8;
 		c2 = IRGB(16, 16, 24);
 		break;
 
@@ -5298,50 +5348,66 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 
 
 	case 59730: // blue mr_wall_torch_ds
-		sprite = 20044 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = 20044 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 4)) %
+		                     8;
 		light = -20;
 		sat = 20;
 		cb = 50;
 		break;
 	case 59731: // blue mr_wall_torch_ls
-		sprite = 20054 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = 20054 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 4)) %
+		                     8;
 		light = -20;
 		sat = 20;
 		cb = 50;
 		break;
 	case 59732: // blue mr_wall_torch_lh
-		sprite = 20064 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = 20064 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 4)) %
+		                     8;
 		light = -20;
 		sat = 20;
 		cb = 50;
 		break;
 	case 59733: // blue mr_wall_torch_dh
-		sprite = 20074 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = 20074 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 4)) %
+		                     8;
 		light = -20;
 		sat = 20;
 		cb = 50;
 		break;
 
 	case 59734: // blue mr_wall_torch_ds
-		sprite = 20044 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = 20044 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 4)) %
+		                     8;
 		light = 20;
 		sat = 20;
 		cb = 30;
 		break;
 	case 59735: // blue mr_wall_torch_ls
-		sprite = 20054 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = 20054 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 4)) %
+		                     8;
 		light = 20;
 		sat = 20;
 		cb = 30;
 		break;
 	case 59736: // blue mr_wall_torch_lh
-		sprite = 20064 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = 20064 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 4)) %
+		                     8;
 		light = 20;
 		sat = 20;
 		cb = 30;
 		break;
 	case 59737: // blue mr_wall_torch_dh
-		sprite = 20074 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 4) % 8;
+		sprite = 20074 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 4)) %
+		                     8;
 		light = 20;
 		sat = 20;
 		cb = 30;
@@ -5364,7 +5430,7 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break;
 
 	case 59743: // edemon suspensor white
-		sprite = 14200 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 3) % 4;
+		sprite = 14200 + (unsigned int)(((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 3)) % 4);
 		c2 = IRGB(16, 16, 24);
 		break;
 
@@ -5453,7 +5519,9 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break;
 
 	case 59798:
-		sprite = 10004 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 8;
+		sprite = 10004 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 2)) %
+		                     8;
 		light = -20;
 		cg = 100;
 		cr = -100;
@@ -5466,7 +5534,9 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break;
 
 	case 59800:
-		sprite = 10004 + ((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 8;
+		sprite = 10004 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 2)) %
+		                     8;
 		light = -20;
 		cb = 100;
 		cr = -100;
@@ -5479,11 +5549,15 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 		break;
 
 	case 59802: // sewer outlet
-		sprite = 22500 + (int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 8;
+		sprite = 22500 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 2)) %
+		                     8;
 		c3 = IRGB(4, 6, 0);
 		break;
 	case 59803: // sewer ground
-		sprite = 22508 + (int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick) / 2) % 8;
+		sprite = 22508 + (unsigned int)((mn % MAPDX + (unsigned int)originx) +
+		                                (mn / MAPDX + (unsigned int)originy) * 256 + (attick / 2)) %
+		                     8;
 		c3 = IRGB(4, 6, 0);
 		break;
 	case 59804:
@@ -5551,42 +5625,43 @@ DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t att
 	}
 
 	if (sprite >= 100000) {
-		nr = trans_charno((sprite - 100000) / 1000, &scale, &cr, &cg, &cb, &light, &sat, &c1, &c2, &c3, &shine, attick);
-		sprite = nr * 1000 + sprite % 1000 + 100000;
+		nr = trans_charno(
+		    (int)((sprite - 100000) / 1000), &scale, &cr, &cg, &cb, &light, &sat, &c1, &c2, &c3, &shine, (int)attick);
+		sprite = (unsigned int)nr * 1000 + sprite % 1000 + 100000;
 	}
 
 	if (pscale) {
-		*pscale = scale;
+		*pscale = (unsigned char)scale;
 	}
 	if (pcr) {
-		*pcr = cr;
+		*pcr = (unsigned char)cr;
 	}
 	if (pcg) {
-		*pcg = cg;
+		*pcg = (unsigned char)cg;
 	}
 	if (pcb) {
-		*pcb = cb;
+		*pcb = (unsigned char)cb;
 	}
 	if (plight) {
-		*plight = light;
+		*plight = (unsigned char)light;
 	}
 	if (psat) {
-		*psat = sat;
+		*psat = (unsigned char)sat;
 	}
 	if (pc1) {
-		*pc1 = c1;
+		*pc1 = (unsigned short)c1;
 	}
 	if (pc2) {
-		*pc2 = c2;
+		*pc2 = (unsigned short)c2;
 	}
 	if (pc3) {
-		*pc3 = c3;
+		*pc3 = (unsigned short)c3;
 	}
 	if (pshine) {
-		*pshine = shine;
+		*pshine = (unsigned short)shine;
 	}
 
-	return sprite;
+	return (unsigned int)sprite;
 }
 
 int (*get_player_sprite)(int nr, int zdir, int action, int step, int duration, int attick) = _get_player_sprite;
@@ -5629,7 +5704,7 @@ DLL_EXPORT int _get_player_sprite(int nr, int zdir, int action, int step, int du
 		case 119:
 		case 360:
 			action = 60;
-			step = attick % 16;
+			step = (attick % 16);
 			duration = 16;
 			break;
 
@@ -5637,7 +5712,7 @@ DLL_EXPORT int _get_player_sprite(int nr, int zdir, int action, int step, int du
 		case 121:
 		case 122:
 			action = 60;
-			step = attick % 32;
+			step = (attick % 32);
 			duration = 32;
 			break;
 
@@ -5724,48 +5799,48 @@ DLL_EXPORT int _get_player_sprite(int nr, int zdir, int action, int step, int du
 	return base;
 }
 
-void (*trans_csprite)(int mn, struct map *cmap, uint32_t attick) = _trans_csprite;
+void (*trans_csprite)(unsigned int mn, struct map *cmap, uint32_t attick) = _trans_csprite;
 
-DLL_EXPORT void _trans_csprite(int mn, struct map *cmap, uint32_t attick)
+DLL_EXPORT void _trans_csprite(unsigned int mn, struct map *cmap, uint32_t attick)
 {
 	int dirxadd[8] = {+1, 0, -1, -2, -1, 0, +1, +2};
 	int diryadd[8] = {+1, +2, +1, 0, -1, -2, -1, 0};
-	// int base;
-	int csprite;
+	unsigned int csprite;
 	int scale, cr, cg, cb, light, sat, c1, c2, c3, shine;
 
 	if (playersprite_override && mn == mapmn(MAPDX / 2, MAPDY / 2)) {
-		csprite = playersprite_override;
+		csprite = (unsigned int)playersprite_override;
 	} else {
 		csprite = cmap[mn].csprite;
 	}
 
-	csprite = trans_charno(csprite, &scale, &cr, &cg, &cb, &light, &sat, &c1, &c2, &c3, &shine, attick);
+	csprite = (unsigned int)trans_charno(
+	    (int)csprite, &scale, &cr, &cg, &cb, &light, &sat, &c1, &c2, &c3, &shine, (int)attick);
 
-	cmap[mn].rc.sprite =
-	    get_player_sprite(csprite, cmap[mn].dir - 1, cmap[mn].action, cmap[mn].step, cmap[mn].duration, attick);
-	cmap[mn].rc.scale = scale;
+	cmap[mn].rc.sprite = (unsigned int)get_player_sprite(
+	    (int)csprite, cmap[mn].dir - 1, cmap[mn].action, cmap[mn].step, cmap[mn].duration, (int)attick);
+	cmap[mn].rc.scale = (unsigned char)scale;
 
-	cmap[mn].rc.shine = shine;
-	cmap[mn].rc.cr = cr;
-	cmap[mn].rc.cg = cg;
-	cmap[mn].rc.cb = cb;
-	cmap[mn].rc.light = light;
-	cmap[mn].rc.sat = sat;
+	cmap[mn].rc.shine = (unsigned short)shine;
+	cmap[mn].rc.cr = (unsigned char)cr;
+	cmap[mn].rc.cg = (unsigned char)cg;
+	cmap[mn].rc.cb = (unsigned char)cb;
+	cmap[mn].rc.light = (unsigned char)light;
+	cmap[mn].rc.sat = (unsigned char)sat;
 
-	if (cmap[mn].csprite < 120 || amod_is_playersprite(cmap[mn].csprite)) {
+	if (cmap[mn].csprite < 120 || amod_is_playersprite((int)cmap[mn].csprite)) {
 		cmap[mn].rc.c1 = player[cmap[mn].cn].c1;
 		cmap[mn].rc.c2 = player[cmap[mn].cn].c2;
 		cmap[mn].rc.c3 = player[cmap[mn].cn].c3;
 	} else {
-		cmap[mn].rc.c1 = c1;
-		cmap[mn].rc.c2 = c2;
-		cmap[mn].rc.c3 = c3;
+		cmap[mn].rc.c1 = (unsigned short)c1;
+		cmap[mn].rc.c2 = (unsigned short)c2;
+		cmap[mn].rc.c3 = (unsigned short)c3;
 	}
 
 	if (cmap[mn].duration && cmap[mn].action == 1) {
-		cmap[mn].xadd = 20 * (cmap[mn].step) * dirxadd[cmap[mn].dir - 1] / cmap[mn].duration;
-		cmap[mn].yadd = 10 * (cmap[mn].step) * diryadd[cmap[mn].dir - 1] / cmap[mn].duration;
+		cmap[mn].xadd = (char)(20 * (cmap[mn].step) * dirxadd[cmap[mn].dir - 1] / cmap[mn].duration);
+		cmap[mn].yadd = (char)(10 * (cmap[mn].step) * diryadd[cmap[mn].dir - 1] / cmap[mn].duration);
 	} else {
 		cmap[mn].xadd = 0;
 		cmap[mn].yadd = 0;
@@ -5897,25 +5972,25 @@ DLL_EXPORT int _get_offset_sprite(int sprite, int *px, int *py)
 	}
 }
 
-int (*additional_sprite)(int sprite, int attick) = _additional_sprite;
+int (*additional_sprite)(unsigned int sprite, int attick) = _additional_sprite;
 
-DLL_EXPORT int _additional_sprite(int sprite, int attick)
+DLL_EXPORT int _additional_sprite(unsigned int sprite, int attick)
 {
 	switch (sprite) {
 	case 50495:
 	case 50496:
 	case 50497:
 	case 50498:
-		return 50500 + attick % 6;
+		return 50500 + (attick % 6);
 
 	default:
 		return 0;
 	}
 }
 
-unsigned int (*opt_sprite)(int sprite) = _opt_sprite;
+unsigned int (*opt_sprite)(unsigned int sprite) = _opt_sprite;
 
-DLL_EXPORT unsigned int _opt_sprite(int sprite)
+DLL_EXPORT unsigned int _opt_sprite(unsigned int sprite)
 {
 	switch (sprite) {
 	case 13:
@@ -5965,9 +6040,9 @@ DLL_EXPORT unsigned int _opt_sprite(int sprite)
 // Return true if the sprite should not get shaded lighting.
 // The client will use uniform light instead. Should return
 // true for anything that is not a basic wall or floor.
-int (*no_lighting_sprite)(int sprite) = _no_lighting_sprite;
+int (*no_lighting_sprite)(unsigned int sprite) = _no_lighting_sprite;
 
-DLL_EXPORT int _no_lighting_sprite(int sprite)
+DLL_EXPORT int _no_lighting_sprite(unsigned int sprite)
 {
 	switch (sprite) {
 	case 21410:

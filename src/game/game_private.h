@@ -107,16 +107,16 @@ extern RenderFont *fontc_framed; // Big font with outline
 int is_top_sprite(int sprite, int itemhint);
 extern int (*is_cut_sprite)(unsigned int sprite);
 DLL_EXPORT int _is_cut_sprite(unsigned int sprite);
-extern int (*is_mov_sprite)(int sprite, int itemhint);
-DLL_EXPORT int _is_mov_sprite(int sprite, int itemhint);
+extern int (*is_mov_sprite)(unsigned int sprite, int itemhint);
+DLL_EXPORT int _is_mov_sprite(unsigned int sprite, int itemhint);
 extern int (*is_door_sprite)(unsigned int sprite);
 DLL_EXPORT int _is_door_sprite(unsigned int sprite);
-extern int (*is_yadd_sprite)(int sprite);
-DLL_EXPORT int _is_yadd_sprite(int sprite);
-extern int (*get_chr_height)(int csprite);
-DLL_EXPORT int _get_chr_height(int csprite);
-extern void (*trans_csprite)(int mn, struct map *cmap, uint32_t attick);
-DLL_EXPORT void _trans_csprite(int mn, struct map *cmap, int attick);
+extern int (*is_yadd_sprite)(unsigned int sprite);
+DLL_EXPORT int _is_yadd_sprite(unsigned int sprite);
+extern int (*get_chr_height)(unsigned int csprite);
+DLL_EXPORT int _get_chr_height(unsigned int csprite);
+extern void (*trans_csprite)(unsigned int mn, struct map *cmap, uint32_t attick);
+DLL_EXPORT void _trans_csprite(unsigned int mn, struct map *cmap, uint32_t attick);
 extern int (*get_lay_sprite)(int sprite, int lay);
 DLL_EXPORT int _get_lay_sprite(int sprite, int lay);
 extern int (*get_offset_sprite)(int sprite, int *px, int *py);
@@ -177,7 +177,7 @@ void sprites_colorbalance(struct map *cmap, int mn, int r, int g, int b);
 void set_map_straight(struct map *cmap);
 
 // From game_display.c
-int get_sink(int mn, struct map *cmap);
+int get_sink(unsigned int mn, struct map *cmap);
 void draw_pixel(int64_t x, int64_t y, int64_t color);
 void display_game_map(struct map *cmap);
 void display_pents(void);
