@@ -18,6 +18,7 @@
 #include "astonia.h"
 #include "sdl/sdl.h"
 #include "sdl/sdl_private.h"
+#include "gui/gui.h"
 
 // SDL window and renderer
 SDL_Window *sdlwnd = NULL;
@@ -526,8 +527,6 @@ void sdl_exit(void)
 #endif
 }
 
-void gui_sdl_keyproc(int wparam);
-void gui_sdl_mouseproc(int x, int y, int but, int clicks);
 void gui_sdl_draghack(void);
 void cmd_proc(int key);
 void context_keyup(int key);

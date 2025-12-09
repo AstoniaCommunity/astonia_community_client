@@ -53,6 +53,8 @@ int main_init(void);
 int main_loop(void);
 void main_exit(void);
 void gui_dump(FILE *fp);
+void gui_sdl_keyproc(int wparam);
+void gui_sdl_mouseproc(int x, int y, int what);
 
 extern int (*get_skltab_sep)(int i);
 DLL_EXPORT int _get_skltab_sep(int i);
