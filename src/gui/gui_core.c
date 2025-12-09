@@ -251,7 +251,7 @@ void main_exit(void)
 static void flip_at(unsigned int t)
 {
 	unsigned int tnow;
-	int sdl_pre_do(int curtick);
+	int sdl_pre_do(uint32_t curtick);
 
 	do {
 		sdl_loop();
@@ -268,9 +268,10 @@ static void flip_at(unsigned int t)
 
 int main_loop(void)
 {
-	void prefetch_game(int attick);
+	void prefetch_game(uint32_t attick);
 	int64_t timediff;
-	int tmp, ltick = 0, attick;
+	int tmp, ltick = 0;
+	uint32_t attick;
 	long long start;
 	int do_one_tick = 1;
 	uint64_t gui_last_frame = 0, gui_last_tick = 0;

@@ -1232,10 +1232,10 @@ void process(unsigned char *buf, int size)
 	}
 }
 
-int prefetch(unsigned char *buf, int size)
+uint32_t prefetch(unsigned char *buf, int size)
 {
 	int len = 0, panic = 0, last = -1;
-	static int prefetch_tick = 0;
+	static uint32_t prefetch_tick = 0;
 
 	while (size > 0 && panic++ < 20000) {
 		if ((buf[0] & (64 + 128)) == SV_MAP01) {

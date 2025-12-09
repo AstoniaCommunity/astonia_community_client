@@ -318,7 +318,7 @@ void set_map_straight(struct map *cmap)
 	}
 }
 
-void set_map_values(struct map *cmap, int attick)
+void set_map_values(struct map *cmap, uint32_t attick)
 {
 	set_map_lights(cmap);
 	set_map_sprites(cmap, attick);

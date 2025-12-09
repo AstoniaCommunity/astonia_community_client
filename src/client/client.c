@@ -29,7 +29,7 @@ static int sent_bytes = 0;
 static astonia_sock *sock = NULL;
 int sockstate = 0;
 static unsigned int socktime = 0;
-int socktimeout = 0;
+time_t socktimeout = 0;
 int change_area = 0;
 int kicked_out = 0;
 unsigned int unique = 0;
@@ -41,27 +41,27 @@ static int zsinit;
 static struct z_stream_s zs;
 
 DLL_EXPORT char username[40];
-DLL_EXPORT int tick;
+DLL_EXPORT uint32_t tick;
 DLL_EXPORT int mirror = 0;
 DLL_EXPORT int realtime;
 DLL_EXPORT int protocol_version = 0;
 
 int newmirror = 0;
 int lasttick; // ticks in inbuf
-static int lastticksize; // size inbuf must reach to get the last tick complete in the queue
+static size_t lastticksize; // size inbuf must reach to get the last tick complete in the queue
 
 static struct queue queue[Q_SIZE];
 int q_in, q_out, q_size;
 
 int server_cycles;
 
-static int ticksize;
-static int inused;
-static int indone;
+static size_t ticksize;
+static size_t inused;
+static size_t indone;
 int login_done;
 static unsigned char inbuf[MAX_INBUF];
 
-static int outused;
+static size_t outused;
 static unsigned char outbuf[MAX_OUTBUF];
 
 DLL_EXPORT int act;
@@ -116,7 +116,7 @@ int may_teleport[64 + 32];
 DLL_EXPORT int frames_per_second = TICKS;
 
 // Unaligned load/store helpers
-DLL_EXPORT void client_send(void *buf, int len)
+DLL_EXPORT void client_send(void *buf, size_t len)
 {
 	if (len > MAX_OUTBUF - outused) {
 		return;
@@ -219,9 +219,9 @@ int close_client(void)
 	return 0;
 }
 
-#define MAXPASSWORD 16
+#define MAXPASSWORD 17
 
-void decrypt(const char *name, char *password)
+static void decrypt(const char *name, char *password)
 {
 	int i;
 	static const char secret[4][MAXPASSWORD] = {"\000cgf\000de8etzdf\000dx", "jrfa\000v7d\000drt\000edm",
@@ -232,7 +232,7 @@ void decrypt(const char *name, char *password)
 	}
 }
 
-void send_info(astonia_sock *s)
+static void send_info(astonia_sock *s)
 {
 	char buf[12] = {0};
 	uint32_t local_ip, peer_ip;
@@ -405,8 +405,8 @@ int poll_network(void)
 			// would-block -> no progress this frame
 			n = 0;
 		} else {
-			memmove(outbuf, outbuf + n, outused - n);
-			outused -= n;
+			memmove(outbuf, outbuf + n, outused - (size_t)n);
+			outused -= (size_t)n;
 			sent_bytes += n;
 		}
 	}
@@ -427,7 +427,7 @@ int poll_network(void)
 		return 0; /* no data this frame */
 	}
 
-	inused += n;
+	inused += (size_t)n;
 	rec_bytes += n;
 
 	// count ticks
@@ -446,7 +446,7 @@ int poll_network(void)
 	return 0;
 }
 
-void auto_tick(struct map *cmap)
+static void auto_tick(struct map *cmap)
 {
 	int x, y, mn;
 
@@ -467,10 +467,11 @@ void auto_tick(struct map *cmap)
 	}
 }
 
-int next_tick(void)
+uint32_t next_tick(void)
 {
-	int ticksize;
-	int size, ret, attick;
+	size_t ticksize;
+	int size, ret;
+	uint32_t attick;
 
 	// no room for next tick, leave it in in-queue
 	if (q_size == Q_SIZE) {
@@ -497,7 +498,7 @@ int next_tick(void)
 	// decompress
 	if (*inbuf & 0x80) {
 		zs.next_in = inbuf + indone;
-		zs.avail_in = ticksize - indone;
+		zs.avail_in = (unsigned int)(ticksize - indone);
 
 		zs.next_out = queue[q_in].buf;
 		zs.avail_out = sizeof(queue[q_in].buf);
@@ -514,10 +515,10 @@ int next_tick(void)
 			return 0;
 		}
 
-		size = sizeof(queue[q_in].buf) - zs.avail_out;
+		size = (int)(sizeof(queue[q_in].buf) - zs.avail_out);
 	} else {
-		size = ticksize - indone;
-		memcpy(queue[q_in].buf, inbuf + indone, size);
+		size = (int)(ticksize - indone);
+		memcpy(queue[q_in].buf, inbuf + indone, (size_t)size);
 	}
 	queue[q_in].size = size;
 
@@ -528,7 +529,7 @@ int next_tick(void)
 	q_size++;
 
 	// remove tick from inbuf
-	if (inused - ticksize >= 0) {
+	if (inused >= ticksize) {
 		memmove(inbuf, inbuf + ticksize, inused - ticksize);
 	} else {
 		note("kuckuck!");
@@ -586,7 +587,7 @@ DLL_EXPORT int exp2level(int val)
 // to reach level X you need Y exp
 DLL_EXPORT int level2exp(int level)
 {
-	return pow(level, 4);
+	return (int)pow(level, 4);
 }
 
 DLL_EXPORT int mapmn(int x, int y)

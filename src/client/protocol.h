@@ -64,7 +64,7 @@ static inline void ipv4_be_to_string(uint32_t be, char out[16])
 }
 
 void process(unsigned char *buf, int size);
-int prefetch(unsigned char *buf, int size);
+uint32_t prefetch(unsigned char *buf, int size);
 
 void sv_protocol(unsigned char *buf);
 

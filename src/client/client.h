@@ -473,7 +473,7 @@ DLL_EXPORT extern int lifeshield;
 DLL_EXPORT extern int experience;
 DLL_EXPORT extern int experience_used;
 DLL_EXPORT extern int gold;
-DLL_EXPORT extern int tick;
+DLL_EXPORT extern uint32_t tick;
 extern int lasttick; // ticks in inbuf
 extern int q_size;
 
@@ -505,7 +505,7 @@ DLL_EXPORT extern int originx;
 DLL_EXPORT extern int originy;
 
 extern int sockstate;
-extern int socktimeout;
+extern time_t socktimeout;
 DLL_EXPORT extern char *target_server;
 extern int target_port;
 extern int kicked_out;
@@ -568,7 +568,7 @@ void cmd_con_fast(int pos);
 void cmd_teleport(int nr);
 
 int poll_network(void);
-int next_tick(void);
+uint32_t next_tick(void);
 int do_tick(void);
 void cl_client_info(struct client_info *ci);
 void cl_ticker(void);
