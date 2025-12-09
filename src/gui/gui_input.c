@@ -282,7 +282,7 @@ void gui_sdl_keyproc(int wparam)
 	}
 }
 
-void gui_sdl_mouseproc(int x, int y, int what, int clicks)
+void gui_sdl_mouseproc(int x, int y, int what)
 {
 	int delta, tmp;
 	static int mdown = 0;

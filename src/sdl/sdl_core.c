@@ -550,32 +550,32 @@ void sdl_loop(void)
 			cmd_proc(event.text.text[0]);
 			break;
 		case SDL_MOUSEMOTION:
-			gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_NONE, 0);
+			gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_NONE);
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			if (event.button.button == SDL_BUTTON_LEFT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LDOWN, event.button.clicks);
+				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LDOWN);
 			}
 			if (event.button.button == SDL_BUTTON_MIDDLE) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_MDOWN, event.button.clicks);
+				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_MDOWN);
 			}
 			if (event.button.button == SDL_BUTTON_RIGHT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RDOWN, event.button.clicks);
+				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RDOWN);
 			}
 			break;
 		case SDL_MOUSEBUTTONUP:
 			if (event.button.button == SDL_BUTTON_LEFT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LUP, event.button.clicks);
+				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LUP);
 			}
 			if (event.button.button == SDL_BUTTON_MIDDLE) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_MUP, event.button.clicks);
+				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_MUP);
 			}
 			if (event.button.button == SDL_BUTTON_RIGHT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RUP, event.button.clicks);
+				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RUP);
 			}
 			break;
 		case SDL_MOUSEWHEEL:
-			gui_sdl_mouseproc(event.wheel.x, event.wheel.y, SDL_MOUM_WHEEL, 0);
+			gui_sdl_mouseproc(event.wheel.x, event.wheel.y, SDL_MOUM_WHEEL);
 			break;
 		case SDL_WINDOWEVENT:
 #ifdef ENABLE_DRAGHACK
