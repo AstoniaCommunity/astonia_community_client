@@ -380,16 +380,16 @@ int context_click(int mx, int my)
 				cmd_look_item(menu.opt1[n], menu.opt2[n]);
 				break;
 			case CMD_CHR_ATTACK:
-				cmd_kill(menu.opt1[n]);
+				cmd_kill((unsigned int)menu.opt1[n]);
 				break;
 			case CMD_CHR_GIVE:
-				cmd_give(menu.opt1[n]);
+				cmd_give((unsigned int)menu.opt1[n]);
 				break;
 			case CMD_CHR_LOOK:
-				cmd_look_char(menu.opt1[n]);
+				cmd_look_char((unsigned int)menu.opt1[n]);
 				break;
 			case CMD_CHR_CAST_K:
-				cmd_some_spell(menu.opt2[n], 0, 0, menu.opt1[n]);
+				cmd_some_spell(menu.opt2[n], 0, 0, (unsigned int)menu.opt1[n]);
 				break;
 			}
 			return 1;

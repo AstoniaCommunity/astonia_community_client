@@ -444,7 +444,7 @@ void cmd_reset(void);
 void cmd_proc(int key);
 
 DLL_EXPORT int get_near_char(int x, int y, int looksize);
-DLL_EXPORT int get_near_item(int x, int y, int flag, int looksize);
+DLL_EXPORT int get_near_item(int x, int y, unsigned int flag, int looksize);
 DLL_EXPORT int get_near_ground(int x, int y);
 
 int context_open(int mx, int my);

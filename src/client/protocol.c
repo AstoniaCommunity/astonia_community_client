@@ -1545,7 +1545,7 @@ void cmd_look_inv(int pos)
 	client_send(buf, 2);
 }
 
-void cmd_look_char(int cn)
+void cmd_look_char(unsigned int cn)
 {
 	char buf[16];
 
@@ -1606,7 +1606,7 @@ void cmd_stop(void)
 	client_send(buf, 1);
 }
 
-void cmd_kill(int cn)
+void cmd_kill(unsigned int cn)
 {
 	char buf[16];
 
@@ -1615,7 +1615,7 @@ void cmd_kill(int cn)
 	client_send(buf, 3);
 }
 
-void cmd_give(int cn)
+void cmd_give(unsigned int cn)
 {
 	char buf[16];
 
@@ -1624,7 +1624,7 @@ void cmd_give(int cn)
 	client_send(buf, 3);
 }
 
-void cmd_some_spell(int spell, int x, int y, int chr)
+void cmd_some_spell(int spell, int x, int y, unsigned int chr)
 {
 	char buf[16], len;
 

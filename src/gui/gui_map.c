@@ -66,7 +66,7 @@ DLL_EXPORT int get_near_ground(int x, int y)
 	return mapmn(mapx, mapy);
 }
 
-DLL_EXPORT int get_near_item(int x, int y, int flag, int looksize)
+DLL_EXPORT int get_near_item(int x, int y, unsigned int flag, int looksize)
 {
 	int mapx, mapy, sx, sy, ex, ey, mn, scrx, scry, nearest = -1;
 	double dist, nearestdist = 100000000;
