@@ -463,8 +463,8 @@ DLL_EXPORT extern struct map map2[MAPDX * MAPDY];
 DLL_EXPORT extern int value[2][V_MAX];
 extern int *game_v_max;
 extern int *game_v_profbase;
-DLL_EXPORT extern int item[INVENTORYSIZE];
-DLL_EXPORT extern int item_flags[INVENTORYSIZE];
+DLL_EXPORT extern uint32_t item[INVENTORYSIZE];
+DLL_EXPORT extern uint32_t item_flags[INVENTORYSIZE];
 DLL_EXPORT extern int hp;
 DLL_EXPORT extern int mana;
 DLL_EXPORT extern int rage;
@@ -490,7 +490,7 @@ DLL_EXPORT extern int cprice;
 DLL_EXPORT extern int protocol_version;
 
 extern int looklevel;
-DLL_EXPORT extern int mirror, newmirror;
+DLL_EXPORT extern uint32_t mirror, newmirror;
 extern int may_teleport[64 + 32];
 DLL_EXPORT extern int pspeed; // 0=ill 1=stealth 2=normal 3=fast
 
@@ -501,8 +501,8 @@ DLL_EXPORT extern union ceffect ceffect[MAXEF];
 DLL_EXPORT extern unsigned char ueffect[MAXEF];
 DLL_EXPORT extern struct player player[MAXCHARS];
 
-DLL_EXPORT extern int originx;
-DLL_EXPORT extern int originy;
+DLL_EXPORT extern uint16_t originx;
+DLL_EXPORT extern uint16_t originy;
 
 extern int sockstate;
 extern time_t socktimeout;
@@ -513,16 +513,16 @@ extern int kicked_out;
 extern char **game_skilldesc;
 extern struct skill *game_skill;
 
-DLL_EXPORT extern int act;
-DLL_EXPORT extern int actx;
-DLL_EXPORT extern int acty;
+DLL_EXPORT extern uint16_t act;
+DLL_EXPORT extern uint16_t actx;
+DLL_EXPORT extern uint16_t acty;
 
 DLL_EXPORT extern int lookinv[12];
 DLL_EXPORT extern int looksprite, lookc1, lookc2, lookc3;
 DLL_EXPORT extern char look_name[80];
 DLL_EXPORT extern char look_desc[1024];
 
-DLL_EXPORT extern int realtime;
+DLL_EXPORT extern uint32_t realtime;
 DLL_EXPORT extern int mil_exp;
 extern int display_gfx;
 extern int display_time;

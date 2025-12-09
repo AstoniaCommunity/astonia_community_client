@@ -42,11 +42,11 @@ static struct z_stream_s zs;
 
 DLL_EXPORT char username[40];
 DLL_EXPORT uint32_t tick;
-DLL_EXPORT int mirror = 0;
-DLL_EXPORT int realtime;
+DLL_EXPORT uint32_t mirror = 0;
+DLL_EXPORT uint32_t realtime;
 DLL_EXPORT int protocol_version = 0;
 
-int newmirror = 0;
+uint32_t newmirror = 0;
 int lasttick; // ticks in inbuf
 static size_t lastticksize; // size inbuf must reach to get the last tick complete in the queue
 
@@ -64,21 +64,21 @@ static unsigned char inbuf[MAX_INBUF];
 static size_t outused;
 static unsigned char outbuf[MAX_OUTBUF];
 
-DLL_EXPORT int act;
-DLL_EXPORT int actx;
-DLL_EXPORT int acty;
+DLL_EXPORT uint16_t act;
+DLL_EXPORT uint16_t actx;
+DLL_EXPORT uint16_t acty;
 
 DLL_EXPORT unsigned int cflags; // current item flags
 DLL_EXPORT unsigned int csprite; // and sprite
 
-DLL_EXPORT int originx;
-DLL_EXPORT int originy;
+DLL_EXPORT uint16_t originx;
+DLL_EXPORT uint16_t originy;
 DLL_EXPORT struct map map[MAPDX * MAPDY];
 DLL_EXPORT struct map map2[MAPDX * MAPDY];
 
 DLL_EXPORT int value[2][V_MAX];
-DLL_EXPORT int item[INVENTORYSIZE];
-DLL_EXPORT int item_flags[INVENTORYSIZE];
+DLL_EXPORT uint32_t item[INVENTORYSIZE];
+DLL_EXPORT uint32_t item_flags[INVENTORYSIZE];
 DLL_EXPORT int hp;
 DLL_EXPORT int mana;
 DLL_EXPORT int rage;
