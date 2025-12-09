@@ -150,7 +150,7 @@ Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename)
 	return chunk;
 }
 
-void sound_exit()
+void sound_exit(void)
 {
 	int i;
 
