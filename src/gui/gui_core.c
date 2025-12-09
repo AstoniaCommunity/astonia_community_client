@@ -185,7 +185,7 @@ void display(void);
 int calc_tick_delay_short(int size);
 int calc_tick_delay_normal(int size);
 
-void init_colors(void)
+static void init_colors(void)
 {
 	whitecolor = IRGB(31, 31, 31);
 	lightgraycolor = IRGB(28, 28, 28);
@@ -247,7 +247,7 @@ void main_exit(void)
 	exit_game();
 }
 
-void flip_at(unsigned int t)
+static void flip_at(unsigned int t)
 {
 	unsigned int tnow;
 	int sdl_pre_do(int curtick);
