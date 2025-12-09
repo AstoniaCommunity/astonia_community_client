@@ -1021,7 +1021,7 @@ int sdl_pre_done(void)
 	return 1;
 }
 
-int sdl_pre_do(int curtick)
+int sdl_pre_do(uint32_t curtick)
 {
 	long long start;
 	int size;

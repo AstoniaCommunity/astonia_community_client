@@ -180,4 +180,4 @@ void set_map_straight(struct map *cmap);
 int get_sink(int mn, struct map *cmap);
 void display_game_map(struct map *cmap);
 void display_pents(void);
-void prefetch_game(int attick);
+void prefetch_game(uint32_t attick);

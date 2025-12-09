@@ -168,7 +168,7 @@ void list_mem(void);
 
 void display_game(void);
 
-void set_map_values(struct map *cmap, int attick);
+void set_map_values(struct map *cmap, uint32_t attick);
 void quest_select(int nr);
 void init_game(int mcx, int mcy);
 void exit_game(void);

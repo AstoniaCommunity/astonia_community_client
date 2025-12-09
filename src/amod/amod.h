@@ -70,7 +70,7 @@ DLL_IMPORT int exp2level(int val);
 DLL_IMPORT int level2exp(int level);
 DLL_IMPORT int mil_rank(int exp);
 // client / server communication
-DLL_IMPORT void client_send(void *buf, int len);
+DLL_IMPORT void client_send(void *buf, size_t len);
 
 
 // ---------- Client exported data structures -------------
