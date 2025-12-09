@@ -11,8 +11,24 @@ RUST_CPU_FLAGS=
 endif
 DEBUG=-gdwarf-4
 SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
-CFLAGS=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
-CFLAGS_PIC=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
+
+STRICT_WARNING_FLAGS = \
+    -Wall -Wextra -Wpedantic \
+    -Wformat=2 \
+    -Wnull-dereference \
+    -Wdouble-promotion \
+    -Wcast-align \
+    -Wcast-qual \
+    -Wconversion -Wsign-conversion \
+    -Wmissing-prototypes -Wstrict-prototypes \
+    -Wvla \
+    -Wfloat-equal \
+    -Wnewline-eof
+
+WARNING_FLAGS ?= $(STRICT_WARNING_FLAGS) -Werror
+
+CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
+CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,\$$ORIGIN
 
 SDL_LIBS=$(shell $(SDL_CONFIG) --libs)

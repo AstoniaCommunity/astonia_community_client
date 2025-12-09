@@ -7,6 +7,21 @@ DEBUG=-gdwarf-4
 PKG_CONFIG?=pkg-config
 BREW_PREFIX:=$(shell brew --prefix 2>/dev/null)
 
+STRICT_WARNING_FLAGS = \
+    -Wall -Wextra -Wpedantic \
+    -Wformat=2 \
+    -Wnull-dereference \
+    -Wdouble-promotion \
+    -Wcast-align \
+    -Wcast-qual \
+    -Wconversion -Wsign-conversion \
+    -Wmissing-prototypes -Wstrict-prototypes \
+    -Wvla \
+    -Wfloat-equal \
+    -Wnewline-eof
+
+WARNING_FLAGS ?= $(STRICT_WARNING_FLAGS) -Werror
+
 ZIP_CFLAGS:=$(shell $(PKG_CONFIG) --cflags libzip 2>/dev/null)
 ZIP_LIBS:=$(shell $(PKG_CONFIG) --libs libzip 2>/dev/null)
 ifeq ($(ZIP_CFLAGS),)
@@ -38,8 +53,8 @@ ifeq ($(SDL_MIXER_LIBS),)
 endif
 
 SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
-CFLAGS=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS)
-CFLAGS_PIC=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS)
+CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS)
+CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS)
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,@loader_path
 
 SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
@@ -81,7 +96,7 @@ $(ASTONIA_NET_LIB):
 
 # Build the tiny Mach-O launcher binary used as CFBundleExecutable
 $(LAUNCHER_BIN): $(LAUNCHER_SRC)
-		$(CC) -O2 -Wall -Wextra -mmacosx-version-min=11.0 \
+		$(CC) -O2 $(STRICT_WARNING_FLAGS) -mmacosx-version-min=11.0 \
 		      -o $(LAUNCHER_BIN) $(LAUNCHER_SRC)
 
 bin/amod.dylib:	src/amod/amod.o bin/moac

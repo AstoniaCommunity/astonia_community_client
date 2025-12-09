@@ -73,13 +73,22 @@ PLATFORM_FLAGS = -fms-extensions -D_WIN32 -D_WIN32_WINNT=$(WIN32_WINNT)
 # Note: Resource dir needed for cross-compilation to find Windows compiler-rt
 RTLIB_FLAGS = --rtlib=compiler-rt -resource-dir=$(SYSROOT)/lib/clang/21
 
-# Warning flags - comprehensive but with necessary suppressions
-WARNING_FLAGS = -Wall -Wextra \
-    -Wno-pointer-sign \
-    -Wno-char-subscripts \
-    -Wformat-security \
-    -Wformat-nonliteral \
-    -Winit-self
+STRICT_WARNING_FLAGS = \
+    -Wall -Wextra -Wpedantic \
+    -Wformat=2 \
+    -Wnull-dereference \
+    -Wdouble-promotion \
+    -Wcast-align \
+    -Wcast-qual \
+    -Wconversion -Wsign-conversion \
+    -Wmissing-prototypes -Wstrict-prototypes \
+    -Wvla \
+    -Wfloat-equal \
+    -Wnewline-eof
+
+# All warnings are errors
+WARNING_FLAGS ?= $(STRICT_WARNING_FLAGS) -Werror
+
 
 # Security/hardening flags
 SECURITY_FLAGS = -fstack-protector-strong \
