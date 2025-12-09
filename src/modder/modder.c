@@ -42,8 +42,8 @@ struct mod mod[MAXMOD] = {{NULL}};
 
 int (*_amod_is_playersprite)(int sprite) = NULL;
 int (*_amod_display_skill_line)(int v, int base, int curr, int cn, char *buf) = NULL;
-int (*_amod_process)(char *buf) = NULL;
-int (*_amod_prefetch)(char *buf) = NULL;
+int (*_amod_process)(const unsigned char *buf) = NULL;
+int (*_amod_prefetch)(const unsigned char *buf) = NULL;
 
 char *game_email_main = "<no one>";
 char *game_email_cash = "<no one>";
@@ -372,7 +372,7 @@ int amod_display_skill_line(int v, int base, int curr, int cn, char *buf)
 	return 0;
 }
 
-int amod_process(const char *buf)
+int amod_process(const unsigned char *buf)
 {
 	if (_amod_process) {
 		return _amod_process(buf);
@@ -380,7 +380,7 @@ int amod_process(const char *buf)
 	return 0;
 }
 
-int amod_prefetch(const char *buf)
+int amod_prefetch(const unsigned char *buf)
 {
 	if (_amod_prefetch) {
 		return _amod_prefetch(buf);

@@ -39,30 +39,30 @@ void set_map_lights(struct map *cmap)
 
 		if (cmap[mn].rlight == 15) {
 			if (cmap[quick[i].mn[1]].flags & CMF_VISIBLE) {
-				cmap[mn].rlight = min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[1]].flags & CMF_LIGHT);
+				cmap[mn].rlight = (char)min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[1]].flags & CMF_LIGHT);
 			}
 			if (cmap[quick[i].mn[3]].flags & CMF_VISIBLE) {
-				cmap[mn].rlight = min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[3]].flags & CMF_LIGHT);
+				cmap[mn].rlight = (char)min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[3]].flags & CMF_LIGHT);
 			}
 			if (cmap[quick[i].mn[5]].flags & CMF_VISIBLE) {
-				cmap[mn].rlight = min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[5]].flags & CMF_LIGHT);
+				cmap[mn].rlight = (char)min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[5]].flags & CMF_LIGHT);
 			}
 			if (cmap[quick[i].mn[7]].flags & CMF_VISIBLE) {
-				cmap[mn].rlight = min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[7]].flags & CMF_LIGHT);
+				cmap[mn].rlight = (char)min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[7]].flags & CMF_LIGHT);
 			}
 
 			if (cmap[mn].rlight == 15) {
 				if (cmap[quick[i].mn[0]].flags & CMF_VISIBLE) {
-					cmap[mn].rlight = min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[0]].flags & CMF_LIGHT);
+					cmap[mn].rlight = (char)min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[0]].flags & CMF_LIGHT);
 				}
 				if (cmap[quick[i].mn[2]].flags & CMF_VISIBLE) {
-					cmap[mn].rlight = min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[2]].flags & CMF_LIGHT);
+					cmap[mn].rlight = (char)min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[2]].flags & CMF_LIGHT);
 				}
 				if (cmap[quick[i].mn[6]].flags & CMF_VISIBLE) {
-					cmap[mn].rlight = min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[6]].flags & CMF_LIGHT);
+					cmap[mn].rlight = (char)min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[6]].flags & CMF_LIGHT);
 				}
 				if (cmap[quick[i].mn[8]].flags & CMF_VISIBLE) {
-					cmap[mn].rlight = min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[8]].flags & CMF_LIGHT);
+					cmap[mn].rlight = (char)min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[8]].flags & CMF_LIGHT);
 				}
 
 				if (cmap[mn].rlight == 15) {
@@ -104,32 +104,32 @@ void set_map_lights(struct map *cmap)
 
 void sprites_colorbalance(struct map *cmap, int mn, int r, int g, int b)
 {
-	cmap[mn].rf.cr = min(120, cmap[mn].rf.cr + r);
-	cmap[mn].rf.cg = min(120, cmap[mn].rf.cg + g);
-	cmap[mn].rf.cb = min(120, cmap[mn].rf.cb + b);
+	cmap[mn].rf.cr = (unsigned char)min(120, cmap[mn].rf.cr + r);
+	cmap[mn].rf.cg = (unsigned char)min(120, cmap[mn].rf.cg + g);
+	cmap[mn].rf.cb = (unsigned char)min(120, cmap[mn].rf.cb + b);
 
-	cmap[mn].rf2.cr = min(120, cmap[mn].rf2.cr + r);
-	cmap[mn].rf2.cg = min(120, cmap[mn].rf2.cg + g);
-	cmap[mn].rf2.cb = min(120, cmap[mn].rf2.cb + b);
+	cmap[mn].rf2.cr = (unsigned char)min(120, cmap[mn].rf2.cr + r);
+	cmap[mn].rf2.cg = (unsigned char)min(120, cmap[mn].rf2.cg + g);
+	cmap[mn].rf2.cb = (unsigned char)min(120, cmap[mn].rf2.cb + b);
 
-	cmap[mn].rg.cr = min(120, cmap[mn].rg.cr + r);
-	cmap[mn].rg.cg = min(120, cmap[mn].rg.cg + g);
-	cmap[mn].rg.cb = min(120, cmap[mn].rg.cb + b);
+	cmap[mn].rg.cr = (unsigned char)min(120, cmap[mn].rg.cr + r);
+	cmap[mn].rg.cg = (unsigned char)min(120, cmap[mn].rg.cg + g);
+	cmap[mn].rg.cb = (unsigned char)min(120, cmap[mn].rg.cb + b);
 
-	cmap[mn].rg2.cr = min(120, cmap[mn].rg2.cr + r);
-	cmap[mn].rg2.cg = min(120, cmap[mn].rg2.cg + g);
-	cmap[mn].rg2.cb = min(120, cmap[mn].rg2.cb + b);
+	cmap[mn].rg2.cr = (unsigned char)min(120, cmap[mn].rg2.cr + r);
+	cmap[mn].rg2.cg = (unsigned char)min(120, cmap[mn].rg2.cg + g);
+	cmap[mn].rg2.cb = (unsigned char)min(120, cmap[mn].rg2.cb + b);
 
-	cmap[mn].ri.cr = min(120, cmap[mn].ri.cr + r);
-	cmap[mn].ri.cg = min(120, cmap[mn].ri.cg + g);
-	cmap[mn].ri.cb = min(120, cmap[mn].ri.cb + b);
+	cmap[mn].ri.cr = (unsigned char)min(120, cmap[mn].ri.cr + r);
+	cmap[mn].ri.cg = (unsigned char)min(120, cmap[mn].ri.cg + g);
+	cmap[mn].ri.cb = (unsigned char)min(120, cmap[mn].ri.cb + b);
 
-	cmap[mn].rc.cr = min(120, cmap[mn].rc.cr + r);
-	cmap[mn].rc.cg = min(120, cmap[mn].rc.cg + g);
-	cmap[mn].rc.cb = min(120, cmap[mn].rc.cb + b);
+	cmap[mn].rc.cr = (unsigned char)min(120, cmap[mn].rc.cr + r);
+	cmap[mn].rc.cg = (unsigned char)min(120, cmap[mn].rc.cg + g);
+	cmap[mn].rc.cb = (unsigned char)min(120, cmap[mn].rc.cb + b);
 }
 
-static void set_map_sprites(struct map *cmap, int attick)
+static void set_map_sprites(struct map *cmap, uint32_t attick)
 {
 	int i, mn;
 
@@ -194,7 +194,7 @@ static void set_map_sprites(struct map *cmap, int attick)
 static void set_map_cut(struct map *cmap)
 {
 	int i, mn, mn2, i2;
-	unsigned int tmp;
+	int tmp;
 
 	if (nocut) {
 		return;
@@ -242,18 +242,18 @@ static void set_map_cut(struct map *cmap)
 		}
 
 		tmp = abs(is_cut_sprite(cmap[quick[i].mn[4]].rf.sprite));
-		if (tmp != cmap[quick[i].mn[4]].rf.sprite) {
-			cmap[quick[i].mn[4]].rf.sprite = tmp;
+		if ((unsigned int)tmp != cmap[quick[i].mn[4]].rf.sprite) {
+			cmap[quick[i].mn[4]].rf.sprite = (unsigned int)tmp;
 		}
 
 		tmp = abs(is_cut_sprite(cmap[quick[i].mn[4]].rf2.sprite));
-		if (tmp != cmap[quick[i].mn[4]].rf2.sprite) {
-			cmap[quick[i].mn[4]].rf2.sprite = tmp;
+		if ((unsigned int)tmp != cmap[quick[i].mn[4]].rf2.sprite) {
+			cmap[quick[i].mn[4]].rf2.sprite = (unsigned int)tmp;
 		}
 
 		tmp = abs(is_cut_sprite(cmap[quick[i].mn[4]].ri.sprite));
-		if (tmp != cmap[quick[i].mn[4]].ri.sprite) {
-			cmap[quick[i].mn[4]].ri.sprite = tmp;
+		if ((unsigned int)tmp != cmap[quick[i].mn[4]].ri.sprite) {
+			cmap[quick[i].mn[4]].ri.sprite = (unsigned int)tmp;
 		}
 	}
 }

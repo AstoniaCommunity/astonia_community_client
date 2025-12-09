@@ -115,8 +115,8 @@ void set_skltab(void)
 	int i, use, flag, n;
 	int experience_left, raisecost;
 
-
-	experience_left = experience - experience_used;
+	// Calculate signed difference to detect negative experience
+	experience_left = (int)((int64_t)experience - (int64_t)experience_used);
 
 	for (flag = use = 0, n = 0; n <= V_MAX; n++) {
 		i = get_skltab_index(n);
@@ -127,7 +127,7 @@ void set_skltab(void)
 		if (flag && get_skltab_sep(i)) {
 			if (use == skltab_max) {
 				skltab_max += 8;
-				skltab = xrealloc(skltab, (int)((size_t)skltab_max * sizeof(SKLTAB)), MEM_GUI);
+				skltab = xrealloc(skltab, (size_t)skltab_max * sizeof(SKLTAB), MEM_GUI);
 			}
 
 			bzero(&skltab[use], sizeof(SKLTAB));
@@ -146,7 +146,7 @@ void set_skltab(void)
 
 			if (use == skltab_max) {
 				skltab_max += 8;
-				skltab = xrealloc(skltab, (int)((size_t)skltab_max * sizeof(SKLTAB)), MEM_GUI);
+				skltab = xrealloc(skltab, (size_t)skltab_max * sizeof(SKLTAB), MEM_GUI);
 			}
 
 			strcpy(skltab[use].name, "Negative experience");
@@ -160,7 +160,7 @@ void set_skltab(void)
 		} else if (value[0][i] || value[1][i] || get_skltab_show(i)) {
 			if (use == skltab_max) {
 				skltab_max += 8;
-				skltab = xrealloc(skltab, (int)((size_t)skltab_max * sizeof(SKLTAB)), MEM_GUI);
+				skltab = xrealloc(skltab, (size_t)skltab_max * sizeof(SKLTAB), MEM_GUI);
 			}
 
 			if (value[1][i] && i != V_DEMON && i != V_COLD && i < V_PROFBASE) {

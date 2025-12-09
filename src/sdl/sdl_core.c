@@ -893,14 +893,15 @@ int sdl_pre_worker(struct zip_handles *zips)
 	return 1;
 }
 
-void sdl_pre_add(int attick, int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
-    char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl)
+void sdl_pre_add(uint32_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
+    char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl,
+    char ul, char dl)
 {
 	int n;
 	long long start;
 
-	if (sprite >= MAXSPRITE || sprite < 0) {
-		note("illegal sprite %d wanted in pre_add", sprite);
+	if (sprite >= MAXSPRITE) {
+		note("illegal sprite %u wanted in pre_add", sprite);
 		return;
 	}
 

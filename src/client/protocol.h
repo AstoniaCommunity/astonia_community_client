@@ -87,7 +87,7 @@ void cmd_kill(unsigned int cn);
 void cmd_give(unsigned int cn);
 void cmd_some_spell(int spell, int x, int y, unsigned int chr);
 void cmd_raise(int vn);
-void cmd_take_gold(int vn);
+void cmd_take_gold(uint32_t vn);
 void cmd_drop_gold(void);
 void cmd_junk_item(void);
 void cmd_text(char *text);

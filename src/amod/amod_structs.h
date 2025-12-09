@@ -174,8 +174,8 @@
 #define YRES (__yres)
 
 struct ddfx {
-	int sprite; // sprite_fx:           primary sprite number - should be the first entry cause dl_qcmp sorts the by
-	            // this
+	unsigned int sprite; // sprite_fx:           primary sprite number - should be the first entry cause dl_qcmp sorts
+	                     // the by this
 
 	signed char sink;
 	unsigned char scale; // scale in percent
@@ -279,7 +279,7 @@ struct player {
 };
 
 struct cef_generic {
-	int nr;
+	unsigned int nr;
 	int type;
 };
 
@@ -287,7 +287,7 @@ struct cef_shield {
 	int nr;
 	int type;
 	int cn;
-	int start;
+	uint32_t start;
 };
 
 struct cef_strike {
@@ -300,7 +300,7 @@ struct cef_strike {
 struct cef_ball {
 	int nr;
 	int type;
-	int start;
+	uint32_t start;
 	int frx, fry; // high precision coords
 	int tox, toy; // high precision coords
 };
@@ -308,7 +308,7 @@ struct cef_ball {
 struct cef_fireball {
 	int nr;
 	int type;
-	int start;
+	uint32_t start;
 	int frx, fry; // high precision coords
 	int tox, toy; // high precision coords
 };
@@ -316,7 +316,7 @@ struct cef_fireball {
 struct cef_edemonball {
 	int nr;
 	int type;
-	int start;
+	uint32_t start;
 	int base;
 	int frx, fry; // high precision coords
 	int tox, toy; // high precision coords
@@ -331,8 +331,8 @@ struct cef_flash {
 struct cef_explode {
 	int nr;
 	int type;
-	int start;
-	int base;
+	uint32_t start;
+	unsigned int base;
 };
 
 struct cef_warcry {
@@ -346,8 +346,8 @@ struct cef_bless {
 	int nr;
 	int type;
 	int cn;
-	int start;
-	int stop;
+	uint32_t start;
+	uint32_t stop;
 	int strength;
 };
 
@@ -355,15 +355,15 @@ struct cef_heal {
 	int nr;
 	int type;
 	int cn;
-	int start;
+	uint32_t start;
 };
 
 struct cef_freeze {
 	int nr;
 	int type;
 	int cn;
-	int start;
-	int stop;
+	uint32_t start;
+	uint32_t stop;
 };
 
 struct cef_burn {
@@ -376,13 +376,13 @@ struct cef_burn {
 struct cef_mist {
 	int nr;
 	int type;
-	int start;
+	uint32_t start;
 };
 
 struct cef_pulse {
 	int nr;
 	int type;
-	int start;
+	uint32_t start;
 };
 
 struct cef_pulseback {
@@ -396,8 +396,8 @@ struct cef_potion {
 	int nr;
 	int type;
 	int cn;
-	int start;
-	int stop;
+	uint32_t start;
+	uint32_t stop;
 	int strength;
 };
 
@@ -416,8 +416,8 @@ struct cef_curse {
 	int nr;
 	int type;
 	int cn;
-	int start;
-	int stop;
+	uint32_t start;
+	uint32_t stop;
 	int strength;
 };
 
@@ -437,7 +437,7 @@ struct cef_firering {
 	int nr;
 	int type;
 	int cn;
-	int start;
+	uint32_t start;
 };
 
 struct cef_bubble {

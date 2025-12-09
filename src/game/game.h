@@ -69,7 +69,7 @@
  * lighting, scaling, color manipulation, and alpha blending.
  */
 struct renderfx {
-	int sprite; // Primary sprite number (must be first for dl_qcmp sorting)
+	unsigned int sprite; // Primary sprite number (must be first for dl_qcmp sorting)
 
 	signed char sink; // Vertical sink amount for sprite positioning
 	unsigned char scale; // Scale percentage (100 = normal size)
@@ -78,7 +78,7 @@ struct renderfx {
 	unsigned short c1, c2, c3, shine; // Color replacement values
 
 	char light; // Lighting level: 0=bright (RENDERFX_BRIGHT), 15=normal (RENDERFX_NORMAL_LIGHT)
-	char freeze; // Animation freeze frame: 0 to RENDERFX_MAX_FREEZE-1
+	unsigned char freeze; // Animation freeze frame: 0 to RENDERFX_MAX_FREEZE-1
 
 	char ml, ll, rl, ul, dl; // Multi-directional lighting (main, left, right, up, down)
 
@@ -102,7 +102,7 @@ extern int x_offset, y_offset;
 DLL_EXPORT int render_text_length(int flags, const char *text);
 int render_text_len(int flags, const char *text, int n);
 DLL_EXPORT int render_text(int sx, int sy, unsigned short int color, int flags, const char *text);
-DLL_EXPORT int render_text_fmt(int sx, int sy, unsigned short int color, int flags, const char *format, ...)
+DLL_EXPORT int render_text_fmt(int64_t sx, int64_t sy, unsigned short int color, int flags, const char *format, ...)
     __attribute__((format(printf, 5, 6)));
 DLL_EXPORT int render_text_break_fmt(int sx, int sy, int breakx, unsigned short int color, int flags,
     const char *format, ...) __attribute__((format(printf, 6, 7)));
@@ -141,12 +141,12 @@ void render_list_text(void);
 // Offset functions
 int render_offset_x(void);
 int render_offset_y(void);
-extern int (*trans_asprite)(int mn, int sprite, int attick, unsigned char *pscale, unsigned char *pcr,
-    unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat, unsigned short *pc1,
-    unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
-DLL_EXPORT int _trans_asprite(int mn, int sprite, int attick, unsigned char *pscale, unsigned char *pcr,
-    unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat, unsigned short *pc1,
-    unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
+extern unsigned int (*trans_asprite)(int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
+    unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
+    unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
+DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
+    unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
+    unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
 extern int (*trans_charno)(int csprite, int *pscale, int *pcr, int *pcg, int *pcb, int *plight, int *psat, int *pc1,
     int *pc2, int *pc3, int *pshine, int attick);
 DLL_EXPORT int _trans_charno(int csprite, int *pscale, int *pcr, int *pcg, int *pcb, int *plight, int *psat, int *pc1,

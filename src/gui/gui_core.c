@@ -141,7 +141,7 @@ int action_ovr = -1;
 
 int capbut = -1; // the button capturing the mouse
 
-int takegold; // the amout of gold to take
+uint32_t takegold; // the amout of gold to take
 
 char hitsel[256]; // something in the text (dx_drawtext()) is selected
 int hittype = 0;

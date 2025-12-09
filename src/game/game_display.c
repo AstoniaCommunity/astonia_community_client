@@ -16,7 +16,7 @@
 #include "gui/gui.h"
 #include "client/client.h"
 
-static int trans_x(int frx, int fry, int tox, int toy, int step, int start)
+static int trans_x(int frx, int fry, int tox, int toy, int step, uint32_t start)
 {
 	int x, y, dx, dy, abs_dx, abs_dy;
 
@@ -41,8 +41,8 @@ static int trans_x(int frx, int fry, int tox, int toy, int step, int start)
 	x = frx * 1024 + 512;
 	y = fry * 1024 + 512;
 
-	x += dx * (tick - start);
-	y += dy * (tick - start);
+	x += (int)(dx * (int64_t)(tick - start));
+	y += (int)(dy * (int64_t)(tick - start));
 
 	x -= (originx - DIST) * 1024;
 	y -= (originy - DIST) * 1024;
@@ -50,7 +50,7 @@ static int trans_x(int frx, int fry, int tox, int toy, int step, int start)
 	return (x - y) * 20 / 1024 + mapoffx + mapaddx;
 }
 
-static int trans_y(int frx, int fry, int tox, int toy, int step, int start)
+static int trans_y(int frx, int fry, int tox, int toy, int step, uint32_t start)
 {
 	int x, y, dx, dy, abs_dx, abs_dy;
 
@@ -75,8 +75,8 @@ static int trans_y(int frx, int fry, int tox, int toy, int step, int start)
 	x = frx * 1024 + 512;
 	y = fry * 1024 + 512;
 
-	x += dx * (tick - start);
-	y += dy * (tick - start);
+	x += (int)(dx * (int64_t)(tick - start));
+	y += (int)(dy * (int64_t)(tick - start));
 
 	x -= (originx - DIST) * 1024;
 	y -= (originy - DIST) * 1024;
@@ -86,11 +86,14 @@ static int trans_y(int frx, int fry, int tox, int toy, int step, int start)
 
 static void display_game_spells(void)
 {
-	int i, x, y, dx, sprite, start;
-	int nr, fn, e;
+	int i, x, y, dx;
+	unsigned int sprite;
+	Uint32 start;
+	int nr, e;
+	unsigned int fn;
 	int mapx, mapy, mna, x1, y1, x2, y2, h1, h2, size, n;
 	DL *dl;
-	float alpha;
+	double alpha;
 
 	start = SDL_GetTicks();
 
@@ -158,8 +161,8 @@ static void display_game_spells(void)
 					break;
 
 				case 5: // flash
-					x = scrx + map[mn].xadd + cos(2 * M_PI * (now % 1000) / 1000.0) * 16;
-					y = scry + map[mn].yadd + sin(2 * M_PI * (now % 1000) / 1000.0) * 8;
+					x = scrx + map[mn].xadd + (int)(cos(2 * M_PI * (now % 1000) / 1000.0) * 16);
+					y = scry + map[mn].yadd + (int)(sin(2 * M_PI * (now % 1000) / 1000.0) * 8);
 					dl = dl_next_set(GME_LAY, 1006, x, y, RENDERFX_NORMAL_LIGHT); // shade
 					if (!dl) {
 						note("error in flash #1");
@@ -183,8 +186,8 @@ static void display_game_spells(void)
 					if (map[mna].cn == 0) { // no char, so source should be a lightning ball
 						h1 = 20;
 					} else { // so i guess we spell from a char (use the flying ball as source)
-						x1 = x1 + map[mna].xadd + cos(2 * M_PI * (now % 1000) / 1000.0) * 16;
-						y1 = y1 + map[mna].yadd + sin(2 * M_PI * (now % 1000) / 1000.0) * 8;
+						x1 = x1 + map[mna].xadd + (int)(cos(2 * M_PI * (now % 1000) / 1000.0) * 16);
+						y1 = y1 + map[mna].yadd + (int)(sin(2 * M_PI * (now % 1000) / 1000.0) * 8);
 						h1 = 50;
 					}
 
@@ -253,9 +256,10 @@ static void display_game_spells(void)
 					alpha = -2 * M_PI * (now % 1000) / 1000.0;
 
 					for (x1 = 0; x1 < 4; x1++) {
-						x = scrx + map[mn].xadd + cos(alpha + x1 * M_PI / 2) * 15;
-						y = scry + map[mn].yadd + sin(alpha + x1 * M_PI / 2) * 15 / 2;
-						dl = dl_next_set(GME_LAY, 1020 + (tick / 4 + x1) % 4, x, y, RENDERFX_NORMAL_LIGHT);
+						x = scrx + map[mn].xadd + (int)(cos(alpha + x1 * M_PI / 2) * 15);
+						y = scry + map[mn].yadd + (int)(sin(alpha + x1 * M_PI / 2) * 15 / 2);
+						dl = dl_next_set(
+						    GME_LAY, 1020U + (tick / 4 + (unsigned int)x1) % 4, x, y, RENDERFX_NORMAL_LIGHT);
 						if (!dl) {
 							note("error in warcry #1");
 							break;
@@ -266,10 +270,10 @@ static void display_game_spells(void)
 
 					break;
 				case 9: // bless
-					dl_call_bless(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd, ceffect[nr].bless.stop - tick,
-					    ceffect[nr].bless.strength, 1);
-					dl_call_bless(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd, ceffect[nr].bless.stop - tick,
-					    ceffect[nr].bless.strength, 0);
+					dl_call_bless(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd,
+					    (int64_t)ceffect[nr].bless.stop - (int64_t)tick, ceffect[nr].bless.strength, 1);
+					dl_call_bless(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd,
+					    (int64_t)ceffect[nr].bless.stop - (int64_t)tick, ceffect[nr].bless.strength, 0);
 					break;
 
 				case 10: // heal
@@ -322,20 +326,21 @@ static void display_game_spells(void)
 					break;
 
 				case 14: // potion
-					dl_call_potion(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd, ceffect[nr].potion.stop - tick,
-					    ceffect[nr].potion.strength, 1);
-					dl_call_potion(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd, ceffect[nr].potion.stop - tick,
-					    ceffect[nr].potion.strength, 0);
+					dl_call_potion(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd,
+					    (int64_t)ceffect[nr].potion.stop - (int64_t)tick, ceffect[nr].potion.strength, 1);
+					dl_call_potion(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd,
+					    (int64_t)ceffect[nr].potion.stop - (int64_t)tick, ceffect[nr].potion.strength, 0);
 					break;
 
 				case 15: // earth-rain
-					dl_call_rain2(GME_LAY, scrx, scry, tick, ceffect[nr].earthrain.strength, 1);
-					dl_call_rain2(GME_LAY, scrx, scry, tick, ceffect[nr].earthrain.strength, 0);
+					dl_call_rain2(GME_LAY, scrx, scry, (int64_t)tick, ceffect[nr].earthrain.strength, 1);
+					dl_call_rain2(GME_LAY, scrx, scry, (int64_t)tick, ceffect[nr].earthrain.strength, 0);
 					break;
 				case 16: // earth-mud
 					mapx = mn % MAPDX + originx - MAPDX / 2;
 					mapy = mn / MAPDX + originy - MAPDY / 2;
-					dl = dl_next_set(GME_LAY - 1, 50254 + (mapx % 3) + ((mapy / 3) % 3), scrx, scry, light);
+					dl = dl_next_set(GME_LAY - 1, 50254U + (unsigned int)(mapx % 3) + ((unsigned int)(mapy / 3) % 3),
+					    scrx, scry, (unsigned char)light);
 					if (!dl) {
 						note("error in mud #1");
 						break;
@@ -408,7 +413,7 @@ static void display_game_spells(void)
 		}
 	}
 
-	ds_time = SDL_GetTicks() - start;
+	ds_time = (int)(SDL_GetTicks() - start);
 }
 
 static void display_game_spells2(void)
@@ -638,7 +643,7 @@ static void display_game_names(void)
 		}
 
 		x = scrx + map[mn].xadd;
-		y = scry + 4 + map[mn].yadd + get_chr_height(map[mn].csprite) - 25 + get_sink(mn, map);
+		y = scry + 4 + (int)map[mn].yadd + get_chr_height((int)map[mn].csprite) - 25 + get_sink(mn, map);
 
 		col = whitecolor;
 		frame = RENDER_TEXT_FRAMED;
@@ -666,7 +671,8 @@ static void display_game_names(void)
 		if (namesize != RENDER_TEXT_SMALL) {
 			y -= 3;
 		}
-		render_text_fmt(x, y, col, RENDER_ALIGN_CENTER | namesize | frame, "%s%s", player[map[mn].cn].name, sign);
+		render_text_fmt(
+		    x, y, (unsigned short)col, RENDER_ALIGN_CENTER | namesize | frame, "%s%s", player[map[mn].cn].name, sign);
 
 
 		if (namesize != RENDER_TEXT_SMALL) {
@@ -850,7 +856,8 @@ int get_sink(int mn, struct map *cmap)
 
 void display_game_map(struct map *cmap)
 {
-	int i, nr, mapx, mapy, mn, scrx, scry, light, mna, sprite, sink, xoff, yoff, start;
+	int i, nr, mapx, mapy, mn, scrx, scry, light, mna, sprite, sink, xoff, yoff;
+	Uint32 start;
 	DL *dl;
 	int heightadd;
 
@@ -870,7 +877,8 @@ void display_game_map(struct map *cmap)
 
 		// blit the grounds and straighten it, if neccassary ...
 		if (cmap[mn].rg.sprite) {
-			dl = dl_next_set(get_lay_sprite(cmap[mn].gsprite, GND_LAY), cmap[mn].rg.sprite, scrx, scry - 10, light);
+			dl = dl_next_set(
+			    get_lay_sprite(cmap[mn].gsprite, GND_LAY), cmap[mn].rg.sprite, scrx, scry - 10, (unsigned char)light);
 			if (!dl) {
 				note("error in game #1");
 				continue;
@@ -879,30 +887,30 @@ void display_game_map(struct map *cmap)
 			if ((mna = quick[i].mn[3]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.ll = cmap[mna].rlight;
 			} else {
-				dl->renderfx.ll = light;
+				dl->renderfx.ll = (char)light;
 			}
 			if ((mna = quick[i].mn[5]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.rl = cmap[mna].rlight;
 			} else {
-				dl->renderfx.rl = light;
+				dl->renderfx.rl = (char)light;
 			}
 			if ((mna = quick[i].mn[1]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.ul = cmap[mna].rlight;
 			} else {
-				dl->renderfx.ul = light;
+				dl->renderfx.ul = (char)light;
 			}
 			if ((mna = quick[i].mn[7]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.dl = cmap[mna].rlight;
 			} else {
-				dl->renderfx.dl = light;
+				dl->renderfx.dl = (char)light;
 			}
 
 			dl->renderfx.scale = cmap[mn].rg.scale;
-			dl->renderfx.cr = cmap[mn].rg.cr;
-			dl->renderfx.cg = cmap[mn].rg.cg;
-			dl->renderfx.cb = cmap[mn].rg.cb;
-			dl->renderfx.clight = cmap[mn].rg.light;
-			dl->renderfx.sat = cmap[mn].rg.sat;
+			dl->renderfx.cr = (char)cmap[mn].rg.cr;
+			dl->renderfx.cg = (char)cmap[mn].rg.cg;
+			dl->renderfx.cb = (char)cmap[mn].rg.cb;
+			dl->renderfx.clight = (char)cmap[mn].rg.light;
+			dl->renderfx.sat = (char)cmap[mn].rg.sat;
 			dl->renderfx.c1 = cmap[mn].rg.c1;
 			dl->renderfx.c2 = cmap[mn].rg.c2;
 			dl->renderfx.c3 = cmap[mn].rg.c3;
@@ -923,7 +931,8 @@ void display_game_map(struct map *cmap)
 
 		// ... 2nd (gsprite2)
 		if (cmap[mn].rg2.sprite) {
-			dl = dl_next_set(get_lay_sprite(cmap[mn].gsprite2, GND2_LAY), cmap[mn].rg2.sprite, scrx, scry, light);
+			dl = dl_next_set(
+			    get_lay_sprite(cmap[mn].gsprite2, GND2_LAY), cmap[mn].rg2.sprite, scrx, scry, (unsigned char)light);
 			if (!dl) {
 				note("error in game #2");
 				continue;
@@ -932,30 +941,30 @@ void display_game_map(struct map *cmap)
 			if ((mna = quick[i].mn[3]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.ll = cmap[mna].rlight;
 			} else {
-				dl->renderfx.ll = light;
+				dl->renderfx.ll = (char)light;
 			}
 			if ((mna = quick[i].mn[5]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.rl = cmap[mna].rlight;
 			} else {
-				dl->renderfx.rl = light;
+				dl->renderfx.rl = (char)light;
 			}
 			if ((mna = quick[i].mn[1]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.ul = cmap[mna].rlight;
 			} else {
-				dl->renderfx.ul = light;
+				dl->renderfx.ul = (char)light;
 			}
 			if ((mna = quick[i].mn[7]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.dl = cmap[mna].rlight;
 			} else {
-				dl->renderfx.dl = light;
+				dl->renderfx.dl = (char)light;
 			}
 
 			dl->renderfx.scale = cmap[mn].rg2.scale;
-			dl->renderfx.cr = cmap[mn].rg2.cr;
-			dl->renderfx.cg = cmap[mn].rg2.cg;
-			dl->renderfx.cb = cmap[mn].rg2.cb;
-			dl->renderfx.clight = cmap[mn].rg2.light;
-			dl->renderfx.sat = cmap[mn].rg2.sat;
+			dl->renderfx.cr = (char)cmap[mn].rg2.cr;
+			dl->renderfx.cg = (char)cmap[mn].rg2.cg;
+			dl->renderfx.cb = (char)cmap[mn].rg2.cb;
+			dl->renderfx.clight = (char)cmap[mn].rg2.light;
+			dl->renderfx.sat = (char)cmap[mn].rg2.sat;
 			dl->renderfx.c1 = cmap[mn].rg2.c1;
 			dl->renderfx.c2 = cmap[mn].rg2.c2;
 			dl->renderfx.c3 = cmap[mn].rg2.c3;
@@ -988,7 +997,8 @@ void display_game_map(struct map *cmap)
 
 		// blit fsprites
 		if (cmap[mn].rf.sprite) {
-			dl = dl_next_set(get_lay_sprite(cmap[mn].fsprite, GME_LAY), cmap[mn].rf.sprite, scrx, scry - 9, light);
+			dl = dl_next_set(
+			    get_lay_sprite(cmap[mn].fsprite, GME_LAY), cmap[mn].rf.sprite, scrx, scry - 9, (unsigned char)light);
 			if (!dl) {
 				note("error in game #3");
 				continue;
@@ -997,22 +1007,22 @@ void display_game_map(struct map *cmap)
 			if ((mna = quick[i].mn[3]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.ll = cmap[mna].rlight;
 			} else {
-				dl->renderfx.ll = light;
+				dl->renderfx.ll = (char)light;
 			}
 			if ((mna = quick[i].mn[5]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.rl = cmap[mna].rlight;
 			} else {
-				dl->renderfx.rl = light;
+				dl->renderfx.rl = (char)light;
 			}
 			if ((mna = quick[i].mn[1]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.ul = cmap[mna].rlight;
 			} else {
-				dl->renderfx.ul = light;
+				dl->renderfx.ul = (char)light;
 			}
 			if ((mna = quick[i].mn[7]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.dl = cmap[mna].rlight;
 			} else {
-				dl->renderfx.dl = light;
+				dl->renderfx.dl = (char)light;
 			}
 
 			if (no_lighting_sprite(cmap[mn].fsprite)) {
@@ -1020,14 +1030,14 @@ void display_game_map(struct map *cmap)
 			}
 
 			// fsprite can increase the height of items and fsprite2
-			heightadd = is_yadd_sprite(cmap[mn].rf.sprite);
+			heightadd = is_yadd_sprite((int)cmap[mn].rf.sprite);
 
 			dl->renderfx.scale = cmap[mn].rf.scale;
-			dl->renderfx.cr = cmap[mn].rf.cr;
-			dl->renderfx.cg = cmap[mn].rf.cg;
-			dl->renderfx.cb = cmap[mn].rf.cb;
-			dl->renderfx.clight = cmap[mn].rf.light;
-			dl->renderfx.sat = cmap[mn].rf.sat;
+			dl->renderfx.cr = (char)cmap[mn].rf.cr;
+			dl->renderfx.cg = (char)cmap[mn].rf.cg;
+			dl->renderfx.cb = (char)cmap[mn].rf.cb;
+			dl->renderfx.clight = (char)cmap[mn].rf.light;
+			dl->renderfx.sat = (char)cmap[mn].rf.sat;
 			dl->renderfx.c1 = cmap[mn].rf.c1;
 			dl->renderfx.c2 = cmap[mn].rf.c2;
 			dl->renderfx.c3 = cmap[mn].rf.c3;
@@ -1054,7 +1064,8 @@ void display_game_map(struct map *cmap)
 
 		// ... 2nd (fsprite2)
 		if (cmap[mn].rf2.sprite) {
-			dl = dl_next_set(get_lay_sprite(cmap[mn].fsprite2, GME_LAY), cmap[mn].rf2.sprite, scrx, scry + 1, light);
+			dl = dl_next_set(
+			    get_lay_sprite(cmap[mn].fsprite2, GME_LAY), cmap[mn].rf2.sprite, scrx, scry + 1, (unsigned char)light);
 			if (!dl) {
 				note("error in game #5");
 				continue;
@@ -1063,22 +1074,22 @@ void display_game_map(struct map *cmap)
 			if ((mna = quick[i].mn[3]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.ll = cmap[mna].rlight;
 			} else {
-				dl->renderfx.ll = light;
+				dl->renderfx.ll = (char)light;
 			}
 			if ((mna = quick[i].mn[5]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.rl = cmap[mna].rlight;
 			} else {
-				dl->renderfx.rl = light;
+				dl->renderfx.rl = (char)light;
 			}
 			if ((mna = quick[i].mn[1]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.ul = cmap[mna].rlight;
 			} else {
-				dl->renderfx.ul = light;
+				dl->renderfx.ul = (char)light;
 			}
 			if ((mna = quick[i].mn[7]) != 0 && (cmap[mna].rlight)) {
 				dl->renderfx.dl = cmap[mna].rlight;
 			} else {
-				dl->renderfx.dl = light;
+				dl->renderfx.dl = (char)light;
 			}
 
 			if (no_lighting_sprite(cmap[mn].fsprite2)) {
@@ -1089,11 +1100,11 @@ void display_game_map(struct map *cmap)
 			dl->h += 1;
 			dl->h += heightadd;
 			dl->renderfx.scale = cmap[mn].rf2.scale;
-			dl->renderfx.cr = cmap[mn].rf2.cr;
-			dl->renderfx.cg = cmap[mn].rf2.cg;
-			dl->renderfx.cb = cmap[mn].rf2.cb;
-			dl->renderfx.clight = cmap[mn].rf2.light;
-			dl->renderfx.sat = cmap[mn].rf2.sat;
+			dl->renderfx.cr = (char)cmap[mn].rf2.cr;
+			dl->renderfx.cg = (char)cmap[mn].rf2.cg;
+			dl->renderfx.cb = (char)cmap[mn].rf2.cb;
+			dl->renderfx.clight = (char)cmap[mn].rf2.light;
+			dl->renderfx.sat = (char)cmap[mn].rf2.sat;
 			dl->renderfx.c1 = cmap[mn].rf2.c1;
 			dl->renderfx.c2 = cmap[mn].rf2.c2;
 			dl->renderfx.c3 = cmap[mn].rf2.c3;
@@ -1118,8 +1129,8 @@ void display_game_map(struct map *cmap)
 
 		// blit items
 		if (cmap[mn].isprite) {
-			dl = dl_next_set(get_lay_sprite(cmap[mn].isprite, GME_LAY), cmap[mn].ri.sprite, scrx, scry - 8,
-			    itmsel == mn ? RENDERFX_BRIGHT : light);
+			dl = dl_next_set(get_lay_sprite((int)cmap[mn].isprite, GME_LAY), cmap[mn].ri.sprite, scrx, scry - 8,
+			    (unsigned char)(itmsel == mn ? RENDERFX_BRIGHT : light));
 			if (!dl) {
 				note("error in game #8 (%d,%d)", cmap[mn].ri.sprite, cmap[mn].isprite);
 				continue;
@@ -1142,11 +1153,11 @@ void display_game_map(struct map *cmap)
 
 			dl->h += heightadd - 8;
 			dl->renderfx.scale = cmap[mn].ri.scale;
-			dl->renderfx.cr = cmap[mn].ri.cr;
-			dl->renderfx.cg = cmap[mn].ri.cg;
-			dl->renderfx.cb = cmap[mn].ri.cb;
-			dl->renderfx.clight = cmap[mn].ri.light;
-			dl->renderfx.sat = cmap[mn].ri.sat;
+			dl->renderfx.cr = (char)cmap[mn].ri.cr;
+			dl->renderfx.cg = (char)cmap[mn].ri.cg;
+			dl->renderfx.cb = (char)cmap[mn].ri.cb;
+			dl->renderfx.clight = (char)cmap[mn].ri.light;
+			dl->renderfx.sat = (char)cmap[mn].ri.sat;
 			dl->renderfx.c1 = cmap[mn].ri.c1;
 			dl->renderfx.c2 = cmap[mn].ri.c2;
 			dl->renderfx.c3 = cmap[mn].ri.c3;
@@ -1162,16 +1173,16 @@ void display_game_map(struct map *cmap)
 			}
 
 			if (cmap[mn].flags & CMF_TAKE) {
-				dl->renderfx.sink = min(12, cmap[mn].sink);
+				dl->renderfx.sink = (char)min(12, cmap[mn].sink);
 				dl->y += min(6, cmap[mn].sink / 2);
 				dl->h += -min(6, cmap[mn].sink / 2);
 			} else if (cmap[mn].flags & CMF_USE) {
-				dl->renderfx.sink = min(20, cmap[mn].sink);
+				dl->renderfx.sink = (char)min(20, cmap[mn].sink);
 				dl->y += min(10, cmap[mn].sink / 2);
 				dl->h += -min(10, cmap[mn].sink / 2);
 			}
 
-			if (get_offset_sprite(cmap[mn].isprite, &xoff, &yoff)) {
+			if (get_offset_sprite((int)cmap[mn].isprite, &xoff, &yoff)) {
 				dl->x += xoff;
 				dl->y += yoff;
 			}
@@ -1182,22 +1193,22 @@ void display_game_map(struct map *cmap)
 		// blit chars
 		if (cmap[mn].csprite) {
 			dl = dl_next_set(GME_LAY, cmap[mn].rc.sprite, scrx + cmap[mn].xadd, scry + cmap[mn].yadd,
-			    chrsel == mn ? RENDERFX_BRIGHT : light);
+			    (unsigned char)(chrsel == mn ? RENDERFX_BRIGHT : light));
 			if (!dl) {
 				note("error in game #9");
 				continue;
 			}
 			sink = get_sink(mn, cmap);
-			dl->renderfx.sink = sink;
+			dl->renderfx.sink = (char)sink;
 			dl->y += sink / 2;
 			dl->h = -sink / 2;
 			dl->renderfx.scale = cmap[mn].rc.scale;
 			// addline("sprite=%d, scale=%d",cmap[mn].rc.sprite,cmap[mn].rc.scale);
-			dl->renderfx.cr = cmap[mn].rc.cr;
-			dl->renderfx.cg = cmap[mn].rc.cg;
-			dl->renderfx.cb = cmap[mn].rc.cb;
-			dl->renderfx.clight = cmap[mn].rc.light;
-			dl->renderfx.sat = cmap[mn].rc.sat;
+			dl->renderfx.cr = (char)cmap[mn].rc.cr;
+			dl->renderfx.cg = (char)cmap[mn].rc.cg;
+			dl->renderfx.cb = (char)cmap[mn].rc.cb;
+			dl->renderfx.clight = (char)cmap[mn].rc.light;
+			dl->renderfx.sat = (char)cmap[mn].rc.sat;
 			dl->renderfx.c1 = cmap[mn].rc.c1;
 			dl->renderfx.c2 = cmap[mn].rc.c2;
 			dl->renderfx.c3 = cmap[mn].rc.c3;
@@ -1211,21 +1222,21 @@ void display_game_map(struct map *cmap)
 				if ((unsigned int)ceffect[nr].freeze.cn == map[mn].cn && ceffect[nr].generic.type == 11) { // freeze
 					int diff;
 
-					if ((diff = tick - ceffect[nr].freeze.start) < RENDERFX_MAX_FREEZE * 4) { // starting
-						dl->renderfx.freeze = diff / 4;
+					if ((diff = (int)(tick - ceffect[nr].freeze.start)) < RENDERFX_MAX_FREEZE * 4) { // starting
+						dl->renderfx.freeze = (unsigned char)(diff / 4);
 					} else if (ceffect[nr].freeze.stop < tick) { // already finished
 						continue;
-					} else if ((diff = ceffect[nr].freeze.stop - tick) < RENDERFX_MAX_FREEZE * 4) { // ending
-						dl->renderfx.freeze = diff / 4;
+					} else if ((diff = (int)(ceffect[nr].freeze.stop - tick)) < RENDERFX_MAX_FREEZE * 4) { // ending
+						dl->renderfx.freeze = (unsigned char)(diff / 4);
 					} else {
 						dl->renderfx.freeze = RENDERFX_MAX_FREEZE - 1; // running
 					}
 				}
 				if ((unsigned int)ceffect[nr].curse.cn == map[mn].cn && ceffect[nr].generic.type == 18) { // curse
 
-					dl->renderfx.sat = min(20, dl->renderfx.sat + (ceffect[nr].curse.strength / 4) + 5);
-					dl->renderfx.clight = min(120, dl->renderfx.clight + ceffect[nr].curse.strength * 2 + 40);
-					dl->renderfx.cb = min(80, dl->renderfx.cb + ceffect[nr].curse.strength / 2 + 10);
+					dl->renderfx.sat = (char)min(20, dl->renderfx.sat + (ceffect[nr].curse.strength / 4) + 5);
+					dl->renderfx.clight = (char)min(120, dl->renderfx.clight + ceffect[nr].curse.strength * 2 + 40);
+					dl->renderfx.cb = (char)min(80, dl->renderfx.cb + ceffect[nr].curse.strength / 2 + 10);
 				}
 				if ((unsigned int)ceffect[nr].cap.cn == map[mn].cn && ceffect[nr].generic.type == 19) { // palace cap
 
@@ -1286,7 +1297,7 @@ void display_game_map(struct map *cmap)
 			} else {
 				sprite = SPR_FIELD;
 			}
-			dl = dl_next_set(GNDSEL_LAY, sprite, scrx, scry, RENDERFX_NORMAL_LIGHT);
+			dl = dl_next_set(GNDSEL_LAY, (unsigned int)sprite, scrx, scry, RENDERFX_NORMAL_LIGHT);
 			if (!dl) {
 				note("error in game #10");
 			}
@@ -1332,7 +1343,7 @@ void display_pents(void)
 		} else {
 			yoff = 0;
 		}
-		render_text(dotx(DOT_BOT) + 550, doty(DOT_BOT) - 80 + n * 10 - yoff, col,
+		render_text(dotx(DOT_BOT) + 550, doty(DOT_BOT) - 80 + n * 10 - yoff, (unsigned short)col,
 		    RENDER_TEXT_SMALL | RENDER_TEXT_FRAMED, pent_str[n] + 1);
 	}
 }

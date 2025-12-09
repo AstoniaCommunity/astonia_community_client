@@ -66,7 +66,7 @@ struct dl {
 
 	// functions to call
 	char call;
-	int call_x1, call_y1, call_x2, call_y2, call_x3;
+	int64_t call_x1, call_y1, call_x2, call_y2, call_x3;
 };
 typedef struct dl DL;
 
@@ -105,17 +105,17 @@ extern RenderFont *fontc_shaded; // Big font with shadow
 extern RenderFont *fontc_framed; // Big font with outline
 
 int is_top_sprite(int sprite, int itemhint);
-extern int (*is_cut_sprite)(int sprite);
-DLL_EXPORT int _is_cut_sprite(int sprite);
+extern int (*is_cut_sprite)(unsigned int sprite);
+DLL_EXPORT int _is_cut_sprite(unsigned int sprite);
 extern int (*is_mov_sprite)(int sprite, int itemhint);
 DLL_EXPORT int _is_mov_sprite(int sprite, int itemhint);
-extern int (*is_door_sprite)(int sprite);
-DLL_EXPORT int _is_door_sprite(int sprite);
+extern int (*is_door_sprite)(unsigned int sprite);
+DLL_EXPORT int _is_door_sprite(unsigned int sprite);
 extern int (*is_yadd_sprite)(int sprite);
 DLL_EXPORT int _is_yadd_sprite(int sprite);
 extern int (*get_chr_height)(int csprite);
 DLL_EXPORT int _get_chr_height(int csprite);
-extern void (*trans_csprite)(int mn, struct map *cmap, int attick);
+extern void (*trans_csprite)(int mn, struct map *cmap, uint32_t attick);
 DLL_EXPORT void _trans_csprite(int mn, struct map *cmap, int attick);
 extern int (*get_lay_sprite)(int sprite, int lay);
 DLL_EXPORT int _get_lay_sprite(int sprite, int lay);
@@ -136,12 +136,12 @@ int render_text_init_done(void);
 void render_add_text(char *ptr);
 
 // Special effects rendering
-void render_draw_bless(int x, int y, int ticker, int strength, int front);
-void render_draw_potion(int x, int y, int ticker, int strength, int front);
-void render_draw_rain(int x, int y, int ticker, int strength, int front);
-void render_draw_curve(int cx, int cy, int nr, int size, unsigned short col);
-void render_display_strike(int fx, int fy, int tx, int ty);
-void render_display_pulseback(int fx, int fy, int tx, int ty);
+void render_draw_bless(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front);
+void render_draw_potion(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front);
+void render_draw_rain(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front);
+void render_draw_curve(int64_t cx, int64_t cy, int64_t nr, int64_t size, int64_t col);
+void render_display_strike(int64_t fx, int64_t fy, int64_t tx, int64_t ty);
+void render_display_pulseback(int64_t fx, int64_t fy, int64_t tx, int64_t ty);
 
 // Game module internal declarations - shared between game_*.c files
 
@@ -153,10 +153,10 @@ extern int fsprite_cnt, f2sprite_cnt, gsprite_cnt, g2sprite_cnt, isprite_cnt, cs
 extern QUICK *quick;
 extern int maxquick;
 DL *dl_next(void);
-DL *dl_next_set(int layer, int sprite, int scrx, int scry, int light);
+DL *dl_next_set(int layer, unsigned int sprite, int scrx, int scry, unsigned char light);
 int dl_qcmp(const void *ca, const void *cb);
 void dl_play(void);
-void dl_prefetch(int attick);
+void dl_prefetch(uint32_t attick);
 void add_bubble(int x, int y, int h);
 void show_bubbles(void);
 void make_quick(int game, int mcx, int mcy);
@@ -164,11 +164,11 @@ void make_quick(int game, int mcx, int mcy);
 // From game_effects.c
 DL *dl_call_strike(int layer, int x1, int y1, int h1, int x2, int y2, int h2);
 DL *dl_call_pulseback(int layer, int x1, int y1, int h1, int x2, int y2, int h2);
-DL *dl_call_bless(int layer, int x, int y, int ticker, int strength, int front);
+DL *dl_call_bless(int layer, int x, int y, int64_t ticker, int strength, int front);
 DL *dl_call_pulse(int layer, int x, int y, int nr, int size, int color);
-DL *dl_call_potion(int layer, int x, int y, int ticker, int strength, int front);
+DL *dl_call_potion(int layer, int x, int y, int64_t ticker, int strength, int front);
 DL *dl_call_rain(int layer, int x, int y, int nr, int color);
-DL *dl_call_rain2(int layer, int x, int y, int ticker, int strength, int front);
+DL *dl_call_rain2(int layer, int x, int y, int64_t ticker, int strength, int front);
 DL *dl_call_number(int layer, int x, int y, int nr);
 
 // From game_lighting.c
@@ -178,6 +178,7 @@ void set_map_straight(struct map *cmap);
 
 // From game_display.c
 int get_sink(int mn, struct map *cmap);
+void draw_pixel(int64_t x, int64_t y, int64_t color);
 void display_game_map(struct map *cmap);
 void display_pents(void);
 void prefetch_game(uint32_t attick);

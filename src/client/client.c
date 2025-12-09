@@ -23,7 +23,8 @@
 #include "modder/modder.h"
 #include "protocol.h"
 
-int display_gfx = 0, display_time = 0;
+unsigned int display_gfx = 0;
+uint32_t display_time = 0;
 static int rec_bytes = 0;
 static int sent_bytes = 0;
 static astonia_sock *sock = NULL;
@@ -34,7 +35,7 @@ int change_area = 0;
 int kicked_out = 0;
 unsigned int unique = 0;
 unsigned int usum = 0;
-int target_port = 5556;
+uint16_t target_port = 5556;
 DLL_EXPORT char *target_server = NULL;
 DLL_EXPORT char password[16];
 static int zsinit;
@@ -53,7 +54,7 @@ static size_t lastticksize; // size inbuf must reach to get the last tick comple
 static struct queue queue[Q_SIZE];
 int q_in, q_out, q_size;
 
-int server_cycles;
+double server_cycles;
 
 static size_t ticksize;
 static size_t inused;
@@ -84,10 +85,10 @@ DLL_EXPORT int mana;
 DLL_EXPORT int rage;
 DLL_EXPORT int endurance;
 DLL_EXPORT int lifeshield;
-DLL_EXPORT int experience;
-DLL_EXPORT int experience_used;
-DLL_EXPORT int mil_exp;
-DLL_EXPORT int gold;
+DLL_EXPORT uint32_t experience;
+DLL_EXPORT uint32_t experience_used;
+DLL_EXPORT uint32_t mil_exp;
+DLL_EXPORT uint32_t gold;
 
 DLL_EXPORT struct player player[MAXCHARS];
 
@@ -97,13 +98,13 @@ DLL_EXPORT unsigned char ueffect[MAXEF];
 DLL_EXPORT int con_type;
 DLL_EXPORT char con_name[80];
 DLL_EXPORT int con_cnt;
-DLL_EXPORT int container[CONTAINERSIZE];
-DLL_EXPORT int price[CONTAINERSIZE];
-DLL_EXPORT int itemprice[CONTAINERSIZE];
-DLL_EXPORT int cprice;
+DLL_EXPORT uint32_t container[CONTAINERSIZE];
+DLL_EXPORT uint32_t price[CONTAINERSIZE];
+DLL_EXPORT uint32_t itemprice[CONTAINERSIZE];
+DLL_EXPORT uint32_t cprice;
 
-DLL_EXPORT int lookinv[12];
-DLL_EXPORT int looksprite, lookc1, lookc2, lookc3;
+DLL_EXPORT uint32_t lookinv[12];
+DLL_EXPORT uint32_t looksprite, lookc1, lookc2, lookc3;
 DLL_EXPORT char look_name[80];
 DLL_EXPORT char look_desc[1024];
 

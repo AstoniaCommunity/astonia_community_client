@@ -443,7 +443,7 @@ void xinfo(void *ptr)
 	printf("%d bytes", mem->size);
 }
 
-void *xrealloc(void *ptr, int size, int ID)
+void *xrealloc(void *ptr, size_t size, int ID)
 {
 	struct memhead *mem;
 	unsigned char *head, *tail, *rptr;

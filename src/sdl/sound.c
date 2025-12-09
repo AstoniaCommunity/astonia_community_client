@@ -212,7 +212,7 @@ void play_sdl_sound(int nr, int distance, int angle)
  * vol: Volume, from 0 (max) to -9999 (min).
  * p: Pan, from -9999 (left) to 9999 (right).
  */
-void play_sound(int nr, int vol, int p)
+void play_sound(unsigned int nr, unsigned int vol, unsigned int p)
 {
 	int dist, angle;
 	if (!(game_options & GO_SOUND)) {

@@ -96,7 +96,7 @@ DLL_EXPORT int amod_is_playersprite(int sprite)
 	return (sprite == 800 || sprite == 801);
 }
 
-DLL_EXPORT int amod_process(const char *buf)
+DLL_EXPORT int amod_process(const unsigned char *buf)
 {
 	switch (buf[0]) {
 	case SV_MOD1:
@@ -106,7 +106,7 @@ DLL_EXPORT int amod_process(const char *buf)
 	return 0;
 }
 
-DLL_EXPORT int amod_prefetch(const char *buf)
+DLL_EXPORT int amod_prefetch(const unsigned char *buf)
 {
 	switch (buf[0]) {
 	case SV_MOD1:

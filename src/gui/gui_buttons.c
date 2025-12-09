@@ -294,14 +294,15 @@ static int handle_captured_button(void)
 {
 	if (capbut != -1) {
 		if (capbut == BUT_GLD) {
-			takegold += (mousedy / 2) * (mousedy / 2) * (mousedy <= 0 ? 1 : -1);
-
-			if (takegold < 0) {
-				takegold = 0;
+			int64_t takegold_signed = (int64_t)takegold;
+			takegold_signed += (mousedy / 2) * (mousedy / 2) * (mousedy <= 0 ? 1 : -1);
+			if (takegold_signed < 0) {
+				takegold_signed = 0;
 			}
-			if (takegold > gold) {
-				takegold = gold;
+			if (takegold_signed > (int64_t)gold) {
+				takegold_signed = (int64_t)gold;
 			}
+			takegold = (uint32_t)takegold_signed;
 
 			mousedy = 0;
 		}

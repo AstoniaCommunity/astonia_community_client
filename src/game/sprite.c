@@ -18,9 +18,9 @@
 #include "modder/modder.h"
 
 // is_..._sprite
-int (*is_cut_sprite)(int sprite) = _is_cut_sprite;
+int (*is_cut_sprite)(unsigned int sprite) = _is_cut_sprite;
 
-DLL_EXPORT int _is_cut_sprite(int sprite)
+DLL_EXPORT int _is_cut_sprite(unsigned int sprite)
 {
 	switch (sprite) {
 	case 11104:
@@ -817,9 +817,9 @@ DLL_EXPORT int _is_mov_sprite(int sprite, int itemhint)
 	return itemhint;
 }
 
-int (*is_door_sprite)(int sprite) = _is_door_sprite;
+int (*is_door_sprite)(unsigned int sprite) = _is_door_sprite;
 
-DLL_EXPORT int _is_door_sprite(int sprite)
+DLL_EXPORT int _is_door_sprite(unsigned int sprite)
 {
 	switch (sprite) {
 	case 20039:
@@ -3009,13 +3009,13 @@ DLL_EXPORT int _trans_charno(int csprite, int *pscale, int *pcr, int *pcg, int *
 }
 
 // asprite
-int (*trans_asprite)(int mn, int sprite, int attick, unsigned char *pscale, unsigned char *pcr, unsigned char *pcg,
-    unsigned char *pcb, unsigned char *plight, unsigned char *psat, unsigned short *pc1, unsigned short *pc2,
-    unsigned short *pc3, unsigned short *pshine) = _trans_asprite;
-
-DLL_EXPORT int _trans_asprite(int mn, int sprite, int attick, unsigned char *pscale, unsigned char *pcr,
+unsigned int (*trans_asprite)(int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale, unsigned char *pcr,
     unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat, unsigned short *pc1,
-    unsigned short *pc2, unsigned short *pc3, unsigned short *pshine)
+    unsigned short *pc2, unsigned short *pc3, unsigned short *pshine) = _trans_asprite;
+
+DLL_EXPORT unsigned int _trans_asprite(int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
+    unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
+    unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine)
 {
 	// if (!isprite) return 0;
 	int help, scale = 100, cr = 0, cg = 0, cb = 0, light = 0, sat = 0, nr, c1 = 0, c2 = 0, c3 = 0, shine = 0, edi = 0;
@@ -5724,9 +5724,9 @@ DLL_EXPORT int _get_player_sprite(int nr, int zdir, int action, int step, int du
 	return base;
 }
 
-void (*trans_csprite)(int mn, struct map *cmap, int attick) = _trans_csprite;
+void (*trans_csprite)(int mn, struct map *cmap, uint32_t attick) = _trans_csprite;
 
-DLL_EXPORT void _trans_csprite(int mn, struct map *cmap, int attick)
+DLL_EXPORT void _trans_csprite(int mn, struct map *cmap, uint32_t attick)
 {
 	int dirxadd[8] = {+1, 0, -1, -2, -1, 0, +1, +2};
 	int diryadd[8] = {+1, +2, +1, 0, -1, -2, -1, 0};

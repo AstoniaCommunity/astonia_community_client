@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <inttypes.h>
 #include <SDL2/SDL.h>
 
 #include "astonia.h"
@@ -19,7 +20,7 @@
 // Sprite counters - shared with game_display.c
 int fsprite_cnt = 0, f2sprite_cnt = 0, gsprite_cnt = 0, g2sprite_cnt = 0, isprite_cnt = 0, csprite_cnt = 0;
 // Timing statistics - shared with game_display.c
-static int qs_time = 0;
+static Uint32 qs_time = 0;
 int dg_time = 0, ds_time = 0;
 int stom_off_x = 0, stom_off_y = 0;
 
@@ -37,11 +38,12 @@ DL *dl_next(void)
 
 	if (dlused == dlmax) {
 		rem = dllist;
-		dllist = xrealloc(dllist, (dlmax + DL_STEP) * sizeof(DL), MEM_DL);
-		dlsort = xrealloc(dlsort, (dlmax + DL_STEP) * sizeof(DL *), MEM_DL);
-		diff = (unsigned char *)dllist - (unsigned char *)rem;
+		dllist = xrealloc(dllist, (size_t)(dlmax + DL_STEP) * sizeof(DL), MEM_DL);
+		dlsort = xrealloc(dlsort, (size_t)(dlmax + DL_STEP) * sizeof(DL *), MEM_DL);
+		diff = (ptrdiff_t)((unsigned char *)dllist - (unsigned char *)rem);
 		for (d = 0; d < dlmax; d++) {
-			dlsort[d] = (DL *)(((unsigned char *)(dlsort[d])) + diff);
+			uintptr_t ptr_val = (uintptr_t)dlsort[d];
+			dlsort[d] = (DL *)(ptr_val + (uintptr_t)diff);
 		}
 		for (d = dlmax; d < dlmax + DL_STEP; d++) {
 			dlsort[d] = &dllist[d];
@@ -71,13 +73,13 @@ DL *dl_next(void)
 	return dlsort[dlused - 1];
 }
 
-DL *dl_next_set(int layer, int sprite, int scrx, int scry, int light)
+DL *dl_next_set(int layer, unsigned int sprite, int scrx, int scry, unsigned char light)
 {
 	DL *dl;
 	RenderFX *ddfx;
 
-	if (sprite > MAXSPRITE || sprite < 0) {
-		note("trying to add illegal sprite %d in dl_next_set", sprite);
+	if (sprite > MAXSPRITE) {
+		note("trying to add illegal sprite %u in dl_next_set", sprite);
 		return NULL;
 	}
 
@@ -88,7 +90,7 @@ DL *dl_next_set(int layer, int sprite, int scrx, int scry, int light)
 	dl->layer = layer;
 
 	ddfx->sprite = sprite;
-	ddfx->ml = ddfx->ll = ddfx->rl = ddfx->ul = ddfx->dl = light;
+	ddfx->ml = ddfx->ll = ddfx->rl = ddfx->ul = ddfx->dl = (char)light;
 	ddfx->sink = 0;
 	ddfx->scale = 100;
 	ddfx->cr = ddfx->cg = ddfx->cb = ddfx->clight = ddfx->sat = 0;
@@ -105,10 +107,19 @@ int dl_qcmp(const void *ca, const void *cb)
 	DL *a, *b;
 	int diff;
 
+	union {
+		const void *cv;
+		DL **dv;
+	} ua, ub;
+
 	stat_dlsortcalls++;
 
-	a = *(DL **)ca;
-	b = *(DL **)cb;
+	// qsort comparator: const void* points to array elements (DL*)
+	// Use union to safely cast away const (comparator doesn't modify data)
+	ua.cv = ca;
+	ub.cv = cb;
+	a = *ua.dv;
+	b = *ub.dv;
 
 	if (a->call == DLC_DUMMY && b->call == DLC_DUMMY) {
 		return 0;
@@ -135,17 +146,24 @@ int dl_qcmp(const void *ca, const void *cb)
 		return diff;
 	}
 
-	return a->renderfx.sprite - b->renderfx.sprite;
+	if (a->renderfx.sprite < b->renderfx.sprite) {
+		return -1;
+	}
+	if (a->renderfx.sprite > b->renderfx.sprite) {
+		return 1;
+	}
+	return 0;
 }
 
-void draw_pixel(int x, int y, int color)
+void draw_pixel(int64_t x, int64_t y, int64_t color)
 {
-	render_pixel(x, y, color);
+	render_pixel((int)x, (int)y, (unsigned short)color);
 }
 
 void dl_play(void)
 {
-	int d, start;
+	int d;
+	Uint32 start;
 	void helper_cmp_dl(int attick, DL **dl, int dlused);
 
 	// helper_cmp_dl(tick,dlsort,dlused);
@@ -153,7 +171,7 @@ void dl_play(void)
 	start = SDL_GetTicks();
 	stat_dlsortcalls = 0;
 	stat_dlused = dlused;
-	qsort(dlsort, dlused, sizeof(DL *), dl_qcmp);
+	qsort(dlsort, (size_t)dlused, sizeof(DL *), dl_qcmp);
 	qs_time += SDL_GetTicks() - start;
 
 	for (d = 0; d < dlused && !quit; d++) {
@@ -166,7 +184,7 @@ void dl_play(void)
 				break;
 			case DLC_NUMBER:
 				render_text_fmt(dlsort[d]->call_x1, dlsort[d]->call_y1, 0xffff,
-				    RENDER_ALIGN_CENTER | RENDER_TEXT_SMALL | RENDER_TEXT_FRAMED, "%d", dlsort[d]->call_x2);
+				    RENDER_ALIGN_CENTER | RENDER_TEXT_SMALL | RENDER_TEXT_FRAMED, "%ld", dlsort[d]->call_x2);
 				break;
 			case DLC_DUMMY:
 				break;
@@ -200,10 +218,11 @@ void dl_play(void)
 	dlused = 0;
 }
 
-void sdl_pre_add(int attick, int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
-    char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl);
+void sdl_pre_add(uint32_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
+    char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl,
+    char ul, char dl);
 
-void dl_prefetch(int attick)
+void dl_prefetch(uint32_t attick)
 {
 	void helper_add_dl(int attick, DL **dl, int dlused);
 	int d;
@@ -264,7 +283,8 @@ void add_bubble(int x, int y, int h)
 
 void show_bubbles(void)
 {
-	int n, spr, offx, offy;
+	int n, offx, offy;
+	unsigned int spr;
 	DL *dl;
 	// static int oo=0;
 
@@ -278,13 +298,13 @@ void show_bubbles(void)
 			continue;
 		}
 
-		spr = (bubble[n].state - 1) % 6;
+		spr = (unsigned int)((bubble[n].state - 1) % 6);
 		if (spr > 3) {
-			spr = 3 - (spr - 3);
+			spr = 3U - (spr - 3U);
 		}
-		spr += bubble[n].type * 3;
+		spr += (unsigned int)bubble[n].type * 3U;
 
-		dl = dl_next_set(GME_LAY, 1140 + spr, bubble[n].cx - offx, bubble[n].origy - offy, RENDERFX_NORMAL_LIGHT);
+		dl = dl_next_set(GME_LAY, 1140U + spr, bubble[n].cx - offx, bubble[n].origy - offy, RENDERFX_NORMAL_LIGHT);
 		dl->h = bubble[n].origy - bubble[n].cy;
 		bubble[n].state++;
 		bubble[n].cx += 2 - RANDOM(5);
@@ -299,13 +319,22 @@ void show_bubbles(void)
 }
 
 // make quick
-int quick_qcmp(const void *va, const void *vb)
+static int quick_qcmp(const void *va, const void *vb)
 {
 	const QUICK *a;
 	const QUICK *b;
 
-	a = (QUICK *)va;
-	b = (QUICK *)vb;
+	union {
+		const void *cv;
+		QUICK *qv;
+	} ua, ub;
+
+	// qsort comparator: const void* points to array elements (QUICK)
+	// Use union to safely cast away const (comparator doesn't modify data)
+	ua.cv = va;
+	ub.cv = vb;
+	a = ua.qv;
+	b = ub.qv;
 
 	if (a->mapx + a->mapy < b->mapx + b->mapy) {
 		return -1;
@@ -318,7 +347,6 @@ int quick_qcmp(const void *va, const void *vb)
 
 void make_quick(int game, int mcx, int mcy)
 {
-	int cnt;
 	int x, y, xs, xe, i, ii;
 	int dist = DIST;
 
@@ -343,7 +371,7 @@ void make_quick(int game, int mcx, int mcy)
 	maxquick = i;
 
 	// set quick (and mn[4]) in server order
-	quick = xrealloc(quick, (maxquick + 1) * sizeof(QUICK), MEM_GAME);
+	quick = xrealloc(quick, (size_t)(maxquick + 1) * sizeof(QUICK), MEM_GAME);
 	for (i = y = 0; y <= dist * 2; y++) {
 		if (y < dist) {
 			xs = dist - y;
@@ -363,10 +391,9 @@ void make_quick(int game, int mcx, int mcy)
 	}
 
 	// sort quick in client order
-	qsort(quick, maxquick, sizeof(QUICK), quick_qcmp);
+	qsort(quick, (size_t)maxquick, sizeof(QUICK), quick_qcmp);
 
 	// set quick neighbours
-	cnt = 0;
 	for (i = 0; i < maxquick; i++) {
 		for (y = -1; y <= 1; y++) {
 			for (x = -1; x <= 1; x++) {
@@ -374,16 +401,12 @@ void make_quick(int game, int mcx, int mcy)
 					for (ii = i + 1; ii < maxquick; ii++) {
 						if (quick[i].mapx + x == quick[ii].mapx && quick[i].mapy + y == quick[ii].mapy) {
 							break;
-						} else {
-							cnt++;
 						}
 					}
 				} else if (x == -1 || (x == 0 && y == -1)) {
 					for (ii = i - 1; ii >= 0; ii--) {
 						if (quick[i].mapx + x == quick[ii].mapx && quick[i].mapy + y == quick[ii].mapy) {
 							break;
-						} else {
-							cnt++;
 						}
 					}
 					if (ii == -1) {

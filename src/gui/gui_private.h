@@ -301,7 +301,7 @@ extern int fkeyitem[4];
 extern int lcmd;
 extern int rcmd;
 
-extern int takegold; // the amout of gold to take
+extern uint32_t takegold; // the amout of gold to take
 
 DLL_EXPORT extern SKLTAB *skltab;
 extern int skltab_max;

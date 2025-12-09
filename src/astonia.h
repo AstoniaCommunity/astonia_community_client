@@ -162,7 +162,7 @@ DLL_EXPORT void paranoia(const char *format, ...) __attribute__((format(printf, 
 void display_messagebox(char *title, char *text);
 
 void *xmalloc(int size, int ID);
-void *xrealloc(void *ptr, int size, int ID);
+void *xrealloc(void *ptr, size_t size, int ID);
 void *xrecalloc(void *ptr, int size, int ID);
 void xfree(void *ptr);
 char *xstrdup(const char *src, int ID);

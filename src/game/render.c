@@ -354,42 +354,45 @@ DLL_EXPORT void render_line(int fx, int fy, int tx, int ty, unsigned short col)
  * @param tx To X coordinate
  * @param ty To Y coordinate
  */
-void render_display_strike(int fx, int fy, int tx, int ty)
+void render_display_strike(int64_t fx, int64_t fy, int64_t tx, int64_t ty)
 {
 	int mx, my;
 	int dx, dy, d, l;
 	unsigned short col;
+	int ifx = (int)fx, ify = (int)fy, itx = (int)tx, ity = (int)ty;
 
-	dx = abs(tx - fx);
-	dy = abs(ty - fy);
+	dx = abs(itx - ifx);
+	dy = abs(ity - ify);
 
-	mx = (fx + tx) / 2 + 15 - rrand(30);
-	my = (fy + ty) / 2 + 15 - rrand(30);
+	mx = (ifx + itx) / 2 + 15 - rrand(30);
+	my = (ify + ity) / 2 + 15 - rrand(30);
 
 	if (dx >= dy) {
 		for (d = -4; d < 5; d++) {
 			l = (4 - abs(d)) * 4;
 			col = IRGB(l, l, 31);
-			render_line(fx, fy, mx, my + d, col);
-			render_line(mx, my + d, tx, ty, col);
+			render_line(ifx, ify, mx, my + d, col);
+			render_line(mx, my + d, itx, ity, col);
 		}
 	} else {
 		for (d = -4; d < 5; d++) {
 			l = (4 - abs(d)) * 4;
 			col = IRGB(l, l, 31);
-			render_line(fx, fy, mx + d, my, col);
-			render_line(mx + d, my, tx, ty, col);
+			render_line(ifx, ify, mx + d, my, col);
+			render_line(mx + d, my, itx, ity, col);
 		}
 	}
 }
 
-void render_draw_curve(int cx, int cy, int nr, int size, unsigned short col)
+void render_draw_curve(int64_t cx, int64_t cy, int64_t nr, int64_t size, int64_t col)
 {
 	int n, x, y;
+	int icx = (int)cx, icy = (int)cy, inr = (int)nr, isize = (int)size;
+	unsigned short ucol = (unsigned short)col;
 
-	for (n = nr * 90; n < nr * 90 + 90; n += 4) {
-		x = sin(n / 360.0 * M_PI * 2) * size + cx;
-		y = cos(n / 360.0 * M_PI * 2) * size * 2 / 3 + cy;
+	for (n = inr * 90; n < inr * 90 + 90; n += 4) {
+		x = sin(n / 360.0 * M_PI * 2) * isize + icx;
+		y = cos(n / 360.0 * M_PI * 2) * isize * 2 / 3 + icy;
 
 		if (x < clipsx) {
 			continue;
@@ -404,9 +407,9 @@ void render_draw_curve(int cx, int cy, int nr, int size, unsigned short col)
 			continue;
 		}
 
-		sdl_pixel(x, y, col, x_offset, y_offset);
-		sdl_pixel(x, y + 5, col, x_offset, y_offset);
-		sdl_pixel(x, y + 10, col, x_offset, y_offset);
+		sdl_pixel(x, y, ucol, x_offset, y_offset);
+		sdl_pixel(x, y + 5, ucol, x_offset, y_offset);
+		sdl_pixel(x, y + 10, ucol, x_offset, y_offset);
 	}
 }
 
@@ -419,31 +422,32 @@ void render_draw_curve(int cx, int cy, int nr, int size, unsigned short col)
  * @param tx To X coordinate
  * @param ty To Y coordinate
  */
-void render_display_pulseback(int fx, int fy, int tx, int ty)
+void render_display_pulseback(int64_t fx, int64_t fy, int64_t tx, int64_t ty)
 {
 	int mx, my;
 	int dx, dy, d, l;
 	unsigned short col;
+	int ifx = (int)fx, ify = (int)fy, itx = (int)tx, ity = (int)ty;
 
-	dx = abs(tx - fx);
-	dy = abs(ty - fy);
+	dx = abs(itx - ifx);
+	dy = abs(ity - ify);
 
-	mx = (fx + tx) / 2 + 15 - rrand(30);
-	my = (fy + ty) / 2 + 15 - rrand(30);
+	mx = (ifx + itx) / 2 + 15 - rrand(30);
+	my = (ify + ity) / 2 + 15 - rrand(30);
 
 	if (dx >= dy) {
 		for (d = -4; d < 5; d++) {
 			l = (4 - abs(d)) * 4;
 			col = IRGB(l, 31, l);
-			render_line(fx, fy, mx, my + d, col);
-			render_line(mx, my + d, tx, ty, col);
+			render_line(ifx, ify, mx, my + d, col);
+			render_line(mx, my + d, itx, ity, col);
 		}
 	} else {
 		for (d = -4; d < 5; d++) {
 			l = (4 - abs(d)) * 4;
 			col = IRGB(l, 31, l);
-			render_line(fx, fy, mx + d, my, col);
-			render_line(mx + d, my, tx, ty, col);
+			render_line(ifx, ify, mx + d, my, col);
+			render_line(mx + d, my, itx, ity, col);
 		}
 	}
 }
@@ -692,7 +696,7 @@ DLL_EXPORT void render_pixel(int x, int y, unsigned short col)
  * @param ... Format arguments
  * @return Final X coordinate after rendering
  */
-DLL_EXPORT int render_text_fmt(int sx, int sy, unsigned short int color, int flags, const char *format, ...)
+DLL_EXPORT int render_text_fmt(int64_t sx, int64_t sy, unsigned short int color, int flags, const char *format, ...)
 {
 	char buf[1024];
 	va_list va;
@@ -701,7 +705,7 @@ DLL_EXPORT int render_text_fmt(int sx, int sy, unsigned short int color, int fla
 	vsprintf(buf, format, va);
 	va_end(va);
 
-	return render_text(sx, sy, color, flags, buf);
+	return render_text((int)sx, (int)sy, color, flags, buf);
 }
 
 DLL_EXPORT int render_text_break_fmt(
@@ -766,10 +770,11 @@ void render_draw_rain_pix(int x, int y, int nr, int color, int front)
 	sdl_pixel(x, y, color, x_offset, y_offset);
 }
 
-void render_draw_bless(int x, int y, int ticker, int strength, int front)
+void render_draw_bless(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front)
 {
 	int step, nr;
 	double light;
+	int ix = (int)x, iy = (int)y, iticker = (int)ticker, istrength = (int)strength, ifront = (int)front;
 
 	if (!bless_init) {
 		for (nr = 0; nr < 36; nr++) {
@@ -782,30 +787,31 @@ void render_draw_bless(int x, int y, int ticker, int strength, int front)
 		bless_init = 1;
 	}
 
-	if (ticker > 62) {
+	if (iticker > 62) {
 		light = 1.0;
 	} else {
-		light = (ticker) / 62.0;
+		light = (iticker) / 62.0;
 	}
 
-	for (step = 0; step < strength * 10; step += 17) {
+	for (step = 0; step < istrength * 10; step += 17) {
 		render_draw_bless_pix(
-		    x, y, ticker + step + 0, IRGB((int)(24 * light), (int)(24 * light), (int)(31 * light)), front);
+		    ix, iy, iticker + step + 0, IRGB((int)(24 * light), (int)(24 * light), (int)(31 * light)), ifront);
 		render_draw_bless_pix(
-		    x, y, ticker + step + 1, IRGB((int)(20 * light), (int)(20 * light), (int)(28 * light)), front);
+		    ix, iy, iticker + step + 1, IRGB((int)(20 * light), (int)(20 * light), (int)(28 * light)), ifront);
 		render_draw_bless_pix(
-		    x, y, ticker + step + 2, IRGB((int)(16 * light), (int)(16 * light), (int)(24 * light)), front);
+		    ix, iy, iticker + step + 2, IRGB((int)(16 * light), (int)(16 * light), (int)(24 * light)), ifront);
 		render_draw_bless_pix(
-		    x, y, ticker + step + 3, IRGB((int)(12 * light), (int)(12 * light), (int)(20 * light)), front);
+		    ix, iy, iticker + step + 3, IRGB((int)(12 * light), (int)(12 * light), (int)(20 * light)), ifront);
 		render_draw_bless_pix(
-		    x, y, ticker + step + 4, IRGB((int)(8 * light), (int)(8 * light), (int)(16 * light)), front);
+		    ix, iy, iticker + step + 4, IRGB((int)(8 * light), (int)(8 * light), (int)(16 * light)), ifront);
 	}
 }
 
-void render_draw_potion(int x, int y, int ticker, int strength, int front)
+void render_draw_potion(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front)
 {
 	int step, nr;
 	double light;
+	int ix = (int)x, iy = (int)y, iticker = (int)ticker, istrength = (int)strength, ifront = (int)front;
 
 	if (!bless_init) {
 		for (nr = 0; nr < 36; nr++) {
@@ -819,34 +825,35 @@ void render_draw_potion(int x, int y, int ticker, int strength, int front)
 	}
 
 
-	if (ticker > 62) {
+	if (iticker > 62) {
 		light = 1.0;
 	} else {
-		light = (ticker) / 62.0;
+		light = (iticker) / 62.0;
 	}
 
-	for (step = 0; step < strength * 10; step += 17) {
+	for (step = 0; step < istrength * 10; step += 17) {
 		render_draw_bless_pix(
-		    x, y, ticker + step + 0, IRGB((int)(31 * light), (int)(24 * light), (int)(24 * light)), front);
+		    ix, iy, iticker + step + 0, IRGB((int)(31 * light), (int)(24 * light), (int)(24 * light)), ifront);
 		render_draw_bless_pix(
-		    x, y, ticker + step + 1, IRGB((int)(28 * light), (int)(20 * light), (int)(20 * light)), front);
+		    ix, iy, iticker + step + 1, IRGB((int)(28 * light), (int)(20 * light), (int)(20 * light)), ifront);
 		render_draw_bless_pix(
-		    x, y, ticker + step + 2, IRGB((int)(24 * light), (int)(16 * light), (int)(16 * light)), front);
+		    ix, iy, iticker + step + 2, IRGB((int)(24 * light), (int)(16 * light), (int)(16 * light)), ifront);
 		render_draw_bless_pix(
-		    x, y, ticker + step + 3, IRGB((int)(20 * light), (int)(12 * light), (int)(12 * light)), front);
+		    ix, iy, iticker + step + 3, IRGB((int)(20 * light), (int)(12 * light), (int)(12 * light)), ifront);
 		render_draw_bless_pix(
-		    x, y, ticker + step + 4, IRGB((int)(16 * light), (int)(8 * light), (int)(8 * light)), front);
+		    ix, iy, iticker + step + 4, IRGB((int)(16 * light), (int)(8 * light), (int)(8 * light)), ifront);
 	}
 }
 
-void render_draw_rain(int x, int y, int ticker, int strength, int front)
+void render_draw_rain(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front)
 {
 	int step;
+	int ix = (int)x, iy = (int)y, iticker = (int)ticker, istrength = (int)strength, ifront = (int)front;
 
-	for (step = -(strength * 100); step < 0; step += 237) {
-		render_draw_rain_pix(x, y, -ticker + step + 0, IRGB(31, 24, 16), front);
-		render_draw_rain_pix(x, y, -ticker + step + 1, IRGB(24, 16, 8), front);
-		render_draw_rain_pix(x, y, -ticker + step + 2, IRGB(16, 8, 0), front);
+	for (step = -(istrength * 100); step < 0; step += 237) {
+		render_draw_rain_pix(ix, iy, -iticker + step + 0, IRGB(31, 24, 16), ifront);
+		render_draw_rain_pix(ix, iy, -iticker + step + 1, IRGB(24, 16, 8), ifront);
+		render_draw_rain_pix(ix, iy, -iticker + step + 2, IRGB(16, 8, 0), ifront);
 	}
 }
 
