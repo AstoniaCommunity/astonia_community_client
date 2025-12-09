@@ -2,6 +2,7 @@
  * Part of Astonia Client (c) Daniel Brockhaus. Please read license.txt.
  */
 
+#include <stdio.h>
 #include "dll.h"
 
 #define MAXACTIONSLOT 14
@@ -51,6 +52,7 @@ void update_user_keys(void);
 int main_init(void);
 int main_loop(void);
 void main_exit(void);
+void gui_dump(FILE *fp);
 
 extern int (*get_skltab_sep)(int i);
 DLL_EXPORT int _get_skltab_sep(int i);
