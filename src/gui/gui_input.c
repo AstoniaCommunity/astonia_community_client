@@ -462,7 +462,7 @@ void gui_sdl_mouseproc(int x, int y, int what, int clicks)
 				vk_special_dec();
 				delta++;
 			}
-			vk_special_time = now;
+			vk_special_time = (int)now;
 
 			if (mdown) {
 				shift_override = special_tab[vk_special].shift_over;
