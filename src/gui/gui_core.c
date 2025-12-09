@@ -276,13 +276,13 @@ int main_loop(void)
 
 	amod_gamestart();
 
-	nexttick = SDL_GetTicks() + MPT;
-	nextframe = SDL_GetTicks() + MPF;
+	nexttick = (int)(SDL_GetTicks() + (Uint32)MPT);
+	nextframe = (int)(SDL_GetTicks() + (Uint32)MPF);
 
 	while (!quit) {
 		now = SDL_GetTicks();
 
-		start = SDL_GetTicks64();
+		start = (long long)SDL_GetTicks64();
 		poll_network();
 
 		// synchronise frames and ticks if at the same speed
@@ -301,7 +301,7 @@ int main_loop(void)
 			}
 
 			// get one tick to display?
-			timediff = nexttick - SDL_GetTicks();
+			timediff = (int64_t)((unsigned int)nexttick - SDL_GetTicks());
 			if (timediff < 0 ||
 			    nexttick <= nextframe) { // do ticks when they are due, or before the corresponding frame is shown
 				do_one_tick = 1;
@@ -321,11 +321,11 @@ int main_loop(void)
 		}
 
 		if (sockstate == 4) {
-			timediff = nextframe - SDL_GetTicks();
+			timediff = (int64_t)((unsigned int)nextframe - SDL_GetTicks());
 		} else {
 			timediff = 1;
 		}
-		gui_time_network += SDL_GetTicks64() - start;
+		gui_time_network += (uint64_t)(SDL_GetTicks64() - (Uint64)start);
 
 		if (timediff > -MPF / 2) {
 #ifdef TICKPRINT
@@ -342,7 +342,7 @@ int main_loop(void)
 				minimap_update();
 			}
 
-			timediff = nextframe - SDL_GetTicks();
+			timediff = (int64_t)((unsigned int)nextframe - SDL_GetTicks());
 			if (timediff > 0) {
 				idle += timediff;
 			} else {
@@ -351,7 +351,7 @@ int main_loop(void)
 
 			frames++;
 
-			flip_at(nextframe);
+			flip_at((unsigned int)nextframe);
 		} else {
 #ifdef TICKPRINT
 			printf("Skip tick %d\n", tick);
@@ -397,13 +397,13 @@ int calc_tick_delay_short(int size)
 	int tmp;
 	switch (size) {
 	case 0:
-		tmp = MPT * 2.00;
+		tmp = (int)(MPT * 2.00);
 		break;
 	case 1:
-		tmp = MPT * 1.25;
+		tmp = (int)(MPT * 1.25);
 		break;
 	case 2:
-		tmp = MPT * 1.10;
+		tmp = (int)(MPT * 1.10);
 		break;
 	case 3:
 		tmp = MPT;
@@ -415,19 +415,19 @@ int calc_tick_delay_short(int size)
 		tmp = MPT - 1;
 		break;
 	case 6:
-		tmp = MPT * 0.90;
+		tmp = (int)(MPT * 0.90);
 		break;
 	case 7:
-		tmp = MPT * 0.75;
+		tmp = (int)(MPT * 0.75);
 		break;
 	case 8:
-		tmp = MPT * 0.60;
+		tmp = (int)(MPT * 0.60);
 		break;
 	case 9:
-		tmp = MPT * 0.50;
+		tmp = (int)(MPT * 0.50);
 		break;
 	default:
-		tmp = MPT * 0.25;
+		tmp = (int)(MPT * 0.25);
 		break;
 	}
 	return tmp;
@@ -438,19 +438,19 @@ int calc_tick_delay_normal(int size)
 	int tmp;
 	switch (size) {
 	case 0:
-		tmp = MPT * 2.00;
+		tmp = (int)(MPT * 2.00);
 		break;
 	case 1:
-		tmp = MPT * 1.50;
+		tmp = (int)(MPT * 1.50);
 		break;
 	case 2:
-		tmp = MPT * 1.40;
+		tmp = (int)(MPT * 1.40);
 		break;
 	case 3:
-		tmp = MPT * 1.25;
+		tmp = (int)(MPT * 1.25);
 		break;
 	case 4:
-		tmp = MPT * 1.10;
+		tmp = (int)(MPT * 1.10);
 		break;
 	case 5:
 		tmp = MPT + 1;
@@ -465,19 +465,19 @@ int calc_tick_delay_normal(int size)
 		tmp = MPT - 1;
 		break;
 	case 9:
-		tmp = MPT * 0.90;
+		tmp = (int)(MPT * 0.90);
 		break;
 	case 10:
-		tmp = MPT * 0.75;
+		tmp = (int)(MPT * 0.75);
 		break;
 	case 11:
-		tmp = MPT * 0.60;
+		tmp = (int)(MPT * 0.60);
 		break;
 	case 12:
-		tmp = MPT * 0.50;
+		tmp = (int)(MPT * 0.50);
 		break;
 	default:
-		tmp = MPT * 0.25;
+		tmp = (int)(MPT * 0.25);
 		break;
 	}
 	return tmp;
