@@ -331,7 +331,8 @@ extern int update_skltab;
 extern int show_look;
 extern int control_override;
 extern int vk_rbut, vk_lbut;
-extern int vk_special, vk_special_time;
+extern int vk_special;
+extern unsigned int vk_special_time;
 extern struct special_tab special_tab[];
 extern int max_special;
 extern int plrmn;
@@ -398,6 +399,7 @@ void set_cmd_states(void);
 // From gui_display.c
 void display_helpandquest(void);
 void display_wheel(void);
+void display(void);
 void update_ui_layout(void);
 
 // From gui_map.c (already declared in gui.h but repeated here for clarity)

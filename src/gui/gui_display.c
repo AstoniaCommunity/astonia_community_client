@@ -114,8 +114,8 @@ void dx_copysprite_emerald(int scrx, int scry, int emx, int emy)
 	bzero(&ddfx, sizeof(ddfx));
 	ddfx.sprite = 37;
 	ddfx.align = RENDER_ALIGN_OFFSET;
-	ddfx.clipsx = emx * 10;
-	ddfx.clipsy = emy * 10;
+	ddfx.clipsx = (short)(emx * 10);
+	ddfx.clipsy = (short)(emy * 10);
 	ddfx.clipex = ddfx.clipsx + 10;
 	ddfx.clipey = ddfx.clipsy + 10;
 	ddfx.ml = ddfx.ll = ddfx.rl = ddfx.ul = ddfx.dl = RENDERFX_NORMAL_LIGHT;
@@ -132,8 +132,9 @@ void display(void)
 	extern int memused;
 	extern int memptrused;
 	extern long long sdl_time_make, sdl_time_tex, sdl_time_tex_main, sdl_time_text, sdl_time_blit;
-	int t, tmp;
-	long long start = SDL_GetTicks64();
+	time_t t;
+	int tmp;
+	uint64_t start = SDL_GetTicks64();
 
 #if 0
 	// Performance for stuff happening during the actual tick only.
@@ -162,7 +163,7 @@ void display(void)
 
 	set_cmd_states();
 
-	if (sockstate < 4 && ((t = time(NULL) - socktimeout) > 10 || !originx)) {
+	if (sockstate < 4 && ((t = time(NULL) - (time_t)socktimeout) > 10 || !originx)) {
 		render_rect(0, 0, 800, 540, blackcolor);
 		display_screen();
 		display_text();
@@ -173,7 +174,7 @@ void display(void)
 		if (!kicked_out) {
 			render_text_fmt(800 / 2, 540 / 2 - 40, textcolor,
 			    RENDER_TEXT_SMALL | RENDER_ALIGN_CENTER | RENDER_TEXT_FRAMED,
-			    "Trying to establish connection. %d seconds...", t);
+			    "Trying to establish connection. %ld seconds...", (long)t);
 			if (t > 15) {
 				render_text_fmt(800 / 2, 540 / 2 - 0, textcolor,
 				    RENDER_TEXT_LARGE | RENDER_ALIGN_CENTER | RENDER_TEXT_FRAMED,
@@ -225,7 +226,7 @@ void display(void)
 
 display_graphs:;
 
-	int duration = SDL_GetTicks64() - start;
+	int64_t duration = (int64_t)(SDL_GetTicks64() - start);
 
 	if (display_vc) {
 		extern long long texc_miss, texc_pre; // mem_tex,
@@ -249,7 +250,7 @@ display_graphs:;
 		// render_text_fmt(px,py+=10,IRGB(8,31,8),RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED|RENDER_TEXT_NOCACHE,"Tex: %5.2f
 		// MB",mem_tex/(1024.0*1024.0));
 		render_text_fmt(px, py += 10, IRGB(8, 31, 8), RENDER_TEXT_LEFT | RENDER_TEXT_FRAMED | RENDER_TEXT_NOCACHE,
-		    "Mem: %5.2f MB", get_memory_usage() / (1024.0 * 1024.0));
+		    "Mem: %5.2f MB", (double)get_memory_usage() / (1024.0 * 1024.0));
 
 #if 0
 	    if (pre_in>=pre_3) size=pre_in-pre_3;
@@ -275,9 +276,12 @@ display_graphs:;
 
 		py += 10;
 
-		size = duration + gui_time_network;
+		{
+			uint64_t sum = (uint64_t)duration + gui_time_network;
+			size = sum > 42 ? 42 : (int)sum;
+		}
 		render_text(px, py += 10, IRGB(8, 31, 8), RENDER_TEXT_LEFT | RENDER_TEXT_FRAMED, "Render");
-		sdl_bargraph_add(sizeof(dur_graph), dur_graph, size < 42 ? size : 42);
+		sdl_bargraph_add(sizeof(dur_graph), dur_graph, size);
 		sdl_bargraph(px, py += 40, sizeof(dur_graph), dur_graph, x_offset, y_offset);
 
 #if 0
@@ -289,16 +293,22 @@ display_graphs:;
 	    if (gui_ticktime>tick_max) tick_max=gui_ticktime;
 	    render_text_fmt(px,py+=10,IRGB(8,31,8),RENDER_TEXT_NOCACHE|RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED,"TT %d %d",tick_min,tick_max);
 #endif
-		size = gui_frametime / 2;
+		{
+			uint64_t val = gui_frametime / 2;
+			size = val > 42 ? 42 : (int)val;
+		}
 		render_text_fmt(px, py += 10, IRGB(8, 31, 8), RENDER_TEXT_NOCACHE | RENDER_TEXT_LEFT | RENDER_TEXT_FRAMED,
 		    "Frametime %" PRId64, gui_frametime);
-		sdl_bargraph_add(sizeof(pre2_graph), pre2_graph, size < 42 ? size : 42);
+		sdl_bargraph_add(sizeof(pre2_graph), pre2_graph, size);
 		sdl_bargraph(px, py += 40, sizeof(pre2_graph), pre2_graph, x_offset, y_offset);
 
-		size = gui_ticktime / 2;
+		{
+			uint64_t val = gui_ticktime / 2;
+			size = val > 42 ? 42 : (int)val;
+		}
 		render_text_fmt(px, py += 10, IRGB(8, 31, 8), RENDER_TEXT_NOCACHE | RENDER_TEXT_LEFT | RENDER_TEXT_FRAMED,
 		    "Ticktime %" PRId64, gui_ticktime);
-		sdl_bargraph_add(sizeof(pre3_graph), pre3_graph, size < 42 ? size : 42);
+		sdl_bargraph_add(sizeof(pre3_graph), pre3_graph, size);
 		sdl_bargraph(px, py += 40, sizeof(pre3_graph), pre3_graph, x_offset, y_offset);
 #if 0
 	    size=gui_time_network;
@@ -324,22 +334,27 @@ display_graphs:;
 	    sdl_bargraph(px,py+=40,sizeof(size1_graph),load_graph,x_offset,y_offset);
 #endif
 
-		size = sdl_time_pre1 + sdl_time_pre3;
+		{
+			uint64_t sum = sdl_time_pre1 + sdl_time_pre3;
+			size = sum > 42 ? 42 : (int)sum;
+		}
 		render_text(px, py += 10, IRGB(8, 31, 8), RENDER_TEXT_LEFT | RENDER_TEXT_FRAMED, "Pre-Main");
-		sdl_bargraph_add(sizeof(size1_graph), size2_graph, size < 42 ? size : 42);
+		sdl_bargraph_add(sizeof(size1_graph), size2_graph, size);
 		sdl_bargraph(px, py += 40, sizeof(size1_graph), size2_graph, x_offset, y_offset);
 #if 0
 
 #endif
 		if (sdl_multi) {
-			size = sdl_backgnd_work / sdl_multi;
+			uint64_t val = sdl_backgnd_work / (uint64_t)sdl_multi;
+			size = val > 42 ? 42 : (int)val;
 			render_text_fmt(
 			    px, py += 10, IRGB(8, 31, 8), RENDER_TEXT_LEFT | RENDER_TEXT_FRAMED, "Pre-Back (%d)", sdl_multi);
 		} else {
-			size = sdl_time_pre2;
+			uint64_t val = sdl_time_pre2;
+			size = val > 42 ? 42 : (int)val;
 			render_text_fmt(px, py += 10, IRGB(8, 31, 8), RENDER_TEXT_LEFT | RENDER_TEXT_FRAMED, "Make");
 		}
-		sdl_bargraph_add(sizeof(pre1_graph), pre1_graph, size < 42 ? size : 42);
+		sdl_bargraph_add(sizeof(pre1_graph), pre1_graph, size);
 		sdl_bargraph(px, py += 40, sizeof(pre1_graph), pre1_graph, x_offset, y_offset);
 #if 0
 	        render_text_fmt(px,py+=10,IRGB(8,31,8),RENDER_TEXT_SMALL|RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED,"Mutex");

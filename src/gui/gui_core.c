@@ -59,7 +59,8 @@ DLL_EXPORT int vk_shift, vk_control, vk_alt;
 int mousedx, mousedy;
 int vk_item, vk_char, vk_spell;
 
-int vk_special = 0, vk_special_time = 0;
+int vk_special = 0;
+unsigned int vk_special_time = 0;
 
 // globals wea
 
