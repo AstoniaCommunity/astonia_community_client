@@ -8,10 +8,10 @@
 #define MAXACTIONSLOT 14
 
 struct quicks {
-	int mn[9]; // 0 for invalid neighbours
+	unsigned int mn[9]; // 0 for invalid neighbours
 	int qi[9]; // maxqick for invalid neighbours
-	int mapx;
-	int mapy;
+	unsigned int mapx;
+	unsigned int mapy;
 	int cx;
 	int cy;
 };
@@ -25,9 +25,9 @@ extern int mapaddx, mapaddy;
 extern int mapoffx, mapoffy;
 extern int mapaddx, mapaddy; // small offset to smoothen walking
 extern int plrmn; // mn of player
-extern int itmsel; // mn
-extern int chrsel; // mn
-extern int mapsel; // mn
+extern unsigned int itmsel; // mn
+extern unsigned int chrsel; // mn
+extern unsigned int mapsel; // mn
 
 DLL_EXPORT extern unsigned short int healthcolor, manacolor, endurancecolor, shieldcolor;
 DLL_EXPORT extern unsigned short int whitecolor, lightgraycolor, graycolor, darkgraycolor, blackcolor;
@@ -43,7 +43,7 @@ extern int show_tutor;
 extern char tutor_text[1024];
 extern int show_look;
 
-void mtos(int mapx, int mapy, int *scrx, int *scry);
+void mtos(unsigned int mapx, unsigned int mapy, int *scrx, int *scry);
 int stom(int scrx, int scry, int *mapx, int *mapy);
 void set_mapoff(int cx, int cy, int mdx, int mdy);
 void set_mapadd(int addx, int addy);

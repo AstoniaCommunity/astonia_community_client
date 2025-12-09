@@ -23,7 +23,7 @@
 #endif
 
 #define V_MAX         200
-#define DIST          25
+#define DIST          ((unsigned int)25)
 #define MAPDX         (DIST * 2 + 1)
 #define MAPDY         (DIST * 2 + 1)
 #define MAXMN         (MAPDX * MAPDY)

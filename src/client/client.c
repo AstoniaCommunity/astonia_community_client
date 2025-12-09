@@ -449,7 +449,7 @@ int poll_network(void)
 
 static void auto_tick(struct map *cmap)
 {
-	int x, y, mn;
+	unsigned int x, y, mn;
 
 	// automatically tick map
 	for (y = 0; y < MAPDY; y++) {
@@ -591,10 +591,10 @@ DLL_EXPORT int level2exp(int level)
 	return (int)pow(level, 4);
 }
 
-DLL_EXPORT int mapmn(int x, int y)
+DLL_EXPORT unsigned int mapmn(unsigned int x, unsigned int y)
 {
-	if (x < 0 || y < 0 || x >= MAPDX || y >= MAPDY) {
-		return -1;
+	if (x >= MAPDX || y >= MAPDY) {
+		return MAXMN;
 	}
-	return (x + y * MAPDX);
+	return x + y * MAPDX;
 }

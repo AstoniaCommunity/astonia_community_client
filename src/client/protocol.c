@@ -41,7 +41,7 @@ static size_t sv_map01(unsigned char *buf, int *last, struct map *cmap)
 		c = load_u16(buf + 1);
 	}
 
-	if (c > MAPDX * MAPDY || c < 0) {
+	if (c < 0 || (unsigned int)c > MAPDX * MAPDY) {
 		fail("sv_map01 illegal call with c=%d\n", c);
 		exit(-1);
 	}
@@ -87,7 +87,7 @@ static size_t sv_map10(unsigned char *buf, int *last, struct map *cmap)
 		c = load_u16(buf + 1);
 	}
 
-	if (c > MAPDX * MAPDY || c < 0) {
+	if (c < 0 || (unsigned int)c > MAPDX * MAPDY) {
 		fail("sv_map10 illegal call with c=%d\n", c);
 		exit(-1);
 	}
@@ -151,7 +151,7 @@ static size_t sv_map11(unsigned char *buf, int *last, struct map *cmap)
 		c = load_u16(buf + 1);
 	}
 
-	if (c > MAPDX * MAPDY || c < 0) {
+	if (c < 0 || (unsigned int)c > MAPDX * MAPDY) {
 		fail("sv_map11 illegal call with c=%d\n", c);
 		exit(-1);
 	}

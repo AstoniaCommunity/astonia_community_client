@@ -263,7 +263,7 @@ void add_bubble(int x, int y, int h)
 	int n;
 	int offx, offy;
 
-	mtos(originx, originy, &offx, &offy);
+	mtos((unsigned int)originx, (unsigned int)originy, &offx, &offy);
 	offx -= mapaddx * 2;
 	offy -= mapaddx * 2;
 
@@ -288,7 +288,7 @@ void show_bubbles(void)
 	DL *dl;
 	// static int oo=0;
 
-	mtos(originx, originy, &offx, &offy);
+	mtos((unsigned int)originx, (unsigned int)originy, &offx, &offy);
 	offx -= mapaddx * 2;
 	offy -= mapaddy * 2;
 	// if (oo!=mapaddx) addline("shown bubble at %d,%d %d,%d",offx,offy,oo=mapaddx,mapaddy);
@@ -342,13 +342,14 @@ static int quick_qcmp(const void *va, const void *vb)
 		return 1;
 	}
 
-	return a->mapx - b->mapx;
+	return (int)a->mapx - (int)b->mapx;
 }
 
 void make_quick(int game, int mcx, int mcy)
 {
-	int x, y, xs, xe, i, ii;
-	int dist = DIST;
+	unsigned int x, y, xs, xe;
+	int i, ii;
+	unsigned int dist = DIST;
 
 	if (game) {
 		set_mapoff(mcx, mcy, MAPDX, MAPDY);
@@ -395,17 +396,20 @@ void make_quick(int game, int mcx, int mcy)
 
 	// set quick neighbours
 	for (i = 0; i < maxquick; i++) {
-		for (y = -1; y <= 1; y++) {
-			for (x = -1; x <= 1; x++) {
-				if (x == 1 || (x == 0 && y == 1)) {
+		int dx, dy;
+		for (dy = -1; dy <= 1; dy++) {
+			for (dx = -1; dx <= 1; dx++) {
+				if (dx == 1 || (dx == 0 && dy == 1)) {
 					for (ii = i + 1; ii < maxquick; ii++) {
-						if (quick[i].mapx + x == quick[ii].mapx && quick[i].mapy + y == quick[ii].mapy) {
+						if ((int)quick[i].mapx + dx == (int)quick[ii].mapx &&
+						    (int)quick[i].mapy + dy == (int)quick[ii].mapy) {
 							break;
 						}
 					}
-				} else if (x == -1 || (x == 0 && y == -1)) {
+				} else if (dx == -1 || (dx == 0 && dy == -1)) {
 					for (ii = i - 1; ii >= 0; ii--) {
-						if (quick[i].mapx + x == quick[ii].mapx && quick[i].mapy + y == quick[ii].mapy) {
+						if ((int)quick[i].mapx + dx == (int)quick[ii].mapx &&
+						    (int)quick[i].mapy + dy == (int)quick[ii].mapy) {
 							break;
 						}
 					}
@@ -417,21 +421,24 @@ void make_quick(int game, int mcx, int mcy)
 				}
 
 				if (ii == maxquick) {
-					quick[i].mn[(x + 1) + (y + 1) * 3] = 0;
-					quick[i].qi[(x + 1) + (y + 1) * 3] = maxquick;
+					quick[i].mn[(dx + 1) + (dy + 1) * 3] = 0;
+					quick[i].qi[(dx + 1) + (dy + 1) * 3] = maxquick;
 				} else {
-					quick[i].mn[(x + 1) + (y + 1) * 3] = quick[ii].mn[4];
-					quick[i].qi[(x + 1) + (y + 1) * 3] = ii;
+					quick[i].mn[(dx + 1) + (dy + 1) * 3] = quick[ii].mn[4];
+					quick[i].qi[(dx + 1) + (dy + 1) * 3] = ii;
 				}
 			}
 		}
 	}
 
 	// set values for quick[maxquick]
-	for (y = -1; y <= 1; y++) {
-		for (x = -1; x <= 1; x++) {
-			quick[maxquick].mn[(x + 1) + (y + 1) * 3] = 0;
-			quick[maxquick].qi[(x + 1) + (y + 1) * 3] = maxquick;
+	{
+		int dx, dy;
+		for (dy = -1; dy <= 1; dy++) {
+			for (dx = -1; dx <= 1; dx++) {
+				quick[maxquick].mn[(dx + 1) + (dy + 1) * 3] = 0;
+				quick[maxquick].qi[(dx + 1) + (dy + 1) * 3] = maxquick;
+			}
 		}
 	}
 }
