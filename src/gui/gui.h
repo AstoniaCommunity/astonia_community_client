@@ -97,3 +97,6 @@ extern int questonscreen[10];
 DLL_EXPORT extern int *game_questcount;
 extern int gear_lock;
 extern int last_right_click_invsel;
+
+// Platform-specific GUI functions
+void gui_sdl_draghack(void);

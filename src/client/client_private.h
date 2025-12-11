@@ -93,3 +93,4 @@ void exit_network(void);
 void bzero_client(int part);
 DLL_EXPORT void client_send(void *buf, size_t len);
 void load_unique(void);
+void save_unique(void);

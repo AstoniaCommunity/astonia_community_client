@@ -188,3 +188,6 @@ DLL_EXPORT int buty(int bidx);
 
 void render_set_offset(int x, int y);
 char *client_version(void);
+
+// Crash handler (platform-specific, Windows only)
+void register_crash_handler(void);

@@ -1,7 +1,9 @@
 #include <windows.h>
 
-extern int unique;
-extern int usum;
+#include "dll.h"
+#include "astonia.h"
+#include "client/client.h"
+#include "client/client_private.h"
 
 void save_unique(void)
 {
@@ -11,8 +13,8 @@ void save_unique(void)
 		return;
 	}
 
-	unique = unique ^ 0xfe2abc82;
-	usum = unique ^ 0x3e5fba04;
+	unique = unique ^ 0xfe2abc82U;
+	usum = unique ^ 0x3e5fba04U;
 
 	RegSetValueEx(hk, "fInput1", 0, REG_DWORD, (void *)&unique, 4);
 	RegSetValueEx(hk, "fInput2", 0, REG_DWORD, (void *)&usum, 4);
@@ -30,9 +32,9 @@ void load_unique(void)
 	RegQueryValueEx(hk, "fInput1", 0, (void *)&type, (void *)&unique, (void *)&size);
 	RegQueryValueEx(hk, "fInput2", 0, (void *)&type, (void *)&usum, (void *)&size);
 
-	if ((unique ^ 0x3e5fba04) != usum) {
+	if ((unique ^ 0x3e5fba04U) != usum) {
 		unique = usum = 0;
 	} else {
-		unique = unique ^ 0xfe2abc82;
+		unique = unique ^ 0xfe2abc82U;
 	}
 }

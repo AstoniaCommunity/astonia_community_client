@@ -2,6 +2,7 @@
  * Part of Astonia Client (c) Daniel Brockhaus. Please read license.txt.
  */
 #include "../dll.h"
+#include "../astonia.h"
 
 #define INVDX      4
 #define INVDY      (__invdy)
@@ -347,6 +348,9 @@ extern uint64_t gui_time_network;
 extern uint64_t gui_frametime;
 extern uint64_t gui_ticktime;
 DLL_EXPORT extern int game_slowdown;
+
+// Platform-specific GUI functions
+void gui_sdl_draghack(void);
 
 // ============================================================================
 // Shared variables from gui_map.c (shared for map coordinate functions)

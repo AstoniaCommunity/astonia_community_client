@@ -8,7 +8,7 @@
 
 extern FILE *errorfp;
 
-void main_dump(FILE *fp)
+static void main_dump(FILE *fp)
 {
 	int i;
 	unsigned long long tmp;

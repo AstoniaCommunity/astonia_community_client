@@ -528,7 +528,6 @@ void sdl_exit(void)
 #endif
 }
 
-void gui_sdl_draghack(void);
 void cmd_proc(int key);
 void context_keyup(int key);
 

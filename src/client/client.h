@@ -580,3 +580,4 @@ extern double server_cycles;
 extern int change_area;
 extern int login_done;
 extern unsigned int unique;
+extern unsigned int usum;

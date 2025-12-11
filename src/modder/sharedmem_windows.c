@@ -18,10 +18,12 @@
 
 struct sharedmem {
 	unsigned int pid;
-	char hp, shield, end, mana;
+	unsigned char hp, shield, end;
+	signed char mana; // Signed to preserve -1 sentinel
 
 	char *base;
-	int key, isprite, offX, offY;
+	ptrdiff_t key, isprite; // Pointer offsets
+	int offX, offY;
 	int flags, fsprite;
 	char swapped;
 } __attribute__((packed));
@@ -115,9 +117,9 @@ void sharedmem_update(void)
 	sm->hp = map[plrmn].health;
 	sm->shield = map[plrmn].shield;
 	if (value[0][V_MANA]) {
-		sm->mana = map[plrmn].mana;
+		sm->mana = (signed char)map[plrmn].mana;
 	} else {
 		sm->mana = -1;
 	}
-	sm->end = endup;
+	sm->end = (unsigned char)endup;
 }

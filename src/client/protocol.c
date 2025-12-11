@@ -977,9 +977,6 @@ static void sv_questlog(unsigned char *buf)
 	memcpy(&shrine, buf + 1 + size, sizeof(struct shrine_ppd));
 }
 
-void save_unique(void);
-void load_unique(void);
-
 static void sv_unique(unsigned char *buf)
 {
 	if (unique != load_u32(buf + 1)) {

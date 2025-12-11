@@ -1,6 +1,8 @@
 #include <windows.h>
 #include <psapi.h>
 
+#include "astonia.h"
+
 unsigned long long get_total_system_memory(void)
 {
 	MEMORYSTATUSEX ms;

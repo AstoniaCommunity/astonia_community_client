@@ -37,7 +37,9 @@ void update_user_keys(void)
 	}
 }
 
-char *strcasestr(const char *haystack, const char *needle)
+#ifdef _WIN32
+// Windows doesn't have strcasestr, so provide our own implementation
+static char *strcasestr(const char *haystack, const char *needle)
 {
 	const char *ptr;
 
@@ -53,6 +55,7 @@ char *strcasestr(const char *haystack, const char *needle)
 	}
 	return NULL;
 }
+#endif
 
 static void cmd_version(void)
 {

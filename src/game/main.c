@@ -854,8 +854,6 @@ void load_options(void)
 	actions_loaded();
 }
 
-void register_crash_handler(void);
-
 void init_logging(void)
 {
 	char filename[MAX_PATH];
