@@ -25,9 +25,9 @@ extern int mapaddx, mapaddy;
 extern int mapoffx, mapoffy;
 extern int mapaddx, mapaddy; // small offset to smoothen walking
 extern int plrmn; // mn of player
-extern unsigned int itmsel; // mn
-extern unsigned int chrsel; // mn
-extern unsigned int mapsel; // mn
+extern size_t itmsel; // mn
+extern size_t chrsel; // mn
+extern size_t mapsel; // mn
 
 DLL_EXPORT extern unsigned short int healthcolor, manacolor, endurancecolor, shieldcolor;
 DLL_EXPORT extern unsigned short int whitecolor, lightgraycolor, graycolor, darkgraycolor, blackcolor;

@@ -120,9 +120,9 @@ int fkeyitem[4];
 // globals cmd
 
 int plrmn; // mn of player
-unsigned int mapsel; // mn
-unsigned int itmsel; // mn
-unsigned int chrsel; // mn
+size_t mapsel; // mn
+size_t itmsel; // mn
+size_t chrsel; // mn
 int invsel; // index into item
 int weasel; // index into weatab
 int consel; // index into item

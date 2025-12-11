@@ -91,7 +91,7 @@ void display_mouseover(void)
 #define MAXDESC  20
 
 struct hover_item {
-	int valid_till;
+	uint32_t valid_till;
 	int cnt;
 	int width;
 	char *desc[MAXDESC];
@@ -339,19 +339,19 @@ static void display_hover_update(void)
 	}
 }
 
-int tactics2melee(int val)
+uint16_t tactics2melee(int val)
 {
-	return val * 0.375;
+	return (uint16_t)((float)val * 0.375f);
 }
 
-int tactics2immune(int val)
+uint16_t tactics2immune(int val)
 {
-	return val * 0.125;
+	return (uint16_t)((float)val * 0.125f);
 }
 
-int tactics2spell(int val)
+uint16_t tactics2spell(int val)
 {
-	return val * 0.125;
+	return (uint16_t)((float)val * 0.125f);
 }
 
 static char *vbasename(int v)
@@ -393,8 +393,9 @@ static int display_hover_skill(void)
 
 	if (skltab && sklsel2 != -1 && tick - last_tick > HOVER_DELAY) {
 		int height = 0, width = 200;
-		int base = 0, cap = 0, offense = 0, defense = 0, speed = 0, armor = 0, weapon = 0, raisecost = 0;
-		int immune = 0, spells = 0, tactics = 0, athlete = 0, unused = -1;
+		int base = 0, cap = 0, raisecost = 0, unused = -1;
+		uint16_t offense = 0, defense = 0, speed = 0, armor = 0, weapon = 0;
+		uint16_t immune = 0, spells = 0, tactics = 0, athlete = 0;
 
 		int v = skltab[sklsel2 + skloff].v;
 		if (v < 0 || v >= *game_v_max) {
@@ -427,10 +428,10 @@ static int display_hover_skill(void)
 			defense = value[0][v];
 			height += 20;
 		} else if (v == V_ATTACK) {
-			offense = value[0][v] * 2;
+			offense = (uint16_t)(value[0][v] * 2);
 			height += 10;
 		} else if (v == V_PARRY) {
-			defense = value[0][v] * 2;
+			defense = (uint16_t)(value[0][v] * 2);
 			height += 10;
 		} else if (v == V_TACTICS) {
 			offense = tactics2melee(value[0][v]);
@@ -442,11 +443,11 @@ static int display_hover_skill(void)
 			}
 			height += 30;
 		} else if (v == V_SPEEDSKILL) {
-			speed = value[0][v] / 2;
+			speed = (uint16_t)(value[0][v] / 2);
 			height += 10;
 		} else if (v == V_BODYCONTROL) {
-			armor = value[0][v] * 5;
-			weapon = value[0][v] / 4;
+			armor = (uint16_t)(value[0][v] * 5);
+			weapon = (uint16_t)(value[0][v] / 4);
 			height += 20;
 		} else if (value[0][V_TACTICS] &&
 		           (v == V_PULSE || v == V_WARCRY || v == V_HEAL || v == V_FREEZE || v == V_FLASH || v == V_FIREBALL)) {
@@ -474,7 +475,7 @@ static int display_hover_skill(void)
 			case V_FLASH:
 			case V_FIREBALL:
 			case V_PULSE:
-				armor = value[0][v] / 8.0 * 17.5;
+				armor = (uint16_t)((float)value[0][v] / 8.0f * 17.5f);
 				height += 10;
 				break;
 			}
@@ -549,7 +550,7 @@ static int display_hover_skill(void)
 			sy += 10;
 		}
 		if (armor) {
-			render_text_fmt(sx + 4, sy, 0xffff, 0, "Gives +%.2f to armor value", armor / 20.0f);
+			render_text_fmt(sx + 4, sy, 0xffff, 0, "Gives +%.2f to armor value", (float)armor / 20.0f);
 			sy += 10;
 		}
 		if (weapon) {

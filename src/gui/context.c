@@ -19,7 +19,8 @@
 #include "sdl/sdl.h"
 #include "modder/modder.h"
 
-static int c_on = 0, c_x, c_y, d_y, csel, isel, msel, ori_x, ori_y;
+static int c_on = 0, c_x, c_y, d_y, ori_x, ori_y;
+static size_t csel = MAXMN, isel = MAXMN, msel = MAXMN;
 
 #define MAXLINE    20
 #define MAXLEN     120
@@ -37,34 +38,35 @@ struct menu menu;
 static void update_ori(void)
 {
 	int x, y;
+	const int mapdx_int = (int)MAPDX;
 
-	if (msel != -1) {
-		x = (msel % MAPDX) + ori_x - originx;
-		y = (msel / MAPDX) + ori_y - originy;
-		if (x < 0 || x >= MAPDX || y < 0 || y >= MAPDX) {
-			msel = -1;
+	if (msel != MAXMN) {
+		x = (int)(msel % MAPDX) + ori_x - originx;
+		y = (int)(msel / MAPDX) + ori_y - originy;
+		if (x < 0 || x >= mapdx_int || y < 0 || y >= mapdx_int) {
+			msel = MAXMN;
 		} else {
-			msel = x + y * MAPDX;
+			msel = (size_t)((unsigned int)x + (unsigned int)y * MAPDX);
 		}
 	}
 
-	if (isel != -1) {
-		x = (isel % MAPDX) + ori_x - originx;
-		y = (isel / MAPDX) + ori_y - originy;
-		if (x < 0 || x >= MAPDX || y < 0 || y >= MAPDX) {
-			isel = -1;
+	if (isel != MAXMN) {
+		x = (int)(isel % MAPDX) + ori_x - originx;
+		y = (int)(isel / MAPDX) + ori_y - originy;
+		if (x < 0 || x >= mapdx_int || y < 0 || y >= mapdx_int) {
+			isel = MAXMN;
 		} else {
-			isel = x + y * MAPDX;
+			isel = (size_t)((unsigned int)x + (unsigned int)y * MAPDX);
 		}
 	}
 
-	if (csel != -1) {
-		x = (csel % MAPDX) + ori_x - originx;
-		y = (csel / MAPDX) + ori_y - originy;
-		if (x < 0 || x >= MAPDX || y < 0 || y >= MAPDX) {
-			csel = -1;
+	if (csel != MAXMN) {
+		x = (int)(csel % MAPDX) + ori_x - originx;
+		y = (int)(csel / MAPDX) + ori_y - originy;
+		if (x < 0 || x >= mapdx_int || y < 0 || y >= mapdx_int) {
+			csel = MAXMN;
 		} else {
-			csel = x + y * MAPDX;
+			csel = (size_t)((unsigned int)x + (unsigned int)y * MAPDX);
 		}
 	}
 
@@ -74,19 +76,19 @@ static void update_ori(void)
 
 static void makemenu(void)
 {
-	int co;
+	unsigned int co;
 	char *name = "someone";
 
 	update_ori();
 
-	if (csel != -1) {
-		co = map[csel].cn;
+	if (csel != MAXMN) {
+		co = map[(int)csel].cn;
 		if (co > 0 && co < MAXCHARS) {
 			if (player[co].name[0]) {
 				name = player[co].name;
 			}
 		} else {
-			csel = -1;
+			csel = MAXMN;
 		}
 	}
 
@@ -102,12 +104,12 @@ static void makemenu(void)
 	}
 #endif
 
-	if (isel != -1) {
-		if (map[isel].flags & CMF_TAKE) {
+	if (isel != MAXMN) {
+		if (map[(int)isel].flags & CMF_TAKE) {
 			sprintf(menu.line[menu.linecnt], "Take Item");
 			menu.cmd[menu.linecnt] = CMD_ITM_TAKE;
-			menu.opt1[menu.linecnt] = originx - MAPDX / 2 + isel % MAPDX;
-			menu.opt2[menu.linecnt] = originy - MAPDY / 2 + isel / MAPDX;
+			menu.opt1[menu.linecnt] = originx - (int)(MAPDX / 2U) + (int)(isel % MAPDX);
+			menu.opt2[menu.linecnt] = originy - (int)(MAPDY / 2U) + (int)(isel / MAPDX);
 			menu.linecnt++;
 		} else if (map[isel].flags & CMF_USE) {
 			if (csprite) {
@@ -116,37 +118,37 @@ static void makemenu(void)
 				sprintf(menu.line[menu.linecnt], "Use Item");
 			}
 			menu.cmd[menu.linecnt] = CMD_ITM_USE;
-			menu.opt1[menu.linecnt] = originx - MAPDX / 2 + isel % MAPDX;
-			menu.opt2[menu.linecnt] = originy - MAPDY / 2 + isel / MAPDX;
+			menu.opt1[menu.linecnt] = originx - (int)(MAPDX / 2U) + (int)(isel % MAPDX);
+			menu.opt2[menu.linecnt] = originy - (int)(MAPDY / 2U) + (int)(isel / MAPDX);
 			menu.linecnt++;
 		}
 	}
 	if (csprite && !map[msel].isprite && !map[msel].csprite) {
 		sprintf(menu.line[menu.linecnt], "Drop");
 		menu.cmd[menu.linecnt] = CMD_MAP_DROP;
-		menu.opt1[menu.linecnt] = originx - MAPDX / 2 + msel % MAPDX;
-		menu.opt2[menu.linecnt] = originy - MAPDY / 2 + msel / MAPDX;
+		menu.opt1[menu.linecnt] = originx - (int)(MAPDX / 2U) + (int)(msel % MAPDX);
+		menu.opt2[menu.linecnt] = originy - (int)(MAPDY / 2U) + (int)(msel / MAPDX);
 		menu.linecnt++;
 	}
 
-	if (csel != -1) {
-		if (csprite && csel != MAPDX * MAPDY / 2) {
+	if (csel != MAXMN) {
+		if (csprite && csel != MAPDX * MAPDY / 2U) {
 			sprintf(menu.line[menu.linecnt], "Give to %s", name);
 			menu.cmd[menu.linecnt] = CMD_CHR_GIVE;
-			menu.opt1[menu.linecnt] = map[csel].cn;
+			menu.opt1[menu.linecnt] = (int)map[csel].cn;
 			menu.opt2[menu.linecnt] = 0;
 			menu.linecnt++;
 		}
-		if (csel != MAPDX * MAPDY / 2) {
+		if (csel != MAPDX * MAPDY / 2U) {
 			sprintf(menu.line[menu.linecnt], "Attack %s", name);
 			menu.cmd[menu.linecnt] = CMD_CHR_ATTACK;
-			menu.opt1[menu.linecnt] = map[csel].cn;
+			menu.opt1[menu.linecnt] = (int)map[csel].cn;
 			;
 			menu.opt2[menu.linecnt] = 0;
 			menu.linecnt++;
 		}
 
-		if (csel == MAPDX * MAPDY / 2) {
+		if (csel == MAPDX * MAPDY / 2U) {
 			if (value[0][V_FLASH]) {
 				sprintf(menu.line[menu.linecnt], "Cast Flash");
 				menu.cmd[menu.linecnt] = CMD_CHR_CAST_K;
@@ -190,7 +192,7 @@ static void makemenu(void)
 			if (value[0][V_HEAL]) {
 				sprintf(menu.line[menu.linecnt], "Cast Heal");
 				menu.cmd[menu.linecnt] = CMD_CHR_CAST_K;
-				menu.opt1[menu.linecnt] = map[csel].cn;
+				menu.opt1[menu.linecnt] = (int)map[csel].cn;
 				;
 				menu.opt2[menu.linecnt] = CL_HEAL;
 				menu.linecnt++;
@@ -199,7 +201,7 @@ static void makemenu(void)
 			if (value[0][V_BLESS]) {
 				sprintf(menu.line[menu.linecnt], "Cast Bless");
 				menu.cmd[menu.linecnt] = CMD_CHR_CAST_K;
-				menu.opt1[menu.linecnt] = map[csel].cn;
+				menu.opt1[menu.linecnt] = (int)map[csel].cn;
 				;
 				menu.opt2[menu.linecnt] = CL_BLESS;
 				menu.linecnt++;
@@ -208,7 +210,7 @@ static void makemenu(void)
 			if (value[0][V_FIREBALL]) {
 				sprintf(menu.line[menu.linecnt], "Fireball %s", name);
 				menu.cmd[menu.linecnt] = CMD_CHR_CAST_K;
-				menu.opt1[menu.linecnt] = map[csel].cn;
+				menu.opt1[menu.linecnt] = (int)map[csel].cn;
 				menu.opt2[menu.linecnt] = CL_FIREBALL;
 				menu.linecnt++;
 			}
@@ -216,7 +218,7 @@ static void makemenu(void)
 			if (value[0][V_FLASH]) {
 				sprintf(menu.line[menu.linecnt], "L'ball %s", name);
 				menu.cmd[menu.linecnt] = CMD_CHR_CAST_K;
-				menu.opt1[menu.linecnt] = map[csel].cn;
+				menu.opt1[menu.linecnt] = (int)map[csel].cn;
 				menu.opt2[menu.linecnt] = CL_BALL;
 				menu.linecnt++;
 			}
@@ -224,7 +226,7 @@ static void makemenu(void)
 			if (value[0][V_HEAL]) {
 				sprintf(menu.line[menu.linecnt], "Heal %s", name);
 				menu.cmd[menu.linecnt] = CMD_CHR_CAST_K;
-				menu.opt1[menu.linecnt] = map[csel].cn;
+				menu.opt1[menu.linecnt] = (int)map[csel].cn;
 				;
 				menu.opt2[menu.linecnt] = CL_HEAL;
 				menu.linecnt++;
@@ -233,7 +235,7 @@ static void makemenu(void)
 			if (value[0][V_BLESS]) {
 				sprintf(menu.line[menu.linecnt], "Bless %s", name);
 				menu.cmd[menu.linecnt] = CMD_CHR_CAST_K;
-				menu.opt1[menu.linecnt] = map[csel].cn;
+				menu.opt1[menu.linecnt] = (int)map[csel].cn;
 				;
 				menu.opt2[menu.linecnt] = CL_BLESS;
 				menu.linecnt++;
@@ -243,20 +245,20 @@ static void makemenu(void)
 
 	sprintf(menu.line[menu.linecnt], "Examine ground");
 	menu.cmd[menu.linecnt] = CMD_MAP_LOOK;
-	menu.opt1[menu.linecnt] = originx - MAPDX / 2 + msel % MAPDX;
-	menu.opt2[menu.linecnt] = originy - MAPDY / 2 + msel / MAPDX;
+	menu.opt1[menu.linecnt] = originx - (int)(MAPDX / 2U) + (int)(msel % MAPDX);
+	menu.opt2[menu.linecnt] = originy - (int)(MAPDY / 2U) + (int)(msel / MAPDX);
 	menu.linecnt++;
-	if (isel != -1) {
+	if (isel != MAXMN) {
 		sprintf(menu.line[menu.linecnt], "Examine item");
 		menu.cmd[menu.linecnt] = CMD_ITM_LOOK;
-		menu.opt1[menu.linecnt] = originx - MAPDX / 2 + isel % MAPDX;
-		menu.opt2[menu.linecnt] = originy - MAPDY / 2 + isel / MAPDX;
+		menu.opt1[menu.linecnt] = originx - (int)(MAPDX / 2U) + (int)(isel % MAPDX);
+		menu.opt2[menu.linecnt] = originy - (int)(MAPDY / 2U) + (int)(isel / MAPDX);
 		menu.linecnt++;
 	}
-	if (csel != -1) {
+	if (csel != MAXMN) {
 		sprintf(menu.line[menu.linecnt], "Inspect %s", name);
 		menu.cmd[menu.linecnt] = CMD_CHR_LOOK;
-		menu.opt1[menu.linecnt] = map[csel].cn;
+		menu.opt1[menu.linecnt] = (int)map[csel].cn;
 		;
 		menu.opt2[menu.linecnt] = 0;
 		menu.linecnt++;
@@ -277,7 +279,7 @@ int context_open(int mx, int my)
 
 	makemenu();
 	if (menu.linecnt == 1) {
-		cmd_look_map(ori_x - MAPDX / 2 + msel % MAPDX, ori_y - MAPDY / 2 + msel / MAPDX);
+		cmd_look_map(ori_x - (int)(MAPDX / 2U) + (int)(msel % MAPDX), ori_y - (int)(MAPDY / 2U) + (int)(msel / MAPDX));
 		return 1;
 	}
 
@@ -310,7 +312,7 @@ int context_getnm(void)
 	update_ori();
 
 	if (c_on) {
-		return msel;
+		return (int)msel;
 	} else {
 		return -1;
 	}
@@ -321,7 +323,7 @@ void context_stop(void)
 	c_on = 0;
 }
 
-void context_display(int mx, int my)
+void context_display(int mx __attribute__((unused)), int my __attribute__((unused)))
 {
 	int x, y, n;
 
@@ -456,7 +458,7 @@ void context_keydown(int key)
 	}
 
 	// ignore key-down while over action bar
-	if (actsel != -1) {
+	if (actsel != MAXMN) {
 		return;
 	}
 
@@ -581,7 +583,7 @@ int context_key_set_cmd(void)
 
 void context_keyup(int key)
 {
-	int csel, isel, msel;
+	size_t csel, isel, msel;
 
 	lcmd_override = CMD_NONE;
 
@@ -601,11 +603,11 @@ void context_keyup(int key)
 	if (key == '-') {
 		return;
 	}
-	if (key & 0xffffff00) {
+	if ((unsigned int)key & 0xffffff00U) {
 		return;
 	}
 
-	if (actsel != -1 && !act_lck) {
+	if (actsel != MAXMN && !act_lck) {
 		action_set_key(actsel, key);
 		return;
 	}
@@ -615,70 +617,78 @@ void context_keyup(int key)
 		isel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, csprite ? 0 : 3);
 		msel = get_near_ground(mousex, mousey);
 	} else {
-		csel = isel = msel = -1;
+		csel = isel = msel = MAXMN;
 	}
 
 	switch (action_key2slot(key)) {
 	case 0:
-		if (csel != -1) {
+		if (csel != MAXMN) {
 			cmd_kill(map[csel].cn);
 		}
 		break;
 	case 1:
-		if (csel != -1) {
+		if (csel != MAXMN) {
 			cmd_some_spell(CL_FIREBALL, 0, 0, map[csel].cn);
 		}
 		break;
 	case 2:
-		if (csel != -1) {
+		if (csel != MAXMN) {
 			cmd_some_spell(CL_BALL, 0, 0, map[csel].cn);
 		}
 		break;
 	case 6:
-		if (csel != -1) {
+		if (csel != MAXMN) {
 			cmd_some_spell(CL_BLESS, 0, 0, map[csel].cn);
 		}
 		break;
 	case 7:
-		if (csel != -1) {
+		if (csel != MAXMN) {
 			cmd_some_spell(CL_HEAL, 0, 0, map[csel].cn);
 		}
 		break;
 	case 11:
 		if (csprite) {
-			if (csel != -1) {
+			if (csel != MAXMN) {
 				cmd_give(map[csel].cn);
-			} else if (isel != -1 && (map[isel].flags & CMF_USE)) {
-				cmd_use(originx - MAPDX / 2 + isel % MAPDX, originy - MAPDY / 2 + isel / MAPDX);
-			} else if (msel != -1) {
-				cmd_drop(originx - MAPDX / 2 + msel % MAPDX, originy - MAPDY / 2 + msel / MAPDX);
+			} else if (isel != MAXMN && (map[isel].flags & CMF_USE)) {
+				cmd_use(originx - (int)(MAPDX / 2U) + (int)(isel % MAPDX),
+				    originy - (int)(MAPDY / 2U) + (int)(isel / MAPDX));
+			} else if (msel != MAXMN) {
+				cmd_drop(originx - (int)(MAPDX / 2U) + (int)(msel % MAPDX),
+				    originy - (int)(MAPDY / 2U) + (int)(msel / MAPDX));
 			}
-		} else if (isel != -1) {
-			if (map[isel].flags & CMF_TAKE) {
-				cmd_take(originx - MAPDX / 2 + isel % MAPDX, originy - MAPDY / 2 + isel / MAPDX);
+		} else if (isel != MAXMN) {
+			if (map[(int)isel].flags & CMF_TAKE) {
+				cmd_take(originx - (int)(MAPDX / 2U) + (int)(isel % MAPDX),
+				    originy - (int)(MAPDY / 2U) + (int)(isel / MAPDX));
 			} else if (map[isel].flags & CMF_USE) {
-				cmd_use(originx - MAPDX / 2 + isel % MAPDX, originy - MAPDY / 2 + isel / MAPDX);
+				cmd_use(originx - (int)(MAPDX / 2U) + (int)(isel % MAPDX),
+				    originy - (int)(MAPDY / 2U) + (int)(isel / MAPDX));
 			}
 		}
 		break;
 	case 13:
-		if (isel != -1) {
-			cmd_look_item(originx - MAPDX / 2 + isel % MAPDX, originy - MAPDY / 2 + isel / MAPDX);
-		} else if (csel != -1) {
+		if (isel != MAXMN) {
+			cmd_look_item(
+			    originx - (int)(MAPDX / 2U) + (int)(isel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(isel / MAPDX));
+		} else if (csel != MAXMN) {
 			cmd_look_char(map[csel].cn);
-		} else if (msel != -1) {
-			cmd_look_map(originx - MAPDX / 2 + msel % MAPDX, originy - MAPDY / 2 + msel / MAPDX);
+		} else if (msel != MAXMN) {
+			cmd_look_map(
+			    originx - (int)(MAPDX / 2U) + (int)(msel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(msel / MAPDX));
 		}
 		break;
 
 	case 101:
-		if (msel != -1) {
-			cmd_some_spell(CL_FIREBALL, originx - MAPDX / 2 + msel % MAPDX, originy - MAPDY / 2 + msel / MAPDX, 0);
+		if (msel != MAXMN) {
+			cmd_some_spell(CL_FIREBALL, originx - (int)(MAPDX / 2U) + (int)(msel % MAPDX),
+			    originy - (int)(MAPDY / 2U) + (int)(msel / MAPDX), 0);
 		}
 		break;
 	case 102:
-		if (msel != -1) {
-			cmd_some_spell(CL_BALL, originx - MAPDX / 2 + msel % MAPDX, originy - MAPDY / 2 + msel / MAPDX, 0);
+		if (msel != MAXMN) {
+			cmd_some_spell(CL_BALL, originx - (int)(MAPDX / 2U) + (int)(msel % MAPDX),
+			    originy - (int)(MAPDY / 2U) + (int)(msel / MAPDX), 0);
 		}
 		break;
 	case 103:

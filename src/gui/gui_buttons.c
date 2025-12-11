@@ -491,20 +491,25 @@ void exec_cmd(int cmd, int a)
 		return;
 
 	case CMD_MAP_MOVE:
-		cmd_move(originx - MAPDX / 2 + (mapsel) % MAPDX, originy - MAPDY / 2 + (mapsel) / MAPDX);
+		cmd_move(
+		    originx - (int)(MAPDX / 2U) + (int)(mapsel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(mapsel / MAPDX));
 		return;
 	case CMD_MAP_DROP:
-		cmd_drop(originx - MAPDX / 2 + (mapsel) % MAPDX, originy - MAPDY / 2 + (mapsel) / MAPDX);
+		cmd_drop(
+		    originx - (int)(MAPDX / 2U) + (int)(mapsel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(mapsel / MAPDX));
 		return;
 
 	case CMD_ITM_TAKE:
-		cmd_take(originx - MAPDX / 2 + (itmsel) % MAPDX, originy - MAPDY / 2 + (itmsel) / MAPDX);
+		cmd_take(
+		    originx - (int)(MAPDX / 2U) + (int)(itmsel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(itmsel / MAPDX));
 		return;
 	case CMD_ITM_USE:
-		cmd_use(originx - MAPDX / 2 + (itmsel) % MAPDX, originy - MAPDY / 2 + (itmsel) / MAPDX);
+		cmd_use(
+		    originx - (int)(MAPDX / 2U) + (int)(itmsel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(itmsel / MAPDX));
 		return;
 	case CMD_ITM_USE_WITH:
-		cmd_use(originx - MAPDX / 2 + (itmsel) % MAPDX, originy - MAPDY / 2 + (itmsel) / MAPDX);
+		cmd_use(
+		    originx - (int)(MAPDX / 2U) + (int)(itmsel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(itmsel / MAPDX));
 		return;
 
 	case CMD_CHR_ATTACK:
@@ -566,10 +571,12 @@ void exec_cmd(int cmd, int a)
 		return;
 
 	case CMD_MAP_LOOK:
-		cmd_look_map(originx - MAPDX / 2 + (mapsel) % MAPDX, originy - MAPDY / 2 + (mapsel) / MAPDX);
+		cmd_look_map(
+		    originx - (int)(MAPDX / 2U) + (int)(mapsel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(mapsel / MAPDX));
 		return;
 	case CMD_ITM_LOOK:
-		cmd_look_item(originx - MAPDX / 2 + (itmsel) % MAPDX, originy - MAPDY / 2 + (itmsel) / MAPDX);
+		cmd_look_item(
+		    originx - (int)(MAPDX / 2U) + (int)(itmsel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(itmsel / MAPDX));
 		return;
 	case CMD_CHR_LOOK:
 		cmd_look_char(map[chrsel].cn);
@@ -588,19 +595,23 @@ void exec_cmd(int cmd, int a)
 		return;
 
 	case CMD_MAP_CAST_L:
-		cmd_some_spell(CL_FIREBALL, originx - MAPDX / 2 + (mapsel) % MAPDX, originy - MAPDY / 2 + (mapsel) / MAPDX, 0);
+		cmd_some_spell(CL_FIREBALL, originx - (int)(MAPDX / 2U) + (int)(mapsel % MAPDX),
+		    originy - (int)(MAPDY / 2U) + (int)(mapsel / MAPDX), 0);
 		break;
 	case CMD_ITM_CAST_L:
-		cmd_some_spell(CL_FIREBALL, originx - MAPDX / 2 + (itmsel) % MAPDX, originy - MAPDY / 2 + (itmsel) / MAPDX, 0);
+		cmd_some_spell(CL_FIREBALL, originx - (int)(MAPDX / 2U) + (int)(itmsel % MAPDX),
+		    originy - (int)(MAPDY / 2U) + (int)(itmsel / MAPDX), 0);
 		break;
 	case CMD_CHR_CAST_L:
 		cmd_some_spell(CL_FIREBALL, 0, 0, map[chrsel].cn);
 		break;
 	case CMD_MAP_CAST_R:
-		cmd_some_spell(CL_BALL, originx - MAPDX / 2 + (mapsel) % MAPDX, originy - MAPDY / 2 + (mapsel) / MAPDX, 0);
+		cmd_some_spell(CL_BALL, originx - (int)(MAPDX / 2U) + (int)(mapsel % MAPDX),
+		    originy - (int)(MAPDY / 2U) + (int)(mapsel / MAPDX), 0);
 		break;
 	case CMD_ITM_CAST_R:
-		cmd_some_spell(CL_BALL, originx - MAPDX / 2 + (itmsel) % MAPDX, originy - MAPDY / 2 + (itmsel) / MAPDX, 0);
+		cmd_some_spell(CL_BALL, originx - (int)(MAPDX / 2U) + (int)(itmsel % MAPDX),
+		    originy - (int)(MAPDY / 2U) + (int)(itmsel / MAPDX), 0);
 		break;
 	case CMD_CHR_CAST_R:
 		cmd_some_spell(CL_BALL, 0, 0, map[chrsel].cn);
@@ -610,7 +621,8 @@ void exec_cmd(int cmd, int a)
 		cmd_some_spell(a, 0, 0, map[plrmn].cn);
 		break;
 	case CMD_MAP_CAST_K:
-		cmd_some_spell(a, originx - MAPDX / 2 + (mapsel) % MAPDX, originy - MAPDY / 2 + (mapsel) / MAPDX, 0);
+		cmd_some_spell(a, originx - (int)(MAPDX / 2U) + (int)(mapsel % MAPDX),
+		    originy - (int)(MAPDY / 2U) + (int)(mapsel / MAPDX), 0);
 		break;
 	case CMD_CHR_CAST_K:
 		cmd_some_spell(a, 0, 0, map[chrsel].cn);

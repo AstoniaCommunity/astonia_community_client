@@ -313,7 +313,7 @@ extern int max_keytab;
 extern int clan_offset;
 
 extern int show_color, show_cur;
-extern int show_color_c[];
+extern unsigned short show_color_c[];
 extern int show_cx;
 extern char hitsel[];
 extern int hittype;
@@ -336,9 +336,9 @@ extern unsigned int vk_special_time;
 extern struct special_tab special_tab[];
 extern int max_special;
 extern int plrmn;
-extern unsigned int mapsel;
-extern unsigned int itmsel;
-extern unsigned int chrsel;
+extern size_t mapsel;
+extern size_t itmsel;
+extern size_t chrsel;
 extern int last_right_click_invsel;
 extern int mapoffx, mapoffy;
 extern int mapaddx, mapaddy;
@@ -430,6 +430,12 @@ void display_exp(void);
 void display_military(void);
 void display_rage(void);
 void display_game_special(void);
+
+// hover.c
+uint16_t tactics2melee(int val);
+uint16_t tactics2immune(int val);
+uint16_t tactics2spell(int val);
+
 int do_display_questlog(int nr);
 void display_action(void);
 void display_selfbars(void);
@@ -443,9 +449,9 @@ void cmd_color(int nr);
 void cmd_reset(void);
 void cmd_proc(int key);
 
-DLL_EXPORT unsigned int get_near_char(int x, int y, unsigned int looksize);
-DLL_EXPORT unsigned int get_near_item(int x, int y, unsigned int flag, unsigned int looksize);
-DLL_EXPORT unsigned int get_near_ground(int x, int y);
+DLL_EXPORT size_t get_near_char(int x, int y, unsigned int looksize);
+DLL_EXPORT size_t get_near_item(int x, int y, unsigned int flag, unsigned int looksize);
+DLL_EXPORT size_t get_near_ground(int x, int y);
 
 int context_open(int mx, int my);
 void context_display(int mx, int my);
@@ -472,7 +478,7 @@ DLL_EXPORT extern char hover_time_text[];
 
 int action_key2slot(int key);
 int action_slot2key(int slot);
-int has_action_skill(int i);
+uint16_t has_action_skill(int i);
 void action_set_key(int slot, int key);
 void context_action_enable(int onoff);
 
@@ -485,3 +491,4 @@ void dots_update(void);
 void display_action_lock(void);
 void display_action_open(void);
 void display_wear_lock(void);
+DLL_EXPORT void cmd_add_text(const char *buf, int typ);

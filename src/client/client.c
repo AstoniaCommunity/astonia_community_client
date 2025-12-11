@@ -77,13 +77,13 @@ DLL_EXPORT uint16_t originy;
 DLL_EXPORT struct map map[MAPDX * MAPDY];
 DLL_EXPORT struct map map2[MAPDX * MAPDY];
 
-DLL_EXPORT int value[2][V_MAX];
+DLL_EXPORT uint16_t value[2][V_MAX];
 DLL_EXPORT uint32_t item[INVENTORYSIZE];
 DLL_EXPORT uint32_t item_flags[INVENTORYSIZE];
 DLL_EXPORT int hp;
 DLL_EXPORT int mana;
-DLL_EXPORT int rage;
-DLL_EXPORT int endurance;
+DLL_EXPORT uint16_t rage;
+DLL_EXPORT uint16_t endurance;
 DLL_EXPORT int lifeshield;
 DLL_EXPORT uint32_t experience;
 DLL_EXPORT uint32_t experience_used;

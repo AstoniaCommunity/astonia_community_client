@@ -21,8 +21,10 @@ DOT *dot = NULL;
 BUT *but = NULL;
 
 // dot and but helpers
+static void set_dot(int didx, int x, int y, int flags);
+static void set_but(int bidx, int x, int y, int hitrad, int flags);
 
-void set_dot(int didx, int x, int y, int flags)
+static void set_dot(int didx, int x, int y, int flags)
 {
 	PARANOIA(if (didx < 0 || didx >= MAX_DOT) paranoia("set_dot: ill didx=%d", didx);)
 
@@ -44,7 +46,7 @@ DLL_EXPORT int doty(int didx)
 	return dot[didx].y;
 }
 
-void set_but(int bidx, int x, int y, int hitrad, int flags)
+static void set_but(int bidx, int x, int y, int hitrad, int flags)
 {
 	PARANOIA(if (bidx < 0 || bidx >= MAX_BUT) paranoia("set_but: ill bidx=%d", bidx);)
 

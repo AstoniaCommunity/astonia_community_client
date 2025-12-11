@@ -60,9 +60,9 @@ DLL_IMPORT int doty(int didx);
 DLL_IMPORT int butx(int bidx);
 DLL_IMPORT int buty(int bidx);
 // gui helperls
-DLL_IMPORT unsigned int get_near_ground(int x, int y);
-DLL_IMPORT unsigned int get_near_item(int x, int y, unsigned int flag, unsigned int looksize);
-DLL_IMPORT unsigned int get_near_char(int x, int y, unsigned int looksize);
+DLL_IMPORT size_t get_near_ground(int x, int y);
+DLL_IMPORT size_t get_near_item(int x, int y, unsigned int flag, unsigned int looksize);
+DLL_IMPORT size_t get_near_char(int x, int y, unsigned int looksize);
 DLL_IMPORT unsigned int mapmn(unsigned int x, unsigned int y);
 // misc
 DLL_IMPORT void set_teleport(int idx, int x, int y);

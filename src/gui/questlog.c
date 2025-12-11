@@ -115,22 +115,23 @@ DLL_EXPORT int *game_questcount = &_game_questcount;
 
 int questonscreen[10];
 
-int questproz(int cnt)
+static int questproz(int cnt)
 {
 	int n;
-	float val = 100.0;
+	float val = 100.0f;
 
 	for (n = 0; n < cnt; n++) {
-		val *= 0.825;
+		val *= 0.825f;
 	}
 	return (int)val;
 }
 
 int questlist[MAXQUEST], questinit = 0;
 
-int questcmp(const void *a, const void *b)
+static int questcmp(const void *a, const void *b)
 {
-	int *va = (int *)a, *vb = (int *)b;
+	const int *va = (const int *)a;
+	const int *vb = (const int *)b;
 
 	if (game_questlog[*va].minlevel != game_questlog[*vb].minlevel) {
 		return game_questlog[*vb].minlevel - game_questlog[*va].minlevel;
@@ -145,7 +146,8 @@ int (*do_display_random)(void) = _do_display_random;
 
 DLL_EXPORT int _do_display_random(void)
 {
-	int y = doty(DOT_HLP) + 15, x, n, idx, bit, m;
+	int y = doty(DOT_HLP) + 15, x, n;
+	unsigned int idx, bit, m;
 	static short indec[10] = {0, 11, 24, 38, 43, 57, 64, 76, 83, 96};
 	static short bribes[10] = {0, 15, 22, 34, 48, 54, 67, 78, 86, 93};
 	static short welding[10] = {0, 18, 27, 32, 46, 52, 62, 72, 81, 98};
@@ -162,8 +164,8 @@ DLL_EXPORT int _do_display_random(void)
 
 	x = render_text(dotx(DOT_HLP) + 10, y, graycolor, 0, "Indecisiveness: ");
 	for (n = 1; n < 10; n++) {
-		idx = n / 32;
-		bit = 1 << (n & 31);
+		idx = (unsigned int)n / 32U;
+		bit = 1U << ((unsigned int)n & 31U);
 		if (shrine.used[idx] & bit) {
 			x = render_text(x, y, graycolor, 0, "- ");
 		} else {
@@ -176,9 +178,9 @@ DLL_EXPORT int _do_display_random(void)
 
 	x = render_text(dotx(DOT_HLP) + 10, y, graycolor, 0, "Bribes: ");
 	for (n = 1; n < 10; n++) {
-		m = n + 10;
-		idx = m / 32;
-		bit = 1 << (m & 31);
+		m = (unsigned int)n + 10U;
+		idx = m / 32U;
+		bit = 1U << (m & 31U);
 		if (shrine.used[idx] & bit) {
 			x = render_text(x, y, graycolor, 0, "- ");
 		} else {
@@ -191,9 +193,9 @@ DLL_EXPORT int _do_display_random(void)
 
 	x = render_text(dotx(DOT_HLP) + 10, y, graycolor, 0, "Welding: ");
 	for (n = 1; n < 10; n++) {
-		m = n + 20;
-		idx = m / 32;
-		bit = 1 << (m & 31);
+		m = (unsigned int)n + 20U;
+		idx = m / 32U;
+		bit = 1U << (m & 31U);
 		if (shrine.used[idx] & bit) {
 			x = render_text(x, y, graycolor, 0, "- ");
 		} else {
@@ -206,9 +208,9 @@ DLL_EXPORT int _do_display_random(void)
 
 	x = render_text(dotx(DOT_HLP) + 10, y, graycolor, 0, "LOE: ");
 	for (n = 1; n < 10; n++) {
-		m = n + 30;
-		idx = m / 32;
-		bit = 1U << (m & 31);
+		m = (unsigned int)n + 30U;
+		idx = m / 32U;
+		bit = 1U << (m & 31U);
 		if (shrine.used[idx] & bit) {
 			x = render_text(x, y, graycolor, 0, "- ");
 		} else {
@@ -221,9 +223,9 @@ DLL_EXPORT int _do_display_random(void)
 
 	x = render_text(dotx(DOT_HLP) + 10, y, graycolor, 0, "Kindness: ");
 	for (n = 1; n < 3; n++) {
-		m = n + 40;
-		idx = m / 32;
-		bit = 1 << (m & 31);
+		m = (unsigned int)n + 40U;
+		idx = m / 32U;
+		bit = 1U << (m & 31U);
 		if (shrine.used[idx] & bit) {
 			x = render_text(x, y, graycolor, 0, "- ");
 		} else {
@@ -236,9 +238,9 @@ DLL_EXPORT int _do_display_random(void)
 
 	x = render_text(dotx(DOT_HLP) + 10, y, graycolor, 0, "Security: ");
 	for (n = 1; n < 9; n++) {
-		m = n + 53;
-		idx = m / 32;
-		bit = 1 << (m & 31);
+		m = (unsigned int)n + 53U;
+		idx = m / 32U;
+		bit = 1U << (m & 31U);
 		if (shrine.used[idx] & bit) {
 			x = render_text(x, y, graycolor, 0, "- ");
 		} else {
@@ -251,9 +253,9 @@ DLL_EXPORT int _do_display_random(void)
 
 	x = render_text(dotx(DOT_HLP) + 10, y, graycolor, 0, "Jobless: ");
 	for (n = 1; n < 6; n++) {
-		m = n + 63;
-		idx = m / 32;
-		bit = 1 << (m & 31);
+		m = (unsigned int)n + 63U;
+		idx = m / 32U;
+		bit = 1U << (m & 31U);
 		if (shrine.used[idx] & bit) {
 			x = render_text(x, y, graycolor, 0, "- ");
 		} else {
@@ -305,7 +307,7 @@ int do_display_questlog(int nr)
 		for (n = 0; n < *game_questcount; n++) {
 			questlist[n] = n;
 		}
-		qsort(questlist, *game_questcount, sizeof(int), questcmp);
+		qsort(questlist, (size_t)*game_questcount, sizeof(int), questcmp);
 		questinit = 1;
 	}
 

@@ -461,15 +461,15 @@ struct client_info {
 DLL_EXPORT extern struct map map[MAPDX * MAPDY];
 DLL_EXPORT extern struct map map2[MAPDX * MAPDY];
 
-DLL_EXPORT extern int value[2][V_MAX];
+DLL_EXPORT extern uint16_t value[2][V_MAX];
 extern int *game_v_max;
 extern int *game_v_profbase;
 DLL_EXPORT extern uint32_t item[INVENTORYSIZE];
 DLL_EXPORT extern uint32_t item_flags[INVENTORYSIZE];
 DLL_EXPORT extern int hp;
 DLL_EXPORT extern int mana;
-DLL_EXPORT extern int rage;
-DLL_EXPORT extern int endurance;
+DLL_EXPORT extern uint16_t rage;
+DLL_EXPORT extern uint16_t endurance;
 DLL_EXPORT extern int lifeshield;
 DLL_EXPORT extern uint32_t experience;
 DLL_EXPORT extern uint32_t experience_used;

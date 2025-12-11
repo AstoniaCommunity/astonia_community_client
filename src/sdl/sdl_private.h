@@ -46,7 +46,7 @@ struct sdl_texture {
 
 	// ---------- sprites ------------
 	// fx
-	int32_t sprite;
+	uint32_t sprite;
 	int8_t sink;
 	uint8_t scale;
 	int16_t cr, cg, cb, light, sat;
@@ -74,7 +74,7 @@ struct sdl_image {
 	uint32_t *pixel;
 
 	uint16_t flags;
-	int16_t xres, yres;
+	uint16_t xres, yres;
 	int16_t xoff, yoff;
 };
 
@@ -129,9 +129,17 @@ struct zip_handles {
 	zip_t *zip2m;
 };
 
-int sdl_ic_load(int sprite, struct zip_handles *zips);
+int sdl_ic_load(unsigned int sprite, struct zip_handles *zips);
 int sdl_pre_backgnd(void *ptr);
 int sdl_create_cursors(void);
+SDL_Cursor *sdl_create_cursor(char *filename);
+void sdl_pre_add(uint32_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
+    char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl,
+    char ul, char dl);
+void sdl_lock(void *a);
+int sdl_pre_ready(void);
+int sdl_pre_done(void);
+int sdl_pre_do(uint32_t curtick);
 
 #define MAX_SOUND_CHANNELS 32
 #define MAXSOUND           100
@@ -205,7 +213,7 @@ int sdl_load_image_png_(struct sdl_image *si, char *filename, zip_t *zip);
 int sdl_load_image_png(struct sdl_image *si, char *filename, zip_t *zip, int smoothify);
 int do_smoothify(int sprite);
 int sdl_load_image(struct sdl_image *si, int sprite, struct zip_handles *zips);
-int sdl_ic_load(int sprite, struct zip_handles *zips);
+int sdl_ic_load(unsigned int sprite, struct zip_handles *zips);
 void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload);
 
 // ============================================================================

@@ -68,11 +68,11 @@ void display_wear(void)
 			fx.c1 = c1;
 			fx.c2 = c2;
 			fx.c3 = c3;
-			fx.cr = cr;
-			fx.cg = cg;
-			fx.cb = cb;
-			fx.clight = light;
-			fx.sat = sat;
+			fx.cr = (char)cr;
+			fx.cg = (char)cg;
+			fx.cb = (char)cb;
+			fx.clight = (char)light;
+			fx.sat = (char)sat;
 			fx.shine = shine;
 			fx.scale = scale;
 			fx.sink = 0;
@@ -131,7 +131,7 @@ void display_wear(void)
 		}
 
 		if (con_cnt && con_type == 2 && itemprice[weatab[i]]) {
-			dx_drawtext_gold(x, y + 12, textcolor, itemprice[weatab[i]]);
+			dx_drawtext_gold(x, y + 12, textcolor, (int)itemprice[weatab[i]]);
 		}
 	}
 
@@ -166,11 +166,11 @@ void display_look(void)
 			fx.c2 = c2;
 			fx.c3 = c3;
 			fx.shine = shine;
-			fx.cr = cr;
-			fx.cg = cg;
-			fx.cb = cb;
-			fx.clight = light;
-			fx.sat = sat;
+			fx.cr = (char)cr;
+			fx.cg = (char)cg;
+			fx.cb = (char)cb;
+			fx.clight = (char)light;
+			fx.sat = (char)sat;
 			fx.scale = scale;
 			fx.sink = 0;
 			fx.align = RENDER_ALIGN_CENTER;
@@ -188,9 +188,9 @@ void display_look(void)
 		bzero(&fx, sizeof(fx));
 
 		l_csprite = trans_charno(
-		    looksprite, &l_scale, &l_cr, &l_cg, &l_cb, &l_light, &l_sat, &l_c1, &l_c2, &l_c3, &l_shine, tick);
+		    (int)looksprite, &l_scale, &l_cr, &l_cg, &l_cb, &l_light, &l_sat, &l_c1, &l_c2, &l_c3, &l_shine, (int)tick);
 
-		fx.sprite = get_player_sprite(l_csprite, look_dir, look_anim, look_step, 16, tick);
+		fx.sprite = (unsigned int)get_player_sprite(l_csprite, look_dir, look_anim, look_step, 16, (int)(uint32_t)tick);
 		look_step++;
 		if (look_step == 16) {
 			look_step = 0;
@@ -203,22 +203,22 @@ void display_look(void)
 				}
 			}
 		}
-		fx.scale = l_scale;
-		fx.shine = l_shine;
-		fx.cr = l_cr;
-		fx.cg = l_cg;
-		fx.cb = l_cb;
-		fx.clight = l_light;
-		fx.sat = l_sat;
+		fx.scale = (unsigned char)l_scale;
+		fx.shine = (unsigned short)l_shine;
+		fx.cr = (char)l_cr;
+		fx.cg = (char)l_cg;
+		fx.cb = (char)l_cb;
+		fx.clight = (char)l_light;
+		fx.sat = (char)l_sat;
 
-		if (looksprite < 120 || amod_is_playersprite(looksprite)) {
-			fx.c1 = lookc1;
-			fx.c2 = lookc2;
-			fx.c3 = lookc3;
+		if ((int)looksprite < 120 || amod_is_playersprite((int)looksprite)) {
+			fx.c1 = (unsigned short)lookc1;
+			fx.c2 = (unsigned short)lookc2;
+			fx.c3 = (unsigned short)lookc3;
 		} else {
-			fx.c1 = l_c1;
-			fx.c2 = l_c2;
-			fx.c3 = l_c3;
+			fx.c1 = (unsigned short)l_c1;
+			fx.c2 = (unsigned short)l_c2;
+			fx.c3 = (unsigned short)l_c3;
 		}
 		fx.sink = 0;
 		fx.align = RENDER_ALIGN_OFFSET;
@@ -261,17 +261,17 @@ void display_inventory(void)
 			fx.c1 = c1;
 			fx.c2 = c2;
 			fx.c3 = c3;
-			fx.cr = cr;
-			fx.cg = cg;
-			fx.cb = cb;
-			fx.clight = light;
-			fx.sat = sat;
+			fx.cr = (char)cr;
+			fx.cg = (char)cg;
+			fx.cb = (char)cb;
+			fx.clight = (char)light;
+			fx.sat = (char)sat;
 			fx.scale = scale;
 			fx.sink = 0;
 			fx.align = RENDER_ALIGN_CENTER;
 			fx.ml = fx.ll = fx.rl = fx.ul = fx.dl = (i == invsel) ? FX_ITEMBRIGHT : FX_ITEMLIGHT;
 			render_sprite_fx(&fx, x, y);
-			if ((sprite = additional_sprite(item[i], tick)) != 0) {
+			if ((sprite = (unsigned int)additional_sprite((unsigned int)item[i], (int)tick)) != 0U) {
 				fx.sprite = sprite;
 				render_sprite_fx(&fx, x, y);
 			}
@@ -280,7 +280,7 @@ void display_inventory(void)
 			render_text(x, y - 18, textcolor, RENDER_TEXT_SMALL | RENDER_ALIGN_CENTER | RENDER_TEXT_FRAMED, fstr[c]);
 		}
 		if (con_cnt && con_type == 2 && itemprice[i]) {
-			dx_drawtext_gold(x, yt, textcolor, itemprice[i]);
+			dx_drawtext_gold(x, yt, textcolor, (int)itemprice[i]);
 		}
 	}
 }
@@ -325,11 +325,11 @@ void display_container(void)
 			fx.c1 = c1;
 			fx.c2 = c2;
 			fx.c3 = c3;
-			fx.cr = cr;
-			fx.cg = cg;
-			fx.cb = cb;
-			fx.clight = light;
-			fx.sat = sat;
+			fx.cr = (char)cr;
+			fx.cg = (char)cg;
+			fx.cb = (char)cb;
+			fx.clight = (char)light;
+			fx.sat = (char)sat;
 			fx.scale = scale;
 			fx.sink = 0;
 			fx.align = RENDER_ALIGN_CENTER;
@@ -348,7 +348,7 @@ void display_container(void)
 				color = textcolor;
 			}
 
-			dx_drawtext_gold(x, yt, color, price[i]);
+			dx_drawtext_gold(x, yt, color, (int)price[i]);
 		}
 	}
 }
@@ -367,10 +367,10 @@ void display_gold(void)
 	}
 
 	if (capbut == BUT_GLD) {
-		dx_drawtext_gold(x, y - 10, textcolor, takegold);
-		dx_drawtext_gold(x, y + 2, textcolor, gold - takegold);
+		dx_drawtext_gold(x, y - 10, textcolor, (int)takegold);
+		dx_drawtext_gold(x, y + 2, textcolor, (int)(gold - takegold));
 	} else {
-		dx_drawtext_gold(x, y + 2, textcolor, gold);
+		dx_drawtext_gold(x, y + 2, textcolor, (int)gold);
 	}
 }
 
@@ -416,11 +416,11 @@ void display_citem(void)
 	fx.c1 = c1;
 	fx.c2 = c2;
 	fx.c3 = c3;
-	fx.cr = cr;
-	fx.cg = cg;
-	fx.cb = cb;
-	fx.clight = light;
-	fx.sat = sat;
+	fx.cr = (char)cr;
+	fx.cg = (char)cg;
+	fx.cb = (char)cb;
+	fx.clight = (char)light;
+	fx.sat = (char)sat;
 	fx.scale = scale;
 	fx.sink = 0;
 	fx.align = RENDER_ALIGN_CENTER;
@@ -428,13 +428,13 @@ void display_citem(void)
 	render_push_clip();
 	render_more_clip(0, 0, XRES, YRES);
 	render_sprite_fx(&fx, x, y);
-	if ((sprite = additional_sprite(csprite, tick)) != 0) {
+	if ((sprite = (unsigned int)additional_sprite((unsigned int)csprite, (int)tick)) != 0U) {
 		fx.sprite = sprite;
 		render_sprite_fx(&fx, x, y);
 	}
 
 	if (cprice) {
-		dx_drawtext_gold(x, y + 5 + 12, textcolor, cprice);
+		dx_drawtext_gold(x, y + 5 + 12, textcolor, (int)cprice);
 	}
 	render_pop_clip();
 }
@@ -460,7 +460,7 @@ void display_skill(void)
 {
 	int b;
 	char buf[256];
-	int cn = map[MAPDX * MAPDY / 2].cn;
+	int cn = (int)map[MAPDX * MAPDY / 2].cn;
 
 	for (b = BUT_SKL_BEG; b <= BUT_SKL_END; b++) {
 		int i = skloff + b - BUT_SKL_BEG;
@@ -666,7 +666,7 @@ void display_screen(void)
 
 	render_sprite(opt_sprite(999), dotx(DOT_TOP), doty(DOT_TOP), RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
 
-	trans_date(realtime, &h, &m);
+	trans_date((int)realtime, &h, &m);
 
 	h1 = h / 10 * 3;
 	h2 = h % 10 * 3;
@@ -701,14 +701,14 @@ void display_screen(void)
 		rm2 = 0;
 	}
 
-	render_sprite(
-	    200 + rh1, dotx(DOT_TOP) + 730 + 0 * 10 - 2, doty(DOT_TOP) + 5 + 3, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
-	render_sprite(
-	    200 + rh2, dotx(DOT_TOP) + 730 + 1 * 10 - 2, doty(DOT_TOP) + 5 + 3, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
-	render_sprite(
-	    200 + rm1, dotx(DOT_TOP) + 734 + 2 * 10 - 2, doty(DOT_TOP) + 5 + 3, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
-	render_sprite(
-	    200 + rm2, dotx(DOT_TOP) + 734 + 3 * 10 - 2, doty(DOT_TOP) + 5 + 3, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
+	render_sprite((unsigned int)(200 + rh1), dotx(DOT_TOP) + 730 + 0 * 10 - 2, doty(DOT_TOP) + 5 + 3,
+	    RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
+	render_sprite((unsigned int)(200 + rh2), dotx(DOT_TOP) + 730 + 1 * 10 - 2, doty(DOT_TOP) + 5 + 3,
+	    RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
+	render_sprite((unsigned int)(200 + rm1), dotx(DOT_TOP) + 734 + 2 * 10 - 2, doty(DOT_TOP) + 5 + 3,
+	    RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
+	render_sprite((unsigned int)(200 + rm2), dotx(DOT_TOP) + 734 + 3 * 10 - 2, doty(DOT_TOP) + 5 + 3,
+	    RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
 
 	sprintf(hover_time_text, "%02d:%02d Astonia Standard Time", h, m);
 
@@ -768,7 +768,7 @@ void display_mode(void)
 
 void display_selfspells(void)
 {
-	int cn = map[mapmn(MAPDX / 2, MAPDY / 2)].cn;
+	int cn = (int)map[mapmn(MAPDX / 2, MAPDY / 2)].cn;
 	if (!cn) {
 		return;
 	}
@@ -785,7 +785,8 @@ void display_selfspells(void)
 
 		switch (ceffect[nr].generic.type) {
 		case 9: {
-			int step = 50 - 50 * (ceffect[nr].bless.stop - tick) / (ceffect[nr].bless.stop - ceffect[nr].bless.start);
+			int step = 50 - 50 * (int)(ceffect[nr].bless.stop - tick) /
+			                    (int)(ceffect[nr].bless.stop - ceffect[nr].bless.start);
 			render_push_clip();
 			render_more_clip(0, 0, 800, doty(DOT_SSP) + 119 - 68);
 			if (ceffect[nr].bless.stop - tick < 24 * 30 && (tick & 4)) {
@@ -799,8 +800,8 @@ void display_selfspells(void)
 			break;
 		}
 		case 11: {
-			int step =
-			    50 - 50 * (ceffect[nr].freeze.stop - tick) / (ceffect[nr].freeze.stop - ceffect[nr].freeze.start);
+			int step = 50 - 50 * (int)(ceffect[nr].freeze.stop - tick) /
+			                    (int)(ceffect[nr].freeze.stop - ceffect[nr].freeze.start);
 			render_push_clip();
 			render_more_clip(0, 0, 800, doty(DOT_SSP) + 119 - 68);
 			render_sprite(
@@ -810,8 +811,8 @@ void display_selfspells(void)
 			break;
 		}
 		case 14: {
-			int step =
-			    50 - 50 * (ceffect[nr].potion.stop - tick) / (ceffect[nr].potion.stop - ceffect[nr].potion.start);
+			int step = 50 - 50 * (int)(ceffect[nr].potion.stop - tick) /
+			                    (int)(ceffect[nr].potion.stop - ceffect[nr].potion.start);
 			render_push_clip();
 			render_more_clip(0, 0, 800, doty(DOT_SSP) + 119 - 68);
 			if (step >= 40 && (tick & 4)) {
@@ -834,10 +835,10 @@ void display_exp(void)
 
 	sprintf(hover_level_text, "Level: unknown");
 
-	int cn = map[MAPDX * MAPDY / 2].cn;
+	int cn = (int)map[MAPDX * MAPDY / 2].cn;
 	int level = player[cn].level;
 
-	int expe = experience;
+	int expe = (int)experience;
 	int clevel = exp2level(expe);
 	int nlevel = level + 1;
 
@@ -899,6 +900,8 @@ char **game_rankname = _game_rankname;
 int _game_rankcount = ARRAYSIZE(_game_rankname);
 int *game_rankcount = &_game_rankcount;
 
+DLL_EXPORT int mil_rank(int exp);
+
 DLL_EXPORT int mil_rank(int exp)
 {
 	int n;
@@ -917,12 +920,12 @@ void display_military(void)
 
 	sprintf(hover_rank_text, "Rank: none or unknown");
 
-	rank = mil_rank(mil_exp);
+	rank = mil_rank((int)mil_exp);
 	cost1 = rank * rank * rank;
 	cost2 = (rank + 1) * (rank + 1) * (rank + 1);
 
 	total = cost2 - cost1;
-	step = mil_exp - cost1;
+	step = (int)mil_exp - cost1;
 	if (step > total) {
 		step = total;
 	}
@@ -951,7 +954,7 @@ void display_rage(void)
 		return;
 	}
 
-	step = 50 - 50 * rage / value[0][V_RAGE];
+	step = (int)(50 - 50 * rage / value[0][V_RAGE]);
 	render_push_clip();
 	render_more_clip(0, 0, 800, doty(DOT_SSP) + 119 - 68);
 	render_sprite(997, dotx(DOT_SSP) + 3 * 10, doty(DOT_SSP) + step, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
@@ -1055,7 +1058,7 @@ void display_game_special(void)
 
 char action_row[2][MAXACTIONSLOT] = {
     // 01234567890123
-    "asd   fg   h l", " qwertzuiop m "};
+    "asd  fg   h l", " qwertzuiop m"};
 int action_enabled = 1;
 
 static char *action_text[MAXACTIONSLOT] = {"Attack", "Fireball", "Lightning Ball", "Flash", "Freeze", "Magic Shield",
@@ -1106,7 +1109,7 @@ void actions_loaded(void)
 	action_row[1][13] = ' ';
 }
 
-int has_action_skill(int i)
+uint16_t has_action_skill(int i)
 {
 	if (action_skill[i] == -1) {
 		return 1;
@@ -1185,7 +1188,7 @@ void action_set_key(int slot, int key)
 		}
 	}
 
-	action_row[row][slot] = key;
+	action_row[row][slot] = (char)key;
 
 	save_options();
 }
@@ -1195,7 +1198,8 @@ static char *locked_desc = "Change the keys assigned to the icons.";
 
 void display_action(void)
 {
-	static int hoover_start = 0, hoover_sel = 0, hoover_start2 = 0;
+	static uint32_t hoover_start = 0, hoover_start2 = 0;
+	static int hoover_sel = 0;
 	char buf[4];
 	RenderFX fx;
 
@@ -1221,7 +1225,7 @@ void display_action(void)
 			if (!has_action_skill(i)) {
 				continue;
 			}
-			fx.sprite = 800 + i;
+			fx.sprite = (unsigned int)(800 + i);
 			fx.ml = fx.ll = fx.rl = fx.ul = fx.dl =
 			    (i == actsel || i == action_ovr) ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
 			render_sprite_fx(&fx, butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i));
@@ -1241,13 +1245,13 @@ void display_action(void)
 					}
 					// display key-bindings
 					if (action_row[0][i] > ' ') {
-						buf[0] = action_slot2key(i);
+						buf[0] = (char)action_slot2key(i);
 						buf[1] = 0;
 						render_text(butx(BUT_ACT_BEG + i) - 8, buty(BUT_ACT_BEG + i) - 11, IRGB(31, 31, 31),
 						    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, buf);
 					}
 					if (action_row[1][i] > ' ') {
-						buf[0] = action_slot2key(i + 100);
+						buf[0] = (char)action_slot2key(i + 100);
 						buf[1] = 0;
 						render_text(butx(BUT_ACT_BEG + i) + 8, buty(BUT_ACT_BEG + i) - 11, IRGB(31, 31, 31),
 						    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, buf);
@@ -1256,13 +1260,13 @@ void display_action(void)
 					int row = get_action_key_row(i);
 					// display key-bindings
 					if (row == 0 && action_row[0][i] > ' ') {
-						buf[0] = action_slot2key(i);
+						buf[0] = (char)action_slot2key(i);
 						buf[1] = 0;
 						render_text(butx(BUT_ACT_BEG + i) - 8, buty(BUT_ACT_BEG + i) - 11, IRGB(31, 31, 31),
 						    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, buf);
 					}
 					if (row == 1 && action_row[1][i] > ' ') {
-						buf[0] = action_slot2key(i + 100);
+						buf[0] = (char)action_slot2key(i + 100);
 						buf[1] = 0;
 						render_text(butx(BUT_ACT_BEG + i) + 8, buty(BUT_ACT_BEG + i) - 11, IRGB(31, 31, 31),
 						    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, buf);
@@ -1299,7 +1303,7 @@ void display_action(void)
 			    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "Hide/Show");
 		}
 
-		fx.sprite = 851 - act_lck;
+		fx.sprite = (unsigned int)(851 - act_lck);
 		fx.ml = fx.ll = fx.rl = fx.ul = fx.dl = butsel == BUT_ACT_LCK ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
 		render_sprite_fx(&fx, butx(BUT_ACT_LCK), buty(BUT_ACT_LCK));
 		if (butsel == BUT_ACT_LCK) {
@@ -1378,7 +1382,7 @@ void display_selfbars(void)
 	shieldp = map[plrmn].shield;
 	manap = map[plrmn].mana;
 	if (value[0][V_ENDURANCE]) {
-		endup = 100 * endurance / value[0][V_ENDURANCE];
+		endup = (int)(100 * endurance / value[0][V_ENDURANCE]);
 	} else {
 		endup = 100;
 	}

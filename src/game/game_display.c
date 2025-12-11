@@ -1313,14 +1313,14 @@ void display_game_map(struct map *cmap)
 	if (cmap == map) { // avoid acting on prefetch
 		// selection on ground
 		if (mapsel != MAXMN || context_getnm() != -1) {
-			unsigned int mn;
+			size_t mn;
 			if (context_getnm() != -1) {
-				mn = (unsigned int)context_getnm();
+				mn = (size_t)context_getnm();
 			} else {
 				mn = mapsel;
 			}
-			unsigned int mapx = mn % MAPDX;
-			unsigned int mapy = mn / MAPDX;
+			unsigned int mapx = (unsigned int)(mn % MAPDX);
+			unsigned int mapy = (unsigned int)(mn / MAPDX);
 			mtos(mapx, mapy, &scrx, &scry);
 			if (cmap[mn].rlight == 0 || (cmap[mn].mmf & MMF_SIGHTBLOCK)) {
 				sprite = SPR_FFIELD;

@@ -89,6 +89,7 @@ void sdl_render_circle(int32_t centreX, int32_t centreY, int32_t radius, uint32_
 void sdl_flush_textinput(void);
 #ifdef DEVELOPER
 void sdl_dump_spritecache(void);
+void sdl_dump(FILE *fp);
 #endif
 void sdl_tex_alpha(int stx, int alpha);
 int sdl_check_mouse(void);

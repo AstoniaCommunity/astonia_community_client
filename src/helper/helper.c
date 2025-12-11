@@ -1,6 +1,10 @@
 /*
  * Part of Astonia Client (c) Daniel Brockhaus. Please read license.txt.
  */
+// This file is intentionally empty (all code is disabled with #if 0)
+// Add a dummy declaration to satisfy ISO C requirement for at least one declaration
+static int helper_dummy __attribute__((unused)) = 0;
+
 #if 0
 #include <stdint.h>
 #include <stdlib.h>

@@ -90,22 +90,23 @@ static inline unsigned int hashfunc(unsigned int sprite, int ml, int ll, int rl,
 {
 	unsigned int hash;
 
-	hash = sprite ^ (ml << 2) ^ (ll << 4) ^ (rl << 6) ^ (ul << 8) ^ (dl << 10);
+	hash = sprite ^ ((unsigned int)ml << 2) ^ ((unsigned int)ll << 4) ^ ((unsigned int)rl << 6) ^
+	       ((unsigned int)ul << 8) ^ ((unsigned int)dl << 10);
 
-	return hash % MAX_TEXHASH;
+	return hash % (unsigned int)MAX_TEXHASH;
 }
 
 static inline unsigned int hashfunc_text(const char *text, int color, int flags)
 {
 	unsigned int hash, t0, t1, t2, t3;
 
-	t0 = text[0];
+	t0 = (unsigned char)text[0];
 	if (text[0]) {
-		t1 = text[1];
+		t1 = (unsigned char)text[1];
 		if (text[1]) {
-			t2 = text[2];
+			t2 = (unsigned char)text[2];
 			if (text[2]) {
-				t3 = text[3];
+				t3 = (unsigned char)text[3];
 			} else {
 				t3 = 0;
 			}
@@ -118,7 +119,7 @@ static inline unsigned int hashfunc_text(const char *text, int color, int flags)
 
 	hash = (t0 << 0) ^ (t1 << 3) ^ (t2 << 6) ^ (t3 << 9) ^ ((uint32_t)color << 0) ^ ((uint32_t)flags << 5);
 
-	return hash % MAX_TEXHASH;
+	return hash % (unsigned int)MAX_TEXHASH;
 }
 
 SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t color, int flags);
@@ -136,9 +137,9 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 	int hash;
 
 	if (!text) {
-		hash = hashfunc((int)sprite, (int)ml, (int)ll, (int)rl, (int)ul, (int)dl);
+		hash = (int)hashfunc(sprite, ml, ll, rl, ul, dl);
 	} else {
-		hash = hashfunc_text(text, text_color, text_flags);
+		hash = (int)hashfunc_text(text, text_color, text_flags);
 	}
 
 	if (sprite >= MAXSPRITE) {
@@ -184,7 +185,7 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 			if (sdlt[stx].text_flags != text_flags) {
 				continue;
 			}
-			if (sdlt[stx].text_color != text_color) {
+			if (sdlt[stx].text_color != (uint32_t)text_color) {
 				continue;
 			}
 			if (sdlt[stx].text_font != text_font) {
@@ -314,9 +315,9 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 			if (!(flags_load(&sdlt[stx]) & SF_DIDTEX)) {
 				// printf("main-making texture for sprite %d\n",sprite);
 #ifdef DEVELOPER
-				long long start = SDL_GetTicks64();
+				Uint64 start = SDL_GetTicks64();
 				sdl_make(sdlt + stx, sdli + sprite, 3);
-				sdl_time_tex_main += SDL_GetTicks64() - start;
+				sdl_time_tex_main += (long long)(SDL_GetTicks64() - start);
 #else
 				sdl_make(sdlt + stx, sdli + sprite, 3);
 #endif
@@ -440,9 +441,10 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 
 		uint16_t flags = flags_load(&sdlt[stx]);
 		if (flags & SF_SPRITE) {
-			hash2 = hashfunc(sdlt[stx].sprite, sdlt[stx].ml, sdlt[stx].ll, sdlt[stx].rl, sdlt[stx].ul, sdlt[stx].dl);
+			hash2 =
+			    (int)hashfunc(sdlt[stx].sprite, sdlt[stx].ml, sdlt[stx].ll, sdlt[stx].rl, sdlt[stx].ul, sdlt[stx].dl);
 		} else if (flags & SF_TEXT) {
-			hash2 = hashfunc_text(sdlt[stx].text, sdlt[stx].text_color, sdlt[stx].text_flags);
+			hash2 = (int)hashfunc_text(sdlt[stx].text, (int)sdlt[stx].text_color, sdlt[stx].text_flags);
 		} else {
 			hash2 = 0;
 			warn("weird entry in texture cache!");
@@ -519,11 +521,11 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 	// build
 	if (text) {
 		int w, h;
-		sdlt[stx].tex = sdl_maketext(text, (struct renderfont *)text_font, text_color, text_flags);
+		sdlt[stx].tex = sdl_maketext(text, (struct renderfont *)text_font, (uint32_t)text_color, text_flags);
 		uint16_t *flags_ptr = (uint16_t *)&sdlt[stx].flags;
 		__atomic_store_n(flags_ptr, SF_USED | SF_TEXT | SF_DIDALLOC | SF_DIDMAKE | SF_DIDTEX, __ATOMIC_RELEASE);
-		sdlt[stx].text_color = text_color;
-		sdlt[stx].text_flags = text_flags;
+		sdlt[stx].text_color = (uint32_t)text_color;
+		sdlt[stx].text_flags = (uint16_t)text_flags;
 		sdlt[stx].text_font = text_font;
 #ifdef SDL_FAST_MALLOC
 		sdlt[stx].text = strdup(text);
@@ -532,8 +534,8 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 #endif
 		if (sdlt[stx].tex) {
 			SDL_QueryTexture(sdlt[stx].tex, NULL, NULL, &w, &h);
-			sdlt[stx].xres = w;
-			sdlt[stx].yres = h;
+			sdlt[stx].xres = (uint16_t)w;
+			sdlt[stx].yres = (uint16_t)h;
 		} else {
 			sdlt[stx].xres = sdlt[stx].yres = 0;
 		}
@@ -552,10 +554,10 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 		sdlt[stx].cb = cb;
 		sdlt[stx].light = light;
 		sdlt[stx].sat = sat;
-		sdlt[stx].c1 = c1;
-		sdlt[stx].c2 = c2;
-		sdlt[stx].c3 = c3;
-		sdlt[stx].shine = shine;
+		sdlt[stx].c1 = (uint16_t)c1;
+		sdlt[stx].c2 = (uint16_t)c2;
+		sdlt[stx].c3 = (uint16_t)c3;
+		sdlt[stx].shine = (uint16_t)shine;
 		sdlt[stx].ml = ml;
 		sdlt[stx].ll = ll;
 		sdlt[stx].rl = rl;
@@ -602,12 +604,12 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 #ifdef DEVELOPER
 int *dumpidx;
 
-int dump_cmp(const void *ca, const void *cb)
+static int dump_cmp(const void *ca, const void *cb)
 {
 	int a, b, tmp;
 
-	a = *(int *)ca;
-	b = *(int *)cb;
+	a = *(const int *)ca;
+	b = *(const int *)cb;
 
 	if (!flags_load(&sdlt[a])) {
 		return 1;
@@ -623,7 +625,7 @@ int dump_cmp(const void *ca, const void *cb)
 		return -1;
 	}
 
-	if (((tmp = sdlt[a].sprite - sdlt[b].sprite) != 0)) {
+	if (((tmp = (int)sdlt[a].sprite - (int)sdlt[b].sprite) != 0)) {
 		return tmp;
 	}
 
@@ -646,16 +648,16 @@ int dump_cmp(const void *ca, const void *cb)
 void sdl_dump_spritecache(void)
 {
 	int i, n, cnt = 0, uni = 0, text = 0;
-	long long size = 0;
+	double size = 0;
 	char filename[MAX_PATH];
 	FILE *fp;
 
-	dumpidx = xmalloc(sizeof(int) * MAX_TEXCACHE, MEM_TEMP);
+	dumpidx = xmalloc(sizeof(int) * (size_t)MAX_TEXCACHE, MEM_TEMP);
 	for (i = 0; i < MAX_TEXCACHE; i++) {
 		dumpidx[i] = i;
 	}
 
-	qsort(dumpidx, MAX_TEXCACHE, sizeof(int), dump_cmp);
+	qsort(dumpidx, (size_t)MAX_TEXCACHE, sizeof(int), dump_cmp);
 
 	if (localdata) {
 		sprintf(filename, "%s%s", localdata, "sdlt.txt");
@@ -714,7 +716,7 @@ void sdl_dump_spritecache(void)
 			    sdlt[n].text_flags, sdlt[n].text_font, sdlt[n].text, sdlt[n].xres, sdlt[n].yres);
 		}
 
-		size += sdlt[n].xres * sdlt[n].yres * sizeof(uint32_t);
+		size += (double)(sdlt[n].xres) * (double)(sdlt[n].yres) * sizeof(uint32_t);
 	}
 	fprintf(fp, "\n%d unique sprites, %d sprites + %d texts of %d used. %.2fM texture memory.\n", uni, cnt, text,
 	    MAX_TEXCACHE, size / (1024.0 * 1024.0));
@@ -756,7 +758,7 @@ int sdl_tex_yres(int stx)
 void sdl_tex_alpha(int stx, int alpha)
 {
 	if (sdlt[stx].tex) {
-		SDL_SetTextureAlphaMod(sdlt[stx].tex, alpha);
+		SDL_SetTextureAlphaMod(sdlt[stx].tex, (Uint8)alpha);
 	}
 }
 

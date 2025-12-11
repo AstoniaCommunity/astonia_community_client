@@ -31,7 +31,7 @@ static inline int light_calc(int val, int light)
 
 	if (game_options & (GO_LIGHTER | GO_LIGHTER2)) {
 		v1 = val * light / 15;
-		v2 = val * sqrt(light) / 3.87;
+		v2 = (int)(val * sqrt(light) / 3.87);
 		if (game_options & GO_LIGHTER) {
 			m--;
 			d--;
@@ -175,16 +175,19 @@ uint32_t sdl_colorize_pix(uint32_t irgb, unsigned short c1v, unsigned short c2v,
 	bf = max(0, bf);
 
 	// collect
-	r = min(255, 8 * 2 * c1 * OGET_R(c1v) + 8 * 2 * c2 * OGET_R(c2v) + 8 * 2 * c3 * OGET_R(c3v) + 8 * rf * 31);
-	g = min(255, 8 * 2 * c1 * OGET_G(c1v) + 8 * 2 * c2 * OGET_G(c2v) + 8 * 2 * c3 * OGET_G(c3v) + 8 * gf * 31);
-	b = min(255, 8 * 2 * c1 * OGET_B(c1v) + 8 * 2 * c2 * OGET_B(c2v) + 8 * 2 * c3 * OGET_B(c3v) + 8 * bf * 31);
+	r = (int)min(255U,
+	    (unsigned int)(8 * 2 * c1 * OGET_R(c1v) + 8 * 2 * c2 * OGET_R(c2v) + 8 * 2 * c3 * OGET_R(c3v) + 8 * rf * 31));
+	g = (int)min(255U,
+	    (unsigned int)(8 * 2 * c1 * OGET_G(c1v) + 8 * 2 * c2 * OGET_G(c2v) + 8 * 2 * c3 * OGET_G(c3v) + 8 * gf * 31));
+	b = (int)min(255U,
+	    (unsigned int)(8 * 2 * c1 * OGET_B(c1v) + 8 * 2 * c2 * OGET_B(c2v) + 8 * 2 * c3 * OGET_B(c3v) + 8 * bf * 31));
 
 	a = IGET_A(irgb);
 
 	irgb = IRGBA(r, g, b, a);
 
 	if (shine > 0.1) {
-		irgb = sdl_shine_pix(irgb, (int)(shine * 50));
+		irgb = sdl_shine_pix(irgb, (unsigned short)(int)(shine * 50));
 	}
 
 	return irgb;
@@ -263,9 +266,9 @@ uint32_t sdl_colorize_pix2(uint32_t irgb, unsigned short c1v, unsigned short c2v
 	// channel 1: green
 	if ((c1v && gm > 0.99 && rm < GREENCOL && bm < GREENCOL) ||
 	    (c1v && gm > 0.67 && would_colorize_neigh(x, y, xres, yres, pixel, 0))) {
-		r = 8.0 * (OGET_R(c1v) * gf + (1.0 - gf) * rf);
-		g = 8.0 * OGET_G(c1v) * gf;
-		b = 8.0 * (OGET_B(c1v) * gf + (1.0 - gf) * bf);
+		r = (int)(8.0 * (OGET_R(c1v) * gf + (1.0 - gf) * rf));
+		g = (int)(8.0 * OGET_G(c1v) * gf);
+		b = (int)(8.0 * (OGET_B(c1v) * gf + (1.0 - gf) * bf));
 		a = IGET_A(irgb);
 		return IRGBA(r, g, b, a);
 	}
@@ -273,9 +276,9 @@ uint32_t sdl_colorize_pix2(uint32_t irgb, unsigned short c1v, unsigned short c2v
 	// channel 2: blue
 	if ((c2v && bm > 0.99 && rm < BLUECOL && gm < BLUECOL) ||
 	    (c2v && bm > 0.67 && would_colorize_neigh(x, y, xres, yres, pixel, 1))) {
-		r = 8.0 * (OGET_R(c2v) * bf + (1.0 - bf) * rf);
-		g = 8.0 * (OGET_G(c2v) * bf + (1.0 - bf) * gf);
-		b = 8.0 * OGET_B(c2v) * bf;
+		r = (int)(8.0 * (OGET_R(c2v) * bf + (1.0 - bf) * rf));
+		g = (int)(8.0 * (OGET_G(c2v) * bf + (1.0 - bf) * gf));
+		b = (int)(8.0 * OGET_B(c2v) * bf);
 		a = IGET_A(irgb);
 		return IRGBA(r, g, b, a);
 	}
@@ -283,9 +286,9 @@ uint32_t sdl_colorize_pix2(uint32_t irgb, unsigned short c1v, unsigned short c2v
 	// channel 3: red
 	if ((c3v && rm > 0.99 && gm < REDCOL && bm < REDCOL) ||
 	    (c3v && rm > 0.67 && would_colorize_neigh(x, y, xres, yres, pixel, 2))) {
-		r = 8.0 * OGET_R(c3v) * rf;
-		g = 8.0 * (OGET_G(c3v) * rf + (1.0 - rf) * gf);
-		b = 8.0 * (OGET_B(c3v) * rf + (1.0 - rf) * bf);
+		r = (int)(8.0 * OGET_R(c3v) * rf);
+		g = (int)(8.0 * (OGET_G(c3v) * rf + (1.0 - rf) * gf));
+		b = (int)(8.0 * (OGET_B(c3v) * rf + (1.0 - rf) * bf));
 		a = IGET_A(irgb);
 		return IRGBA(r, g, b, a);
 	}
@@ -318,9 +321,9 @@ uint32_t sdl_colorbalance(uint32_t irgb, char cr, char cg, char cb, char light, 
 	}
 
 	// color balancing
-	cr *= 0.75;
-	cg *= 0.75;
-	cb *= 0.75;
+	cr = (char)((double)cr * 0.75);
+	cg = (char)((double)cg * 0.75);
+	cb = (char)((double)cb * 0.75);
 
 	r += cr;
 	g -= cr / 2;

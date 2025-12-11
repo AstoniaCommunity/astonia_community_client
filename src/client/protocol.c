@@ -278,7 +278,7 @@ static void sv_setval(unsigned char *buf, int nr)
 	}
 
 	if (nr != 0 || n != V_PROFESSION) {
-		value[nr][n] = load_i16(buf + 2);
+		value[nr][n] = load_u16(buf + 2);
 	}
 
 	update_skltab = 1;
@@ -291,7 +291,7 @@ static void sv_sethp(unsigned char *buf)
 
 static void sv_endurance(unsigned char *buf)
 {
-	endurance = load_i16(buf + 1);
+	endurance = load_u16(buf + 1);
 }
 
 static void sv_lifeshield(unsigned char *buf)
@@ -306,7 +306,7 @@ static void sv_setmana(unsigned char *buf)
 
 static void sv_setrage(unsigned char *buf)
 {
-	rage = load_i16(buf + 1);
+	rage = load_u16(buf + 1);
 }
 
 static void sv_setitem(unsigned char *buf)
@@ -951,7 +951,8 @@ static void sv_teleport(unsigned char *buf)
 
 static void sv_prof(unsigned char *buf)
 {
-	int n, cnt = 0;
+	int n;
+	uint16_t cnt = 0;
 
 	for (n = 0; n < P_MAX; n++) {
 		cnt += (value[1][n + V_PROFBASE] = buf[n + 1]);

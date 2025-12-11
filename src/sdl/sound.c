@@ -107,7 +107,7 @@ Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename)
 	zip_stat_t stat;
 	zip_file_t *zip_file;
 	char *buffer;
-	int len;
+	zip_uint64_t len;
 	SDL_RWops *rw;
 	Mix_Chunk *chunk;
 
@@ -117,6 +117,10 @@ Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename)
 		return NULL;
 	}
 	len = stat.size;
+	if (len > INT_MAX) {
+		warn("Sound file %s is too large.", filename);
+		return NULL;
+	}
 
 	// Open file in zip
 	zip_file = zip_fopen(zip_archive, filename, 0);
@@ -127,7 +131,7 @@ Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename)
 
 	// Allocate buffer and read file data
 	buffer = xmalloc(len, MEM_TEMP6);
-	if (zip_fread(zip_file, buffer, len) != len) {
+	if ((zip_uint64_t)zip_fread(zip_file, buffer, len) != len) {
 		warn("Could not read sound file %s from archive.", filename);
 		zip_fclose(zip_file);
 		xfree(buffer);
@@ -136,7 +140,7 @@ Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename)
 	zip_fclose(zip_file);
 
 	// Create an SDL_RWops from the memory buffer
-	rw = SDL_RWFromConstMem(buffer, len);
+	rw = SDL_RWFromConstMem(buffer, (int)len);
 	if (!rw) {
 		warn("Could not create SDL_RWops for sound %s.", filename);
 		xfree(buffer);
@@ -164,7 +168,9 @@ void sound_exit(void)
 	return;
 }
 
-void play_sdl_sound(int nr, int distance, int angle)
+static void play_sdl_sound(unsigned int nr, int distance, int angle);
+
+static void play_sdl_sound(unsigned int nr, int distance, int angle)
 {
 	static int sound_channel = 0;
 	uint64_t time_start;
@@ -174,7 +180,7 @@ void play_sdl_sound(int nr, int distance, int angle)
 		return;
 	}
 
-	if (nr < 1 || nr >= sfx_name_cnt || nr >= MAXSOUND) {
+	if (nr < 1U || nr >= (unsigned int)sfx_name_cnt || nr >= (unsigned int)MAXSOUND) {
 		return;
 	}
 
@@ -186,7 +192,7 @@ void play_sdl_sound(int nr, int distance, int angle)
 #endif
 
 	// Set position of sound relative to where you are
-	Mix_SetPosition(sound_channel, angle, distance);
+	Mix_SetPosition(sound_channel, (Sint16)angle, (Uint8)distance);
 
 	// Ensure volume is set for channel - Should probably be put elsewhere
 	Mix_Volume(sound_channel, sound_volume);
@@ -220,24 +226,30 @@ void play_sound(unsigned int nr, unsigned int vol, unsigned int p)
 	}
 
 	// force volume and pan to sane values
-	if (vol > 0) {
-		vol = 0;
-	}
-	if (vol < -9999) {
-		vol = -9999;
+	// Note: vol and p are unsigned, but the protocol may send them as signed values
+	// We clamp them to valid ranges
+	if (vol > 9999U) {
+		vol = 9999U;
 	}
 
-	if (p > 9999) {
-		p = 9999;
-	}
-	if (p < -9999) {
-		p = -9999;
+	if (p > 9999U) {
+		p = 9999U;
 	}
 
 	// translate parameters to SDL
 	// TODO: change client server protocol to provide angle instead of position
-	dist = -(int)(vol) * 255.0 / 10000.0;
-	angle = (int)p / 10000.0 * 180.0;
+	// vol: 0 = max volume, 9999 = min volume (interpreted as negative in original code)
+	// p: 0 = center, 9999 = right (interpreted as positive in original code)
+	// For now, we treat vol as distance (0 = close, 9999 = far)
+	// and p as angle offset from center (0 = center, 9999 = 180 degrees right)
+	dist = (int)((unsigned int)vol * 255U / 10000U);
+	if (dist > 255) {
+		dist = 255;
+	}
+	angle = (int)((unsigned int)p * 180.0 / 10000.0);
+	if (angle > 180) {
+		angle = 180;
+	}
 
 #if 0
 	note("nr = %d: %s, distance = %d, angle = %d (vol=%d, p=%d)", nr, sfx_name[nr], dist, angle, vol, p);

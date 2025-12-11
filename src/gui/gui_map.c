@@ -51,7 +51,7 @@ int stom(int scrx, int scry, int *mapx, int *mapy)
 	return 1;
 }
 
-DLL_EXPORT unsigned int get_near_ground(int x, int y)
+DLL_EXPORT size_t get_near_ground(int x, int y)
 {
 	int mapx, mapy;
 	unsigned int ux, uy;
@@ -69,7 +69,7 @@ DLL_EXPORT unsigned int get_near_ground(int x, int y)
 	return mapmn(ux, uy);
 }
 
-DLL_EXPORT unsigned int get_near_item(int x, int y, unsigned int flag, unsigned int looksize)
+DLL_EXPORT size_t get_near_item(int x, int y, unsigned int flag, unsigned int looksize)
 {
 	int mapx, mapy, scrx, scry;
 	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u, mn;
@@ -120,7 +120,7 @@ DLL_EXPORT unsigned int get_near_item(int x, int y, unsigned int flag, unsigned 
 	return nearest;
 }
 
-DLL_EXPORT unsigned int get_near_char(int x, int y, unsigned int looksize)
+DLL_EXPORT size_t get_near_char(int x, int y, unsigned int looksize)
 {
 	int mapx, mapy, scrx, scry;
 	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u, mn;

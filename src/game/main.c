@@ -223,7 +223,7 @@ char *load_ascii_file(char *filename, int ID)
 		fclose(fp);
 		return NULL;
 	}
-	ptr = xmalloc(size + 1, ID);
+	ptr = xmalloc((size_t)size + 1, ID);
 	if (rread(fp, ptr, size)) {
 		xfree(ptr);
 		fclose(fp);
@@ -237,16 +237,16 @@ char *load_ascii_file(char *filename, int ID)
 
 // memory
 
-int memused = 0;
+size_t memused = 0;
 int memptrused = 0;
 
-int maxmemsize = 0;
+size_t maxmemsize = 0;
 int maxmemptrs = 0;
 int memptrs[MAX_MEM];
-int memsize[MAX_MEM];
+size_t memsize[MAX_MEM];
 
 struct memhead {
-	int size;
+	size_t size;
 	int ID;
 };
 
@@ -270,17 +270,17 @@ void list_mem(void)
 	for (i = 1; i < MAX_MEM; i++) {
 		if (memsize[i] || memptrs[i]) {
 			flag = 1;
-			note("%s %.2fMB in %d ptrs", memname[i], memsize[i] / (1024.0 * 1024.0), memptrs[i]);
+			note("%s %.2fMB in %d ptrs", memname[i], (double)memsize[i] / (1024.0 * 1024.0), memptrs[i]);
 		}
 	}
 	if (flag) {
-		note("%s %.2fMB in %d ptrs", memname[0], memsize[0] / (1024.0 * 1024.0), memptrs[0]);
+		note("%s %.2fMB in %d ptrs", memname[0], (double)memsize[0] / (1024.0 * 1024.0), memptrs[0]);
 	}
 	note("%s %.2fMB in %d ptrs", "MEM_MAX", (double)maxmemsize / (1024.0 * 1024.0), maxmemptrs);
 	note("---------------------------");
 	note("Texture Cache: %.2fMB", (double)mem_tex / (1024.0 * 1024.0));
 
-	note("UsedMem=%.2fG of %.2fG", (double)(memused + mem_tex) / 1024.0 / 1024.0 / 1024.0,
+	note("UsedMem=%.2fG of %.2fG", (double)((long long)memused + mem_tex) / 1024.0 / 1024.0 / 1024.0,
 	    (double)get_total_system_memory() / 1024.0 / 1024.0 / 1024.0);
 }
 
@@ -328,7 +328,7 @@ int xmemcheck(void *ptr)
 	return 0;
 }
 
-void *xmalloc(int size, int ID)
+void *xmalloc(size_t size, int ID)
 {
 	struct memhead *mem;
 	unsigned char *head, *tail, *rptr;
@@ -352,7 +352,7 @@ void *xmalloc(int size, int ID)
 		return NULL;
 	}
 
-	memused += (int)(8 + sizeof(memcheck) + (size_t)size + sizeof(memcheck));
+	memused += 8 + sizeof(memcheck) + size + sizeof(memcheck);
 
 	if (ID >= MAX_MEM) {
 		fail("xmalloc: ill mem id");
@@ -386,7 +386,7 @@ void *xmalloc(int size, int ID)
 	return rptr;
 }
 
-static void update_mem_stats_add(int ID, int size)
+static void update_mem_stats_add(int ID, size_t size)
 {
 	memsize[ID] += size;
 	memptrs[ID] += 1;
@@ -400,18 +400,18 @@ static void update_mem_stats_add(int ID, int size)
 		maxmemptrs = memptrs[0];
 	}
 
-	memused += (int)(8 + sizeof(memcheck) + (size_t)size + sizeof(memcheck));
+	memused += 8 + sizeof(memcheck) + size + sizeof(memcheck);
 	memptrused++;
 }
 
-static void update_mem_stats_remove(int ID, int size)
+static void update_mem_stats_remove(int ID, size_t size)
 {
 	memsize[ID] -= size;
 	memptrs[ID] -= 1;
 	memsize[0] -= size;
 	memptrs[0] -= 1;
 
-	memused -= (int)(8 + sizeof(memcheck) + (size_t)size + sizeof(memcheck));
+	memused -= 8 + sizeof(memcheck) + size + sizeof(memcheck);
 	memptrused--;
 }
 
@@ -427,7 +427,7 @@ char *xstrdup(const char *src, int ID)
 	}
 	size = (int)(src_len + 1);
 
-	dst = xmalloc(size, ID);
+	dst = xmalloc((size_t)size, ID);
 	if (!dst) {
 		return NULL;
 	}
@@ -481,7 +481,7 @@ void xinfo(void *ptr)
 		mem = (struct memhead *)ptr_val;
 	}
 
-	printf("%d bytes", mem->size);
+	printf("%zu bytes", mem->size);
 }
 
 void *xrealloc(void *ptr, size_t size, int ID)
@@ -493,7 +493,7 @@ void *xrealloc(void *ptr, size_t size, int ID)
 		if (size > INT_MAX) {
 			return NULL;
 		}
-		return xmalloc((int)size, ID);
+		return xmalloc(size, ID);
 	}
 	if (!size) {
 		xfree(ptr);
@@ -510,7 +510,7 @@ void *xrealloc(void *ptr, size_t size, int ID)
 	}
 
 	int old_ID = mem->ID;
-	int old_size = mem->size;
+	size_t old_size = mem->size;
 	update_mem_stats_remove(old_ID, old_size);
 
 	// realloc
@@ -527,9 +527,9 @@ void *xrealloc(void *ptr, size_t size, int ID)
 		fail("xrealloc: size too large");
 		return NULL;
 	}
-	update_mem_stats_add(ID, (int)size);
+	update_mem_stats_add(ID, size);
 	mem->ID = ID; // Update ID in case it changed
-	mem->size = (int)size;
+	mem->size = size;
 
 	head = ((unsigned char *)(mem)) + 8;
 	rptr = ((unsigned char *)(mem)) + 8 + sizeof(memcheck);
@@ -542,7 +542,7 @@ void *xrealloc(void *ptr, size_t size, int ID)
 	return rptr;
 }
 
-void *xrecalloc(void *ptr, int size, int ID)
+void *xrecalloc(void *ptr, size_t size, int ID)
 {
 	struct memhead *mem;
 	unsigned char *head, *tail, *rptr;
@@ -565,7 +565,7 @@ void *xrecalloc(void *ptr, int size, int ID)
 	}
 
 	int old_ID = mem->ID;
-	int old_size = mem->size;
+	size_t old_size = mem->size;
 	update_mem_stats_remove(old_ID, old_size);
 
 	// realloc
@@ -621,7 +621,7 @@ void display_usage(void)
 	char *buf;
 	int size = 4096;
 
-	buf = xmalloc(size, MEM_TEMP);
+	buf = xmalloc((size_t)size, MEM_TEMP);
 	if (!buf) {
 		return;
 	}

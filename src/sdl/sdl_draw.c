@@ -41,7 +41,7 @@ static void sdl_blit_tex(
 {
 	int addx = 0, addy = 0, dx, dy;
 	SDL_Rect dr, sr;
-	long long start = SDL_GetTicks64();
+	Uint64 start = SDL_GetTicks64();
 
 	SDL_QueryTexture(tex, NULL, NULL, &dx, &dy);
 
@@ -78,7 +78,7 @@ static void sdl_blit_tex(
 
 	SDL_RenderCopy(sdlren, tex, &sr, &dr);
 
-	sdl_time_blit += SDL_GetTicks64() - start;
+	sdl_time_blit += (long long)(SDL_GetTicks64() - start);
 }
 
 void sdl_blit(int stx, int sx, int sy, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset)
@@ -94,10 +94,10 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 	unsigned char *rawrun;
 	int x, y = 0, sizex, sizey = 0, sx = 0;
 	const char *c, *otext = text;
-	long long start = SDL_GetTicks64();
+	Uint64 start = SDL_GetTicks64();
 
 	for (sizex = 0, c = text; *c; c++) {
-		sizex += font[*c].dim * sdl_scale;
+		sizex += font[(unsigned char)*c].dim * sdl_scale;
 	}
 
 	if (flags & (RENDER__FRAMED_FONT | RENDER__SHADED_FONT)) {
@@ -105,9 +105,9 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 	}
 
 #ifdef SDL_FAST_MALLOC
-	pixel = calloc(sizex * MAXFONTHEIGHT, sizeof(uint32_t));
+	pixel = calloc((size_t)sizex * MAXFONTHEIGHT, sizeof(uint32_t));
 #else
-	pixel = xmalloc(sizex * MAXFONTHEIGHT * sizeof(uint32_t), MEM_SDL_PIXEL2);
+	pixel = xmalloc((int)((size_t)sizex * MAXFONTHEIGHT * sizeof(uint32_t)), MEM_SDL_PIXEL2);
 #endif
 	if (pixel == NULL) {
 		return NULL;
@@ -120,7 +120,7 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 			continue;
 		}
 
-		rawrun = font[*text].raw;
+		rawrun = font[(unsigned char)*text].raw;
 
 		x = sx;
 		y = 0;
@@ -145,7 +145,7 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 			rawrun++;
 			*dst = color;
 		}
-		sx += font[*text++].dim * sdl_scale;
+		sx += font[(unsigned char)*text++].dim * sdl_scale;
 	}
 
 	if (sizex < 1) {
@@ -156,12 +156,12 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 	}
 
 	sizey++;
-	sdl_time_text += SDL_GetTicks64() - start;
+	sdl_time_text += (long long)(SDL_GetTicks64() - start);
 
 	start = SDL_GetTicks64();
 	SDL_Texture *texture = SDL_CreateTexture(sdlren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, sizex, sizey);
 	if (texture) {
-		SDL_UpdateTexture(texture, NULL, pixel, sizex * sizeof(uint32_t));
+		SDL_UpdateTexture(texture, NULL, pixel, (int)((size_t)sizex * sizeof(uint32_t)));
 		SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 	} else {
 		warn("SDL_texture Error: %s maketext (%s)", SDL_GetError(), otext);
@@ -194,15 +194,15 @@ int sdl_drawtext(int sx, int sy, unsigned short int color, int flags, const char
 	a = 255;
 
 	if (flags & RENDER_TEXT_NOCACHE) {
-		tex = sdl_maketext(text, font, IRGBA(r, g, b, a), flags);
+		tex = sdl_maketext(text, font, (uint32_t)IRGBA(r, g, b, a), flags);
 	} else {
 		stx = sdl_tx_load(
-		    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, text, IRGBA(r, g, b, a), flags, font, 0, 0, 0);
+		    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, text, (int)IRGBA(r, g, b, a), flags, font, 0, 0, 0);
 		tex = sdlt[stx].tex;
 	}
 
 	for (dx = 0, c = text; *c; c++) {
-		dx += font[*c].dim;
+		dx += font[(unsigned char)*c].dim;
 	}
 
 	if (tex) {
@@ -255,7 +255,7 @@ void sdl_rect(int sx, int sy, int ex, int ey, unsigned short int color, int clip
 	rc.y = (sy + y_offset) * sdl_scale;
 	rc.h = (ey - sy) * sdl_scale;
 
-	SDL_SetRenderDrawColor(sdlren, r, g, b, a);
+	SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a);
 	SDL_RenderFillRect(sdlren, &rc);
 }
 
@@ -292,7 +292,7 @@ void sdl_shaded_rect(int sx, int sy, int ex, int ey, unsigned short int color, u
 	rc.y = (sy + y_offset) * sdl_scale;
 	rc.h = (ey - sy) * sdl_scale;
 
-	SDL_SetRenderDrawColor(sdlren, r, g, b, a);
+	SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a);
 	SDL_SetRenderDrawBlendMode(sdlren, SDL_BLENDMODE_BLEND);
 	SDL_RenderFillRect(sdlren, &rc);
 }
@@ -307,7 +307,7 @@ void sdl_pixel(int x, int y, unsigned short color, int x_offset, int y_offset)
 	b = B16TO32(color);
 	a = 255;
 
-	SDL_SetRenderDrawColor(sdlren, r, g, b, a);
+	SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a);
 	switch (sdl_scale) {
 	case 1:
 		SDL_RenderDrawPoint(sdlren, x + x_offset, y + y_offset);
@@ -427,15 +427,15 @@ void sdl_line(int fx, int fy, int tx, int ty, unsigned short color, int clipsx, 
 	fy += y_offset;
 	ty += y_offset;
 
-	SDL_SetRenderDrawColor(sdlren, r, g, b, a);
+	SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a);
 	// TODO: This is a thinner line when scaled up. It looks surprisingly good. Maybe keep it this way?
 	SDL_RenderDrawLine(sdlren, fx * sdl_scale, fy * sdl_scale, tx * sdl_scale, ty * sdl_scale);
 }
 
 void sdl_bargraph_add(int dx, unsigned char *data, int val)
 {
-	memmove(data + 1, data, dx - 1);
-	data[0] = val;
+	memmove(data + 1, data, (size_t)(dx - 1));
+	data[0] = (unsigned char)val;
 }
 
 void sdl_bargraph(int sx, int sy, int dx, unsigned char *data, int x_offset, int y_offset)
@@ -456,7 +456,15 @@ void sdl_bargraph(int sx, int sy, int dx, unsigned char *data, int x_offset, int
 
 void sdl_render_circle(int32_t centreX, int32_t centreY, int32_t radius, uint32_t color)
 {
-	SDL_Point pts[((radius * 8 * 35 / 49) + (8 - 1)) & -8];
+// Maximum reasonable radius for screen rendering (2000 pixels)
+// Formula: ((radius * 8 * 35 / 49) + (8 - 1)) & -8
+// For radius=2000: ((2000 * 8 * 35 / 49) + 7) & -8 = 11428 & -8 = 11424
+#define MAX_CIRCLE_PTS 11424
+	SDL_Point pts[MAX_CIRCLE_PTS];
+	int32_t pts_size = ((radius * 8 * 35 / 49) + (8 - 1)) & -8;
+	if (pts_size > MAX_CIRCLE_PTS) {
+		pts_size = MAX_CIRCLE_PTS;
+	}
 	int32_t dC = 0;
 
 	const int32_t diameter = (radius * 2);
@@ -467,6 +475,9 @@ void sdl_render_circle(int32_t centreX, int32_t centreY, int32_t radius, uint32_
 	int32_t error = (tx - diameter);
 
 	while (x >= y) {
+		if (dC + 8 > pts_size) {
+			break;
+		}
 		pts[dC].x = centreX + x;
 		pts[dC].y = centreY - y;
 		dC++;
@@ -505,6 +516,7 @@ void sdl_render_circle(int32_t centreX, int32_t centreY, int32_t radius, uint32_
 		}
 	}
 
-	SDL_SetRenderDrawColor(sdlren, IGET_R(color), IGET_G(color), IGET_B(color), IGET_A(color));
-	SDL_RenderDrawPoints(sdlren, pts, dC);
+	SDL_SetRenderDrawColor(
+	    sdlren, (Uint8)IGET_R(color), (Uint8)IGET_G(color), (Uint8)IGET_B(color), (Uint8)IGET_A(color));
+	SDL_RenderDrawPoints(sdlren, pts, (int)dC);
 }

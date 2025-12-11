@@ -17,7 +17,7 @@
 #include "game/game.h"
 
 int show_color = 0, show_cur = 0;
-int show_color_c[3] = {1, 1, 1};
+unsigned short show_color_c[3] = {1, 1, 1};
 int show_cx = 0;
 
 void display_color(void)
@@ -54,11 +54,11 @@ void display_color(void)
 
 	bzero(&fx, sizeof(fx));
 
-	csprite =
-	    trans_charno(map[MAPDX * MAPDY / 2].csprite, &scale, &cr, &cg, &cb, &light, &sat, &c1, &c2, &c3, &shine, tick);
+	csprite = trans_charno(
+	    (int)map[MAPDX * MAPDY / 2].csprite, &scale, &cr, &cg, &cb, &light, &sat, &c1, &c2, &c3, &shine, (int)tick);
 
 	// csprite=121; col_anim=1; col_step=(tick/4)%16; //#TODO animation testing made easy
-	fx.sprite = get_player_sprite(csprite, col_dir, col_anim, col_step, 16, tick);
+	fx.sprite = (unsigned int)get_player_sprite(csprite, col_dir, col_anim, col_step, 16, (int)tick);
 	col_step++;
 	if (col_step == 16) {
 		col_step = 0;
@@ -71,13 +71,13 @@ void display_color(void)
 			}
 		}
 	}
-	fx.scale = scale;
-	fx.shine = shine;
-	fx.cr = cr;
-	fx.cg = cg;
-	fx.cb = cb;
-	fx.clight = light;
-	fx.sat = sat;
+	fx.scale = (unsigned char)scale;
+	fx.shine = (unsigned short)shine;
+	fx.cr = (char)cr;
+	fx.cg = (char)cg;
+	fx.cb = (char)cb;
+	fx.clight = (char)light;
+	fx.sat = (char)sat;
 
 	fx.c1 = show_color_c[0];
 	fx.c2 = show_color_c[1];
@@ -149,15 +149,18 @@ void cmd_color(int nr)
 		break;
 	case 4:
 		val = max(min(31, show_cx / 2), 1);
-		show_color_c[show_cur] = IRGB(val, IGET_G(show_color_c[show_cur]), IGET_B(show_color_c[show_cur]));
+		show_color_c[show_cur] =
+		    (unsigned short)IRGB(val, IGET_G(show_color_c[show_cur]), IGET_B(show_color_c[show_cur]));
 		break;
 	case 5:
 		val = max(min(31, show_cx / 2), 1);
-		show_color_c[show_cur] = IRGB(IGET_R(show_color_c[show_cur]), val, IGET_B(show_color_c[show_cur]));
+		show_color_c[show_cur] =
+		    (unsigned short)IRGB(IGET_R(show_color_c[show_cur]), val, IGET_B(show_color_c[show_cur]));
 		break;
 	case 6:
 		val = max(min(31, show_cx / 2), 1);
-		show_color_c[show_cur] = IRGB(IGET_R(show_color_c[show_cur]), IGET_G(show_color_c[show_cur]), val);
+		show_color_c[show_cur] =
+		    (unsigned short)IRGB(IGET_R(show_color_c[show_cur]), IGET_G(show_color_c[show_cur]), val);
 		break;
 	case 7:
 		show_color = 0;

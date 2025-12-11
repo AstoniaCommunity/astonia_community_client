@@ -172,9 +172,9 @@ void set_skltab(void)
 			skltab[use].v = i;
 
 			strcpy(skltab[use].name, game_skill[i].name);
-			skltab[use].base = value[1][i];
-			skltab[use].curr = value[0][i];
-			skltab[use].raisecost = raisecost = raise_cost(i, value[1][i]);
+			skltab[use].base = (int)value[1][i];
+			skltab[use].curr = (int)value[0][i];
+			skltab[use].raisecost = raisecost = raise_cost(i, (int)value[1][i]);
 
 			if (experience_left >= 0) {
 				if (raisecost > 0 && experience_left >= raisecost) {

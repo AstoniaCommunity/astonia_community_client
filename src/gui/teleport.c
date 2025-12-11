@@ -17,6 +17,9 @@
 
 int teleporter = 0;
 
+// Forward declaration
+DLL_EXPORT void set_teleport(int idx, int x, int y);
+
 static int tele[64 * 2] = {
     133,
     229, // 0	Cameron
@@ -209,7 +212,7 @@ void display_teleport(void)
 	for (n = 0; n < 26; n++) {
 		if (telsel == n + 101) {
 			dx_copysprite_emerald(mirror_pos[n * 2] + dotx(DOT_TEL), mirror_pos[n * 2 + 1] + doty(DOT_TEL), 1, 2);
-		} else if (newmirror == n + 1) {
+		} else if (newmirror == (unsigned int)(n + 1)) {
 			dx_copysprite_emerald(mirror_pos[n * 2] + dotx(DOT_TEL), mirror_pos[n * 2 + 1] + doty(DOT_TEL), 1, 1);
 		} else {
 			dx_copysprite_emerald(mirror_pos[n * 2] + dotx(DOT_TEL), mirror_pos[n * 2 + 1] + doty(DOT_TEL), 1, 0);

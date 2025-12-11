@@ -28,7 +28,7 @@ static void *sdlm_pixel = NULL;
 uint32_t mix_argb(uint32_t c1, uint32_t c2, float w1, float w2)
 {
 	int r1, r2, g1, g2, b1, b2, a1, a2;
-	int r, g, b, a;
+	uint32_t r, g, b, a;
 
 	a1 = IGET_A(c1);
 	a2 = IGET_A(c2);
@@ -44,20 +44,28 @@ uint32_t mix_argb(uint32_t c1, uint32_t c2, float w1, float w2)
 	g2 = IGET_G(c2);
 	b2 = IGET_B(c2);
 
-	a = (a1 * w1 + a2 * w2);
-	r = (r1 * w1 + r2 * w2);
-	g = (g1 * w1 + g2 * w2);
-	b = (b1 * w1 + b2 * w2);
+	a = (uint32_t)((float)a1 * w1 + (float)a2 * w2);
+	r = (uint32_t)((float)r1 * w1 + (float)r2 * w2);
+	g = (uint32_t)((float)g1 * w1 + (float)g2 * w2);
+	b = (uint32_t)((float)b1 * w1 + (float)b2 * w2);
 
-	a = min(255, a);
-	r = min(255, r);
-	g = min(255, g);
-	b = min(255, b);
+	if (a > 255U) {
+		a = 255U;
+	}
+	if (r > 255U) {
+		r = 255U;
+	}
+	if (g > 255U) {
+		g = 255U;
+	}
+	if (b > 255U) {
+		b = 255U;
+	}
 
 	return IRGBA(r, g, b, a);
 }
 
-void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale)
+void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale __attribute__((unused)))
 {
 	int x, y;
 	uint32_t c1, c2, c3, c4;
@@ -71,10 +79,10 @@ void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale)
 				c3 = pixel[x + y * xres + xres * 2]; // bottom left
 				c4 = pixel[x + y * xres + 2 + xres * 2]; // bottom right
 
-				pixel[x + y * xres + 1] = mix_argb(c1, c2, 0.5, 0.5);
-				pixel[x + y * xres + xres] = mix_argb(c1, c3, 0.5, 0.5);
+				pixel[x + y * xres + 1] = mix_argb(c1, c2, 0.5f, 0.5f);
+				pixel[x + y * xres + xres] = mix_argb(c1, c3, 0.5f, 0.5f);
 				pixel[x + y * xres + 1 + xres] =
-				    mix_argb(mix_argb(c1, c2, 0.5, 0.5), mix_argb(c3, c4, 0.5, 0.5), 0.5, 0.5);
+				    mix_argb(mix_argb(c1, c2, 0.5f, 0.5f), mix_argb(c3, c4, 0.5f, 0.5f), 0.5f, 0.5f);
 			}
 		}
 		break;
@@ -86,20 +94,20 @@ void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale)
 				c3 = pixel[x + y * xres + xres * 3]; // bottom left
 				c4 = pixel[x + y * xres + 3 + xres * 3]; // bottom right
 
-				pixel[x + y * xres + 1] = mix_argb(c1, c2, 0.667, 0.333);
-				pixel[x + y * xres + 2] = mix_argb(c1, c2, 0.333, 0.667);
+				pixel[x + y * xres + 1] = mix_argb(c1, c2, 0.667f, 0.333f);
+				pixel[x + y * xres + 2] = mix_argb(c1, c2, 0.333f, 0.667f);
 
-				pixel[x + y * xres + xres * 1] = mix_argb(c1, c3, 0.667, 0.333);
-				pixel[x + y * xres + xres * 2] = mix_argb(c1, c3, 0.333, 0.667);
+				pixel[x + y * xres + xres * 1] = mix_argb(c1, c3, 0.667f, 0.333f);
+				pixel[x + y * xres + xres * 2] = mix_argb(c1, c3, 0.333f, 0.667f);
 
 				pixel[x + y * xres + 1 + xres * 1] =
-				    mix_argb(mix_argb(c1, c2, 0.5, 0.5), mix_argb(c3, c4, 0.5, 0.5), 0.5, 0.5);
+				    mix_argb(mix_argb(c1, c2, 0.5f, 0.5f), mix_argb(c3, c4, 0.5f, 0.5f), 0.5f, 0.5f);
 				pixel[x + y * xres + 2 + xres * 1] =
-				    mix_argb(mix_argb(c1, c2, 0.333, 0.667), mix_argb(c3, c4, 0.333, 0.667), 0.667, 0.333);
+				    mix_argb(mix_argb(c1, c2, 0.333f, 0.667f), mix_argb(c3, c4, 0.333f, 0.667f), 0.667f, 0.333f);
 				pixel[x + y * xres + 1 + xres * 2] =
-				    mix_argb(mix_argb(c1, c2, 0.667, 0.333), mix_argb(c3, c4, 0.667, 0.333), 0.333, 0.667);
+				    mix_argb(mix_argb(c1, c2, 0.667f, 0.333f), mix_argb(c3, c4, 0.667f, 0.333f), 0.333f, 0.667f);
 				pixel[x + y * xres + 2 + xres * 2] =
-				    mix_argb(mix_argb(c1, c2, 0.333, 0.667), mix_argb(c3, c4, 0.333, 0.667), 0.333, 0.667);
+				    mix_argb(mix_argb(c1, c2, 0.333f, 0.667f), mix_argb(c3, c4, 0.333f, 0.667f), 0.333f, 0.667f);
 			}
 		}
 		break;
@@ -112,34 +120,34 @@ void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale)
 				c3 = pixel[x + y * xres + xres * 4]; // bottom left
 				c4 = pixel[x + y * xres + 4 + xres * 4]; // bottom right
 
-				pixel[x + y * xres + 1] = mix_argb(c1, c2, 0.75, 0.25);
-				pixel[x + y * xres + 2] = mix_argb(c1, c2, 0.50, 0.50);
-				pixel[x + y * xres + 3] = mix_argb(c1, c2, 0.25, 0.75);
+				pixel[x + y * xres + 1] = mix_argb(c1, c2, 0.75f, 0.25f);
+				pixel[x + y * xres + 2] = mix_argb(c1, c2, 0.5f, 0.5f);
+				pixel[x + y * xres + 3] = mix_argb(c1, c2, 0.25f, 0.75f);
 
-				pixel[x + y * xres + xres * 1] = mix_argb(c1, c3, 0.75, 0.25);
-				pixel[x + y * xres + xres * 2] = mix_argb(c1, c3, 0.50, 0.50);
-				pixel[x + y * xres + xres * 3] = mix_argb(c1, c3, 0.25, 0.75);
+				pixel[x + y * xres + xres * 1] = mix_argb(c1, c3, 0.75f, 0.25f);
+				pixel[x + y * xres + xres * 2] = mix_argb(c1, c3, 0.5f, 0.5f);
+				pixel[x + y * xres + xres * 3] = mix_argb(c1, c3, 0.25f, 0.75f);
 
 				pixel[x + y * xres + 1 + xres * 1] =
-				    mix_argb(mix_argb(c1, c2, 0.75, 0.25), mix_argb(c3, c4, 0.75, 0.25), 0.75, 0.25);
+				    mix_argb(mix_argb(c1, c2, 0.75f, 0.25f), mix_argb(c3, c4, 0.75f, 0.25f), 0.75f, 0.25f);
 				pixel[x + y * xres + 1 + xres * 2] =
-				    mix_argb(mix_argb(c1, c2, 0.75, 0.25), mix_argb(c3, c4, 0.75, 0.25), 0.50, 0.50);
+				    mix_argb(mix_argb(c1, c2, 0.75f, 0.25f), mix_argb(c3, c4, 0.75f, 0.25f), 0.5f, 0.5f);
 				pixel[x + y * xres + 1 + xres * 3] =
-				    mix_argb(mix_argb(c1, c2, 0.75, 0.75), mix_argb(c3, c4, 0.75, 0.25), 0.25, 0.75);
+				    mix_argb(mix_argb(c1, c2, 0.75f, 0.75f), mix_argb(c3, c4, 0.75f, 0.25f), 0.25f, 0.75f);
 
 				pixel[x + y * xres + 2 + xres * 1] =
-				    mix_argb(mix_argb(c1, c2, 0.50, 0.50), mix_argb(c3, c4, 0.50, 0.50), 0.75, 0.25);
+				    mix_argb(mix_argb(c1, c2, 0.5f, 0.5f), mix_argb(c3, c4, 0.5f, 0.5f), 0.75f, 0.25f);
 				pixel[x + y * xres + 2 + xres * 2] =
-				    mix_argb(mix_argb(c1, c2, 0.50, 0.50), mix_argb(c3, c4, 0.50, 0.50), 0.50, 0.50);
+				    mix_argb(mix_argb(c1, c2, 0.5f, 0.5f), mix_argb(c3, c4, 0.5f, 0.5f), 0.5f, 0.5f);
 				pixel[x + y * xres + 2 + xres * 3] =
-				    mix_argb(mix_argb(c1, c2, 0.50, 0.50), mix_argb(c3, c4, 0.50, 0.50), 0.25, 0.75);
+				    mix_argb(mix_argb(c1, c2, 0.5f, 0.5f), mix_argb(c3, c4, 0.5f, 0.5f), 0.25f, 0.75f);
 
 				pixel[x + y * xres + 3 + xres * 1] =
-				    mix_argb(mix_argb(c1, c2, 0.25, 0.75), mix_argb(c3, c4, 0.25, 0.75), 0.75, 0.25);
+				    mix_argb(mix_argb(c1, c2, 0.25f, 0.75f), mix_argb(c3, c4, 0.25f, 0.75f), 0.75f, 0.25f);
 				pixel[x + y * xres + 3 + xres * 2] =
-				    mix_argb(mix_argb(c1, c2, 0.25, 0.75), mix_argb(c3, c4, 0.25, 0.75), 0.50, 0.50);
+				    mix_argb(mix_argb(c1, c2, 0.25f, 0.75f), mix_argb(c3, c4, 0.25f, 0.75f), 0.5f, 0.5f);
 				pixel[x + y * xres + 3 + xres * 3] =
-				    mix_argb(mix_argb(c1, c2, 0.25, 0.75), mix_argb(c3, c4, 0.25, 0.75), 0.25, 0.75);
+				    mix_argb(mix_argb(c1, c2, 0.25f, 0.75f), mix_argb(c3, c4, 0.25f, 0.75f), 0.25f, 0.75f);
 			}
 		}
 		break;
@@ -149,7 +157,7 @@ void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale)
 	}
 }
 
-void sdl_premulti(uint32_t *pixel, int xres, int yres, int scale)
+void sdl_premulti(uint32_t *pixel, int xres, int yres, int scale __attribute__((unused)))
 {
 	int n, r, g, b, a;
 	uint32_t c;
@@ -256,10 +264,10 @@ int png_load_helper(struct png_helper *p)
 		return -1;
 	}
 
-	p->xres = png_get_image_width(p->png_ptr, p->info_ptr);
-	p->yres = png_get_image_height(p->png_ptr, p->info_ptr);
+	p->xres = (int)png_get_image_width(p->png_ptr, p->info_ptr);
+	p->yres = (int)png_get_image_height(p->png_ptr, p->info_ptr);
 
-	tmp = png_get_rowbytes(p->png_ptr, p->info_ptr);
+	tmp = (int)png_get_rowbytes(p->png_ptr, p->info_ptr);
 
 	if (tmp == p->xres * 3) {
 		p->bpp = 24;
@@ -373,18 +381,18 @@ int sdl_load_image_png_(struct sdl_image *si, char *filename, zip_t *zip)
 
 	// write
 	si->flags = 1;
-	si->xres = ex - sx;
-	si->yres = ey - sy;
-	si->xoff = -(p.xres / 2) + sx;
-	si->yoff = -(p.yres / 2) + sy;
+	si->xres = (uint16_t)(ex - sx);
+	si->yres = (uint16_t)(ey - sy);
+	si->xoff = (int16_t)(-(p.xres / 2) + sx);
+	si->yoff = (int16_t)(-(p.yres / 2) + sy);
 
 #ifdef SDL_FAST_MALLOC
-	si->pixel = malloc(si->xres * si->yres * sizeof(uint32_t));
+	si->pixel = malloc((size_t)si->xres * si->yres * sizeof(uint32_t));
 #else
-	si->pixel = xmalloc(si->xres * si->yres * sizeof(uint32_t), MEM_SDL_PNG);
+	si->pixel = xmalloc((size_t)si->xres * si->yres * sizeof(uint32_t), MEM_SDL_PNG);
 #endif
 	extern long long mem_png;
-	__atomic_add_fetch(&mem_png, si->xres * si->yres * sizeof(uint32_t), __ATOMIC_RELAXED);
+	__atomic_add_fetch(&mem_png, (long long)((size_t)si->xres * si->yres * sizeof(uint32_t)), __ATOMIC_RELAXED);
 
 	for (y = 0; y < si->yres; y++) {
 		for (x = 0; x < si->xres; x++) {
@@ -494,18 +502,21 @@ int sdl_load_image_png(struct sdl_image *si, char *filename, zip_t *zip, int smo
 
 	// write
 	si->flags = 1;
-	si->xres = ex - sx + 1;
-	si->yres = ey - sy + 1;
-	si->xoff = -(p.xres / 2) + sx;
-	si->yoff = -(p.yres / 2) + sy;
+	si->xres = (uint16_t)(ex - sx + 1);
+	si->yres = (uint16_t)(ey - sy + 1);
+	si->xoff = (int16_t)(-(p.xres / 2) + sx);
+	si->yoff = (int16_t)(-(p.yres / 2) + sy);
 
 #ifdef SDL_FAST_MALLOC
-	si->pixel = malloc(si->xres * si->yres * sizeof(uint32_t) * sdl_scale * sdl_scale);
+	si->pixel = malloc((size_t)si->xres * si->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale);
 #else
-	si->pixel = xmalloc(si->xres * si->yres * sizeof(uint32_t) * sdl_scale * sdl_scale, MEM_SDL_PNG);
+	si->pixel =
+	    xmalloc((size_t)si->xres * si->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale, MEM_SDL_PNG);
 #endif
 	extern long long mem_png;
-	__atomic_add_fetch(&mem_png, si->xres * si->yres * sizeof(uint32_t) * sdl_scale * sdl_scale, __ATOMIC_RELAXED);
+	__atomic_add_fetch(&mem_png,
+	    (long long)((size_t)si->xres * (size_t)si->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale),
+	    __ATOMIC_RELAXED);
 
 	for (y = 0; y < si->yres; y++) {
 		for (x = 0; x < si->xres; x++) {
@@ -729,13 +740,13 @@ int sdl_load_image(struct sdl_image *si, int sprite, struct zip_handles *zips)
 	return -1;
 }
 
-int sdl_ic_load(int sprite, struct zip_handles *zips)
+int sdl_ic_load(unsigned int sprite, struct zip_handles *zips)
 {
 #ifdef DEVELOPER
 	uint64_t start = SDL_GetTicks64();
 #endif
 
-	if (sprite < 0 || sprite >= MAXSPRITE) {
+	if (sprite >= MAXSPRITE) {
 		note("illegal sprite %d wanted in sdl_ic_load", sprite);
 		return -1;
 	}
@@ -760,7 +771,7 @@ retry:
 		extern long long sdl_time_load;
 		sdl_time_load += SDL_GetTicks64() - start;
 #endif
-		return sprite;
+		return (int)sprite;
 	}
 
 	if (state == IMG_FAILED) {
@@ -783,13 +794,13 @@ retry:
 
 	// We are the loader now
 	extern struct sdl_image *sdli;
-	if (sdl_load_image(sdli + sprite, sprite, zips) == 0) {
+	if (sdl_load_image(sdli + sprite, (int)sprite, zips) == 0) {
 		__atomic_store_n((int *)&sdli_state[sprite], IMG_READY, __ATOMIC_RELEASE);
 #ifdef DEVELOPER
 		extern long long sdl_time_load;
 		sdl_time_load += SDL_GetTicks64() - start;
 #endif
-		return sprite;
+		return (int)sprite;
 	} else {
 		__atomic_store_n((int *)&sdli_state[sprite], IMG_FAILED, __ATOMIC_RELEASE);
 		return -1;
@@ -803,7 +814,7 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 	double ix, iy, low_x, low_y, high_x, high_y, dbr, dbg, dbb, dba;
 	uint32_t irgb;
 #ifdef DEVELOPER
-	long long start = SDL_GetTicks64();
+	Uint64 start = SDL_GetTicks64();
 #endif
 
 	if (si->xres == 0 || si->yres == 0) {
@@ -815,18 +826,18 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 	// hack to adjust the size of mages to old client levels
 	// this was originally done during loading from PAKs.
 	if (st->sprite >= 160000 && st->sprite < 170000) {
-		scale *= 0.88;
+		scale = (uint8_t)(scale * 0.88);
 	}
 
 	if (scale != 100) {
-		st->xres = ceil((double)(si->xres - 1) * scale / 100.0);
-		st->yres = ceil((double)(si->yres - 1) * scale / 100.0);
+		st->xres = (uint16_t)ceil((si->xres - 1) * (double)scale / 100.0);
+		st->yres = (uint16_t)ceil((si->yres - 1) * (double)scale / 100.0);
 
-		st->xoff = floor(si->xoff * scale / 100.0 + 0.5);
-		st->yoff = floor(si->yoff * scale / 100.0 + 0.5);
+		st->xoff = (int16_t)floor(si->xoff * (double)scale / 100.0 + 0.5);
+		st->yoff = (int16_t)floor(si->yoff * (double)scale / 100.0 + 0.5);
 	} else {
-		st->xres = si->xres;
-		st->yres = si->yres;
+		st->xres = (uint16_t)si->xres;
+		st->yres = (uint16_t)si->yres;
 		st->xoff = si->xoff;
 		st->yoff = si->yoff;
 	}
@@ -842,9 +853,10 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 			// Only allocate if not already allocated (may be set by caller with mutex protection in multi-threaded
 			// mode)
 #ifdef SDL_FAST_MALLOC
-			st->pixel = malloc(st->xres * st->yres * sizeof(uint32_t) * sdl_scale * sdl_scale);
+			st->pixel = malloc((size_t)st->xres * st->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale);
 #else
-			st->pixel = xmalloc(st->xres * st->yres * sizeof(uint32_t) * sdl_scale * sdl_scale, MEM_SDL_PIXEL);
+			st->pixel = xmalloc(
+			    (size_t)st->xres * st->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale, MEM_SDL_PIXEL);
 #endif
 			uint16_t *flags_ptr = (uint16_t *)&st->flags;
 			__atomic_fetch_or(flags_ptr, SF_DIDALLOC, __ATOMIC_RELEASE);
@@ -852,20 +864,20 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 		// If already allocated, skip allocation but continue to set sdlm_* variables below
 	}
 
-	sdlm_sprite = st->sprite;
+	sdlm_sprite = (int)st->sprite;
 	sdlm_scale = scale;
 	sdlm_pixel = si->pixel;
 
 	if (!preload || preload == 2) {
 		if (!(flags_load(st) & SF_DIDALLOC)) {
-			fail("cannot make without alloc for sprite %d (%p)", st->sprite, st);
+			fail("cannot make without alloc for sprite %d (%p)", st->sprite, (void *)st);
 			note("... sprite=%d (%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)", st->sprite, st->sink, st->freeze,
 			    st->scale, st->cr, st->cg, st->cb, st->light, st->sat, st->c1, st->c2, st->c3, st->shine, st->ml,
 			    st->ll, st->rl, st->ul, st->dl);
 			return;
 		}
 		if (!(st->pixel)) {
-			fail("cannot make: pixel=NULL for sprite %d (%p)", st->sprite, st);
+			fail("cannot make: pixel=NULL for sprite %d (%p)", st->sprite, (void *)st);
 			note("... sprite=%d (%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d)", st->sprite, st->sink, st->freeze,
 			    st->scale, st->cr, st->cg, st->cb, st->light, st->sat, st->c1, st->c2, st->c3, st->shine, st->ml,
 			    st->ll, st->rl, st->ul, st->dl);
@@ -905,8 +917,8 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 					irgb = si->pixel[(int)(floor(ix) + floor(iy) * si->xres * sdl_scale)];
 
 					if (st->c1 || st->c2 || st->c3) {
-						irgb = sdl_colorize_pix2(irgb, st->c1, st->c2, st->c3, floor(ix), floor(iy), si->xres, si->yres,
-						    si->pixel, st->sprite);
+						irgb = sdl_colorize_pix2(irgb, st->c1, st->c2, st->c3, (int)floor(ix), (int)floor(iy), si->xres,
+						    si->yres, si->pixel, (int)st->sprite);
 					}
 					dba = IGET_A(irgb) * low_x * low_y;
 					dbr = IGET_R(irgb) * low_x * low_y;
@@ -916,8 +928,8 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 					irgb = si->pixel[(int)(ceil(ix) + floor(iy) * si->xres * sdl_scale)];
 
 					if (st->c1 || st->c2 || st->c3) {
-						irgb = sdl_colorize_pix2(irgb, st->c1, st->c2, st->c3, ceil(ix), floor(iy), si->xres, si->yres,
-						    si->pixel, st->sprite);
+						irgb = sdl_colorize_pix2(irgb, st->c1, st->c2, st->c3, (int)ceil(ix), (int)floor(iy), si->xres,
+						    si->yres, si->pixel, (int)st->sprite);
 					}
 					dba += IGET_A(irgb) * high_x * low_y;
 					dbr += IGET_R(irgb) * high_x * low_y;
@@ -927,8 +939,8 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 					irgb = si->pixel[(int)(floor(ix) + ceil(iy) * si->xres * sdl_scale)];
 
 					if (st->c1 || st->c2 || st->c3) {
-						irgb = sdl_colorize_pix2(irgb, st->c1, st->c2, st->c3, floor(ix), ceil(iy), si->xres, si->yres,
-						    si->pixel, st->sprite);
+						irgb = sdl_colorize_pix2(irgb, st->c1, st->c2, st->c3, (int)floor(ix), (int)ceil(iy), si->xres,
+						    si->yres, si->pixel, (int)st->sprite);
 					}
 					dba += IGET_A(irgb) * low_x * high_y;
 					dbr += IGET_R(irgb) * low_x * high_y;
@@ -938,8 +950,8 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 					irgb = si->pixel[(int)(ceil(ix) + ceil(iy) * si->xres * sdl_scale)];
 
 					if (st->c1 || st->c2 || st->c3) {
-						irgb = sdl_colorize_pix2(irgb, st->c1, st->c2, st->c3, ceil(ix), ceil(iy), si->xres, si->yres,
-						    si->pixel, st->sprite);
+						irgb = sdl_colorize_pix2(irgb, st->c1, st->c2, st->c3, (int)ceil(ix), (int)ceil(iy), si->xres,
+						    si->yres, si->pixel, (int)st->sprite);
 					}
 					dba += IGET_A(irgb) * high_x * high_y;
 					dbr += IGET_R(irgb) * high_x * high_y;
@@ -952,12 +964,13 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 					irgb = si->pixel[x + y * si->xres * sdl_scale];
 					if (st->c1 || st->c2 || st->c3) {
 						irgb = sdl_colorize_pix2(
-						    irgb, st->c1, st->c2, st->c3, x, y, si->xres, si->yres, si->pixel, st->sprite);
+						    irgb, st->c1, st->c2, st->c3, x, y, si->xres, si->yres, si->pixel, (int)st->sprite);
 					}
 				}
 
 				if (st->cr || st->cg || st->cb || st->light || st->sat) {
-					irgb = sdl_colorbalance(irgb, st->cr, st->cg, st->cb, st->light, st->sat);
+					irgb = sdl_colorbalance(
+					    irgb, (char)st->cr, (char)st->cg, (char)st->cb, (char)st->light, (char)st->sat);
 				}
 				if (st->shine) {
 					irgb = sdl_shine_pix(irgb, st->shine);
@@ -1093,10 +1106,10 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 #ifdef DEVELOPER
 		if (preload) {
 			extern long long sdl_time_preload;
-			sdl_time_preload += SDL_GetTicks64() - start;
+			sdl_time_preload += (long long)(SDL_GetTicks64() - start);
 		} else {
 			extern long long sdl_time_make;
-			sdl_time_make += SDL_GetTicks64() - start;
+			sdl_time_make += (long long)(SDL_GetTicks64() - start);
 		}
 #endif
 	}
@@ -1127,7 +1140,7 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 				    st->xres, st->yres, preload);
 				return;
 			}
-			SDL_UpdateTexture(texture, NULL, st->pixel, st->xres * sizeof(uint32_t) * sdl_scale);
+			SDL_UpdateTexture(texture, NULL, st->pixel, (int)(st->xres * sizeof(uint32_t) * (size_t)sdl_scale));
 			SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 			// Update memory accounting when texture is actually created
 			extern long long mem_tex;
@@ -1195,10 +1208,10 @@ DLL_EXPORT uint32_t *sdl_load_png(char *filename, int *dx, int *dy)
 		return NULL;
 	}
 
-	xres = png_get_image_width(png_ptr, info_ptr);
-	yres = png_get_image_height(png_ptr, info_ptr);
+	xres = (int)png_get_image_width(png_ptr, info_ptr);
+	yres = (int)png_get_image_height(png_ptr, info_ptr);
 
-	tmp = png_get_rowbytes(png_ptr, info_ptr);
+	tmp = (int)png_get_rowbytes(png_ptr, info_ptr);
 
 	if (tmp == xres * 3) {
 		format = 3;
@@ -1233,9 +1246,9 @@ DLL_EXPORT uint32_t *sdl_load_png(char *filename, int *dx, int *dy)
 	}
 
 #ifdef SDL_FAST_MALLOC
-	pixel = malloc(xres * yres * sizeof(uint32_t));
+	pixel = malloc((size_t)xres * (size_t)yres * sizeof(uint32_t));
 #else
-	pixel = xmalloc(xres * yres * sizeof(uint32_t), MEM_TEMP8);
+	pixel = xmalloc((size_t)xres * (size_t)yres * sizeof(uint32_t), MEM_TEMP8);
 #endif
 
 	if (!pixel) {
