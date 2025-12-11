@@ -32,4 +32,4 @@ extern char *game_email_main;
 extern char *game_email_cash;
 extern char *game_url;
 extern char **game_rankname;
-extern int *game_rankcount;
+DLL_EXPORT extern int *game_rankcount;
