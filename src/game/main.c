@@ -30,8 +30,8 @@
 // Forward declarations
 void xlog(FILE *logfp, char *format, ...) __attribute__((format(printf, 2, 3)));
 void addlinesep(void);
-int rread(FILE *fp, void *ptr, int size);
-char *load_ascii_file(char *filename, int ID);
+int rread(FILE *fp, void *ptr, size_t size);
+char *load_ascii_file(char *filename, uint8_t ID);
 int xmemcheck(void *ptr);
 void xinfo(void *ptr);
 void rrandomize(void);
@@ -180,15 +180,12 @@ DLL_EXPORT void addline(const char *format, ...)
 
 // io
 
-int rread(FILE *fp, void *ptr, int size)
+int rread(FILE *fp, void *ptr, size_t size)
 {
-	int n;
+	size_t n;
 
 	while (size > 0) {
-		n = (int)fread(ptr, 1, (size_t)size, fp);
-		if (n < 0) {
-			return -1;
-		}
+		n = fread(ptr, 1, size, fp);
 		if (n == 0) {
 			return 1;
 		}
@@ -198,10 +195,10 @@ int rread(FILE *fp, void *ptr, int size)
 	return 0;
 }
 
-char *load_ascii_file(char *filename, int ID)
+char *load_ascii_file(char *filename, uint8_t ID)
 {
 	FILE *fp;
-	int size;
+	size_t size;
 	char *ptr;
 
 	if (!(fp = fopen(filename, "rb"))) {
@@ -213,17 +210,17 @@ char *load_ascii_file(char *filename, int ID)
 	}
 	{
 		long file_size = ftell(fp);
-		if (file_size < 0 || file_size > INT_MAX - 1) {
+		if (file_size < 0) {
 			fclose(fp);
 			return NULL;
 		}
-		size = (int)file_size;
+		size = (size_t)file_size;
 	}
 	if (fseek(fp, 0, SEEK_SET) != 0) {
 		fclose(fp);
 		return NULL;
 	}
-	ptr = xmalloc((size_t)size + 1, ID);
+	ptr = xmalloc(size + 1, ID);
 	if (rread(fp, ptr, size)) {
 		xfree(ptr);
 		fclose(fp);
@@ -247,7 +244,7 @@ size_t memsize[MAX_MEM];
 
 struct memhead {
 	size_t size;
-	int ID;
+	uint8_t ID;
 };
 
 // TODO: removed unused memory areas
@@ -298,7 +295,7 @@ int xmemcheck(void *ptr)
 
 	{
 		uintptr_t ptr_val = (uintptr_t)ptr;
-		ptr_val -= 8 + sizeof(memcheck);
+		ptr_val -= sizeof(struct memhead) + sizeof(memcheck);
 		mem = (struct memhead *)ptr_val;
 	}
 
@@ -310,17 +307,17 @@ int xmemcheck(void *ptr)
 	}
 
 	// border check
-	head = ((unsigned char *)(mem)) + 8;
-	rptr = ((unsigned char *)(mem)) + 8 + sizeof(memcheck);
-	tail = ((unsigned char *)(mem)) + 8 + sizeof(memcheck) + mem->size;
+	head = ((unsigned char *)(mem)) + sizeof(struct memhead);
+	rptr = ((unsigned char *)(mem)) + sizeof(struct memhead) + sizeof(memcheck);
+	tail = ((unsigned char *)(mem)) + sizeof(struct memhead) + sizeof(memcheck) + mem->size;
 
 	if (memcmp(head, memcheck, sizeof(memcheck))) {
-		fail("xmemcheck: ill head in %s (ptr=%p)", memname[mem->ID], rptr);
+		fail("xmemcheck: ill head in %s (ptr=%p)", memname[mem->ID], (void *)rptr);
 		xmemcheck_failed = 1;
 		return -1;
 	}
 	if (memcmp(tail, memcheck, sizeof(memcheck))) {
-		fail("xmemcheck: ill tail in %s (ptr=%p)", memname[mem->ID], rptr);
+		fail("xmemcheck: ill tail in %s (ptr=%p)", memname[mem->ID], (void *)rptr);
 		xmemcheck_failed = 1;
 		return -1;
 	}
@@ -328,7 +325,7 @@ int xmemcheck(void *ptr)
 	return 0;
 }
 
-void *xmalloc(size_t size, int ID)
+void *xmalloc(size_t size, uint8_t ID)
 {
 	struct memhead *mem;
 	unsigned char *head, *tail, *rptr;
@@ -346,13 +343,13 @@ void *xmalloc(size_t size, int ID)
 
 	memptrused++;
 
-	mem = calloc(1, (size_t)(8 + sizeof(memcheck) + (size_t)size + sizeof(memcheck)));
+	mem = calloc(1, sizeof(struct memhead) + sizeof(memcheck) + size + sizeof(memcheck));
 	if (!mem) {
 		fail("OUT OF MEMORY !!!");
 		return NULL;
 	}
 
-	memused += 8 + sizeof(memcheck) + size + sizeof(memcheck);
+	memused += sizeof(struct memhead) + sizeof(memcheck) + size + sizeof(memcheck);
 
 	if (ID >= MAX_MEM) {
 		fail("xmalloc: ill mem id");
@@ -373,9 +370,9 @@ void *xmalloc(size_t size, int ID)
 		maxmemptrs = memptrs[0];
 	}
 
-	head = ((unsigned char *)(mem)) + 8;
-	rptr = ((unsigned char *)(mem)) + 8 + sizeof(memcheck);
-	tail = ((unsigned char *)(mem)) + 8 + sizeof(memcheck) + mem->size;
+	head = ((unsigned char *)(mem)) + sizeof(struct memhead);
+	rptr = ((unsigned char *)(mem)) + sizeof(struct memhead) + sizeof(memcheck);
+	tail = ((unsigned char *)(mem)) + sizeof(struct memhead) + sizeof(memcheck) + mem->size;
 
 	// set memcheck
 	memcpy(head, memcheck, sizeof(memcheck));
@@ -386,7 +383,7 @@ void *xmalloc(size_t size, int ID)
 	return rptr;
 }
 
-static void update_mem_stats_add(int ID, size_t size)
+static void update_mem_stats_add(uint8_t ID, size_t size)
 {
 	memsize[ID] += size;
 	memptrs[ID] += 1;
@@ -400,22 +397,22 @@ static void update_mem_stats_add(int ID, size_t size)
 		maxmemptrs = memptrs[0];
 	}
 
-	memused += 8 + sizeof(memcheck) + size + sizeof(memcheck);
+	memused += sizeof(struct memhead) + sizeof(memcheck) + size + sizeof(memcheck);
 	memptrused++;
 }
 
-static void update_mem_stats_remove(int ID, size_t size)
+static void update_mem_stats_remove(uint8_t ID, size_t size)
 {
 	memsize[ID] -= size;
 	memptrs[ID] -= 1;
 	memsize[0] -= size;
 	memptrs[0] -= 1;
 
-	memused -= 8 + sizeof(memcheck) + size + sizeof(memcheck);
+	memused -= sizeof(struct memhead) + sizeof(memcheck) + size + sizeof(memcheck);
 	memptrused--;
 }
 
-char *xstrdup(const char *src, int ID)
+char *xstrdup(const char *src, uint8_t ID)
 {
 	size_t src_len;
 	int size;
@@ -451,11 +448,11 @@ void xfree(void *ptr)
 	// get mem
 	{
 		uintptr_t ptr_val = (uintptr_t)ptr;
-		ptr_val -= 8 + sizeof(memcheck);
+		ptr_val -= sizeof(struct memhead) + sizeof(memcheck);
 		mem = (struct memhead *)ptr_val;
 	}
 
-	update_mem_stats_remove(mem->ID, mem->size);
+	update_mem_stats_remove(mem->ID, (size_t)mem->size);
 
 	// free
 	free(mem);
@@ -477,14 +474,17 @@ void xinfo(void *ptr)
 	// get mem
 	{
 		uintptr_t ptr_val = (uintptr_t)ptr;
-		ptr_val -= 8 + sizeof(memcheck);
+		ptr_val -= sizeof(struct memhead) + sizeof(memcheck);
 		mem = (struct memhead *)ptr_val;
 	}
 
 	printf("%zu bytes", mem->size);
 }
 
-void *xrealloc(void *ptr, size_t size, int ID)
+// Verify struct size
+_Static_assert(sizeof(struct memhead) == 16, "memhead must be 16 bytes");
+
+void *xrealloc(void *ptr, size_t size, uint8_t ID)
 {
 	struct memhead *mem;
 	unsigned char *head, *tail, *rptr;
@@ -505,16 +505,16 @@ void *xrealloc(void *ptr, size_t size, int ID)
 
 	{
 		uintptr_t ptr_val = (uintptr_t)ptr;
-		ptr_val -= 8 + sizeof(memcheck);
+		ptr_val -= sizeof(struct memhead) + sizeof(memcheck);
 		mem = (struct memhead *)ptr_val;
 	}
 
-	int old_ID = mem->ID;
+	uint8_t old_ID = mem->ID;
 	size_t old_size = mem->size;
 	update_mem_stats_remove(old_ID, old_size);
 
 	// realloc
-	struct memhead *new_mem = realloc(mem, (size_t)(8 + sizeof(memcheck) + (size_t)size + sizeof(memcheck)));
+	struct memhead *new_mem = realloc(mem, sizeof(struct memhead) + sizeof(memcheck) + size + sizeof(memcheck));
 	if (!new_mem) {
 		// Restore counters since realloc failed
 		update_mem_stats_add(old_ID, old_size);
@@ -531,9 +531,9 @@ void *xrealloc(void *ptr, size_t size, int ID)
 	mem->ID = ID; // Update ID in case it changed
 	mem->size = size;
 
-	head = ((unsigned char *)(mem)) + 8;
-	rptr = ((unsigned char *)(mem)) + 8 + sizeof(memcheck);
-	tail = ((unsigned char *)(mem)) + 8 + sizeof(memcheck) + mem->size;
+	head = ((unsigned char *)(mem)) + sizeof(struct memhead);
+	rptr = ((unsigned char *)(mem)) + sizeof(struct memhead) + sizeof(memcheck);
+	tail = ((unsigned char *)(mem)) + sizeof(struct memhead) + sizeof(memcheck) + mem->size;
 
 	// set memcheck
 	memcpy(head, memcheck, sizeof(memcheck));
@@ -542,7 +542,7 @@ void *xrealloc(void *ptr, size_t size, int ID)
 	return rptr;
 }
 
-void *xrecalloc(void *ptr, size_t size, int ID)
+void *xrecalloc(void *ptr, size_t size, uint8_t ID)
 {
 	struct memhead *mem;
 	unsigned char *head, *tail, *rptr;
@@ -560,16 +560,16 @@ void *xrecalloc(void *ptr, size_t size, int ID)
 
 	{
 		uintptr_t ptr_val = (uintptr_t)ptr;
-		ptr_val -= 8 + sizeof(memcheck);
+		ptr_val -= sizeof(struct memhead) + sizeof(memcheck);
 		mem = (struct memhead *)ptr_val;
 	}
 
-	int old_ID = mem->ID;
+	uint8_t old_ID = mem->ID;
 	size_t old_size = mem->size;
 	update_mem_stats_remove(old_ID, old_size);
 
 	// realloc
-	struct memhead *new_mem = realloc(mem, (size_t)(8 + sizeof(memcheck) + (size_t)size + sizeof(memcheck)));
+	struct memhead *new_mem = realloc(mem, sizeof(struct memhead) + sizeof(memcheck) + size + sizeof(memcheck));
 	if (!new_mem) {
 		// Restore counters since realloc failed
 		update_mem_stats_add(old_ID, old_size);
@@ -579,16 +579,17 @@ void *xrecalloc(void *ptr, size_t size, int ID)
 	mem = new_mem;
 
 	if (size - old_size > 0) {
-		bzero(((unsigned char *)(mem)) + 8 + sizeof(memcheck) + old_size, (size_t)(size - old_size));
+		bzero(
+		    ((unsigned char *)(mem)) + sizeof(struct memhead) + sizeof(memcheck) + old_size, (size_t)(size - old_size));
 	}
 
 	update_mem_stats_add(ID, size);
 	mem->ID = ID; // Update ID in case it changed
 	mem->size = size;
 
-	head = ((unsigned char *)(mem)) + 8;
-	rptr = ((unsigned char *)(mem)) + 8 + sizeof(memcheck);
-	tail = ((unsigned char *)(mem)) + 8 + sizeof(memcheck) + mem->size;
+	head = ((unsigned char *)(mem)) + sizeof(struct memhead);
+	rptr = ((unsigned char *)(mem)) + sizeof(struct memhead) + sizeof(memcheck);
+	tail = ((unsigned char *)(mem)) + sizeof(struct memhead) + sizeof(memcheck) + mem->size;
 
 	// set memcheck
 	memcpy(head, memcheck, sizeof(memcheck));
