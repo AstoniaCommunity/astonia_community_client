@@ -3,6 +3,7 @@
  */
 
 #include "../dll.h"
+#include "../astonia.h"
 #include "amod_structs.h"
 
 void amod_init(void);

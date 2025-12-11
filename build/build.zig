@@ -99,8 +99,21 @@ pub fn build(b: *std.Build) void {
         "-O3",
         "-gdwarf-4",
         "-Wall",
-        "-Wno-pointer-sign",
-        "-Wno-char-subscripts",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wformat=2",
+        "-Wnull-dereference",
+        "-Wdouble-promotion",
+        "-Wcast-align",
+        "-Wcast-qual",
+        "-Wconversion",
+        "-Wsign-conversion",
+        "-Wmissing-prototypes",
+        "-Wstrict-prototypes",
+        "-Wvla",
+        "-Wfloat-equal",
+        "-Wnewline-eof",
+        "-Werror",
         "-fno-omit-frame-pointer",
         "-fvisibility=hidden",
     };
@@ -109,8 +122,21 @@ pub fn build(b: *std.Build) void {
         "-O3",
         "-gdwarf-4",
         "-Wall",
-        "-Wno-pointer-sign",
-        "-Wno-char-subscripts",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wformat=2",
+        "-Wnull-dereference",
+        "-Wdouble-promotion",
+        "-Wcast-align",
+        "-Wcast-qual",
+        "-Wconversion",
+        "-Wsign-conversion",
+        "-Wmissing-prototypes",
+        "-Wstrict-prototypes",
+        "-Wvla",
+        "-Wfloat-equal",
+        "-Wnewline-eof",
+        "-Werror",
         "-fno-omit-frame-pointer",
         "-fvisibility=hidden",
         "-Dmain=SDL_main",
@@ -142,23 +168,39 @@ pub fn build(b: *std.Build) void {
         exe.addCSourceFiles(.{ .files = common_sources, .flags = base_cflags });
     }
 
+    const pic_cflags = &.{
+        "-O3",
+        "-gdwarf-4",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wformat=2",
+        "-Wnull-dereference",
+        "-Wdouble-promotion",
+        "-Wcast-align",
+        "-Wcast-qual",
+        "-Wconversion",
+        "-Wsign-conversion",
+        "-Wmissing-prototypes",
+        "-Wstrict-prototypes",
+        "-Wvla",
+        "-Wfloat-equal",
+        "-Wnewline-eof",
+        "-Werror",
+        "-fPIC",
+        "-fno-omit-frame-pointer",
+        "-fvisibility=hidden",
+    };
+
     if (tgt.os.tag == .linux) {
         exe.addCSourceFiles(.{
             .files = linux_sources,
-            .flags = &.{
-                "-O3",                     "-gdwarf-4",            "-Wall",
-                "-Wno-pointer-sign",       "-Wno-char-subscripts", "-fPIC",
-                "-fno-omit-frame-pointer", "-fvisibility=hidden",
-            },
+            .flags = pic_cflags,
         });
     } else if (tgt.os.tag == .macos) {
         exe.addCSourceFiles(.{
             .files = macos_sources,
-            .flags = &.{
-                "-O3",                     "-gdwarf-4",            "-Wall",
-                "-Wno-pointer-sign",       "-Wno-char-subscripts", "-fPIC",
-                "-fno-omit-frame-pointer", "-fvisibility=hidden",
-            },
+            .flags = pic_cflags,
         });
     }
 
@@ -254,7 +296,7 @@ pub fn build(b: *std.Build) void {
     if (tgt.os.tag == .windows) {
         amod.addCSourceFile(.{ .file = b.path("src/amod/amod.c"), .flags = win_cflags });
     } else {
-        amod.addCSourceFile(.{ .file = b.path("src/amod/amod.c"), .flags = &.{ "-O3", "-gdwarf-4", "-Wall" } });
+        amod.addCSourceFile(.{ .file = b.path("src/amod/amod.c"), .flags = base_cflags });
     }
     amod.root_module.addIncludePath(b.path(include_root));
     amod.root_module.addIncludePath(b.path(src_root));

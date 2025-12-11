@@ -222,14 +222,14 @@ int close_client(void)
 
 #define MAXPASSWORD 17
 
-static void decrypt(const char *name, char *password)
+static void decrypt(const char *name, char *pass_buf)
 {
 	int i;
 	static const char secret[4][MAXPASSWORD] = {"\000cgf\000de8etzdf\000dx", "jrfa\000v7d\000drt\000edm",
 	    "t6zh\000dlr\000fu4dms\000", "jkdm\000u7z5g\000j77\000g"};
 
 	for (i = 0; i < MAXPASSWORD; i++) {
-		password[i] = password[i] ^ secret[name[1] % 4][i] ^ name[i % 3];
+		pass_buf[i] = pass_buf[i] ^ secret[name[1] % 4][i] ^ name[i % 3];
 	}
 }
 
@@ -471,7 +471,7 @@ static void auto_tick(struct map *cmap)
 
 tick_t next_tick(void)
 {
-	size_t ticksize;
+	size_t tick_sz;
 	int size, ret;
 	tick_t attick;
 
@@ -482,14 +482,14 @@ tick_t next_tick(void)
 
 	// do we have a new tick
 	if (inused >= 1 && (*(inbuf) & 0x40)) {
-		ticksize = 1 + (*(inbuf) & 0x3F);
-		if (inused < ticksize) {
+		tick_sz = 1 + (*(inbuf) & 0x3F);
+		if (inused < tick_sz) {
 			return 0;
 		}
 		indone = 1;
 	} else if (inused >= 2 && !(*(inbuf) & 0x40)) {
-		ticksize = 2 + (net_read16(inbuf) & 0x3FFF);
-		if (inused < ticksize) {
+		tick_sz = 2 + (net_read16(inbuf) & 0x3FFF);
+		if (inused < tick_sz) {
 			return 0;
 		}
 		indone = 2;
@@ -500,7 +500,7 @@ tick_t next_tick(void)
 	// decompress
 	if (*inbuf & 0x80) {
 		zs.next_in = inbuf + indone;
-		zs.avail_in = (unsigned int)(ticksize - indone);
+		zs.avail_in = (unsigned int)(tick_sz - indone);
 
 		zs.next_out = queue[q_in].buf;
 		zs.avail_out = sizeof(queue[q_in].buf);
@@ -519,7 +519,7 @@ tick_t next_tick(void)
 
 		size = (int)(sizeof(queue[q_in].buf) - zs.avail_out);
 	} else {
-		size = (int)(ticksize - indone);
+		size = (int)(tick_sz - indone);
 		memcpy(queue[q_in].buf, inbuf + indone, (size_t)size);
 	}
 	queue[q_in].size = size;
@@ -531,16 +531,16 @@ tick_t next_tick(void)
 	q_size++;
 
 	// remove tick from inbuf
-	if (inused >= ticksize) {
-		memmove(inbuf, inbuf + ticksize, inused - ticksize);
+	if (inused >= tick_sz) {
+		memmove(inbuf, inbuf + tick_sz, inused - tick_sz);
 	} else {
 		note("kuckuck!");
 	}
-	inused = inused - ticksize;
+	inused = inused - tick_sz;
 
 	// adjust some values
 	lasttick--;
-	lastticksize -= ticksize;
+	lastticksize -= tick_sz;
 
 	return attick;
 }
