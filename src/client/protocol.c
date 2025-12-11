@@ -286,7 +286,7 @@ static void sv_setval(unsigned char *buf, int nr)
 
 static void sv_sethp(unsigned char *buf)
 {
-	hp = load_i16(buf + 1);
+	hp = load_u16(buf + 1);
 }
 
 static void sv_endurance(unsigned char *buf)
@@ -296,12 +296,12 @@ static void sv_endurance(unsigned char *buf)
 
 static void sv_lifeshield(unsigned char *buf)
 {
-	lifeshield = load_i16(buf + 1);
+	lifeshield = load_u16(buf + 1);
 }
 
 static void sv_setmana(unsigned char *buf)
 {
-	mana = load_i16(buf + 1);
+	mana = load_u16(buf + 1);
 }
 
 static void sv_setrage(unsigned char *buf)

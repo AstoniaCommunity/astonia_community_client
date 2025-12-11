@@ -178,8 +178,8 @@ struct shrine_ppd {
 
 struct player {
 	char name[80];
-	int csprite;
-	short level;
+	uint16_t csprite;
+	uint16_t level;
 	unsigned short c1, c2, c3;
 	unsigned char clan;
 	unsigned char pk_status;
@@ -193,14 +193,14 @@ struct cef_generic {
 struct cef_shield {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	uint32_t start;
 };
 
 struct cef_strike {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	int x, y; // target
 };
 
@@ -232,7 +232,7 @@ struct cef_edemonball {
 struct cef_flash {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 };
 
 struct cef_explode {
@@ -245,14 +245,14 @@ struct cef_explode {
 struct cef_warcry {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	int stop;
 };
 
 struct cef_bless {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	uint32_t start;
 	uint32_t stop;
 	int strength;
@@ -261,14 +261,14 @@ struct cef_bless {
 struct cef_heal {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	uint32_t start;
 };
 
 struct cef_freeze {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	uint32_t start;
 	uint32_t stop;
 };
@@ -276,7 +276,7 @@ struct cef_freeze {
 struct cef_burn {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	int stop;
 };
 
@@ -295,14 +295,14 @@ struct cef_pulse {
 struct cef_pulseback {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	int x, y;
 };
 
 struct cef_potion {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	uint32_t start;
 	uint32_t stop;
 	int strength;
@@ -322,7 +322,7 @@ struct cef_earthmud {
 struct cef_curse {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	uint32_t start;
 	uint32_t stop;
 	int strength;
@@ -331,19 +331,19 @@ struct cef_curse {
 struct cef_cap {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 };
 
 struct cef_lag {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 };
 
 struct cef_firering {
 	int nr;
 	int type;
-	int cn;
+	uint16_t cn;
 	uint32_t start;
 };
 
@@ -466,11 +466,11 @@ extern int *game_v_max;
 extern int *game_v_profbase;
 DLL_EXPORT extern uint32_t item[INVENTORYSIZE];
 DLL_EXPORT extern uint32_t item_flags[INVENTORYSIZE];
-DLL_EXPORT extern int hp;
-DLL_EXPORT extern int mana;
+DLL_EXPORT extern uint16_t hp;
+DLL_EXPORT extern uint16_t mana;
 DLL_EXPORT extern uint16_t rage;
 DLL_EXPORT extern uint16_t endurance;
-DLL_EXPORT extern int lifeshield;
+DLL_EXPORT extern uint16_t lifeshield;
 DLL_EXPORT extern uint32_t experience;
 DLL_EXPORT extern uint32_t experience_used;
 DLL_EXPORT extern uint32_t gold;
