@@ -576,10 +576,11 @@ int find_cn_ceffect(int cn, int skip)
 
 static size_t sv_ceffect(unsigned char *buf)
 {
-	int nr, type;
+	int type;
+	uint8_t nr;
 	size_t len = 0; //,fn,arg;
 
-	nr = (int)(unsigned char)buf[1];
+	nr = buf[1];
 
 	struct cef_generic tmp;
 	memcpy(&tmp, buf + 2, sizeof tmp);
@@ -663,7 +664,7 @@ static size_t sv_ceffect(unsigned char *buf)
 		break;
 	}
 
-	if (nr < 0 || nr >= MAXEF) {
+	if (nr >= MAXEF) {
 		fail("sv_ceffect: invalid nr %d\n", nr);
 		exit(-1);
 	}
@@ -690,10 +691,11 @@ static void sv_ueffect(unsigned char *buf)
 
 static size_t svl_ceffect(unsigned char *buf)
 {
-	int nr, type;
+	int type;
+	uint8_t nr;
 	size_t len = 0;
 
-	nr = (int)(unsigned char)buf[1];
+	nr = buf[1];
 
 	struct cef_generic tmp;
 	memcpy(&tmp, buf + 2, sizeof tmp);
@@ -777,7 +779,7 @@ static size_t svl_ceffect(unsigned char *buf)
 		break;
 	}
 
-	if (nr < 0 || nr >= MAXEF) {
+	if (nr >= MAXEF) {
 		fail("svl_ceffect: invalid nr %d\n", nr);
 		exit(-1);
 	}
@@ -787,10 +789,10 @@ static size_t svl_ceffect(unsigned char *buf)
 
 static void sv_container(unsigned char *buf)
 {
-	int nr;
+	uint8_t nr;
 
-	nr = (int)(unsigned char)buf[1];
-	if (nr < 0 || nr >= CONTAINERSIZE) {
+	nr = buf[1];
+	if (nr >= CONTAINERSIZE) {
 		fail("illegal nr %d in sv_container!", nr);
 		exit(-1);
 	}
@@ -801,10 +803,10 @@ static void sv_container(unsigned char *buf)
 
 static void sv_price(unsigned char *buf)
 {
-	int nr;
+	uint8_t nr;
 
-	nr = (int)(unsigned char)buf[1];
-	if (nr < 0 || nr >= CONTAINERSIZE) {
+	nr = buf[1];
+	if (nr >= CONTAINERSIZE) {
 		fail("illegal nr %d in sv_price!", nr);
 		exit(-1);
 	}
@@ -814,10 +816,10 @@ static void sv_price(unsigned char *buf)
 
 static void sv_itemprice(unsigned char *buf)
 {
-	int nr;
+	uint8_t nr;
 
-	nr = (int)(unsigned char)buf[1];
-	if (nr < 0 || nr >= CONTAINERSIZE) {
+	nr = buf[1];
+	if (nr >= CONTAINERSIZE) {
 		fail("illegal nr %d in sv_itemprice!", nr);
 		exit(-1);
 	}
@@ -837,10 +839,10 @@ static void sv_gold(unsigned char *buf)
 
 static void sv_concnt(unsigned char *buf)
 {
-	int nr;
+	uint8_t nr;
 
-	nr = (int)(unsigned char)buf[1];
-	if (nr < 0 || nr > CONTAINERSIZE) {
+	nr = buf[1];
+	if (nr > CONTAINERSIZE) {
 		fail("illegal nr %d in sv_contcnt!", nr);
 		exit(-1);
 	}
