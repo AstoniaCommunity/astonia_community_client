@@ -895,9 +895,15 @@ static void update_window_title(void)
 
 	plrmn = mapmn(MAPDX / 2, MAPDY / 2);
 
-	sprintf(buf, "%s - Astonia 3 v%d.%d.%d - (%s:%u)",
+#ifdef DEVELOPER
+	sprintf(buf, "DEVELOPER %s - Astonia 3 v%d.%d.%d - (%s:%u)",
 	    (map[plrmn].cn && player[map[plrmn].cn].name[0]) ? player[map[plrmn].cn].name : "Someone",
 	    (VERSION >> 16) & 255, (VERSION >> 8) & 255, (VERSION) & 255, target_server, (unsigned int)target_port);
+#else
+	sprintf(buf, "%s - Astonia 3 v%d.%d.%d",
+	    (map[plrmn].cn && player[map[plrmn].cn].name[0]) ? player[map[plrmn].cn].name : "Someone",
+	    (VERSION >> 16) & 255, (VERSION >> 8) & 255, (VERSION) & 255);
+#endif
 	if (strcmp(title, buf)) {
 		strcpy(title, buf);
 		sdl_set_title(title);
