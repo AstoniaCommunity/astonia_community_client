@@ -167,6 +167,10 @@ void *xrecalloc(void *ptr, size_t size, int ID);
 void xfree(void *ptr);
 char *xstrdup(const char *src, int ID);
 
+unsigned long long get_total_system_memory(void);
+size_t get_memory_usage(void);
+char *client_version(void);
+
 int rrand(int range);
 
 void init_dots(void);

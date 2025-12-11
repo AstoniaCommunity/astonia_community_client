@@ -55,9 +55,9 @@ void minimap_init(void)
 	SDL_SetTextureBlendMode(maptex2, SDL_BLENDMODE_BLEND);
 }
 
-static void set_pix(int x, int y, int val)
+static void set_pix(int x, int y, unsigned char val)
 {
-	int val2;
+	unsigned char val2;
 
 	if ((val2 = _mmap[x + y * MAXMAP]) != val) {
 		// count how much of the map has changed permanently (not counting characters
@@ -83,11 +83,11 @@ void minimap_update(void)
 		return;
 	}
 
-	ox = originx - DIST;
-	oy = originy - DIST;
+	ox = (int)originx - (int)DIST;
+	oy = (int)originy - (int)DIST;
 
 	rewrite_cnt = 0;
-	for (y = 1; y < DIST * 2; y++) {
+	for (y = 1; y < (int)DIST * 2; y++) {
 		if (y + oy < 0) {
 			continue;
 		}
@@ -95,12 +95,12 @@ void minimap_update(void)
 			continue;
 		}
 
-		if (y < DIST) {
-			xs = DIST - y;
-			xe = DIST + y;
+		if (y < (int)DIST) {
+			xs = (int)DIST - y;
+			xe = (int)DIST + y;
 		} else {
-			xs = y - DIST;
-			xe = DIST * 3 - y;
+			xs = y - (int)DIST;
+			xe = (int)DIST * 3 - y;
 		}
 
 		for (x = xs + 1; x < xe; x++) {
@@ -110,20 +110,21 @@ void minimap_update(void)
 			if (x + ox >= MAXMAP) {
 				continue;
 			}
-			if (!(map[x + y * MAPDX].flags & CMF_VISIBLE)) {
+			unsigned int mn = (unsigned int)x + (unsigned int)y * MAPDX;
+			if (!(map[mn].flags & CMF_VISIBLE)) {
 				continue;
 			}
 
 
-			if (map[x + y * MAPDX].mmf & MMF_SIGHTBLOCK) {
-				if (map[x + y * MAPDX].flags & CMF_USE) {
+			if (map[mn].mmf & MMF_SIGHTBLOCK) {
+				if (map[mn].flags & CMF_USE) {
 					set_pix(ox + x, oy + y, 5);
 				} else {
 					set_pix(ox + x, oy + y, 1);
 				}
-			} else if (map[x + y * MAPDX].fsprite) {
+			} else if (map[mn].fsprite) {
 				set_pix(ox + x, oy + y, 2);
-			} else if (map[x + y * MAPDX].csprite && x + y * MAPDX != plrmn) {
+			} else if (map[mn].csprite && mn != (unsigned int)plrmn) {
 				set_pix(ox + x, oy + y, 3);
 			} else {
 				set_pix(ox + x, oy + y, 4);
@@ -262,7 +263,7 @@ void display_minimap(void)
 			bzero(mapix2, sizeof(mapix2));
 			for (iy = -MINIMAP; iy < MINIMAP; iy++) {
 				for (ix = -MINIMAP; ix < MINIMAP; ix++) {
-					dist = sqrtf(ix * ix + iy * iy);
+					dist = sqrtf((float)(ix * ix + iy * iy));
 					if (dist > MINIMAP) {
 						continue;
 					}
@@ -382,7 +383,7 @@ static void map_save(void)
 	}
 }
 
-static int map_compare(const char *tmap, const char *xmap)
+static int map_compare(const unsigned char *tmap, const unsigned char *xmap)
 {
 	int i, hit, miss;
 
@@ -414,7 +415,7 @@ static int map_compare(const char *tmap, const char *xmap)
 	return hit;
 }
 
-static void map_merge(char *xmap, const char *tmap)
+static void map_merge(unsigned char *xmap, const unsigned char *tmap)
 {
 	int i;
 
@@ -477,7 +478,8 @@ void minimap_compact(void)
 {
 	FILE *fp;
 	int i, j;
-	char *filename, tmap[MAXMAP * MAXMAP], xmap[MAXMAP * MAXMAP];
+	char *filename;
+	unsigned char tmap[MAXMAP * MAXMAP], xmap[MAXMAP * MAXMAP];
 
 	if (game_options & GO_NOMAP) {
 		return;

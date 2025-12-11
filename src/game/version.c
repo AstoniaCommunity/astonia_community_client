@@ -1,3 +1,4 @@
+#include "astonia.h"
 
 char *client_version(void)
 {

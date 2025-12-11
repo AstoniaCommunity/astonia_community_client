@@ -99,7 +99,8 @@ struct hover_item {
 
 static struct hover_item hi[INVENTORYSIZE + CONTAINERSIZE] = {0};
 
-static int last_look = 0, last_invsel = -1, last_line = 0, capture = 0, last_tick = 0;
+static int last_look = 0, last_invsel = -1, last_line = 0, capture = 0;
+static uint32_t last_tick = 0;
 
 static int textlength(char *text)
 {
@@ -271,7 +272,7 @@ static int display_hover(void)
 
 		for (int n = 0; n < hi[slot].cnt; n++) {
 			int x = sx + 4;
-			int col = IRGB(24, 24, 24);
+			unsigned short col = IRGB(24, 24, 24);
 
 			for (int i = 0; hi[slot].desc[n][i]; i++) {
 				if (hi[slot].desc[n][i] == RENDER_TEXT_TERMINATOR) {
@@ -409,8 +410,8 @@ static int display_hover_skill(void)
 		if (game_skill[v].cost && v != V_DEMON) {
 			raisecost = raise_cost(v, value[1][v]);
 			height += 10;
-			if (experience - experience_used >= 0) {
-				unused = experience - experience_used;
+			if (experience >= experience_used) {
+				unused = (int)(experience - experience_used);
 				height += 10;
 			}
 		}
@@ -550,7 +551,7 @@ static int display_hover_skill(void)
 			sy += 10;
 		}
 		if (armor) {
-			render_text_fmt(sx + 4, sy, 0xffff, 0, "Gives +%.2f to armor value", (float)armor / 20.0f);
+			render_text_fmt(sx + 4, sy, 0xffff, 0, "Gives +%.2f to armor value", (double)((float)armor / 20.0f));
 			sy += 10;
 		}
 		if (weapon) {
