@@ -304,17 +304,17 @@ int context_open(int mx, int my)
 	return 1;
 }
 
-int context_getnm(void)
+size_t context_getnm(void)
 {
 	if (!(game_options & GO_CONTEXT)) {
-		return -1;
+		return MAXMN;
 	}
 	update_ori();
 
 	if (c_on) {
-		return (int)msel;
+		return msel;
 	} else {
-		return -1;
+		return MAXMN;
 	}
 }
 

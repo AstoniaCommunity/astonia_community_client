@@ -63,7 +63,7 @@ DLL_EXPORT int _get_skltab_index(int n);
 extern int (*get_skltab_show)(int i);
 DLL_EXPORT int _get_skltab_show(int i);
 
-int context_getnm(void);
+size_t context_getnm(void);
 int context_action_enabled(void);
 int hover_capture_text(char *line);
 void hover_capture_tick(void);

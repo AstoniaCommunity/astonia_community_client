@@ -1159,7 +1159,7 @@ void display_game_map(struct map *cmap)
 		// blit items
 		if (cmap[mn].isprite) {
 			dl = dl_next_set(get_lay_sprite((int)cmap[mn].isprite, GME_LAY), cmap[mn].ri.sprite, scrx, scry - 8,
-			    (unsigned char)(itmsel == (unsigned int)mn ? RENDERFX_BRIGHT : light));
+			    (unsigned char)(itmsel == (size_t)mn ? RENDERFX_BRIGHT : light));
 			if (!dl) {
 				note("error in game #8 (%d,%d)", cmap[mn].ri.sprite, cmap[mn].isprite);
 				continue;
@@ -1222,7 +1222,7 @@ void display_game_map(struct map *cmap)
 		// blit chars
 		if (cmap[mn].csprite) {
 			dl = dl_next_set(GME_LAY, cmap[mn].rc.sprite, scrx + cmap[mn].xadd, scry + cmap[mn].yadd,
-			    (unsigned char)(chrsel == (unsigned int)mn ? RENDERFX_BRIGHT : light));
+			    (unsigned char)(chrsel == (size_t)mn ? RENDERFX_BRIGHT : light));
 			if (!dl) {
 				note("error in game #9");
 				continue;
@@ -1285,14 +1285,14 @@ void display_game_map(struct map *cmap)
 				dl->renderfx.clight = -80;
 				dl->renderfx.shine = 50;
 				dl->renderfx.ml = dl->renderfx.ll = dl->renderfx.rl = dl->renderfx.ul = dl->renderfx.dl =
-				    chrsel == (unsigned int)mn ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
+				    chrsel == (size_t)mn ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
 			} else if (cmap[mn].gsprite == 51067) {
 				dl->renderfx.sat = 20;
 				dl->renderfx.cb = 80;
 				dl->renderfx.clight = -80;
 				dl->renderfx.shine = 50;
 				dl->renderfx.ml = dl->renderfx.ll = dl->renderfx.rl = dl->renderfx.ul = dl->renderfx.dl =
-				    chrsel == (unsigned int)mn ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
+				    chrsel == (size_t)mn ? RENDERFX_BRIGHT : RENDERFX_NORMAL_LIGHT;
 			} else {
 				if (cmap[mn].flags & CMF_INFRA) {
 					dl->renderfx.cr = min(120, dl->renderfx.cr + 80);
@@ -1312,10 +1312,10 @@ void display_game_map(struct map *cmap)
 
 	if (cmap == map) { // avoid acting on prefetch
 		// selection on ground
-		if (mapsel != MAXMN || context_getnm() != -1) {
+		if (mapsel != MAXMN || context_getnm() != MAXMN) {
 			size_t mn;
-			if (context_getnm() != -1) {
-				mn = (size_t)context_getnm();
+			if (context_getnm() != MAXMN) {
+				mn = context_getnm();
 			} else {
 				mn = mapsel;
 			}

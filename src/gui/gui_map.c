@@ -73,7 +73,7 @@ DLL_EXPORT size_t get_near_item(int x, int y, unsigned int flag, unsigned int lo
 {
 	int mapx, mapy, scrx, scry;
 	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u, mn;
-	unsigned int nearest = MAXMN;
+	size_t nearest = MAXMN;
 	double dist, nearestdist = 100000000;
 
 	if (!stom(mousex, mousey, &mapx, &mapy)) {
@@ -87,8 +87,8 @@ DLL_EXPORT size_t get_near_item(int x, int y, unsigned int flag, unsigned int lo
 	ux = (unsigned int)mapx;
 	uy = (unsigned int)mapy;
 
-	sx = max(0U, ux - looksize);
-	sy = max(0U, uy - looksize);
+	sx = (ux > looksize) ? (ux - looksize) : 0U;
+	sy = (uy > looksize) ? (uy - looksize) : 0U;
 	ex = min(MAPDX - 1, ux + looksize);
 	ey = min(MAPDY - 1, uy + looksize);
 
@@ -124,7 +124,7 @@ DLL_EXPORT size_t get_near_char(int x, int y, unsigned int looksize)
 {
 	int mapx, mapy, scrx, scry;
 	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u, mn;
-	unsigned int nearest = MAXMN;
+	size_t nearest = MAXMN;
 	double dist, nearestdist = 100000000;
 
 	if (!stom(mousex, mousey, &mapx, &mapy)) {
@@ -143,8 +143,8 @@ DLL_EXPORT size_t get_near_char(int x, int y, unsigned int looksize)
 		return mn;
 	}
 
-	sx = max(0U, ux - looksize);
-	sy = max(0U, uy - looksize);
+	sx = (ux > looksize) ? (ux - looksize) : 0U;
+	sy = (uy > looksize) ? (uy - looksize) : 0U;
 	ex = min(MAPDX - 1, ux + looksize);
 	ey = min(MAPDY - 1, uy + looksize);
 
