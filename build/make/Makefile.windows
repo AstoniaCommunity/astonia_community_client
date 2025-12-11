@@ -70,8 +70,8 @@ CROSS_FLAGS = --target=$(TARGET) --sysroot=$(SYSROOT)
 PLATFORM_FLAGS = -fms-extensions -D_WIN32 -D_WIN32_WINNT=$(WIN32_WINNT)
 
 # Runtime library configuration
-# Note: Resource dir needed for cross-compilation to find Windows compiler-rt
-RTLIB_FLAGS = --rtlib=compiler-rt -resource-dir=$(SYSROOT)/lib/clang/21
+# Note: Resource dir needed for cross-compilation to find headers/builtins during compilation
+RTLIB_FLAGS = -resource-dir=$(SYSROOT)/lib/clang/21
 
 STRICT_WARNING_FLAGS = \
     -Wall -Wextra -Wpedantic \
