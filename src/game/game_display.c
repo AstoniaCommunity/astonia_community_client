@@ -187,7 +187,8 @@ static void display_game_spells(void)
 					}
 					mtos((unsigned int)mapx, (unsigned int)mapy, &x1, &y1);
 
-					if (map[mna].cn == 0) { // no char, so source should be a lightning ball
+					if (mna == MAXMN ||
+					    map[mna].cn == 0) { // no char or out of bounds, so source should be a lightning ball
 						h1 = 20;
 					} else { // so i guess we spell from a char (use the flying ball as source)
 						x1 = x1 + map[mna].xadd + (int)(cos(2 * M_PI * (now % 1000) / 1000.0) * 16);
@@ -371,7 +372,8 @@ static void display_game_spells(void)
 					}
 					mtos((unsigned int)mapx, (unsigned int)mapy, &x1, &y1);
 
-					if (map[mna].cn == 0) { // no char, so source should be a lightning ball
+					if (mna == MAXMN ||
+					    map[mna].cn == 0) { // no char or out of bounds, so source should be a lightning ball
 						h1 = 20;
 					} else { // so i guess we spell from a char (use the flying ball as source)
 						h1 = 50;

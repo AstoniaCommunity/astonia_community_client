@@ -796,7 +796,7 @@ void display_selfspells(void)
 				    997, dotx(DOT_SSP) + 2 * 10, doty(DOT_SSP) + step, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
 			}
 			render_pop_clip();
-			sprintf(hover_bless_text, "Bless: %ds to go", (ceffect[nr].bless.stop - tick) / 24);
+			sprintf(hover_bless_text, "Bless: %us to go", (ceffect[nr].bless.stop - tick) / 24);
 			break;
 		}
 		case 11: {
@@ -807,7 +807,7 @@ void display_selfspells(void)
 			render_sprite(
 			    997, dotx(DOT_SSP) + 1 * 10, doty(DOT_SSP) + step, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
 			render_pop_clip();
-			sprintf(hover_freeze_text, "Freeze: %ds to go", (ceffect[nr].freeze.stop - tick) / 24);
+			sprintf(hover_freeze_text, "Freeze: %us to go", (ceffect[nr].freeze.stop - tick) / 24);
 			break;
 		}
 		case 14: {
@@ -822,7 +822,7 @@ void display_selfspells(void)
 				    997, dotx(DOT_SSP) + 0 * 10, doty(DOT_SSP) + step, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
 			}
 			render_pop_clip();
-			sprintf(hover_potion_text, "Potion: %ds to go", (ceffect[nr].potion.stop - tick) / 24);
+			sprintf(hover_potion_text, "Potion: %us to go", (ceffect[nr].potion.stop - tick) / 24);
 			break;
 		}
 		}

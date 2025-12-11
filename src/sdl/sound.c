@@ -94,7 +94,8 @@ int init_sound(void)
 	}
 
 	// Load all sound effects from the zip archive
-	for (i = 1; i < sfx_name_cnt && i < MAXSOUND; i++) {
+	int max_sfx_idx = min(sfx_name_cnt, MAXSOUND);
+	for (i = 1; i < max_sfx_idx; i++) {
 		sound_effect[i] = load_sound_from_zip(sz, sfx_name[i]);
 	}
 	zip_close(sz);
@@ -252,7 +253,11 @@ void play_sound(unsigned int nr, unsigned int vol, unsigned int p)
 	}
 
 #if 0
-	note("nr = %d: %s, distance = %d, angle = %d (vol=%d, p=%d)", nr, sfx_name[nr], dist, angle, vol, p);
+	if (nr < (unsigned int)sfx_name_cnt) {
+		note("nr = %d: %s, distance = %d, angle = %d (vol=%d, p=%d)", nr, sfx_name[nr], dist, angle, vol, p);
+	} else {
+		note("nr = %d: (unknown), distance = %d, angle = %d (vol=%d, p=%d)", nr, dist, angle, vol, p);
+	}
 #endif
 
 	play_sdl_sound(nr, dist, angle);

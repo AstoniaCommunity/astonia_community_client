@@ -687,7 +687,7 @@ void sdl_dump_spritecache(void)
 		}
 
 		if (flags_n & SF_SPRITE) {
-			fprintf(fp, "Sprite: %6d (%7d) %s%s%s%s\n", sdlt[n].sprite, sdlt[n].fortick,
+			fprintf(fp, "Sprite: %6u (%7d) %s%s%s%s\n", sdlt[n].sprite, sdlt[n].fortick,
 			    (flags_n & SF_USED) ? "SF_USED " : "", (flags_n & SF_DIDALLOC) ? "SF_DIDALLOC " : "",
 			    (flags_n & SF_DIDMAKE) ? "SF_DIDMAKE " : "", (flags_n & SF_DIDTEX) ? "SF_DIDTEX " : "");
 		}
