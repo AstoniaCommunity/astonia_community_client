@@ -462,8 +462,8 @@ DLL_EXPORT extern struct map map[MAPDX * MAPDY];
 DLL_EXPORT extern struct map map2[MAPDX * MAPDY];
 
 DLL_EXPORT extern uint16_t value[2][V_MAX];
-extern int *game_v_max;
-extern int *game_v_profbase;
+DLL_EXPORT extern int *game_v_max;
+DLL_EXPORT extern int *game_v_profbase;
 DLL_EXPORT extern uint32_t item[INVENTORYSIZE];
 DLL_EXPORT extern uint32_t item_flags[INVENTORYSIZE];
 DLL_EXPORT extern stat_t hp;

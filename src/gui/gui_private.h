@@ -346,7 +346,7 @@ extern int nextframe, nexttick;
 extern uint64_t gui_time_network;
 extern uint64_t gui_frametime;
 extern uint64_t gui_ticktime;
-extern int game_slowdown;
+DLL_EXPORT extern int game_slowdown;
 
 // ============================================================================
 // Shared variables from gui_map.c (shared for map coordinate functions)
