@@ -49,7 +49,7 @@ DLL_EXPORT int __yres = YRES0;
 #define MAXPRE (16384)
 
 struct prefetch {
-	uint32_t attick;
+	tick_t attick;
 	int stx;
 };
 static struct prefetch pre[MAXPRE];
@@ -894,7 +894,7 @@ int sdl_pre_worker(struct zip_handles *zips)
 	return 1;
 }
 
-void sdl_pre_add(uint32_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
+void sdl_pre_add(tick_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
     char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl,
     char ul, char dl)
 {
@@ -1023,7 +1023,7 @@ int sdl_pre_done(void)
 	return 1;
 }
 
-int sdl_pre_do(uint32_t curtick __attribute__((unused)))
+int sdl_pre_do(tick_t curtick __attribute__((unused)))
 {
 	Uint64 start;
 	int size;

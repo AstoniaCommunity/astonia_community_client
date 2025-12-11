@@ -6,6 +6,13 @@
 #include <string.h>
 #include "dll.h"
 
+// Semantic type aliases for domain-specific values
+typedef uint32_t tick_t; // SDL ticks, timestamps
+typedef uint16_t stat_t; // Character stats: hp, mana, rage, endurance, lifeshield, level
+typedef uint16_t char_id_t; // Character network ID (cn)
+typedef uint16_t sprite_id_t; // Sprite/texture ID
+typedef size_t map_index_t; // Map tile index, selection indices
+
 #define DEVELOPER // this one will compile the developer version - comment me out for the final release
 // #define DEVELOPER_NOISY // Enable verbose logging for debugging (uncomment to enable)
 

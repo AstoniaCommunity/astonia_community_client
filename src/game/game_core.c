@@ -218,11 +218,11 @@ void dl_play(void)
 	dlused = 0;
 }
 
-void sdl_pre_add(uint32_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
+void sdl_pre_add(tick_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
     char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl,
     char ul, char dl);
 
-void dl_prefetch(uint32_t attick)
+void dl_prefetch(tick_t attick)
 {
 	void helper_add_dl(int attick, DL **dl, int dlused);
 	int d;

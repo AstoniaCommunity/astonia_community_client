@@ -304,7 +304,7 @@ int context_open(int mx, int my)
 	return 1;
 }
 
-size_t context_getnm(void)
+map_index_t context_getnm(void)
 {
 	if (!(game_options & GO_CONTEXT)) {
 		return MAXMN;

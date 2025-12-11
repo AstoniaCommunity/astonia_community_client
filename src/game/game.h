@@ -2,7 +2,7 @@
  * Part of Astonia Client (c) Daniel Brockhaus. Please read license.txt.
  */
 
-#include "dll.h"
+#include "astonia.h"
 #include <stdio.h>
 
 // Sprite alignment constants
@@ -146,10 +146,10 @@ void render_list_text(void);
 // Offset functions
 int render_offset_x(void);
 int render_offset_y(void);
-extern unsigned int (*trans_asprite)(unsigned int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
+extern unsigned int (*trans_asprite)(unsigned int mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
-DLL_EXPORT unsigned int _trans_asprite(unsigned int mn, unsigned int sprite, uint32_t attick, unsigned char *pscale,
+DLL_EXPORT unsigned int _trans_asprite(unsigned int mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
 extern int (*trans_charno)(int csprite, int *pscale, int *pcr, int *pcg, int *pcb, int *plight, int *psat, int *pc1,
@@ -173,7 +173,7 @@ void list_mem(void);
 
 void display_game(void);
 
-void set_map_values(struct map *cmap, uint32_t attick);
+void set_map_values(struct map *cmap, tick_t attick);
 void quest_select(int nr);
 void init_game(int mcx, int mcy);
 void exit_game(void);

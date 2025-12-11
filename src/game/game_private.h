@@ -2,7 +2,7 @@
  * Part of Astonia Client (c) Daniel Brockhaus. Please read license.txt.
  */
 
-#include "../dll.h"
+#include "../astonia.h"
 
 // Forward declarations
 struct quicks; // QUICK is defined in gui/gui.h as typedef of struct quicks
@@ -115,8 +115,8 @@ extern int (*is_yadd_sprite)(unsigned int sprite);
 DLL_EXPORT int _is_yadd_sprite(unsigned int sprite);
 extern int (*get_chr_height)(unsigned int csprite);
 DLL_EXPORT int _get_chr_height(unsigned int csprite);
-extern void (*trans_csprite)(unsigned int mn, struct map *cmap, uint32_t attick);
-DLL_EXPORT void _trans_csprite(unsigned int mn, struct map *cmap, uint32_t attick);
+extern void (*trans_csprite)(unsigned int mn, struct map *cmap, tick_t attick);
+DLL_EXPORT void _trans_csprite(unsigned int mn, struct map *cmap, tick_t attick);
 extern int (*get_lay_sprite)(int sprite, int lay);
 DLL_EXPORT int _get_lay_sprite(int sprite, int lay);
 extern int (*get_offset_sprite)(int sprite, int *px, int *py);
@@ -156,7 +156,7 @@ DL *dl_next(void);
 DL *dl_next_set(int layer, unsigned int sprite, int scrx, int scry, unsigned char light);
 int dl_qcmp(const void *ca, const void *cb);
 void dl_play(void);
-void dl_prefetch(uint32_t attick);
+void dl_prefetch(tick_t attick);
 void add_bubble(int x, int y, int h);
 void show_bubbles(void);
 void make_quick(int game, int mcx, int mcy);
@@ -181,4 +181,4 @@ int get_sink(unsigned int mn, struct map *cmap);
 void draw_pixel(int64_t x, int64_t y, int64_t color);
 void display_game_map(struct map *cmap);
 void display_pents(void);
-void prefetch_game(uint32_t attick);
+void prefetch_game(tick_t attick);

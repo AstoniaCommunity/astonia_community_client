@@ -120,9 +120,9 @@ int fkeyitem[4];
 // globals cmd
 
 int plrmn; // mn of player
-size_t mapsel; // mn
-size_t itmsel; // mn
-size_t chrsel; // mn
+map_index_t mapsel; // mn
+map_index_t itmsel; // mn
+map_index_t chrsel; // mn
 int invsel; // index into item
 int weasel; // index into weatab
 int consel; // index into item
@@ -251,7 +251,7 @@ void main_exit(void)
 static void flip_at(unsigned int t)
 {
 	unsigned int tnow;
-	int sdl_pre_do(uint32_t curtick);
+	int sdl_pre_do(tick_t curtick);
 
 	do {
 		sdl_loop();
@@ -268,10 +268,10 @@ static void flip_at(unsigned int t)
 
 int main_loop(void)
 {
-	void prefetch_game(uint32_t attick);
+	void prefetch_game(tick_t attick);
 	int64_t timediff;
 	int tmp, ltick = 0;
-	uint32_t attick;
+	tick_t attick;
 	long long start;
 	int do_one_tick = 1;
 	uint64_t gui_last_frame = 0, gui_last_tick = 0;

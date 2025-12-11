@@ -25,9 +25,9 @@ extern int mapaddx, mapaddy;
 extern int mapoffx, mapoffy;
 extern int mapaddx, mapaddy; // small offset to smoothen walking
 extern int plrmn; // mn of player
-extern size_t itmsel; // mn
-extern size_t chrsel; // mn
-extern size_t mapsel; // mn
+extern map_index_t itmsel; // mn
+extern map_index_t chrsel; // mn
+extern map_index_t mapsel; // mn
 
 DLL_EXPORT extern unsigned short int healthcolor, manacolor, endurancecolor, shieldcolor;
 DLL_EXPORT extern unsigned short int whitecolor, lightgraycolor, graycolor, darkgraycolor, blackcolor;
@@ -63,7 +63,7 @@ DLL_EXPORT int _get_skltab_index(int n);
 extern int (*get_skltab_show)(int i);
 DLL_EXPORT int _get_skltab_show(int i);
 
-size_t context_getnm(void);
+map_index_t context_getnm(void);
 int context_action_enabled(void);
 int hover_capture_text(char *line);
 void hover_capture_tick(void);

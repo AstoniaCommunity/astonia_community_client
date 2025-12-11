@@ -100,7 +100,7 @@ struct hover_item {
 static struct hover_item hi[INVENTORYSIZE + CONTAINERSIZE] = {0};
 
 static int last_look = 0, last_invsel = -1, last_line = 0, capture = 0;
-static uint32_t last_tick = 0;
+static tick_t last_tick = 0;
 
 static int textlength(char *text)
 {

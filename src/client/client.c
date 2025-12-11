@@ -42,7 +42,7 @@ static int zsinit;
 static struct z_stream_s zs;
 
 DLL_EXPORT char username[40];
-DLL_EXPORT uint32_t tick;
+DLL_EXPORT tick_t tick;
 DLL_EXPORT uint32_t mirror = 0;
 DLL_EXPORT uint32_t realtime;
 DLL_EXPORT int protocol_version = 0;
@@ -80,11 +80,11 @@ DLL_EXPORT struct map map2[MAPDX * MAPDY];
 DLL_EXPORT uint16_t value[2][V_MAX];
 DLL_EXPORT uint32_t item[INVENTORYSIZE];
 DLL_EXPORT uint32_t item_flags[INVENTORYSIZE];
-DLL_EXPORT uint16_t hp;
-DLL_EXPORT uint16_t mana;
-DLL_EXPORT uint16_t rage;
-DLL_EXPORT uint16_t endurance;
-DLL_EXPORT uint16_t lifeshield;
+DLL_EXPORT stat_t hp;
+DLL_EXPORT stat_t mana;
+DLL_EXPORT stat_t rage;
+DLL_EXPORT stat_t endurance;
+DLL_EXPORT stat_t lifeshield;
 DLL_EXPORT uint32_t experience;
 DLL_EXPORT uint32_t experience_used;
 DLL_EXPORT uint32_t mil_exp;
@@ -468,11 +468,11 @@ static void auto_tick(struct map *cmap)
 	}
 }
 
-uint32_t next_tick(void)
+tick_t next_tick(void)
 {
 	size_t ticksize;
 	int size, ret;
-	uint32_t attick;
+	tick_t attick;
 
 	// no room for next tick, leave it in in-queue
 	if (q_size == Q_SIZE) {

@@ -130,7 +130,7 @@ void sprites_colorbalance(struct map *cmap, int mn, int r, int g, int b)
 	cmap[mn].rc.cb = (unsigned char)min(120, cmap[mn].rc.cb + b);
 }
 
-static void set_map_sprites(struct map *cmap, uint32_t attick)
+static void set_map_sprites(struct map *cmap, tick_t attick)
 {
 	int i;
 	unsigned int mn;
@@ -322,7 +322,7 @@ void set_map_straight(struct map *cmap)
 	}
 }
 
-void set_map_values(struct map *cmap, uint32_t attick)
+void set_map_values(struct map *cmap, tick_t attick)
 {
 	set_map_lights(cmap);
 	set_map_sprites(cmap, attick);

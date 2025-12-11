@@ -1387,7 +1387,7 @@ void display_game(void)
 	display_pents();
 }
 
-void prefetch_game(uint32_t attick)
+void prefetch_game(tick_t attick)
 {
 	set_map_values(map2, attick);
 	set_mapadd(-map2[mapmn(MAPDX / 2, MAPDY / 2)].xadd, -map2[mapmn(MAPDX / 2, MAPDY / 2)].yadd);

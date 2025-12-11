@@ -470,7 +470,7 @@ static size_t svl_exit(unsigned char *buf)
 static size_t sv_name(unsigned char *buf)
 {
 	unsigned char len;
-	uint16_t cn;
+	char_id_t cn;
 
 	len = buf[12];
 	cn = load_u16(buf + 1);
@@ -1248,7 +1248,7 @@ uint32_t prefetch(unsigned char *buf, int size)
 {
 	size_t len = 0;
 	int panic = 0, last = -1;
-	static uint32_t prefetch_tick = 0;
+	static tick_t prefetch_tick = 0;
 
 	while (size > 0 && panic++ < 20000) {
 		if ((buf[0] & (64 + 128)) == SV_MAP01) {
