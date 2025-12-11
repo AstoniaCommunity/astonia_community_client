@@ -81,12 +81,12 @@ DLL_EXPORT int amod_client_cmd(const char *buf)
 	return 0;
 }
 
-DLL_EXPORT int amod_keydown(int key)
+DLL_EXPORT int amod_keydown(int key __attribute__((unused)))
 {
 	return 0;
 }
 
-DLL_EXPORT int amod_keyup(int key)
+DLL_EXPORT int amod_keyup(int key __attribute__((unused)))
 {
 	return 0;
 }
