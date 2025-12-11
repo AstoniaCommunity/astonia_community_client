@@ -66,7 +66,7 @@ struct dl {
 
 	// functions to call
 	char call;
-	int64_t call_x1, call_y1, call_x2, call_y2, call_x3;
+	int call_x1, call_y1, call_x2, call_y2, call_x3;
 };
 typedef struct dl DL;
 
@@ -136,12 +136,12 @@ int render_text_init_done(void);
 void render_add_text(char *ptr);
 
 // Special effects rendering
-void render_draw_bless(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front);
-void render_draw_potion(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front);
-void render_draw_rain(int64_t x, int64_t y, int64_t ticker, int64_t strength, int64_t front);
-void render_draw_curve(int64_t cx, int64_t cy, int64_t nr, int64_t size, int64_t col);
-void render_display_strike(int64_t fx, int64_t fy, int64_t tx, int64_t ty);
-void render_display_pulseback(int64_t fx, int64_t fy, int64_t tx, int64_t ty);
+void render_draw_bless(int x, int y, int ticker, int strength, int front);
+void render_draw_potion(int x, int y, int ticker, int strength, int front);
+void render_draw_rain(int x, int y, int ticker, int strength, int front);
+void render_draw_curve(int cx, int cy, int nr, int size, int col);
+void render_display_strike(int fx, int fy, int tx, int ty);
+void render_display_pulseback(int fx, int fy, int tx, int ty);
 
 // Game module internal declarations - shared between game_*.c files
 
@@ -164,11 +164,11 @@ void make_quick(int game, int mcx, int mcy);
 // From game_effects.c
 DL *dl_call_strike(int layer, int x1, int y1, int h1, int x2, int y2, int h2);
 DL *dl_call_pulseback(int layer, int x1, int y1, int h1, int x2, int y2, int h2);
-DL *dl_call_bless(int layer, int x, int y, int64_t ticker, int strength, int front);
+DL *dl_call_bless(int layer, int x, int y, int ticker, int strength, int front);
 DL *dl_call_pulse(int layer, int x, int y, int nr, int size, int color);
-DL *dl_call_potion(int layer, int x, int y, int64_t ticker, int strength, int front);
+DL *dl_call_potion(int layer, int x, int y, int ticker, int strength, int front);
 DL *dl_call_rain(int layer, int x, int y, int nr, int color);
-DL *dl_call_rain2(int layer, int x, int y, int64_t ticker, int strength, int front);
+DL *dl_call_rain2(int layer, int x, int y, int ticker, int strength, int front);
 DL *dl_call_number(int layer, int x, int y, int nr);
 
 // From game_lighting.c

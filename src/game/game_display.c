@@ -275,9 +275,9 @@ static void display_game_spells(void)
 					break;
 				case 9: // bless
 					dl_call_bless(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd,
-					    (int64_t)ceffect[nr].bless.stop - (int64_t)tick, ceffect[nr].bless.strength, 1);
+					    (int)ceffect[nr].bless.stop - (int)tick, ceffect[nr].bless.strength, 1);
 					dl_call_bless(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd,
-					    (int64_t)ceffect[nr].bless.stop - (int64_t)tick, ceffect[nr].bless.strength, 0);
+					    (int)ceffect[nr].bless.stop - (int)tick, ceffect[nr].bless.strength, 0);
 					break;
 
 				case 10: // heal
@@ -331,14 +331,14 @@ static void display_game_spells(void)
 
 				case 14: // potion
 					dl_call_potion(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd,
-					    (int64_t)ceffect[nr].potion.stop - (int64_t)tick, ceffect[nr].potion.strength, 1);
+					    (int)ceffect[nr].potion.stop - (int)tick, ceffect[nr].potion.strength, 1);
 					dl_call_potion(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd,
-					    (int64_t)ceffect[nr].potion.stop - (int64_t)tick, ceffect[nr].potion.strength, 0);
+					    (int)ceffect[nr].potion.stop - (int)tick, ceffect[nr].potion.strength, 0);
 					break;
 
 				case 15: // earth-rain
-					dl_call_rain2(GME_LAY, scrx, scry, (int64_t)tick, ceffect[nr].earthrain.strength, 1);
-					dl_call_rain2(GME_LAY, scrx, scry, (int64_t)tick, ceffect[nr].earthrain.strength, 0);
+					dl_call_rain2(GME_LAY, scrx, scry, (int)tick, ceffect[nr].earthrain.strength, 1);
+					dl_call_rain2(GME_LAY, scrx, scry, (int)tick, ceffect[nr].earthrain.strength, 0);
 					break;
 				case 16: // earth-mud
 					mapx = (int)((unsigned int)mn % MAPDX) + (int)originx - (int)(MAPDX / 2);

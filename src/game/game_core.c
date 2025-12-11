@@ -184,7 +184,7 @@ void dl_play(void)
 				break;
 			case DLC_NUMBER:
 				render_text_fmt(dlsort[d]->call_x1, dlsort[d]->call_y1, 0xffff,
-				    RENDER_ALIGN_CENTER | RENDER_TEXT_SMALL | RENDER_TEXT_FRAMED, "%ld", dlsort[d]->call_x2);
+				    RENDER_ALIGN_CENTER | RENDER_TEXT_SMALL | RENDER_TEXT_FRAMED, "%d", dlsort[d]->call_x2);
 				break;
 			case DLC_DUMMY:
 				break;

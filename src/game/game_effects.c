@@ -64,7 +64,7 @@ DL *dl_call_pulseback(int layer, int x1, int y1, int h1, int x2, int y2, int h2)
 	return dl;
 }
 
-DL *dl_call_bless(int layer, int x, int y, int64_t ticker, int strength, int front)
+DL *dl_call_bless(int layer, int x, int y, int ticker, int strength, int front)
 {
 	DL *dl;
 
@@ -127,7 +127,7 @@ DL *dl_call_pulse(int layer, int x, int y, int nr, int size, int color)
 	return dl;
 }
 
-DL *dl_call_potion(int layer, int x, int y, int64_t ticker, int strength, int front)
+DL *dl_call_potion(int layer, int x, int y, int ticker, int strength, int front)
 {
 	DL *dl;
 
@@ -176,7 +176,7 @@ DL *dl_call_rain(int layer, int x, int y, int nr, int color)
 	return dl;
 }
 
-DL *dl_call_rain2(int layer, int x, int y, int64_t ticker, int strength, int front)
+DL *dl_call_rain2(int layer, int x, int y, int ticker, int strength, int front)
 {
 	DL *dl;
 
