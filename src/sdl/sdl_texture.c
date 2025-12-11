@@ -164,7 +164,7 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 			    stx, sdlt[stx].hprev, sdlt[stx].hnext, sprite, sdlt[stx].sink, sdlt[stx].freeze, sdlt[stx].scale,
 			    sdlt[stx].cr, sdlt[stx].cg, sdlt[stx].cb, sdlt[stx].light, sdlt[stx].sat, sdlt[stx].c1, sdlt[stx].c2,
 			    sdlt[stx].c3, sdlt[stx].shine, sdlt[stx].ml, sdlt[stx].ll, sdlt[stx].rl, sdlt[stx].ul, sdlt[stx].dl,
-			    sdlt[stx].text);
+			    (void *)sdlt[stx].text);
 			if (panic > 1099) {
 #ifdef DEVELOPER
 				sdl_dump_spritecache();

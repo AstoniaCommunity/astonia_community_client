@@ -18,7 +18,8 @@ STRICT_WARNING_FLAGS = \
     -Wmissing-prototypes -Wstrict-prototypes \
     -Wvla \
     -Wfloat-equal \
-    -Wnewline-eof
+    -Wnewline-eof \
+    -Wno-nullability-extension
 
 WARNING_FLAGS ?= $(STRICT_WARNING_FLAGS) -Werror
 
