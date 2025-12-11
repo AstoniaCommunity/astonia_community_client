@@ -63,7 +63,7 @@ DLL_IMPORT int buty(int bidx);
 DLL_IMPORT size_t get_near_ground(int x, int y);
 DLL_IMPORT size_t get_near_item(int x, int y, unsigned int flag, unsigned int looksize);
 DLL_IMPORT size_t get_near_char(int x, int y, unsigned int looksize);
-DLL_IMPORT unsigned int mapmn(unsigned int x, unsigned int y);
+DLL_IMPORT map_index_t mapmn(unsigned int x, unsigned int y);
 // misc
 DLL_IMPORT void set_teleport(int idx, int x, int y);
 DLL_IMPORT int exp2level(int val);
@@ -168,13 +168,13 @@ DLL_IMPORT int _is_mov_sprite(unsigned int sprite, int itemhint);
 DLL_IMPORT int _is_door_sprite(unsigned int sprite);
 DLL_IMPORT int _is_yadd_sprite(unsigned int sprite);
 DLL_IMPORT int _get_chr_height(unsigned int csprite);
-DLL_IMPORT unsigned int _trans_asprite(unsigned int mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
+DLL_IMPORT unsigned int _trans_asprite(map_index_t mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
 DLL_IMPORT int _trans_charno(int csprite, int *pscale, int *pcr, int *pcg, int *pcb, int *plight, int *psat, int *pc1,
     int *pc2, int *pc3, int *pshine, int attick);
 DLL_IMPORT int _get_player_sprite(int nr, int zdir, int action, int step, int duration, int attick);
-DLL_IMPORT void _trans_csprite(int mn, struct map *cmap, tick_t attick);
+DLL_IMPORT void _trans_csprite(map_index_t mn, struct map *cmap, tick_t attick);
 DLL_IMPORT int _get_lay_sprite(int sprite, int lay);
 DLL_IMPORT int _get_offset_sprite(int sprite, int *px, int *py);
 DLL_IMPORT int _additional_sprite(unsigned int sprite, int attick);
@@ -192,9 +192,9 @@ int is_mov_sprite(unsigned int sprite, int itemhint);
 int is_door_sprite(unsigned int sprite);
 int is_yadd_sprite(unsigned int sprite);
 int get_chr_height(unsigned int csprite);
-unsigned int trans_asprite(int mn, unsigned int sprite, tick_t attick, unsigned char *pscale, unsigned char *pcr,
-    unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat, unsigned short *pc1,
-    unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
+unsigned int trans_asprite(map_index_t mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
+    unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
+    unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
 int trans_charno(int csprite, int *pscale, int *pcr, int *pcg, int *pcb, int *plight, int *psat, int *pc1, int *pc2,
     int *pc3, int *pshine, int attick);
 int get_player_sprite(int nr, int zdir, int action, int step, int duration, int attick);

@@ -72,8 +72,8 @@ DLL_EXPORT size_t get_near_ground(int x, int y)
 DLL_EXPORT map_index_t get_near_item(int x, int y, unsigned int flag, unsigned int looksize)
 {
 	int mapx, mapy, scrx, scry;
-	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u, mn;
-	map_index_t nearest = MAXMN;
+	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u;
+	map_index_t mn, nearest = MAXMN;
 	double dist, nearestdist = 100000000;
 
 	if (!stom(mousex, mousey, &mapx, &mapy)) {
@@ -123,8 +123,8 @@ DLL_EXPORT map_index_t get_near_item(int x, int y, unsigned int flag, unsigned i
 DLL_EXPORT map_index_t get_near_char(int x, int y, unsigned int looksize)
 {
 	int mapx, mapy, scrx, scry;
-	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u, mn;
-	map_index_t nearest = MAXMN;
+	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u;
+	map_index_t mn, nearest = MAXMN;
 	double dist, nearestdist = 100000000;
 
 	if (!stom(mousex, mousey, &mapx, &mapy)) {

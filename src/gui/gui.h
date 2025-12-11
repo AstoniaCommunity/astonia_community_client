@@ -8,7 +8,7 @@
 #define MAXACTIONSLOT 14
 
 struct quicks {
-	unsigned int mn[9]; // 0 for invalid neighbours
+	map_index_t mn[9]; // 0 for invalid neighbours
 	int qi[9]; // maxqick for invalid neighbours
 	unsigned int mapx;
 	unsigned int mapy;

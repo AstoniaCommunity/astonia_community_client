@@ -115,8 +115,8 @@ extern int (*is_yadd_sprite)(unsigned int sprite);
 DLL_EXPORT int _is_yadd_sprite(unsigned int sprite);
 extern int (*get_chr_height)(unsigned int csprite);
 DLL_EXPORT int _get_chr_height(unsigned int csprite);
-extern void (*trans_csprite)(unsigned int mn, struct map *cmap, tick_t attick);
-DLL_EXPORT void _trans_csprite(unsigned int mn, struct map *cmap, tick_t attick);
+extern void (*trans_csprite)(map_index_t mn, struct map *cmap, tick_t attick);
+DLL_EXPORT void _trans_csprite(map_index_t mn, struct map *cmap, tick_t attick);
 extern int (*get_lay_sprite)(int sprite, int lay);
 DLL_EXPORT int _get_lay_sprite(int sprite, int lay);
 extern int (*get_offset_sprite)(int sprite, int *px, int *py);
@@ -177,7 +177,7 @@ void sprites_colorbalance(struct map *cmap, int mn, int r, int g, int b);
 void set_map_straight(struct map *cmap);
 
 // From game_display.c
-int get_sink(unsigned int mn, struct map *cmap);
+int get_sink(map_index_t mn, struct map *cmap);
 void draw_pixel(int64_t x, int64_t y, int64_t color);
 void display_game_map(struct map *cmap);
 void display_pents(void);

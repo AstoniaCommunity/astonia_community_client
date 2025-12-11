@@ -3009,11 +3009,11 @@ DLL_EXPORT int _trans_charno(int csprite, int *pscale, int *pcr, int *pcg, int *
 }
 
 // asprite
-unsigned int (*trans_asprite)(unsigned int mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
+unsigned int (*trans_asprite)(map_index_t mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine) = _trans_asprite;
 
-DLL_EXPORT unsigned int _trans_asprite(unsigned int mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
+DLL_EXPORT unsigned int _trans_asprite(map_index_t mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine)
 {
@@ -3071,7 +3071,7 @@ DLL_EXPORT unsigned int _trans_asprite(unsigned int mn, unsigned int sprite, tic
 		//--
 	case 12163:
 	case 14353: // lava_ground_circle
-		help = (mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 31);
+		help = (int)((mn % MAPDX + originx) + (mn / MAPDX + originy) * 256 + (attick / 31));
 		if (help % 17 < 14) {
 			sprite = 14353 + (unsigned int)(((unsigned int)(mn % MAPDX + originx) +
 			                                    (unsigned int)(mn / MAPDX + originy) * 256 + (attick / 5)) %
@@ -5799,9 +5799,9 @@ DLL_EXPORT int _get_player_sprite(int nr, int zdir, int action, int step, int du
 	return base;
 }
 
-void (*trans_csprite)(unsigned int mn, struct map *cmap, tick_t attick) = _trans_csprite;
+void (*trans_csprite)(map_index_t mn, struct map *cmap, tick_t attick) = _trans_csprite;
 
-DLL_EXPORT void _trans_csprite(unsigned int mn, struct map *cmap, tick_t attick)
+DLL_EXPORT void _trans_csprite(map_index_t mn, struct map *cmap, tick_t attick)
 {
 	int dirxadd[8] = {+1, 0, -1, -2, -1, 0, +1, +2};
 	int diryadd[8] = {+1, +2, +1, 0, -1, -2, -1, 0};

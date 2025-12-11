@@ -19,7 +19,7 @@
 void set_map_lights(struct map *cmap)
 {
 	int i;
-	unsigned int mn;
+	map_index_t mn;
 
 	for (i = 0; i < maxquick; i++) {
 		mn = quick[i].mn[4];
@@ -133,7 +133,7 @@ void sprites_colorbalance(struct map *cmap, int mn, int r, int g, int b)
 static void set_map_sprites(struct map *cmap, tick_t attick)
 {
 	int i;
-	unsigned int mn;
+	map_index_t mn;
 
 	for (i = 0; i < maxquick; i++) {
 		mn = quick[i].mn[4];
@@ -196,7 +196,7 @@ static void set_map_sprites(struct map *cmap, tick_t attick)
 static void set_map_cut(struct map *cmap)
 {
 	int i, i2;
-	unsigned int mn, mn2;
+	map_index_t mn, mn2;
 	int tmp;
 
 	if (nocut) {
@@ -264,10 +264,10 @@ static void set_map_cut(struct map *cmap)
 void set_map_straight(struct map *cmap)
 {
 	int i, vl, vr, vt, vb, wl, wr, wt, wb;
-	unsigned int mna;
+	map_index_t mna;
 
 	for (i = 0; i < maxquick; i++) {
-		unsigned int mn = quick[i].mn[4];
+		map_index_t mn = quick[i].mn[4];
 
 		if (!cmap[mn].rlight) {
 			continue;

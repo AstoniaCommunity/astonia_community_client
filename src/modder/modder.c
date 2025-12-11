@@ -163,7 +163,7 @@ int amod_init(void)
 			get_chr_height = (int (*)(unsigned int))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "trans_asprite"))) {
-			trans_asprite = (unsigned int (*)(unsigned int, unsigned int, uint32_t, unsigned char *, unsigned char *,
+			trans_asprite = (unsigned int (*)(map_index_t, unsigned int, tick_t, unsigned char *, unsigned char *,
 			    unsigned char *, unsigned char *, unsigned char *, unsigned char *, unsigned short *, unsigned short *,
 			    unsigned short *, unsigned short *))tmp;
 		}
@@ -174,7 +174,7 @@ int amod_init(void)
 			get_player_sprite = (int (*)(int, int, int, int, int, int))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "trans_csprite"))) {
-			trans_csprite = (void (*)(unsigned int, struct map *, uint32_t))tmp;
+			trans_csprite = (void (*)(map_index_t, struct map *, tick_t))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "get_lay_sprite"))) {
 			get_lay_sprite = (int (*)(int, int))tmp;

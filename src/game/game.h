@@ -146,10 +146,10 @@ void render_list_text(void);
 // Offset functions
 int render_offset_x(void);
 int render_offset_y(void);
-extern unsigned int (*trans_asprite)(unsigned int mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
+extern unsigned int (*trans_asprite)(map_index_t mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
-DLL_EXPORT unsigned int _trans_asprite(unsigned int mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
+DLL_EXPORT unsigned int _trans_asprite(map_index_t mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
 extern int (*trans_charno)(int csprite, int *pscale, int *pcr, int *pcg, int *pcb, int *plight, int *psat, int *pc1,
@@ -167,7 +167,7 @@ extern int (*no_lighting_sprite)(unsigned int sprite);
 DLL_EXPORT int _no_lighting_sprite(unsigned int sprite);
 
 struct map;
-int get_sink(unsigned int mn, struct map *cmap);
+int get_sink(map_index_t mn, struct map *cmap);
 
 void list_mem(void);
 

@@ -110,7 +110,7 @@ void minimap_update(void)
 			if (x + ox >= MAXMAP) {
 				continue;
 			}
-			unsigned int mn = (unsigned int)x + (unsigned int)y * MAPDX;
+			map_index_t mn = mapmn((unsigned int)x, (unsigned int)y);
 			if (!(map[mn].flags & CMF_VISIBLE)) {
 				continue;
 			}
