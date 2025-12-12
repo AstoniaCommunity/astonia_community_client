@@ -71,6 +71,7 @@ static SDL_Thread **prethreads = NULL;
 static int sdli_state_storage[MAXSPRITE];
 int *sdli_state = sdli_state_storage;
 
+#ifdef DEVELOPER
 void sdl_dump(FILE *fp)
 {
 	fprintf(fp, "SDL datadump:\n");
@@ -96,7 +97,7 @@ void sdl_dump(FILE *fp)
 
 	fprintf(fp, "\n");
 }
-
+#endif
 #define GO_DEFAULTS (GO_CONTEXT | GO_ACTION | GO_BIGBAR | GO_PREDICT | GO_SHORT | GO_MAPSAVE)
 
 // #define GO_DEFAULTS (GO_CONTEXT|GO_ACTION|GO_BIGBAR|GO_PREDICT|GO_SHORT|GO_MAPSAVE|GO_NOMAP)

@@ -370,7 +370,9 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 	stx = sdlt_last;
 
 	// Try to evict an entry, potentially trying multiple LRU candidates if workers are stuck
+#ifdef DEVELOPER
 	static int sdl_eviction_failures = 0;
+#endif
 	for (int eviction_attempts = 0; eviction_attempts < 10; eviction_attempts++) {
 		// delete
 		if (!flags_load(&sdlt[stx])) {
@@ -505,8 +507,8 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 	// If after all that the entry is still non-empty, we failed to get a usable slot.
 	// Do NOT reuse it; that would corrupt the hash chains.
 	if (flags_load(&sdlt[stx])) {
-		sdl_eviction_failures++;
 #ifdef DEVELOPER
+		sdl_eviction_failures++;
 		if (sdl_eviction_failures == 1 || (sdl_eviction_failures % 100) == 0) {
 			warn("SDL: texture cache eviction failed %d times; workers may be wedged", sdl_eviction_failures);
 		}
