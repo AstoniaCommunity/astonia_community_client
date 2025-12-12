@@ -927,8 +927,8 @@ static void sv_special(unsigned char *buf)
 		display_time = tick;
 		break;
 	default:
-		if (type > 0 && type < 1000) {
-			play_sound(type, opt1, opt2);
+		if (type < 1000) {
+			play_sound(type, (int)opt1, (int)opt2);
 		}
 		break;
 	}

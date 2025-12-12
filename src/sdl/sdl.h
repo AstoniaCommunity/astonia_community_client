@@ -47,7 +47,7 @@ extern int sound_volume;
 void sdl_set_cursor(int cursor);
 int init_sound(void);
 void sound_exit(void);
-void play_sound(unsigned int nr, unsigned int vol, unsigned int p);
+void play_sound(unsigned int nr, int vol, int p);
 
 void sdl_bargraph_add(int dx, unsigned char *data, int val);
 void sdl_bargraph(int sx, int sy, int dx, unsigned char *data, int x_offset, int y_offset);

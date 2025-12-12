@@ -219,7 +219,7 @@ static void play_sdl_sound(unsigned int nr, int distance, int angle)
  * vol: Volume, from 0 (max) to -9999 (min).
  * p: Pan, from -9999 (left) to 9999 (right).
  */
-void play_sound(unsigned int nr, unsigned int vol, unsigned int p)
+void play_sound(unsigned int nr, int vol, int p)
 {
 	int dist, angle;
 	if (!(game_options & GO_SOUND)) {
@@ -227,30 +227,24 @@ void play_sound(unsigned int nr, unsigned int vol, unsigned int p)
 	}
 
 	// force volume and pan to sane values
-	// Note: vol and p are unsigned, but the protocol may send them as signed values
-	// We clamp them to valid ranges
-	if (vol > 9999U) {
-		vol = 9999U;
+	if (vol > 0) {
+		vol = 0;
+	}
+	if (vol < -9999) {
+		vol = -9999;
 	}
 
-	if (p > 9999U) {
-		p = 9999U;
+	if (p > 9999) {
+		p = 9999;
+	}
+	if (p < -9999) {
+		p = -9999;
 	}
 
 	// translate parameters to SDL
 	// TODO: change client server protocol to provide angle instead of position
-	// vol: 0 = max volume, 9999 = min volume (interpreted as negative in original code)
-	// p: 0 = center, 9999 = right (interpreted as positive in original code)
-	// For now, we treat vol as distance (0 = close, 9999 = far)
-	// and p as angle offset from center (0 = center, 9999 = 180 degrees right)
-	dist = (int)((unsigned int)vol * 255U / 10000U);
-	if (dist > 255) {
-		dist = 255;
-	}
-	angle = (int)((unsigned int)p * 180.0 / 10000.0);
-	if (angle > 180) {
-		angle = 180;
-	}
+	dist = -(int)(vol) * 255 / 10000;
+	angle = (int)p * 180 / 10000;
 
 #if 0
 	if (nr < (unsigned int)sfx_name_cnt) {
