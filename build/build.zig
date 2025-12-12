@@ -8,6 +8,12 @@ pub fn build(b: *std.Build) void {
     const host = builtin.target;
     const optimize = b.standardOptimizeOption(.{});
 
+    // Developer mode option - automatically enabled for Debug builds
+    const developer = b.option(bool, "developer", "Enable developer mode (default: true for Debug builds)") orelse (optimize == .Debug);
+    if (developer) {
+        std.debug.print("Building with DEVELOPER mode enabled\n", .{});
+    }
+
     const include_root = "include";
     const src_root = "src";
 
@@ -218,6 +224,11 @@ pub fn build(b: *std.Build) void {
     exe.root_module.addIncludePath(b.path(include_root));
     exe.root_module.addIncludePath(b.path(src_root));
 
+    // Add DEVELOPER macro if developer mode is enabled
+    if (developer) {
+        exe.root_module.addCMacro("DEVELOPER", "1");
+    }
+
     // Link libs (Makefile equivalent: -lwsock32 -lws2_32 -lz -lpng -lzip -ldwarfstack $(SDL_LIBS) -lSDL2_mixer)
     linkCommonLibs(b, exe, tgt);
 
@@ -304,6 +315,9 @@ pub fn build(b: *std.Build) void {
     }
     amod.root_module.addIncludePath(b.path(include_root));
     amod.root_module.addIncludePath(b.path(src_root));
+    if (developer) {
+        amod.root_module.addCMacro("DEVELOPER", "1");
+    }
     addSearchPathsForWindowsTarget(b, amod, tgt, host);
     linkCommonLibs(b, amod, tgt);
 

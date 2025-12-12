@@ -1,9 +1,24 @@
+# Build type: release (default) or debug
+# Usage: make BUILD_TYPE=debug
+BUILD_TYPE ?= release
+
 all: bin/moac
 
 SDL_CONFIG=sdl2-config
 CC=clang
-OPT=-O3
-DEBUG=-gdwarf-4
+
+# Build type configuration
+ifeq ($(BUILD_TYPE),debug)
+    OPT=-O0
+    DEBUG=-gdwarf-4 -g3
+    DEVELOPER_FLAGS=-DDEVELOPER
+    $(info Building DEBUG configuration)
+else
+    OPT=-O3
+    DEBUG=-gdwarf-4
+    DEVELOPER_FLAGS=
+    $(info Building RELEASE configuration)
+endif
 PKG_CONFIG?=pkg-config
 BREW_PREFIX:=$(shell brew --prefix 2>/dev/null)
 
@@ -57,8 +72,8 @@ SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
 # Default to using mimalloc unless USE_MIMALLOC=0 is set
 USE_MIMALLOC ?= 1
 
-CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC)
-CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC)
+CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC)
+CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC)
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,@loader_path
 
 SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
@@ -270,3 +285,12 @@ sign: $(MACOS_APP_BUNDLE)
 # Convenience: build + sign in one step
 appbundle-sign: appbundle sign
 	@echo "Signed app bundle at $(MACOS_APP_BUNDLE)"
+
+# Convenience targets for build types
+debug:
+	$(MAKE) -f build/make/Makefile.macos BUILD_TYPE=debug
+
+release:
+	$(MAKE) -f build/make/Makefile.macos BUILD_TYPE=release
+
+.PHONY: debug release

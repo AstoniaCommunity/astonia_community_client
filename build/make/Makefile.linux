@@ -1,16 +1,31 @@
+# Build type: release (default) or debug
+# Usage: make BUILD_TYPE=debug
+BUILD_TYPE ?= release
+
 all: bin/moac
 
 SDL_CONFIG=sdl2-config
 CC=clang
-OPT=-O3
 EXTRA_ARCH_FLAGS ?=
 ifneq (,$(findstring znver4,$(EXTRA_ARCH_FLAGS)))
 RUST_CPU_FLAGS=-C target-cpu=znver4
 else
 RUST_CPU_FLAGS=
 endif
-DEBUG=-gdwarf-4
 SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
+
+# Build type configuration
+ifeq ($(BUILD_TYPE),debug)
+    OPT=-O0
+    DEBUG=-gdwarf-4 -g3
+    DEVELOPER_FLAGS=-DDEVELOPER
+    $(info Building DEBUG configuration)
+else
+    OPT=-O3
+    DEBUG=-gdwarf-4
+    DEVELOPER_FLAGS=
+    $(info Building RELEASE configuration)
+endif
 
 STRICT_WARNING_FLAGS = \
     -Wall -Wextra -Wpedantic \
@@ -30,8 +45,8 @@ WARNING_FLAGS ?= $(STRICT_WARNING_FLAGS) -Werror
 # Default to using mimalloc unless USE_MIMALLOC=0 is set
 USE_MIMALLOC ?= 1
 
-CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC)
-CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC)
+CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC)
+CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC)
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,\$$ORIGIN
 
 SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
@@ -206,3 +221,12 @@ bin/moac-coverage: $(OBJS_COVERAGE) $(ASTONIA_NET_LIB)
 
 %-coverage.o: %.c
 	$(CC) $(CFLAGS) $(COVERAGE_FLAGS) -c -o $@ $<
+
+# Convenience targets for build types
+debug:
+	$(MAKE) -f build/make/Makefile.linux BUILD_TYPE=debug
+
+release:
+	$(MAKE) -f build/make/Makefile.linux BUILD_TYPE=release
+
+.PHONY: debug release

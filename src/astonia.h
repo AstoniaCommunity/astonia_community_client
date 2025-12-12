@@ -15,8 +15,15 @@ typedef uint16_t char_id_t; // Character network ID (cn)
 typedef uint16_t sprite_id_t; // Sprite/texture ID
 typedef size_t map_index_t; // Map tile index, selection indices
 
-// #define DEVELOPER // this one will compile the developer version - comment me out for the final release
-// #define DEVELOPER_NOISY // Enable verbose logging for debugging (uncomment to enable)
+// DEVELOPER mode: Enables extra debugging output and developer features
+// Can be enabled via compiler flag: -DDEVELOPER
+// Or uncomment the line below for local development:
+// #define DEVELOPER
+
+// DEVELOPER_NOISY: Enable verbose logging for debugging
+// Can be enabled via compiler flag: -DDEVELOPER_NOISY
+// Or uncomment the line below:
+// #define DEVELOPER_NOISY
 
 #ifndef ORG_NAME
 #define ORG_NAME NULL

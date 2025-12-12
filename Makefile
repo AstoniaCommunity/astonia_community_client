@@ -1,15 +1,24 @@
 # Root Makefile - Platform dispatcher
 #
 # Usage:
-#   make                - Build for current platform (auto-detect)
+#   make                - Build for current platform (auto-detect, release mode)
+#   make debug          - Build for current platform in debug mode (enables DEVELOPER)
+#   make release        - Build for current platform in release mode (default)
 #   make windows        - Build for Windows
 #   make linux          - Build for Linux
 #   make macos          - Build for macOS
 #   make zig-build      - Build with zig for current platform
-#   make docker-linux   - Build Linux in Docker container
+#   make docker-linux   - Build Linux in Docker (release, Zig build)
+#   make docker-linux-debug - Build Linux in Docker (debug with DEVELOPER)
+#   make docker-windows - Build Windows in Docker (release)
+#   make docker-windows-debug - Build Windows in Docker (debug with DEVELOPER)
 #   make linux-appimage - Build Linux AppImage (portable, all distros)
 #   make clean          - Clean all platforms
 #   make distrib        - Create distribution package
+#
+# Build types can also be passed to platform targets:
+#   make linux BUILD_TYPE=debug
+#   make windows BUILD_TYPE=release
 
 # Detect platform (defaults to Windows if unknown)
 UNAME_S := $(shell uname -s)
@@ -73,10 +82,19 @@ define docker-build-and-run-appimage
 	@echo "To run: chmod +x $(2) && ./$(2)"
 endef
 
-# Default target - build for detected platform
+# Default target - build for detected platform (release mode)
 all:
 	@echo "Building for $(PLATFORM)..."
 	@$(MAKE) -f build/make/Makefile.$(PLATFORM)
+
+# Build type targets (pass through to platform makefiles)
+debug:
+	@echo "Building DEBUG for $(PLATFORM)..."
+	@$(MAKE) -f build/make/Makefile.$(PLATFORM) BUILD_TYPE=debug
+
+release:
+	@echo "Building RELEASE for $(PLATFORM)..."
+	@$(MAKE) -f build/make/Makefile.$(PLATFORM) BUILD_TYPE=release
 
 # Platform-specific targets
 windows:
@@ -143,13 +161,31 @@ zig-build:
 # Docker Build Targets
 # ============================================================================
 
-# Docker build for Linux (production)
+# Docker build for Linux (production - release by default, uses Zig)
+# For debug: make docker-linux-debug
 docker-linux:
 	$(call docker-build-and-run,Dockerfile.linux,astonia-linux-build,$(DOCKER_RUN_FLAGS))
 
-# Docker build for Windows (production)
+# Docker build for Linux (debug mode with DEVELOPER enabled)
+docker-linux-debug:
+	@echo "Building Linux DEBUG in Docker (with DEVELOPER enabled)..."
+	cp $(DOCKER_CONTAINER_DIR)/Dockerfile.linux .
+	docker build -f Dockerfile.linux -t astonia-linux-build .
+	docker run $(DOCKER_RUN_FLAGS) astonia-linux-build -Ddeveloper=true
+	rm -f Dockerfile.linux
+
+# Docker build for Windows (production - release by default)
+# For debug: make docker-windows-debug
 docker-windows:
 	$(call docker-build-and-run,Dockerfile.windows-build,astonia-windows-build,$(DOCKER_RUN_FLAGS))
+
+# Docker build for Windows (debug mode with DEVELOPER enabled)
+docker-windows-debug:
+	@echo "Building Windows DEBUG in Docker (with DEVELOPER enabled)..."
+	cp $(DOCKER_CONTAINER_DIR)/Dockerfile.windows-build .
+	docker build -f Dockerfile.windows-build -t astonia-windows-build .
+	docker run $(DOCKER_RUN_FLAGS) astonia-windows-build BUILD_TYPE=debug
+	rm -f Dockerfile.windows-build
 
 # Docker development environment for Windows (interactive)
 docker-windows-dev:
@@ -193,4 +229,4 @@ docker-distrib-linux:
 # Include quality checks makefile (see build/make/Makefile.quality)
 include build/make/Makefile.quality
 
-.PHONY: all windows linux macos macos-appbundle macos-signed-bundle clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-windows docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage
+.PHONY: all debug release windows linux macos macos-appbundle macos-signed-bundle clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-linux-debug docker-windows docker-windows-debug docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage
