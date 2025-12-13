@@ -7,6 +7,7 @@
  * event loop, and background prefetching system.
  */
 
+#include <SDL2/SDL_timer.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -36,6 +37,7 @@ zip_t *sdl_zip1m = NULL;
 zip_t *sdl_zip2m = NULL;
 
 // Prefetch threading (shared with sdl_texture.c)
+SDL_sem *prework = NULL;
 SDL_mutex *premutex = NULL;
 
 // Scale and resolution settings
@@ -285,6 +287,13 @@ int sdl_init(int width, int height, char *title)
 		return 0;
 	}
 
+	// Initialize semaphore for waking background workers (starts at 0)
+	prework = SDL_CreateSemaphore(0);
+	if (!prework) {
+		fail("Failed to create prework semaphore");
+		return 0;
+	}
+
 	SDL_AtomicSet(&pre_quit, 0);
 
 	if (sdl_multi) {
@@ -456,6 +465,15 @@ void sdl_exit(void)
 	// Signal workers to quit and join them
 	if (sdl_multi && prethreads) {
 		SDL_AtomicSet(&pre_quit, 1);
+
+		// Wake all workers so they can see the quit signal
+		// (they're blocked on SDL_SemWait)
+		if (prework) {
+			for (int n = 0; n < sdl_multi; n++) {
+				SDL_SemPost(prework);
+			}
+		}
+
 		for (int n = 0; n < sdl_multi; n++) {
 			if (prethreads[n]) {
 				SDL_WaitThread(prethreads[n], NULL);
@@ -508,6 +526,11 @@ void sdl_exit(void)
 	}
 	if (sdl_zip2p) {
 		zip_close(sdl_zip2p);
+	}
+
+	if (prework) {
+		SDL_DestroySemaphore(prework);
+		prework = NULL;
 	}
 
 	if (premutex) {
@@ -957,6 +980,8 @@ void sdl_pre_add(tick_t attick, unsigned int sprite, signed char sink, unsigned 
 	jq_tail = (jq_tail + 1) % MAXPRE;
 
 	SDL_UnlockMutex(premutex);
+
+	SDL_SemPost(prework);
 }
 
 long long sdl_time_mutex = 0;
@@ -1067,32 +1092,51 @@ int sdl_pre_backgnd(void *ptr)
 {
 	int worker_id = (int)(long long)ptr;
 	struct zip_handles *zips = worker_zips ? &worker_zips[worker_id] : NULL;
-	uint64_t start, t1, t2;
-	int found_work;
+	uint64_t wait_start, work_start;
+	int sem_result;
 
-	// Validate mutex
+	// Validate semaphore and mutex
+	if (!prework) {
+		SDL_Log("sdl_pre_backgnd: prework semaphore is NULL, exiting thread");
+		return -1;
+	}
 	if (!premutex) {
 		SDL_Log("sdl_pre_backgnd: premutex is NULL, exiting thread");
 		return -1;
 	}
 
-	while (!quit && !SDL_AtomicGet(&pre_quit)) {
-		start = SDL_GetTicks64();
-		t1 = start;
+	for (;;) {
+		// Wait for work to be available (blocks until signaled)
+		wait_start = SDL_GetTicks64();
+		sem_result = SDL_SemWait(prework);
+		sdl_backgnd_wait += SDL_GetTicks64() - wait_start;
 
-		// Poll job queue with 1ms delay when idle
-		found_work = sdl_pre_worker(zips);
-
-		t2 = SDL_GetTicks64();
-
-		if (!found_work) {
-			SDL_Delay(1);
-			sdl_backgnd_wait += t2 - t1;
-		} else {
-			uint64_t work_time = t2 - t1;
-			sdl_backgnd_work += work_time;
-			sdl_backgnd_jobs++;
+		// Check for semaphore wait errors
+		// SDL_SemWait returns -1 only on fatal errors:
+		// 1. Invalid semaphore (already validated above) - persistent error
+		// 2. Semaphore destroyed during wait (shutdown race) - unrecoverable
+		// 3. System-level failure (extremely rare) - persistent error
+		// In all cases, continuing would fail immediately again, so exit thread
+		// cleanly.
+		if (sem_result != 0) {
+			SDL_Log("sdl_pre_backgnd: SDL_SemWait failed: %s - exiting worker thread", SDL_GetError());
+			return -1; // Semaphore failure is fatal for this worker
 		}
+
+		// Check for shutdown before each job attempt.
+		if (quit || SDL_AtomicGet(&pre_quit)) {
+			return 0;
+		}
+
+		// Process one job from the queue
+		work_start = SDL_GetTicks64();
+		if (sdl_pre_worker(zips) == 0) {
+			// No work found, wait on semaphore.
+			continue;
+		}
+
+		sdl_backgnd_work += SDL_GetTicks64() - work_start;
+		sdl_backgnd_jobs++;
 	}
 
 	return 0;
