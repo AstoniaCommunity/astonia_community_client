@@ -127,10 +127,6 @@ size_t get_memory_usage(void);
 
 void display(void)
 {
-	extern int memptrs[MAX_MEM];
-	extern int memsize[MAX_MEM];
-	extern int memused;
-	extern int memptrused;
 	extern long long sdl_time_make, sdl_time_tex, sdl_time_tex_main, sdl_time_text, sdl_time_blit;
 	time_t t;
 	int tmp;
@@ -435,8 +431,8 @@ display_graphs:;
 #endif
 	} // else render_text_fmt(650,15,0xffff,RENDER_TEXT_SMALL|RENDER_TEXT_FRAMED,"Mirror %d",mirror);
 
-	sprintf(perf_text, "mem usage=%.2f/%.2fMB, %.2f/%.2fKBlocks", memsize[0] / 1024.0 / 1024.0,
-	    memused / 1024.0 / 1024.0, memptrs[0] / 1024.0, memptrused / 1024.0);
+	sprintf(perf_text, "mem usage=%zu/%.2fMB, %d/%dKBlocks", memsize[0] / 1024 / 1024,
+	    (double)memused / 1024.0 / 1024.0, memptrs[0] / 1024, memptrused / 1024);
 }
 
 // cmd

@@ -105,7 +105,7 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 	}
 
 #ifdef SDL_FAST_MALLOC
-	pixel = calloc((size_t)sizex * MAXFONTHEIGHT, sizeof(uint32_t));
+	pixel = CALLOC((size_t)sizex * MAXFONTHEIGHT, sizeof(uint32_t));
 #else
 	pixel = xmalloc((int)((size_t)sizex * MAXFONTHEIGHT * sizeof(uint32_t)), MEM_SDL_PIXEL2);
 #endif
@@ -167,7 +167,7 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 		warn("SDL_texture Error: %s maketext (%s)", SDL_GetError(), otext);
 	}
 #ifdef SDL_FAST_MALLOC
-	free(pixel);
+	FREE(pixel);
 #else
 	xfree(pixel);
 #endif

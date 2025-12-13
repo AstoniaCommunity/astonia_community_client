@@ -25,6 +25,19 @@ static int sdlm_sprite = 0;
 static int sdlm_scale = 0;
 static void *sdlm_pixel = NULL;
 
+// libpng custom allocator functions - use our MALLOC/FREE macros which switch between mimalloc and malloc
+static png_voidp png_malloc_fn(png_structp png_ptr __attribute__((unused)), png_alloc_size_t size)
+{
+	return MALLOC(size);
+}
+
+static void png_free_fn(png_structp png_ptr __attribute__((unused)), png_voidp ptr)
+{
+	if (ptr) {
+		FREE(ptr);
+	}
+}
+
 uint32_t mix_argb(uint32_t c1, uint32_t c2, float w1, float w2)
 {
 	int r1, r2, g1, g2, b1, b2, a1, a2;
@@ -218,7 +231,7 @@ int png_load_helper(struct png_helper *p)
 		}
 	}
 
-	p->png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	p->png_ptr = png_create_read_struct_2(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL, NULL, png_malloc_fn, png_free_fn);
 	if (!p->png_ptr) {
 		if (zp) {
 			zip_fclose(zp);
@@ -387,7 +400,7 @@ int sdl_load_image_png_(struct sdl_image *si, char *filename, zip_t *zip)
 	si->yoff = (int16_t)(-(p.yres / 2) + sy);
 
 #ifdef SDL_FAST_MALLOC
-	si->pixel = malloc((size_t)si->xres * si->yres * sizeof(uint32_t));
+	si->pixel = MALLOC((size_t)si->xres * si->yres * sizeof(uint32_t));
 #else
 	si->pixel = xmalloc((size_t)si->xres * si->yres * sizeof(uint32_t), MEM_SDL_PNG);
 #endif
@@ -508,7 +521,7 @@ int sdl_load_image_png(struct sdl_image *si, char *filename, zip_t *zip, int smo
 	si->yoff = (int16_t)(-(p.yres / 2) + sy);
 
 #ifdef SDL_FAST_MALLOC
-	si->pixel = malloc((size_t)si->xres * si->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale);
+	si->pixel = MALLOC((size_t)si->xres * si->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale);
 #else
 	si->pixel =
 	    xmalloc((size_t)si->xres * si->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale, MEM_SDL_PNG);
@@ -853,7 +866,7 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 			// Only allocate if not already allocated (may be set by caller with mutex protection in multi-threaded
 			// mode)
 #ifdef SDL_FAST_MALLOC
-			st->pixel = malloc((size_t)st->xres * st->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale);
+			st->pixel = MALLOC((size_t)st->xres * st->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale);
 #else
 			st->pixel = xmalloc(
 			    (size_t)st->xres * st->yres * sizeof(uint32_t) * (size_t)sdl_scale * (size_t)sdl_scale, MEM_SDL_PIXEL);
@@ -1149,7 +1162,7 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 			texture = NULL;
 		}
 #ifdef SDL_FAST_MALLOC
-		free(st->pixel);
+		FREE(st->pixel);
 #else
 		xfree(st->pixel);
 #endif
@@ -1181,7 +1194,7 @@ DLL_EXPORT uint32_t *sdl_load_png(char *filename, int *dx, int *dy)
 		return NULL;
 	}
 
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_ptr = png_create_read_struct_2(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL, NULL, png_malloc_fn, png_free_fn);
 	if (!png_ptr) {
 		fclose(fp);
 		warn("create read\n");
@@ -1246,7 +1259,7 @@ DLL_EXPORT uint32_t *sdl_load_png(char *filename, int *dx, int *dy)
 	}
 
 #ifdef SDL_FAST_MALLOC
-	pixel = malloc((size_t)xres * (size_t)yres * sizeof(uint32_t));
+	pixel = MALLOC((size_t)xres * (size_t)yres * sizeof(uint32_t));
 #else
 	pixel = xmalloc((size_t)xres * (size_t)yres * sizeof(uint32_t), MEM_TEMP8);
 #endif

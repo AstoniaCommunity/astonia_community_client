@@ -62,6 +62,7 @@ pub fn build(b: *std.Build) void {
         "src/game/render.c",
         "src/game/font.c",
         "src/game/main.c",
+        "src/game/memory.c",
         "src/game/sprite.c",
 
         // MODDER core
@@ -116,6 +117,7 @@ pub fn build(b: *std.Build) void {
         "-Werror",
         "-fno-omit-frame-pointer",
         "-fvisibility=hidden",
+        "-DUSE_MIMALLOC=1",
     };
 
     const win_cflags = &.{
@@ -144,6 +146,7 @@ pub fn build(b: *std.Build) void {
         "-DENABLE_CRASH_HANDLER",
         "-DENABLE_SHAREDMEM",
         "-DENABLE_DRAGHACK",
+        "-DUSE_MIMALLOC=1",
     };
 
     const exe = b.addExecutable(.{
@@ -190,6 +193,7 @@ pub fn build(b: *std.Build) void {
         "-fPIC",
         "-fno-omit-frame-pointer",
         "-fvisibility=hidden",
+        "-DUSE_MIMALLOC=1",
     };
 
     if (tgt.os.tag == .linux) {
@@ -206,9 +210,9 @@ pub fn build(b: *std.Build) void {
 
     // Allow __DATE__/__TIME__ (warning rather than error)
     if (tgt.os.tag == .windows) {
-        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-Dmain=SDL_main", "-DSTORE_UNIQUE", "-DENABLE_CRASH_HANDLER", "-DENABLE_SHAREDMEM", "-DENABLE_DRAGHACK" } });
+        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-Dmain=SDL_main", "-DSTORE_UNIQUE", "-DENABLE_CRASH_HANDLER", "-DENABLE_SHAREDMEM", "-DENABLE_DRAGHACK", "-DUSE_MIMALLOC=1" } });
     } else {
-        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{"-Wno-error=date-time"} });
+        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-DUSE_MIMALLOC=1" } });
     }
 
     exe.root_module.addIncludePath(b.path(include_root));
@@ -350,6 +354,7 @@ fn linkCommonLibs(b: *std.Build, step: *std.Build.Step.Compile, tgt: std.Target)
         linkSystemLibraryPreferDynamic(b, step, "dwarfstack", tgt);
         linkSystemLibraryPreferDynamic(b, step, "SDL2", tgt);
         linkSystemLibraryPreferDynamic(b, step, "SDL2_mixer", tgt);
+        linkSystemLibraryPreferDynamic(b, step, "mimalloc", tgt);
     } else {
         // Linux or OSX
         step.root_module.linkSystemLibrary("z", .{});
@@ -357,6 +362,7 @@ fn linkCommonLibs(b: *std.Build, step: *std.Build.Step.Compile, tgt: std.Target)
         step.root_module.linkSystemLibrary("zip", .{});
         step.root_module.linkSystemLibrary("SDL2", .{});
         step.root_module.linkSystemLibrary("SDL2_mixer", .{});
+        step.root_module.linkSystemLibrary("mimalloc", .{});
         step.root_module.linkSystemLibrary("m", .{});
     }
 }
