@@ -54,12 +54,18 @@ ifeq ($(SDL_MIXER_LIBS),)
 endif
 
 SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
-CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS)
-CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS)
+# Default to using mimalloc unless USE_MIMALLOC=0 is set
+USE_MIMALLOC ?= 1
+
+CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC)
+CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC)
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,@loader_path
 
 SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
 LIBS = -lz -lpng $(ZIP_LIBS) $(SDL_MIXER_LIBS) -lm
+ifeq ($(USE_MIMALLOC),1)
+LIBS += -lmimalloc
+endif
 
 ASTONIA_NET_DIR=astonia_net
 # Detect macOS architecture
@@ -78,7 +84,8 @@ LAUNCHER_BIN := bin/astonia_launcher
 OBJS	=		src/gui/gui_core.o src/gui/gui_input.o src/gui/gui_display.o src/gui/gui_inventory.o src/gui/gui_buttons.o src/gui/gui_map.o\
 			src/client/client.o src/client/protocol.o src/client/skill.o\
 			src/game/game_core.o src/game/game_effects.o src/game/game_lighting.o src/game/game_display.o\
-			src/game/render.o src/game/font.o src/game/main.o src/game/sprite.o src/game/version.o\
+			src/game/render.o src/game/font.o src/game/main.o src/game/sprite.o\
+			src/game/memory.o src/game/version.o\
 			src/modder/modder.o\
 			src/sdl/sdl_core.o src/sdl/sdl_texture.o src/sdl/sdl_image.o src/sdl/sdl_effects.o src/sdl/sdl_draw.o src/sdl/sound.o\
 			src/helper/helper.o\
@@ -109,7 +116,7 @@ bin/anicopy:	src/helper/anicopy.c
 		$(CC) $(OPT) $(DEBUG) -Wall -o bin/anicopy src/helper/anicopy.c
 
 bin/convert:	src/helper/convert.c
-		$(CC) $(OPT) $(DEBUG) -Wall -DSTANDALONE $(ZIP_CFLAGS) -o bin/convert src/helper/convert.c -lpng $(ZIP_LIBS)
+		$(CC) $(OPT) $(DEBUG) -Wall -DSTANDALONE -DUSE_MIMALLOC=$(USE_MIMALLOC) $(ZIP_CFLAGS) -o bin/convert src/helper/convert.c -lpng $(ZIP_LIBS) $(if $(filter 1,$(USE_MIMALLOC)),-lmimalloc,)
 
 
 src/client/client.o:	src/client/client.c src/astonia.h src/client/client.h src/client/client_private.h src/sdl/sdl.h
@@ -160,6 +167,9 @@ src/helper/convert.o:	src/helper/convert.c src/astonia.h src/sdl/sdl.h src/sdl/s
 src/modder/modder.o:	src/modder/modder.c src/astonia.h src/modder/modder.h src/modder/modder_private.h src/client/client.h
 
 src/sdl/sound.o:      	src/sdl/sound.c src/astonia.h src/sdl/sdl.h src/sdl/sdl_private.h
+
+src/game/memory.o: src/game/memory.c src/game/memory.h src/astonia.h src/sdl/sdl.h
+		$(CC) $(CFLAGS) -c -o $@ $<
 
 src/game/memory_macos.o: src/game/memory_macos.c
 		$(CC) $(CFLAGS_PIC) -c -o $@ $<

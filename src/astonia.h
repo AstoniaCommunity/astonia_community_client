@@ -4,7 +4,9 @@
 
 #include <stdint.h>
 #include <string.h>
+#include <stdlib.h>
 #include "dll.h"
+#include "game/memory.h"
 
 // Semantic type aliases for domain-specific values
 typedef uint32_t tick_t; // SDL ticks, timestamps

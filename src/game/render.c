@@ -989,7 +989,7 @@ void render_create_font(void)
 		render_create_font_png(fontb, pixel, dx, dy, 0, sdl_scale);
 		render_create_font_png(fontc, pixel, dx, dy, 80 * sdl_scale, sdl_scale);
 #ifdef SDL_FAST_MALLOC
-		free(pixel);
+		FREE(pixel);
 #else
 		xfree(pixel);
 #endif

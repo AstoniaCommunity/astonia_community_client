@@ -29,6 +29,16 @@ RUN pacman -Syu --noconfirm \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 ENV PATH="/root/.cargo/bin:${PATH}"
 
+# Patch makepkg to allow running as root (safe in controlled Docker environment)
+RUN sed -i 's/if (( EUID == 0 )); then/if (( 0 )); then # Disabled root check for Docker/' /usr/bin/makepkg
+
+# Install mimalloc-git from AUR (mimalloc 3.x)
+RUN git clone https://aur.archlinux.org/mimalloc-git.git /tmp/mimalloc-git && \
+    cd /tmp/mimalloc-git && \
+    makepkg -si --noconfirm && \
+    cd / && \
+    rm -rf /tmp/mimalloc-git
+
 # Set default toolchain (needed even though we specified it above, to ensure it's configured)
 RUN rustup default stable
 

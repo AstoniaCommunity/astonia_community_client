@@ -60,6 +60,16 @@ RUN pacman -S --noconfirm --ask=4 --overwrite="*" \
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 ENV PATH="/root/.cargo/bin:${PATH}"
 
+# Patch makepkg to allow running as root (safe in controlled Docker environment)
+RUN sed -i 's/if (( EUID == 0 )); then/if (( 0 )); then # Disabled root check for Docker/' /usr/bin/makepkg
+
+# Install mimalloc-git from AUR (mimalloc 3.x)
+RUN git clone https://aur.archlinux.org/mimalloc-git.git /tmp/mimalloc-git && \
+    cd /tmp/mimalloc-git && \
+    makepkg -si --noconfirm && \
+    cd / && \
+    rm -rf /tmp/mimalloc-git
+
 # Set working directory
 WORKDIR /build
 
@@ -93,6 +103,7 @@ RUN mkdir -p AppDir/usr/lib && \
     cp bin/moac AppDir/usr/share/astonia/bin/ && \
     cp bin/libastonia_net.so AppDir/usr/lib/ && \
     cp bin/amod.so AppDir/usr/share/astonia/bin/ && \
+    cp /usr/lib/libmimalloc.so.* AppDir/usr/lib/ 2>/dev/null || cp /usr/lib/libmimalloc.so AppDir/usr/lib/ 2>/dev/null || true && \
     cp -r res AppDir/usr/share/astonia/
 
 # Create wrapper script (symlink in /usr/bin for desktop integration)

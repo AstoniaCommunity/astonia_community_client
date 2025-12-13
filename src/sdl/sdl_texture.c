@@ -476,7 +476,7 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 		} else if (flags & SF_DIDALLOC) {
 			if (sdlt[stx].pixel) {
 #ifdef SDL_FAST_MALLOC
-				free(sdlt[stx].pixel);
+				FREE(sdlt[stx].pixel);
 #else
 				xfree(sdlt[stx].pixel);
 #endif
@@ -485,7 +485,7 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 		}
 #ifdef SDL_FAST_MALLOC
 		if (flags & SF_TEXT) {
-			free(sdlt[stx].text);
+			FREE(sdlt[stx].text);
 			sdlt[stx].text = NULL;
 		}
 #else
@@ -528,7 +528,7 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 		sdlt[stx].text_flags = (uint16_t)text_flags;
 		sdlt[stx].text_font = text_font;
 #ifdef SDL_FAST_MALLOC
-		sdlt[stx].text = strdup(text);
+		sdlt[stx].text = STRDUP(text);
 #else
 		sdlt[stx].text = xstrdup(text, MEM_TEMP7);
 #endif

@@ -27,12 +27,18 @@ STRICT_WARNING_FLAGS = \
 
 WARNING_FLAGS ?= $(STRICT_WARNING_FLAGS) -Werror
 
-CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
-CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
+# Default to using mimalloc unless USE_MIMALLOC=0 is set
+USE_MIMALLOC ?= 1
+
+CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC)
+CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC)
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,\$$ORIGIN
 
 SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
 LIBS = -lz -lpng -lzip $(SDL_LIBS) -lSDL2_mixer -lm
+ifeq ($(USE_MIMALLOC),1)
+LIBS += -lmimalloc
+endif
 
 ASTONIA_NET_DIR=astonia_net
 ASTONIA_NET_TGT=x86_64-unknown-linux-gnu
@@ -42,6 +48,7 @@ OBJS	=		src/gui/gui_core.o src/gui/gui_input.o src/gui/gui_display.o src/gui/gui
 			src/client/client.o src/client/protocol.o src/client/skill.o\
 			src/game/game_core.o src/game/game_effects.o src/game/game_lighting.o src/game/game_display.o\
 			src/game/render.o src/game/font.o src/game/main.o src/game/sprite.o\
+			src/game/memory.o\
 			src/modder/modder.o\
 			src/sdl/sdl_core.o src/sdl/sdl_texture.o src/sdl/sdl_image.o src/sdl/sdl_effects.o src/sdl/sdl_draw.o src/sdl/sound.o\
 			src/helper/helper.o\
@@ -68,7 +75,7 @@ bin/anicopy:	src/helper/anicopy.c
 		$(CC) $(OPT) $(DEBUG) -Wall -o bin/anicopy src/helper/anicopy.c
 
 bin/convert:	src/helper/convert.c
-		$(CC) $(OPT) $(DEBUG) -Wall -DSTANDALONE -o bin/convert src/helper/convert.c -lpng -lzip
+		$(CC) $(OPT) $(DEBUG) -Wall -DSTANDALONE -DUSE_MIMALLOC=$(USE_MIMALLOC) -o bin/convert src/helper/convert.c -lpng -lzip $(if $(filter 1,$(USE_MIMALLOC)),-lmimalloc,)
 
 
 src/client/client.o:	src/client/client.c src/astonia.h src/client/client.h src/client/client_private.h src/sdl/sdl.h
@@ -120,6 +127,9 @@ src/modder/modder.o:	src/modder/modder.c src/astonia.h src/modder/modder.h src/m
 
 src/sdl/sdl.o:		src/sdl/sdl.c src/astonia.h src/sdl/sdl.h src/sdl/sdl_private.h
 src/sdl/sound.o:      	src/sdl/sound.c src/astonia.h src/sdl/sdl.h src/sdl/sdl_private.h
+
+src/game/memory.o: src/game/memory.c src/game/memory.h src/astonia.h src/sdl/sdl.h
+		$(CC) $(CFLAGS) -c -o $@ $<
 
 src/game/memory_linux.o: src/game/memory_linux.c
 		$(CC) $(CFLAGS_PIC) -c -o $@ $<
@@ -179,10 +189,12 @@ OBJS_COVERAGE=$(OBJS:.o=-coverage.o)
 
 sanitizer: bin/moac-sanitizer
 
+bin/moac-sanitizer: USE_MIMALLOC=0
 bin/moac-sanitizer: $(OBJS_SANITIZER) $(ASTONIA_NET_LIB)
 	cp $(ASTONIA_NET_LIB) bin/
-	$(CC) $(LDFLAGS) $(SANITIZER_FLAGS) -o bin/moac-sanitizer $(OBJS_SANITIZER) $(LIBS) -Lbin -lastonia_net
+	$(CC) $(LDFLAGS) $(SANITIZER_FLAGS) -o bin/moac-sanitizer $(OBJS_SANITIZER) $(filter-out -lmimalloc,$(LIBS)) -Lbin -lastonia_net
 
+%-sanitizer.o: USE_MIMALLOC=0
 %-sanitizer.o: %.c
 	$(CC) $(CFLAGS) $(SANITIZER_FLAGS) -c -o $@ $<
 
