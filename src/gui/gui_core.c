@@ -236,10 +236,6 @@ int main_init(void)
 
 void main_exit(void)
 {
-	xfree(dot);
-	dot = NULL;
-	xfree(but);
-	but = NULL;
 	xfree(skltab);
 	skltab = NULL;
 	skltab_max = 0;

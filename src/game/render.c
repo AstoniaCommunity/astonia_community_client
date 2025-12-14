@@ -21,14 +21,20 @@
 #include "client/client.h"
 #include "sdl/sdl.h"
 
-RenderFont *fonta_shaded = NULL;
-RenderFont *fonta_framed = NULL;
+static RenderFont fonta_shaded_storage[128];
+RenderFont *fonta_shaded = fonta_shaded_storage;
+static RenderFont fonta_framed_storage[128];
+RenderFont *fonta_framed = fonta_framed_storage;
 
-RenderFont *fontb_shaded = NULL;
-RenderFont *fontb_framed = NULL;
+static RenderFont fontb_shaded_storage[128];
+RenderFont *fontb_shaded = fontb_shaded_storage;
+static RenderFont fontb_framed_storage[128];
+RenderFont *fontb_framed = fontb_framed_storage;
 
-RenderFont *fontc_shaded = NULL;
-RenderFont *fontc_framed = NULL;
+static RenderFont fontc_shaded_storage[128];
+RenderFont *fontc_shaded = fontc_shaded_storage;
+static RenderFont fontc_framed_storage[128];
+RenderFont *fontc_framed = fontc_framed_storage;
 
 // Global rendering offset for window scaling and positioning
 int x_offset, y_offset;
@@ -966,7 +972,7 @@ void render_create_font(void)
 	uint32_t *pixel;
 	int dx, dy;
 
-	if (fonta_shaded) {
+	if (fonta_shaded[0].raw) {
 		return;
 	}
 
@@ -995,18 +1001,12 @@ void render_create_font(void)
 #endif
 	}
 
-	fonta_shaded = xmalloc(sizeof(RenderFont) * 128, MEM_GLOB);
 	create_shade_font(fonta, fonta_shaded);
-	fontb_shaded = xmalloc(sizeof(RenderFont) * 128, MEM_GLOB);
 	create_shade_font(fontb, fontb_shaded);
-	fontc_shaded = xmalloc(sizeof(RenderFont) * 128, MEM_GLOB);
 	create_shade_font(fontc, fontc_shaded);
 
-	fonta_framed = xmalloc(sizeof(RenderFont) * 128, MEM_GLOB);
 	create_frame_font(fonta, fonta_framed);
-	fontb_framed = xmalloc(sizeof(RenderFont) * 128, MEM_GLOB);
 	create_frame_font(fontb, fontb_framed);
-	fontc_framed = xmalloc(sizeof(RenderFont) * 128, MEM_GLOB);
 	create_frame_font(fontc, fontc_framed);
 }
 
@@ -1059,7 +1059,8 @@ struct letter {
 	unsigned char link;
 };
 
-struct letter *text = NULL;
+static struct letter text_storage[MAXTEXTLINES * MAXTEXTLETTERS];
+struct letter *text = text_storage;
 
 unsigned short palette[256];
 
@@ -1069,7 +1070,6 @@ unsigned short palette[256];
  */
 void render_init_text(void)
 {
-	text = xmalloc(sizeof(struct letter) * MAXTEXTLINES * MAXTEXTLETTERS, MEM_GLOB);
 	palette[0] = IRGB(31, 31, 31); // normal white text (talk, game messages)
 	palette[1] = IRGB(16, 16, 16); // dark gray text (now entering ...)
 	palette[2] = IRGB(16, 31, 16); // light green (normal chat)

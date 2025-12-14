@@ -26,7 +26,8 @@ int sdlt_best, sdlt_last;
 int *sdlt_cache;
 
 // Image cache
-struct sdl_image *sdli = NULL;
+static struct sdl_image sdli_storage[MAXSPRITE];
+struct sdl_image *sdli = sdli_storage;
 
 // Statistics
 int texc_used = 0;
