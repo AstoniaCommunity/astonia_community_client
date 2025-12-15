@@ -9,11 +9,20 @@ RUST_CPU_FLAGS=-C target-cpu=znver4
 else
 RUST_CPU_FLAGS=
 endif
+
+
+
 DEBUG=-gdwarf-4
 SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
 CFLAGS=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
 CFLAGS_PIC=$(OPT) $(DEBUG) -Wall -Wno-pointer-sign -Wno-char-subscripts -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,\$$ORIGIN
+
+# Release build ?
+ifneq (,$(findstring release,$(MAKECMDGOALS)))
+CFLAGS+= -DRELEASE
+CFLAGS_PIC+= -DRELEASE
+endif
 
 SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
 LIBS = -lz -lpng -lzip $(SDL_LIBS) -lSDL2_mixer -lm
@@ -32,11 +41,15 @@ OBJS	=		src/gui/gui_core.o src/gui/gui_input.o src/gui/gui_display.o src/gui/gui
 			src/gui/dots.o src/gui/display.o src/gui/teleport.o src/gui/color.o src/gui/cmd.o\
 			src/gui/questlog.o src/gui/context.o src/gui/hover.o src/gui/minimap.o\
 			src/game/memory_linux.o src/game/version.o
+			
 
 bin/moac:	$(OBJS) $(ASTONIA_NET_LIB)
 		mkdir -p bin
 		cp $(ASTONIA_NET_LIB) bin/
 		$(CC) $(LDFLAGS) -o bin/moac $(OBJS) $(LIBS) -Lbin -lastonia_net
+
+.PHONY: realease
+release: bin/moac
 
 $(ASTONIA_NET_LIB):
 		rustup target add $(ASTONIA_NET_TGT)

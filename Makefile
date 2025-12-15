@@ -28,6 +28,17 @@ endif
 # List of all platforms for iteration
 ALL_PLATFORMS := windows linux macos
 
+# Release build ?
+IS_RELEASE := 
+ifneq (,$(findstring release,$(MAKECMDGOALS)))
+IS_RELEASE := release
+endif
+# Dirty hack for build on github. Check CI enviroment variable (always true).
+# Source -> https://docs.github.com/en/actions/reference/workflows-and-actions/variables
+ifeq ($(CI),true)
+IS_RELEASE := release
+endif
+
 # Docker configuration
 DOCKER_CONTAINER_DIR := build/containers
 DOCKER_RUN_FLAGS := --rm -e HOST_UID=$(shell id -u) -e HOST_GID=$(shell id -g) -v "$(PWD):/app" -w /app
@@ -74,22 +85,22 @@ define docker-build-and-run-appimage
 endef
 
 # Default target - build for detected platform
-all:
-	@echo "Building for $(PLATFORM)..."
-	@$(MAKE) -f build/make/Makefile.$(PLATFORM)
+all: $(PLATFORM)
+
+release: all
 
 # Platform-specific targets
 windows:
 	@echo "Building for Windows..."
-	@$(MAKE) -f build/make/Makefile.windows
+	@$(MAKE) -f build/make/Makefile.windows $(IS_RELEASE)
 
 linux:
 	@echo "Building for Linux..."
-	@$(MAKE) -f build/make/Makefile.linux
+	@$(MAKE) -f build/make/Makefile.linux $(IS_RELEASE)
 
 macos:
 	@echo "Building for macOS..."
-	@$(MAKE) -f build/make/Makefile.macos
+	@$(MAKE) -f build/make/Makefile.macos $(IS_RELEASE)
 
 # Clean for all platforms
 clean:
@@ -185,4 +196,6 @@ docker-distrib-linux:
 # Include quality checks makefile (see build/make/Makefile.quality)
 include build/make/Makefile.quality
 
-.PHONY: all windows linux macos clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-windows docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage
+.PHONY: all windows linux macos clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-windows docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage release
+
+
