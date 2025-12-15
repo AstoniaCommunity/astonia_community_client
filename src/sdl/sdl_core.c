@@ -50,9 +50,9 @@ DLL_EXPORT int __yres = YRES0;
 // Worker thread management
 
 struct zip_handles;
-static struct zip_handles *worker_zips = NULL;
-static SDL_atomic_t worker_quit;
-static SDL_Thread **worker_threads = NULL;
+struct zip_handles *worker_zips = NULL;
+SDL_atomic_t worker_quit;
+SDL_Thread **worker_threads = NULL;
 
 // Image loading state machine (shared with sdl_image.c)
 static int sdli_state_storage[MAXSPRITE];

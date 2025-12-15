@@ -1,3 +1,5 @@
+.PHONY: all debug release windows linux macos macos-appbundle macos-signed-bundle clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-linux-debug docker-windows docker-windows-debug docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage test
+
 # Root Makefile - Platform dispatcher
 #
 # Usage:
@@ -121,6 +123,8 @@ macos-signed-bundle:
 clean:
 	@echo "Cleaning all platforms..."
 	@$(foreach platform,$(ALL_PLATFORMS),$(MAKE) -f build/make/Makefile.$(platform) clean 2>/dev/null || true;)
+	@echo "Cleaning test binaries..."
+	@rm -f bin/test* tests/*.o
 
 # Distribution staging target (delegates to platform-specific Makefile)
 distrib-stage:
@@ -229,4 +233,6 @@ docker-distrib-linux:
 # Include quality checks makefile (see build/make/Makefile.quality)
 include build/make/Makefile.quality
 
-.PHONY: all debug release windows linux macos macos-appbundle macos-signed-bundle clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-linux-debug docker-windows docker-windows-debug docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage
+# Run unit tests
+test:
+	@$(MAKE) -C tests run

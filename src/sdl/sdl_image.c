@@ -1169,8 +1169,11 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 		st->pixel = NULL;
 		st->tex = texture;
 
-		uint16_t *flags_ptr = (uint16_t *)&st->flags;
-		__atomic_fetch_or(flags_ptr, SF_DIDTEX, __ATOMIC_RELEASE);
+		// Only set SF_DIDTEX if we actually created a texture
+		if (texture) {
+			uint16_t *flags_ptr = (uint16_t *)&st->flags;
+			__atomic_fetch_or(flags_ptr, SF_DIDTEX, __ATOMIC_RELEASE);
+		}
 
 #ifdef DEVELOPER
 		extern long long sdl_time_tex;

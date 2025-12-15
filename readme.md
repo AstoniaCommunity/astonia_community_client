@@ -102,3 +102,11 @@ make lint       # Auto-fix code formatting
 make check      # Run all quality checks
 ```
 
+
+## Testing
+
+To run tests:
+
+```bash
+make test
+```

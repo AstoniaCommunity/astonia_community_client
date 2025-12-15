@@ -523,6 +523,7 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 			    &mem_tex, sdlt[cache_index].xres * sdlt[cache_index].yres * sizeof(uint32_t), __ATOMIC_RELAXED);
 			if (sdlt[cache_index].tex) {
 				SDL_DestroyTexture(sdlt[cache_index].tex);
+				sdlt[cache_index].tex = NULL; // Clear pointer after destroying
 			}
 		} else if (flags & SF_DIDALLOC) {
 			if (sdlt[cache_index].pixel) {
@@ -583,8 +584,6 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 	if (text) {
 		int w, h;
 		sdlt[cache_index].tex = sdl_maketext(text, (struct renderfont *)text_font, (uint32_t)text_color, text_flags);
-		uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
-		__atomic_store_n(flags_ptr, SF_USED | SF_TEXT | SF_DIDALLOC | SF_DIDMAKE | SF_DIDTEX, __ATOMIC_RELEASE);
 		sdlt[cache_index].text_color = (uint32_t)text_color;
 		sdlt[cache_index].text_flags = (uint16_t)text_flags;
 		sdlt[cache_index].text_font = text_font;
@@ -597,8 +596,14 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 			SDL_QueryTexture(sdlt[cache_index].tex, NULL, NULL, &w, &h);
 			sdlt[cache_index].xres = (uint16_t)w;
 			sdlt[cache_index].yres = (uint16_t)h;
+			// Set flags ONLY if tex creation succeeded
+			uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
+			__atomic_store_n(flags_ptr, SF_USED | SF_TEXT | SF_DIDALLOC | SF_DIDMAKE | SF_DIDTEX, __ATOMIC_RELEASE);
 		} else {
 			sdlt[cache_index].xres = sdlt[cache_index].yres = 0;
+			// Text creation failed - don't set SF_DIDTEX
+			uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
+			__atomic_store_n(flags_ptr, SF_USED | SF_TEXT | SF_DIDALLOC | SF_DIDMAKE, __ATOMIC_RELEASE);
 		}
 	} else {
 		if (preload != 1) {
