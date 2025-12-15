@@ -10,10 +10,11 @@
 #include <png.h>
 #include <SDL2/SDL.h>
 
-#define MAX_TEXCACHE (sdl_cache_size)
-#define MAX_TEXHASH                                                                                                    \
-	(sdl_cache_size) // Note: MAX_TEXCACHE and MAX_TEXHASH do not have to be the same value. It just turned out to work
-	                 // well if they are.
+// Fixed upper bound for the texture cache metadata.
+// 32k entries is only a few MB of metadata and comfortably covers typical usage.
+// Statically allocated at compile time
+#define MAX_TEXCACHE 32768
+#define MAX_TEXHASH  32768
 
 #define STX_NONE (-1)
 
@@ -30,8 +31,13 @@
 #define SF_DIDALLOC (1 << 3)
 #define SF_DIDMAKE  (1 << 4)
 #define SF_DIDTEX   (1 << 5)
-#define SF_CLAIMJOB (1 << 6)
-#define SF_INQUEUE  (1 << 7)
+
+// Texture job work state enum
+typedef enum texture_work_state {
+	TX_WORK_IDLE = 0, // no job queued, no worker running
+	TX_WORK_QUEUED, // job is in queue, not yet taken by a worker
+	TX_WORK_IN_WORKER, // worker popped job and is processing
+} texture_work_state_t;
 
 struct sdl_texture {
 	SDL_Texture *tex;
@@ -42,7 +48,11 @@ struct sdl_texture {
 
 	_Atomic(uint16_t) flags; // Atomic for lock-free reads, writes under mutex
 
-	int fortick; // pre-cached for tick X
+
+	// Versioning and work state for robust job queue
+	uint32_t generation; // Incremented each time this slot is reused (eviction only)
+	// See texture_work_state_t; MUST be modified under g_tex_jobs.mutex
+	_Atomic(uint8_t) work_state;
 
 	// ---------- sprites ------------
 	// fx
@@ -78,6 +88,32 @@ struct sdl_image {
 	int16_t xoff, yoff;
 };
 
+// Texture job queue structures
+#define TEX_JOB_CAPACITY 16384 // Large enough to handle all texture cache entries
+
+// Texture job kind - makes the job semantics explicit
+typedef enum texture_job_kind {
+	// Load from disk, allocate pixels, process effects
+	TEXTURE_JOB_MAKE_STAGES_1_2 = 0,
+	// Room for future job types (TEXTURE_JOB_FREE, TEXTURE_JOB_RELOAD, etc.)
+} texture_job_kind_t;
+
+typedef struct texture_job {
+	int cache_index; // index into sdlt[]
+	uint32_t generation; // snapshot of sdlt[cache_index].generation
+	texture_job_kind_t kind; // what operation to perform
+} texture_job_t;
+
+typedef struct texture_job_queue {
+	texture_job_t jobs[TEX_JOB_CAPACITY];
+	int head; // pop position
+	int tail; // push position
+	int count; // number of jobs in queue
+
+	SDL_mutex *mutex;
+	SDL_cond *cond;
+} texture_job_queue_t;
+
 // Lock-free flag operation helpers
 // These provide consistent atomic ordering across all SDL modules
 // Must be defined after struct sdl_texture is complete
@@ -87,26 +123,22 @@ static inline uint16_t flags_load(struct sdl_texture *st)
 	return __atomic_load_n(flags_ptr, __ATOMIC_ACQUIRE);
 }
 
-// Atomically set flag if not already set (returns 1 if successfully set, 0 if already set)
-static inline int flags_set_if_not_set(struct sdl_texture *st, uint16_t mask)
+// Work state load helper
+// Can be called without mutex for diagnostic reads, but any decision based on
+// the value that affects eviction or queue state MUST be done under mutex.
+static inline uint8_t work_state_load(struct sdl_texture *st)
 {
-	uint16_t *flags_ptr = (uint16_t *)&st->flags;
-	uint16_t old, new;
-	do {
-		old = __atomic_load_n(flags_ptr, __ATOMIC_ACQUIRE);
-		if (old & mask) {
-			return 0; // Already set
-		}
-		new = old | mask;
-	} while (!__atomic_compare_exchange_n(flags_ptr, &old, new, 0, __ATOMIC_RELEASE, __ATOMIC_ACQUIRE));
-	return 1; // Successfully set
+	uint8_t *state_ptr = (uint8_t *)&st->work_state;
+	return __atomic_load_n(state_ptr, __ATOMIC_ACQUIRE);
 }
 
-// Atomically claim a job - returns true if already claimed (by another thread), false if we claimed it
-static inline int job_claimed(struct sdl_texture *st)
+// Work state store helper
+// Caller MUST hold g_tex_jobs.mutex.
+// Stores are always coordinated with queue state changes under the mutex.
+static inline void work_state_store(struct sdl_texture *st, texture_work_state_t new_state)
 {
-	// Returns 1 if already claimed, 0 if we successfully claimed it
-	return !flags_set_if_not_set(st, SF_CLAIMJOB);
+	uint8_t *state_ptr = (uint8_t *)&st->work_state;
+	__atomic_store_n(state_ptr, (uint8_t)new_state, __ATOMIC_RELEASE);
 }
 
 #ifndef HAVE_DDFONT
@@ -133,13 +165,10 @@ int sdl_ic_load(unsigned int sprite, struct zip_handles *zips);
 int sdl_pre_backgnd(void *ptr);
 int sdl_create_cursors(void);
 SDL_Cursor *sdl_create_cursor(char *filename);
-void sdl_pre_add(tick_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
-    char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl,
-    char ul, char dl);
+void sdl_pre_add(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
+    char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl);
 void sdl_lock(void *a);
-int sdl_pre_ready(void);
-int sdl_pre_done(void);
-int sdl_pre_do(tick_t curtick);
+int sdl_pre_do(void);
 
 #define MAX_SOUND_CHANNELS 32
 #define MAXSOUND           100
@@ -160,15 +189,16 @@ extern zip_t *sdl_zip2p;
 extern zip_t *sdl_zip1m;
 extern zip_t *sdl_zip2m;
 extern SDL_mutex *premutex;
-extern int pre_in, pre_ready, pre_done;
 extern int *sdli_state; // Image loading state machine
+extern texture_job_queue_t g_tex_jobs; // Texture job queue
+extern int sdl_cache_size; // Requested size (for logging / config), not allocation
 
 // ============================================================================
 // Shared variables from sdl_texture.c
 // ============================================================================
-extern struct sdl_texture *sdlt;
+extern struct sdl_texture sdlt[MAX_TEXCACHE];
 extern int sdlt_best, sdlt_last;
-extern int *sdlt_cache;
+extern int sdlt_cache[MAX_TEXHASH];
 extern struct sdl_image *sdli;
 
 extern int texc_used;
@@ -193,10 +223,13 @@ extern int maxpanic;
 // ============================================================================
 // Internal functions from sdl_texture.c
 // ============================================================================
-void sdl_tx_best(int stx);
+void sdl_tx_best(int cache_index);
 int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
     char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl,
-    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload, int fortick);
+    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload);
+void tex_jobs_init(void);
+void tex_jobs_shutdown(void);
+int tex_jobs_pop(texture_job_t *out_job, int should_block);
 
 #ifdef DEVELOPER
 void sdl_dump_spritecache(void);
@@ -235,8 +268,35 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 // ============================================================================
 // Internal functions from sdl_core.c
 // ============================================================================
-void neutralize_stale_jobs(int stx);
-int sdl_pre_worker(struct zip_handles *zips);
-int next_job_id(void);
+int sdl_pre_worker(void);
+
+// ============================================================================
+// Test-only functions (compiled only when UNIT_TEST is defined)
+// ============================================================================
+
+#ifdef UNIT_TEST
+
+// Initialize SDL subsystems for testing without window/audio/real I/O
+int sdl_init_for_tests(int requested_cache_size);
+
+// Initialize with background worker threads enabled
+int sdl_init_for_tests_with_workers(int requested_cache_size, int worker_count);
+
+// Tear down test state (stop workers, free resources)
+void sdl_shutdown_for_tests(void);
+
+// Pump the prefetch pipeline without full game loop
+int sdl_pre_tick_for_tests(void);
+
+// Check all cache/queue/LRU invariants (returns 0 on success, -1 on bug)
+int sdl_check_invariants_for_tests(void);
+
+// Test-only introspection helpers (read-only, no side effects)
+uint16_t sdl_texture_get_flags_for_test(int cache_index);
+int sdl_texture_get_sprite_for_test(int cache_index);
+uint8_t sdl_texture_get_work_state_for_test(int cache_index);
+int sdl_get_job_queue_depth_for_test(void);
+
+#endif /* UNIT_TEST */
 
 #endif // SDL_PRIVATE_H

@@ -6,6 +6,7 @@
  * Texture cache management, hash functions, allocation, and the main sdl_tx_load function.
  */
 
+#include <assert.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -20,14 +21,17 @@
 extern int sockstate; // Declare early for use in wait logging
 #endif
 
-// Texture cache data
-struct sdl_texture *sdlt = NULL;
+// Texture cache data (statically allocated)
+struct sdl_texture sdlt[MAX_TEXCACHE];
 int sdlt_best, sdlt_last;
-int *sdlt_cache;
+int sdlt_cache[MAX_TEXHASH];
 
 // Image cache
 static struct sdl_image sdli_storage[MAXSPRITE];
 struct sdl_image *sdli = sdli_storage;
+
+// New texture job queue
+texture_job_queue_t g_tex_jobs;
 
 // Statistics
 int texc_used = 0;
@@ -56,33 +60,102 @@ long long sdl_time_pre3 = 0;
 
 int maxpanic = 0;
 
-void sdl_tx_best(int stx)
-{
-	PARANOIA(if (stx == STX_NONE) paranoia("sdl_tx_best(): sidx=SIDX_NONE");)
-	PARANOIA(if (stx >= MAX_TEXCACHE) paranoia("sdl_tx_best(): sidx>max_systemcache (%d>=%d)", stx, MAX_TEXCACHE);)
+// ============================================================================
+// New texture job queue implementation
+// ============================================================================
 
-	if (sdlt[stx].prev == STX_NONE) {
-		PARANOIA(if (stx != sdlt_best) paranoia("sdl_tx_best(): stx should be best");)
+void tex_jobs_init(void)
+{
+	memset(&g_tex_jobs, 0, sizeof(g_tex_jobs));
+	g_tex_jobs.mutex = SDL_CreateMutex();
+	g_tex_jobs.cond = SDL_CreateCond();
+	if (!g_tex_jobs.mutex || !g_tex_jobs.cond) {
+		fail("Failed to create texture job queue mutex/cond");
+		exit(1);
+	}
+}
+
+void tex_jobs_shutdown(void)
+{
+	if (g_tex_jobs.mutex) {
+		SDL_DestroyMutex(g_tex_jobs.mutex);
+		g_tex_jobs.mutex = NULL;
+	}
+	if (g_tex_jobs.cond) {
+		SDL_DestroyCond(g_tex_jobs.cond);
+		g_tex_jobs.cond = NULL;
+	}
+}
+
+int tex_jobs_pop(texture_job_t *out_job, int should_block)
+{
+	texture_job_queue_t *q = &g_tex_jobs;
+	SDL_LockMutex(q->mutex);
+
+	// Assert queue invariants
+	assert(q->count <= TEX_JOB_CAPACITY && "tex_jobs_pop: count > capacity");
+	assert(q->head < TEX_JOB_CAPACITY && "tex_jobs_pop: head >= capacity");
+	assert(q->tail < TEX_JOB_CAPACITY && "tex_jobs_pop: tail >= capacity");
+
+	while (q->count == 0) {
+		if (!should_block) {
+			SDL_UnlockMutex(q->mutex);
+			return 0;
+		}
+		SDL_CondWait(q->cond, q->mutex);
+	}
+
+	// Pop job from queue
+	int head_index = q->head;
+	*out_job = q->jobs[head_index];
+	q->head = (q->head + 1) % TEX_JOB_CAPACITY;
+	q->count--;
+
+	// Zero out the popped slot for debugging clarity
+	// (Makes it obvious in debugger/memory dumps when a slot is free vs stale)
+	memset(&q->jobs[head_index], 0, sizeof(texture_job_t));
+
+	// Assert the popped job has valid values
+	assert(
+	    out_job->cache_index >= 0 && out_job->cache_index < MAX_TEXCACHE && "tex_jobs_pop: popped invalid cache_index");
+	assert(out_job->generation != 0 && "tex_jobs_pop: popped job with generation=0");
+	assert(out_job->kind == TEXTURE_JOB_MAKE_STAGES_1_2 && "tex_jobs_pop: unknown job kind");
+
+	SDL_UnlockMutex(q->mutex);
+	return 1;
+}
+
+// ============================================================================
+// End of texture job queue implementation
+// ============================================================================
+
+void sdl_tx_best(int cache_index)
+{
+	assert(cache_index != STX_NONE && "sdl_tx_best(): sidx=SIDX_NONE");
+	assert(cache_index < MAX_TEXCACHE && "sdl_tx_best(): sidx>max_systemcache");
+
+	if (sdlt[cache_index].prev == STX_NONE) {
+		assert(cache_index == sdlt_best && "sdl_tx_best(): cache_index should be best");
 
 		return;
-	} else if (sdlt[stx].next == STX_NONE) {
-		PARANOIA(if (stx != sdlt_last) paranoia("sdl_tx_best(): sidx should be last");)
+	} else if (sdlt[cache_index].next == STX_NONE) {
+		assert(cache_index == sdlt_last && "sdl_tx_best(): sidx should be last");
 
-		sdlt_last = sdlt[stx].prev;
+		sdlt_last = sdlt[cache_index].prev;
 		sdlt[sdlt_last].next = STX_NONE;
-		sdlt[sdlt_best].prev = stx;
-		sdlt[stx].prev = STX_NONE;
-		sdlt[stx].next = sdlt_best;
-		sdlt_best = stx;
+		sdlt[sdlt_best].prev = cache_index;
+		sdlt[cache_index].prev = STX_NONE;
+		sdlt[cache_index].next = sdlt_best;
+		sdlt_best = cache_index;
 
 		return;
 	} else {
-		sdlt[sdlt[stx].prev].next = sdlt[stx].next;
-		sdlt[sdlt[stx].next].prev = sdlt[stx].prev;
-		sdlt[stx].prev = STX_NONE;
-		sdlt[stx].next = sdlt_best;
-		sdlt[sdlt_best].prev = stx;
-		sdlt_best = stx;
+		sdlt[sdlt[cache_index].prev].next = sdlt[cache_index].next;
+		sdlt[sdlt[cache_index].next].prev = sdlt[cache_index].prev;
+		sdlt[cache_index].prev = STX_NONE;
+		sdlt[cache_index].next = sdlt_best;
+		sdlt[sdlt_best].prev = cache_index;
+		sdlt_best = cache_index;
 		return;
 	}
 }
@@ -126,15 +199,14 @@ static inline unsigned int hashfunc_text(const char *text, int color, int flags)
 SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t color, int flags);
 
 // Forward declarations
-extern int next_job_id(void); // in sdl_core.c
 extern SDL_mutex *premutex;
-extern int sdl_pre_worker(struct zip_handles *zips); // in sdl_core.c
+extern int sdl_pre_worker(void); // in sdl_core.c
 
 int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
     char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl,
-    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload, int fortick)
+    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload)
 {
-	int stx, ptx, ntx, panic = 0;
+	int cache_index, ptx, ntx, panic = 0;
 	int hash;
 
 	if (!text) {
@@ -148,12 +220,12 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 		return STX_NONE;
 	}
 
-	for (stx = sdlt_cache[hash]; stx != STX_NONE; stx = sdlt[stx].hnext, panic++) {
+	for (cache_index = sdlt_cache[hash]; cache_index != STX_NONE; cache_index = sdlt[cache_index].hnext, panic++) {
 #ifdef DEVELOPER
 		// Detect and break self-loops to recover gracefully
-		if (sdlt[stx].hnext == stx) {
-			warn("Hash self-loop detected at stx=%d for sprite=%d - breaking chain", stx, sprite);
-			sdlt[stx].hnext = STX_NONE; // break the loop to recover gracefully
+		if (sdlt[cache_index].hnext == cache_index) {
+			warn("Hash self-loop detected at cache_index=%d for sprite=%d - breaking chain", cache_index, sprite);
+			sdlt[cache_index].hnext = STX_NONE; // break the loop to recover gracefully
 			if (panic > maxpanic) {
 				maxpanic = panic;
 			}
@@ -161,11 +233,13 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 		}
 #endif
 		if (panic > 999) {
-			warn("%04d: stx=%d, hprev=%d, hnext=%d sprite=%d (%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d,%p) PANIC\n", panic,
-			    stx, sdlt[stx].hprev, sdlt[stx].hnext, sprite, sdlt[stx].sink, sdlt[stx].freeze, sdlt[stx].scale,
-			    sdlt[stx].cr, sdlt[stx].cg, sdlt[stx].cb, sdlt[stx].light, sdlt[stx].sat, sdlt[stx].c1, sdlt[stx].c2,
-			    sdlt[stx].c3, sdlt[stx].shine, sdlt[stx].ml, sdlt[stx].ll, sdlt[stx].rl, sdlt[stx].ul, sdlt[stx].dl,
-			    (void *)sdlt[stx].text);
+			warn("%04d: cache_index=%d, hprev=%d, hnext=%d sprite=%d (%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d,%p) PANIC\n",
+			    panic, cache_index, sdlt[cache_index].hprev, sdlt[cache_index].hnext, sprite, sdlt[cache_index].sink,
+			    sdlt[cache_index].freeze, sdlt[cache_index].scale, sdlt[cache_index].cr, sdlt[cache_index].cg,
+			    sdlt[cache_index].cb, sdlt[cache_index].light, sdlt[cache_index].sat, sdlt[cache_index].c1,
+			    sdlt[cache_index].c2, sdlt[cache_index].c3, sdlt[cache_index].shine, sdlt[cache_index].ml,
+			    sdlt[cache_index].ll, sdlt[cache_index].rl, sdlt[cache_index].ul, sdlt[cache_index].dl,
+			    (void *)sdlt[cache_index].text);
 			if (panic > 1099) {
 #ifdef DEVELOPER
 				sdl_dump_spritecache();
@@ -174,80 +248,80 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 			}
 		}
 		if (text) {
-			if (!(flags_load(&sdlt[stx]) & SF_TEXT)) {
+			if (!(flags_load(&sdlt[cache_index]) & SF_TEXT)) {
 				continue;
 			}
-			if (!(sdlt[stx].tex)) {
+			if (!(sdlt[cache_index].tex)) {
 				continue; // text does not go through the preloader, so if the texture is empty maketext failed earlier.
 			}
-			if (!sdlt[stx].text || strcmp(sdlt[stx].text, text) != 0) {
+			if (!sdlt[cache_index].text || strcmp(sdlt[cache_index].text, text) != 0) {
 				continue;
 			}
-			if (sdlt[stx].text_flags != text_flags) {
+			if (sdlt[cache_index].text_flags != text_flags) {
 				continue;
 			}
-			if (sdlt[stx].text_color != (uint32_t)text_color) {
+			if (sdlt[cache_index].text_color != (uint32_t)text_color) {
 				continue;
 			}
-			if (sdlt[stx].text_font != text_font) {
+			if (sdlt[cache_index].text_font != text_font) {
 				continue;
 			}
 		} else {
-			if (!(flags_load(&sdlt[stx]) & SF_SPRITE)) {
+			if (!(flags_load(&sdlt[cache_index]) & SF_SPRITE)) {
 				continue;
 			}
-			if (sdlt[stx].sprite != sprite) {
+			if (sdlt[cache_index].sprite != sprite) {
 				continue;
 			}
-			if (sdlt[stx].sink != sink) {
+			if (sdlt[cache_index].sink != sink) {
 				continue;
 			}
-			if (sdlt[stx].freeze != freeze) {
+			if (sdlt[cache_index].freeze != freeze) {
 				continue;
 			}
-			if (sdlt[stx].scale != scale) {
+			if (sdlt[cache_index].scale != scale) {
 				continue;
 			}
-			if (sdlt[stx].cr != cr) {
+			if (sdlt[cache_index].cr != cr) {
 				continue;
 			}
-			if (sdlt[stx].cg != cg) {
+			if (sdlt[cache_index].cg != cg) {
 				continue;
 			}
-			if (sdlt[stx].cb != cb) {
+			if (sdlt[cache_index].cb != cb) {
 				continue;
 			}
-			if (sdlt[stx].light != light) {
+			if (sdlt[cache_index].light != light) {
 				continue;
 			}
-			if (sdlt[stx].sat != sat) {
+			if (sdlt[cache_index].sat != sat) {
 				continue;
 			}
-			if (sdlt[stx].c1 != c1) {
+			if (sdlt[cache_index].c1 != c1) {
 				continue;
 			}
-			if (sdlt[stx].c2 != c2) {
+			if (sdlt[cache_index].c2 != c2) {
 				continue;
 			}
-			if (sdlt[stx].c3 != c3) {
+			if (sdlt[cache_index].c3 != c3) {
 				continue;
 			}
-			if (sdlt[stx].shine != shine) {
+			if (sdlt[cache_index].shine != shine) {
 				continue;
 			}
-			if (sdlt[stx].ml != ml) {
+			if (sdlt[cache_index].ml != ml) {
 				continue;
 			}
-			if (sdlt[stx].ll != ll) {
+			if (sdlt[cache_index].ll != ll) {
 				continue;
 			}
-			if (sdlt[stx].rl != rl) {
+			if (sdlt[cache_index].rl != rl) {
 				continue;
 			}
-			if (sdlt[stx].ul != ul) {
+			if (sdlt[cache_index].ul != ul) {
 				continue;
 			}
-			if (sdlt[stx].dl != dl) {
+			if (sdlt[cache_index].dl != dl) {
 				continue;
 			}
 		}
@@ -263,13 +337,13 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 			maxpanic = panic;
 		}
 
-		if (!preload && (flags_load(&sdlt[stx]) & SF_SPRITE)) {
+		if (!preload && (flags_load(&sdlt[cache_index]) & SF_SPRITE)) {
 			// Wait for background workers to complete processing
 			panic = 0;
 #ifdef DEVELOPER
 			uint64_t wait_start = 0;
 #endif
-			while (!(flags_load(&sdlt[stx]) & SF_DIDMAKE)) {
+			while (!(flags_load(&sdlt[cache_index]) & SF_DIDMAKE)) {
 #ifdef DEVELOPER
 				if (wait_start == 0) {
 					wait_start = SDL_GetTicks64();
@@ -279,20 +353,24 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 #endif
 
 				// In single-threaded mode, process queue to make progress
-				if (!sdl_multi) {
-					sdl_pre_worker(NULL);
-				}
+				// (function guards on sdl_multi internally)
+				sdl_pre_worker();
 
 				SDL_Delay(1);
 
 				if (panic++ > 1000) {
-					uint16_t flags = flags_load(&sdlt[stx]);
+					uint16_t flags = flags_load(&sdlt[cache_index]);
+					uint8_t wstate = work_state_load(&sdlt[cache_index]);
+					const char *wstate_str = (wstate == TX_WORK_IDLE)        ? "idle"
+					                         : (wstate == TX_WORK_QUEUED)    ? "queued"
+					                         : (wstate == TX_WORK_IN_WORKER) ? "in_worker"
+					                                                         : "unknown";
 					// Worker is stuck or taking too long - give up this frame rather than corrupting memory
-					warn("Render thread timeout waiting for sprite %d (stx=%d, flags=%s %s %s %s) - giving up this "
-					     "frame",
-					    sdlt[stx].sprite, stx, (flags & SF_CLAIMJOB) ? "claimed" : "",
-					    (flags & SF_DIDALLOC) ? "didalloc" : "", (flags & SF_DIDMAKE) ? "didmake" : "",
-					    (flags & SF_DIDTEX) ? "didtex" : "");
+					warn("Render thread timeout waiting for sprite %d (cache_index=%d, work_state=%s, flags=%s%s%s) - "
+					     "giving up "
+					     "this frame",
+					    sdlt[cache_index].sprite, cache_index, wstate_str, (flags & SF_DIDALLOC) ? "didalloc " : "",
+					    (flags & SF_DIDMAKE) ? "didmake " : "", (flags & SF_DIDTEX) ? "didtex" : "");
 					// Return STX_NONE to skip this texture this frame - better than use-after-free
 					return STX_NONE;
 				}
@@ -306,76 +384,74 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 				// Suppress warnings during boot - only show "real" stalls (>= 10ms)
 				extern int sockstate;
 				if (sockstate >= 4 && wait_time >= 10) {
-					warn("Render thread waited %lu ms for sprite %d", (unsigned long)wait_time, sdlt[stx].sprite);
+					warn("Render thread waited %lu ms for sprite %d", (unsigned long)wait_time,
+					    sdlt[cache_index].sprite);
 				}
 #endif
 			}
 #endif
 
 			// make texture now if preload didn't finish it
-			if (!(flags_load(&sdlt[stx]) & SF_DIDTEX)) {
-				// printf("main-making texture for sprite %d\n",sprite);
+			if (!(flags_load(&sdlt[cache_index]) & SF_DIDTEX)) {
 #ifdef DEVELOPER
 				Uint64 start = SDL_GetTicks64();
-				sdl_make(sdlt + stx, sdli + sprite, 3);
+				sdl_make(sdlt + cache_index, sdli + sprite, 3);
 				sdl_time_tex_main += (long long)(SDL_GetTicks64() - start);
 #else
-				sdl_make(sdlt + stx, sdli + sprite, 3);
+				sdl_make(sdlt + cache_index, sdli + sprite, 3);
 #endif
 			}
 		}
 
-		sdl_tx_best(stx);
+		sdl_tx_best(cache_index);
 
 		// remove from old pos
-		ntx = sdlt[stx].hnext;
-		ptx = sdlt[stx].hprev;
+		ntx = sdlt[cache_index].hnext;
+		ptx = sdlt[cache_index].hprev;
 
 		if (ptx == STX_NONE) {
 			sdlt_cache[hash] = ntx;
 		} else {
-			sdlt[ptx].hnext = sdlt[stx].hnext;
+			sdlt[ptx].hnext = sdlt[cache_index].hnext;
 		}
 
 		if (ntx != STX_NONE) {
-			sdlt[ntx].hprev = sdlt[stx].hprev;
+			sdlt[ntx].hprev = sdlt[cache_index].hprev;
 		}
 
 		// add to top pos
 		ntx = sdlt_cache[hash];
 
 		if (ntx != STX_NONE) {
-			sdlt[ntx].hprev = stx;
+			sdlt[ntx].hprev = cache_index;
 		}
 
-		sdlt[stx].hprev = STX_NONE;
-		sdlt[stx].hnext = ntx;
+		sdlt[cache_index].hprev = STX_NONE;
+		sdlt[cache_index].hnext = ntx;
 
-		sdlt_cache[hash] = stx;
+		sdlt_cache[hash] = cache_index;
 
 		// update statistics
-		if (fortick) {
-			sdlt[stx].fortick = fortick;
-		}
 		if (!preload) {
 			texc_hit++;
 		}
 
-		return stx;
+		return cache_index;
 	}
 	if (checkonly) {
 		return 0;
 	}
 
-	stx = sdlt_last;
+	cache_index = sdlt_last;
 
-	// Try to evict an entry, potentially trying multiple LRU candidates if workers are stuck
+	// Try to evict an entry, potentially trying multiple LRU candidates if
+	// workers are stuck
 #ifdef DEVELOPER
 	static int sdl_eviction_failures = 0;
 #endif
 	for (int eviction_attempts = 0; eviction_attempts < 10; eviction_attempts++) {
 		// delete
-		if (!flags_load(&sdlt[stx])) {
+		if (!flags_load(&sdlt[cache_index])) {
 			// Empty slot, just use it
 			break;
 		}
@@ -383,58 +459,28 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 		int hash2;
 		int can_evict = 1;
 
-		// Wait for any in-progress work to complete before deleting
-		if (sdl_multi && (flags_load(&sdlt[stx]) & SF_SPRITE)) {
-			int panic = 0;
-			for (;;) {
-				uint16_t f = flags_load(&sdlt[stx]);
-
-				// No job queued/claimed -> nothing to wait for
-				if (!(f & (SF_INQUEUE | SF_CLAIMJOB))) {
-					break;
-				}
-
-				// Job started and CPU-side work finished -> safe to evict
-				if ((f & SF_CLAIMJOB) && (f & SF_DIDMAKE)) {
-					break;
-				}
-
-				SDL_Delay(1);
-
-				// Timeout handling: After 100ms of waiting, we need to decide whether to evict or skip this entry.
-				// The key distinction:
-				//   - SF_CLAIMJOB set: A worker has claimed and is actively processing this job. We must NOT evict.
-				//   - SF_INQUEUE set (but not SF_CLAIMJOB): Job is queued but unclaimed after 100ms. This is stale
-				//     and can be neutralized/evicted. The worker will see STX_NONE when it eventually processes it.
-				//   - Neither set: No job activity, safe to evict.
-				if (panic++ > 100) {
-					uint16_t *flags_ptr = (uint16_t *)&sdlt[stx].flags;
-					uint16_t f2 = __atomic_load_n(flags_ptr, __ATOMIC_ACQUIRE);
-					warn("Timeout waiting to evict stx=%d sprite=%d (flags=0x%04x)", stx, sdlt[stx].sprite, f2);
-
-					// If a job is actually in progress (claimed by a worker), do NOT evict this entry
-					if (f2 & SF_CLAIMJOB) {
-						// Worker still owns this entry, try previous LRU candidate
-						can_evict = 0;
-						int candidate = sdlt[stx].prev;
-						if (candidate == STX_NONE) {
-							// No more candidates, give up
-							return STX_NONE;
-						}
-						// Clear SF_INQUEUE and neutralize any stale queue entries before trying next candidate
-						__atomic_fetch_and(flags_ptr, (uint16_t)~SF_INQUEUE, __ATOMIC_RELEASE);
-						neutralize_stale_jobs(stx);
-						stx = candidate;
-						break;
+		// Check work_state under lock
+		if (sdl_multi && (flags_load(&sdlt[cache_index]) & SF_SPRITE)) {
+			SDL_LockMutex(g_tex_jobs.mutex);
+			if (sdlt[cache_index].work_state != TX_WORK_IDLE) {
+				// Slot has queued or in-progress work, cannot evict
+				SDL_UnlockMutex(g_tex_jobs.mutex);
+				can_evict = 0;
+				int candidate = sdlt[cache_index].prev;
+				if (candidate == STX_NONE) {
+					// No more candidates, give up
+#ifdef DEVELOPER
+					sdl_eviction_failures++;
+					if (sdl_eviction_failures == 1 || (sdl_eviction_failures % 100) == 0) {
+						warn("SDL: texture cache eviction failed %d times; workers may be busy", sdl_eviction_failures);
 					}
-
-					// No worker is claiming this entry. If SF_INQUEUE was set, the job is stale (queued but
-					// unclaimed for 100ms). Clear the flag and neutralize the queue entry, then proceed with eviction.
-					__atomic_fetch_and(flags_ptr, (uint16_t)~SF_INQUEUE, __ATOMIC_RELEASE);
-					neutralize_stale_jobs(stx);
-					break;
+#endif
+					return STX_NONE;
 				}
+				cache_index = candidate;
+				continue;
 			}
+			SDL_UnlockMutex(g_tex_jobs.mutex);
 		}
 
 		// If we can't evict this entry, try the next candidate
@@ -442,75 +488,87 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 			continue;
 		}
 
-		uint16_t flags = flags_load(&sdlt[stx]);
+		uint16_t flags = flags_load(&sdlt[cache_index]);
 		if (flags & SF_SPRITE) {
-			hash2 =
-			    (int)hashfunc(sdlt[stx].sprite, sdlt[stx].ml, sdlt[stx].ll, sdlt[stx].rl, sdlt[stx].ul, sdlt[stx].dl);
+			hash2 = (int)hashfunc(sdlt[cache_index].sprite, sdlt[cache_index].ml, sdlt[cache_index].ll,
+			    sdlt[cache_index].rl, sdlt[cache_index].ul, sdlt[cache_index].dl);
 		} else if (flags & SF_TEXT) {
-			hash2 = (int)hashfunc_text(sdlt[stx].text, (int)sdlt[stx].text_color, sdlt[stx].text_flags);
+			hash2 = (int)hashfunc_text(
+			    sdlt[cache_index].text, (int)sdlt[cache_index].text_color, sdlt[cache_index].text_flags);
 		} else {
 			hash2 = 0;
 			warn("weird entry in texture cache!");
 		}
 
-		ntx = sdlt[stx].hnext;
-		ptx = sdlt[stx].hprev;
+		ntx = sdlt[cache_index].hnext;
+		ptx = sdlt[cache_index].hprev;
 
 		if (ptx == STX_NONE) {
-			if (sdlt_cache[hash2] != stx) {
-				fail("sdli[sprite].stx!=stx\n");
+			if (sdlt_cache[hash2] != cache_index) {
+				fail("sdli[sprite].cache_index!=cache_index\n");
 				exit(42);
 			}
 			sdlt_cache[hash2] = ntx;
 		} else {
-			sdlt[ptx].hnext = sdlt[stx].hnext;
+			sdlt[ptx].hnext = sdlt[cache_index].hnext;
 		}
 
 		if (ntx != STX_NONE) {
-			sdlt[ntx].hprev = sdlt[stx].hprev;
+			sdlt[ntx].hprev = sdlt[cache_index].hprev;
 		}
 
-		flags = flags_load(&sdlt[stx]);
+		flags = flags_load(&sdlt[cache_index]);
 		if (flags & SF_DIDTEX) {
-			__atomic_sub_fetch(&mem_tex, sdlt[stx].xres * sdlt[stx].yres * sizeof(uint32_t), __ATOMIC_RELAXED);
-			if (sdlt[stx].tex) {
-				SDL_DestroyTexture(sdlt[stx].tex);
+			__atomic_sub_fetch(
+			    &mem_tex, sdlt[cache_index].xres * sdlt[cache_index].yres * sizeof(uint32_t), __ATOMIC_RELAXED);
+			if (sdlt[cache_index].tex) {
+				SDL_DestroyTexture(sdlt[cache_index].tex);
 			}
 		} else if (flags & SF_DIDALLOC) {
-			if (sdlt[stx].pixel) {
+			if (sdlt[cache_index].pixel) {
 #ifdef SDL_FAST_MALLOC
-				FREE(sdlt[stx].pixel);
+				FREE(sdlt[cache_index].pixel);
 #else
-				xfree(sdlt[stx].pixel);
+				xfree(sdlt[cache_index].pixel);
 #endif
-				sdlt[stx].pixel = NULL;
+				sdlt[cache_index].pixel = NULL;
 			}
 		}
 #ifdef SDL_FAST_MALLOC
 		if (flags & SF_TEXT) {
-			FREE(sdlt[stx].text);
-			sdlt[stx].text = NULL;
+			FREE(sdlt[cache_index].text);
+			sdlt[cache_index].text = NULL;
 		}
 #else
 		if (flags & SF_TEXT) {
-			xfree(sdlt[stx].text);
-			sdlt[stx].text = NULL;
+			xfree(sdlt[cache_index].text);
+			sdlt[cache_index].text = NULL;
 		}
 #endif
 
-		uint16_t *flags_ptr = (uint16_t *)&sdlt[stx].flags;
+		uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
 		__atomic_store_n(flags_ptr, 0, __ATOMIC_RELEASE);
+
+		// Bump generation to invalidate any in-flight jobs for old contents
+		// Guard against wraparound: skip 0 which is reserved for "never valid"
+		uint32_t new_gen = sdlt[cache_index].generation + 1;
+		if (new_gen == 0) {
+			new_gen = 1;
+		}
+		sdlt[cache_index].generation = new_gen;
+		sdlt[cache_index].work_state = TX_WORK_IDLE;
+
 		break; // Successfully evicted, exit the retry loop
 	}
 
 	// *** SAFETY CHECK ***
 	// If after all that the entry is still non-empty, we failed to get a usable slot.
 	// Do NOT reuse it; that would corrupt the hash chains.
-	if (flags_load(&sdlt[stx])) {
+	if (flags_load(&sdlt[cache_index])) {
 #ifdef DEVELOPER
 		sdl_eviction_failures++;
 		if (sdl_eviction_failures == 1 || (sdl_eviction_failures % 100) == 0) {
-			warn("SDL: texture cache eviction failed %d times; workers may be wedged", sdl_eviction_failures);
+			warn("SDL: texture cache eviction failed %d times; workers may be busy", sdl_eviction_failures);
 		}
 #endif
 		// Could not free or find an empty entry in the limited attempts.
@@ -518,29 +576,29 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 		return STX_NONE;
 	}
 
-	// From here on, stx is guaranteed empty
+	// From here on, cache_index is guaranteed empty
 	texc_used++;
 
 	// build
 	if (text) {
 		int w, h;
-		sdlt[stx].tex = sdl_maketext(text, (struct renderfont *)text_font, (uint32_t)text_color, text_flags);
-		uint16_t *flags_ptr = (uint16_t *)&sdlt[stx].flags;
+		sdlt[cache_index].tex = sdl_maketext(text, (struct renderfont *)text_font, (uint32_t)text_color, text_flags);
+		uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
 		__atomic_store_n(flags_ptr, SF_USED | SF_TEXT | SF_DIDALLOC | SF_DIDMAKE | SF_DIDTEX, __ATOMIC_RELEASE);
-		sdlt[stx].text_color = (uint32_t)text_color;
-		sdlt[stx].text_flags = (uint16_t)text_flags;
-		sdlt[stx].text_font = text_font;
+		sdlt[cache_index].text_color = (uint32_t)text_color;
+		sdlt[cache_index].text_flags = (uint16_t)text_flags;
+		sdlt[cache_index].text_font = text_font;
 #ifdef SDL_FAST_MALLOC
-		sdlt[stx].text = STRDUP(text);
+		sdlt[cache_index].text = STRDUP(text);
 #else
-		sdlt[stx].text = xstrdup(text, MEM_TEMP7);
+		sdlt[cache_index].text = xstrdup(text, MEM_TEMP7);
 #endif
-		if (sdlt[stx].tex) {
-			SDL_QueryTexture(sdlt[stx].tex, NULL, NULL, &w, &h);
-			sdlt[stx].xres = (uint16_t)w;
-			sdlt[stx].yres = (uint16_t)h;
+		if (sdlt[cache_index].tex) {
+			SDL_QueryTexture(sdlt[cache_index].tex, NULL, NULL, &w, &h);
+			sdlt[cache_index].xres = (uint16_t)w;
+			sdlt[cache_index].yres = (uint16_t)h;
 		} else {
-			sdlt[stx].xres = sdlt[stx].yres = 0;
+			sdlt[cache_index].xres = sdlt[cache_index].yres = 0;
 		}
 	} else {
 		if (preload != 1) {
@@ -548,60 +606,57 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 		}
 
 		// Initialize all non-atomic fields first
-		sdlt[stx].sprite = sprite;
-		sdlt[stx].sink = sink;
-		sdlt[stx].freeze = freeze;
-		sdlt[stx].scale = scale;
-		sdlt[stx].cr = cr;
-		sdlt[stx].cg = cg;
-		sdlt[stx].cb = cb;
-		sdlt[stx].light = light;
-		sdlt[stx].sat = sat;
-		sdlt[stx].c1 = (uint16_t)c1;
-		sdlt[stx].c2 = (uint16_t)c2;
-		sdlt[stx].c3 = (uint16_t)c3;
-		sdlt[stx].shine = (uint16_t)shine;
-		sdlt[stx].ml = ml;
-		sdlt[stx].ll = ll;
-		sdlt[stx].rl = rl;
-		sdlt[stx].ul = ul;
-		sdlt[stx].dl = dl;
+		sdlt[cache_index].sprite = sprite;
+		sdlt[cache_index].sink = sink;
+		sdlt[cache_index].freeze = freeze;
+		sdlt[cache_index].scale = scale;
+		sdlt[cache_index].cr = cr;
+		sdlt[cache_index].cg = cg;
+		sdlt[cache_index].cb = cb;
+		sdlt[cache_index].light = light;
+		sdlt[cache_index].sat = sat;
+		sdlt[cache_index].c1 = (uint16_t)c1;
+		sdlt[cache_index].c2 = (uint16_t)c2;
+		sdlt[cache_index].c3 = (uint16_t)c3;
+		sdlt[cache_index].shine = (uint16_t)shine;
+		sdlt[cache_index].ml = ml;
+		sdlt[cache_index].ll = ll;
+		sdlt[cache_index].rl = rl;
+		sdlt[cache_index].ul = ul;
+		sdlt[cache_index].dl = dl;
 
-		// Set flags with RELEASE to establish happens-before: workers reading flags with ACQUIRE
+		// Set flags with RELEASE to establish happens-before: workers reading
+		// flags with ACQUIRE
 		// will see all the above fields as initialized
-		uint16_t *flags_ptr = (uint16_t *)&sdlt[stx].flags;
+		uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
 		__atomic_store_n(flags_ptr, SF_USED | SF_SPRITE, __ATOMIC_RELEASE);
 
 		if (preload != 1) {
-			sdl_make(sdlt + stx, sdli + sprite, preload);
+			sdl_make(sdlt + cache_index, sdli + sprite, preload);
 		}
 	}
 
 	ntx = sdlt_cache[hash];
 
 	if (ntx != STX_NONE) {
-		sdlt[ntx].hprev = stx;
+		sdlt[ntx].hprev = cache_index;
 	}
 
-	sdlt[stx].hprev = STX_NONE;
-	sdlt[stx].hnext = ntx;
+	sdlt[cache_index].hprev = STX_NONE;
+	sdlt[cache_index].hnext = ntx;
 
-	sdlt_cache[hash] = stx;
+	sdlt_cache[hash] = cache_index;
 
-	sdl_tx_best(stx);
+	sdl_tx_best(cache_index);
 
 	// update statistics
-	if (fortick) {
-		sdlt[stx].fortick = fortick;
-	}
-
 	if (preload) {
 		texc_pre++;
 	} else if (sprite) { // Do not count missed text sprites. Those are expected.
 		texc_miss++;
 	}
 
-	return stx;
+	return cache_index;
 }
 
 #ifdef DEVELOPER
@@ -690,9 +745,9 @@ void sdl_dump_spritecache(void)
 		}
 
 		if (flags_n & SF_SPRITE) {
-			fprintf(fp, "Sprite: %6u (%7d) %s%s%s%s\n", sdlt[n].sprite, sdlt[n].fortick,
-			    (flags_n & SF_USED) ? "SF_USED " : "", (flags_n & SF_DIDALLOC) ? "SF_DIDALLOC " : "",
-			    (flags_n & SF_DIDMAKE) ? "SF_DIDMAKE " : "", (flags_n & SF_DIDTEX) ? "SF_DIDTEX " : "");
+			fprintf(fp, "Sprite: %6u %s%s%s%s\n", sdlt[n].sprite, (flags_n & SF_USED) ? "SF_USED " : "",
+			    (flags_n & SF_DIDALLOC) ? "SF_DIDALLOC " : "", (flags_n & SF_DIDMAKE) ? "SF_DIDMAKE " : "",
+			    (flags_n & SF_DIDTEX) ? "SF_DIDTEX " : "");
 		}
 
 		/*fprintf(fp,"Sprite: %6d, Lights: %2d,%2d,%2d,%2d,%2d, Light: %3d, Colors: %3d,%3d,%3d, Colors: %4X,%4X,%4X,
@@ -728,40 +783,40 @@ void sdl_dump_spritecache(void)
 }
 #endif
 
-int sdlt_xoff(int stx)
+int sdlt_xoff(int cache_index)
 {
-	return sdlt[stx].xoff;
+	return sdlt[cache_index].xoff;
 }
 
-int sdlt_yoff(int stx)
+int sdlt_yoff(int cache_index)
 {
-	return sdlt[stx].yoff;
+	return sdlt[cache_index].yoff;
 }
 
-int sdlt_xres(int stx)
+int sdlt_xres(int cache_index)
 {
-	return sdlt[stx].xres;
+	return sdlt[cache_index].xres;
 }
 
-int sdlt_yres(int stx)
+int sdlt_yres(int cache_index)
 {
-	return sdlt[stx].yres;
+	return sdlt[cache_index].yres;
 }
 
-int sdl_tex_xres(int stx)
+int sdl_tex_xres(int cache_index)
 {
-	return sdlt[stx].xres;
+	return sdlt[cache_index].xres;
 }
 
-int sdl_tex_yres(int stx)
+int sdl_tex_yres(int cache_index)
 {
-	return sdlt[stx].yres;
+	return sdlt[cache_index].yres;
 }
 
-void sdl_tex_alpha(int stx, int alpha)
+void sdl_tex_alpha(int cache_index, int alpha)
 {
-	if (sdlt[stx].tex) {
-		SDL_SetTextureAlphaMod(sdlt[stx].tex, (Uint8)alpha);
+	if (sdlt[cache_index].tex) {
+		SDL_SetTextureAlphaMod(sdlt[cache_index].tex, (Uint8)alpha);
 	}
 }
 

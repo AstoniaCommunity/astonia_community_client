@@ -8,6 +8,7 @@
  * array.
  */
 
+#include <assert.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -28,7 +29,7 @@ static void set_but(int bidx, int x, int y, int hitrad, int flags);
 
 static void set_dot(int didx, int x, int y, int flags)
 {
-	PARANOIA(if (didx < 0 || didx >= MAX_DOT) paranoia("set_dot: ill didx=%d", didx);)
+	assert(didx >= 0 && didx < MAX_DOT && "set_dot: ill didx");
 
 	dot[didx].flags = flags;
 	dot[didx].x = x;
@@ -50,7 +51,7 @@ DLL_EXPORT int doty(int didx)
 
 static void set_but(int bidx, int x, int y, int hitrad, int flags)
 {
-	PARANOIA(if (bidx < 0 || bidx >= MAX_BUT) paranoia("set_but: ill bidx=%d", bidx);)
+	assert(bidx >= 0 && bidx < MAX_BUT && "set_but: ill bidx");
 
 	but[bidx].flags = flags;
 

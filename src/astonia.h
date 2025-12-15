@@ -54,8 +54,6 @@ typedef size_t map_index_t; // Map tile index, selection indices
 #define YRES1 650
 #define YRES2 500
 
-#define PARANOIA(a) a
-
 #ifndef bzero
 #define bzero(ptr, size) memset(ptr, 0, size)
 #endif

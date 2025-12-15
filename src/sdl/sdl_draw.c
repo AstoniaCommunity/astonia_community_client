@@ -81,10 +81,11 @@ static void sdl_blit_tex(
 	sdl_time_blit += (long long)(SDL_GetTicks64() - start);
 }
 
-void sdl_blit(int stx, int sx, int sy, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset)
+void sdl_blit(
+    int cache_index, int sx, int sy, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset)
 {
-	if (sdlt[stx].tex) {
-		sdl_blit_tex(sdlt[stx].tex, sx, sy, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+	if (sdlt[cache_index].tex) {
+		sdl_blit_tex(sdlt[cache_index].tex, sx, sy, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
 	}
 }
 
@@ -179,7 +180,7 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 int sdl_drawtext(int sx, int sy, unsigned short int color, int flags, const char *text, struct renderfont *font,
     int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset)
 {
-	int dx, stx;
+	int dx, cache_index;
 	SDL_Texture *tex;
 	int r, g, b, a;
 	const char *c;
@@ -196,9 +197,9 @@ int sdl_drawtext(int sx, int sy, unsigned short int color, int flags, const char
 	if (flags & RENDER_TEXT_NOCACHE) {
 		tex = sdl_maketext(text, font, (uint32_t)IRGBA(r, g, b, a), flags);
 	} else {
-		stx = sdl_tx_load(
-		    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, text, (int)IRGBA(r, g, b, a), flags, font, 0, 0, 0);
-		tex = sdlt[stx].tex;
+		cache_index = sdl_tx_load(
+		    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, text, (int)IRGBA(r, g, b, a), flags, font, 0, 0);
+		tex = sdlt[cache_index].tex;
 	}
 
 	for (dx = 0, c = text; *c; c++) {

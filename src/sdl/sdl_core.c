@@ -47,25 +47,12 @@ DLL_EXPORT int sdl_multi = 4;
 DLL_EXPORT int sdl_cache_size = 8000;
 DLL_EXPORT int __yres = YRES0;
 
-// Prefetch buffer
-#define MAXPRE (16384)
-
-struct prefetch {
-	tick_t attick;
-	int stx;
-};
-static struct prefetch pre[MAXPRE];
-int pre_in = 0, pre_ready = 0, pre_done = 0;
-
-// Job queue for background workers
-static int job_queue[MAXPRE];
-static int jq_head = 0, jq_tail = 0;
-
 // Worker thread management
+
 struct zip_handles;
 static struct zip_handles *worker_zips = NULL;
-static SDL_atomic_t pre_quit;
-static SDL_Thread **prethreads = NULL;
+static SDL_atomic_t worker_quit;
+static SDL_Thread **worker_threads = NULL;
 
 // Image loading state machine (shared with sdl_image.c)
 static int sdli_state_storage[MAXSPRITE];
@@ -81,7 +68,7 @@ void sdl_dump(FILE *fp)
 	fprintf(fp, "sdl_scale: %d\n", sdl_scale);
 	fprintf(fp, "sdl_frames: %d\n", sdl_frames);
 	fprintf(fp, "sdl_multi: %d\n", sdl_multi);
-	fprintf(fp, "sdl_cache_size: %d\n", sdl_cache_size);
+	fprintf(fp, "sdl_cache_size: %d (max=%d)\n", sdl_cache_size, MAX_TEXCACHE);
 
 	fprintf(fp, "mem_png: %lld\n", (long long)__atomic_load_n(&mem_png, __ATOMIC_RELAXED));
 	fprintf(fp, "mem_tex: %lld\n", (long long)__atomic_load_n(&mem_tex, __ATOMIC_RELAXED));
@@ -137,20 +124,12 @@ int sdl_init(int width, int height, char *title)
 		return 0;
 	}
 
-	sdlt_cache = xmalloc((size_t)MAX_TEXHASH * sizeof(int), MEM_SDL_BASE);
-	if (!sdlt_cache) {
-		return fail("Out of memory in sdl_init");
-	}
-
+	// Initialize hash table (statically allocated)
 	for (i = 0; i < MAX_TEXHASH; i++) {
 		sdlt_cache[i] = STX_NONE;
 	}
 
-	sdlt = xmalloc((size_t)MAX_TEXCACHE * sizeof(struct sdl_texture), MEM_SDL_BASE);
-	if (!sdlt) {
-		return fail("Out of memory in sdl_init");
-	}
-
+	// Initialize texture cache (statically allocated)
 	for (i = 0; i < MAX_TEXCACHE; i++) {
 		// Initialize flags atomically
 		uint16_t *flags_ptr = (uint16_t *)&sdlt[i].flags;
@@ -159,11 +138,18 @@ int sdl_init(int width, int height, char *title)
 		sdlt[i].next = i + 1;
 		sdlt[i].hnext = STX_NONE;
 		sdlt[i].hprev = STX_NONE;
+		// Initialize new fields:
+		// Generation starts at 1 (0 is reserved for "never valid for jobs")
+		sdlt[i].generation = 1;
+		sdlt[i].work_state = TX_WORK_IDLE;
 	}
 	sdlt[0].prev = STX_NONE;
 	sdlt[MAX_TEXCACHE - 1].next = STX_NONE;
 	sdlt_best = 0;
 	sdlt_last = MAX_TEXCACHE - 1;
+
+	// Initialize the new texture job queue
+	tex_jobs_init();
 
 	SDL_RaiseWindow(sdlwnd);
 
@@ -274,7 +260,7 @@ int sdl_init(int width, int height, char *title)
 		return 0;
 	}
 
-	SDL_AtomicSet(&pre_quit, 0);
+	SDL_AtomicSet(&worker_quit, 0);
 
 	if (sdl_multi) {
 		char buf[80];
@@ -344,8 +330,8 @@ int sdl_init(int width, int height, char *title)
 
 			// Only create threads if all zip handles succeeded
 			if (sdl_multi > 0) {
-				prethreads = xmalloc((size_t)sdl_multi * sizeof(SDL_Thread *), MEM_SDL_BASE);
-				if (!prethreads) {
+				worker_threads = xmalloc((size_t)sdl_multi * sizeof(SDL_Thread *), MEM_SDL_BASE);
+				if (!worker_threads) {
 					fail("Out of memory for thread handles");
 					// Clean up zip handles
 					for (n = 0; n < sdl_multi; n++) {
@@ -375,19 +361,19 @@ int sdl_init(int width, int height, char *title)
 					// Create all threads
 					for (n = 0; n < sdl_multi; n++) {
 						sprintf(buf, "moac background worker %d", n);
-						prethreads[n] = SDL_CreateThread(sdl_pre_backgnd, buf, (void *)(long long)n);
-						if (!prethreads[n]) {
+						worker_threads[n] = SDL_CreateThread(sdl_pre_backgnd, buf, (void *)(long long)n);
+						if (!worker_threads[n]) {
 							warn("Failed to create worker thread %d", n);
 							// Signal quit and join already created threads
-							SDL_AtomicSet(&pre_quit, 1);
+							SDL_AtomicSet(&worker_quit, 1);
 							for (int i = 0; i < n; i++) {
-								if (prethreads[i]) {
-									SDL_WaitThread(prethreads[i], NULL);
+								if (worker_threads[i]) {
+									SDL_WaitThread(worker_threads[i], NULL);
 								}
 							}
 							// Clean up
-							xfree(prethreads);
-							prethreads = NULL;
+							xfree(worker_threads);
+							worker_threads = NULL;
 							for (int i = 0; i < sdl_multi; i++) {
 								if (worker_zips[i].zip1) {
 									zip_close(worker_zips[i].zip1);
@@ -443,8 +429,8 @@ int sdl_render(void)
 void sdl_exit(void)
 {
 	// Signal workers to quit and join them
-	if (sdl_multi && prethreads) {
-		SDL_AtomicSet(&pre_quit, 1);
+	if (sdl_multi && worker_threads) {
+		SDL_AtomicSet(&worker_quit, 1);
 
 		// Wake all workers so they can see the quit signal
 		// (they're blocked on SDL_SemWait)
@@ -455,12 +441,12 @@ void sdl_exit(void)
 		}
 
 		for (int n = 0; n < sdl_multi; n++) {
-			if (prethreads[n]) {
-				SDL_WaitThread(prethreads[n], NULL);
+			if (worker_threads[n]) {
+				SDL_WaitThread(worker_threads[n], NULL);
 			}
 		}
-		xfree(prethreads);
-		prethreads = NULL;
+		xfree(worker_threads);
+		worker_threads = NULL;
 	}
 
 	// Close worker zip handles
@@ -517,6 +503,9 @@ void sdl_exit(void)
 		SDL_DestroyMutex(premutex);
 		premutex = NULL;
 	}
+
+	// Shutdown the new texture job queue
+	tex_jobs_shutdown();
 
 	if (game_options & GO_SOUND) {
 		Mix_Quit();
@@ -789,113 +778,55 @@ void sdl_set_cursor(int cursor)
 	SDL_SetCursor(curs[cursor]);
 }
 
-// Helper function to get next job from queue (returns -1 if queue is empty)
-int next_job_id(void)
-{
-	int idx = -1;
-	if (!premutex) {
-		fail("premutex is NULL in next_job_id");
-		abort();
-	}
-	SDL_LockMutex(premutex);
-	if (jq_head != jq_tail) {
-		idx = job_queue[jq_head];
-		jq_head = (jq_head + 1) % MAXPRE;
-	}
-	SDL_UnlockMutex(premutex);
-	return idx;
-}
-
-// Neutralize stale jobs in the queue for a given stx
-void neutralize_stale_jobs(int stx)
-{
-	if (!premutex) {
-		return;
-	}
-
-	SDL_LockMutex(premutex);
-	int qpos = jq_head;
-	while (qpos != jq_tail) {
-		int idx = job_queue[qpos];
-		if (idx >= 0 && idx < MAXPRE && pre[idx].stx == stx) {
-			pre[idx].stx = STX_NONE; // kill job
-		}
-		qpos = (qpos + 1) % MAXPRE;
-	}
-	SDL_UnlockMutex(premutex);
-}
-
 // Worker function to process jobs from the queue
-// Returns 1 if work was found and processed, 0 if queue was empty
-int sdl_pre_worker(struct zip_handles *zips)
+// Used in single-threaded mode (called from main thread)
+// Returns 1 if work was found and processed, 0 if queue was empty or no work
+// was done because it was called from a multi-threaded context.
+int sdl_pre_worker(void)
 {
-	extern struct sdl_texture *sdlt;
-	extern struct sdl_image *sdli;
-	extern int sdl_ic_load(unsigned int sprite, struct zip_handles *zips);
-	extern void sdl_make(struct sdl_texture * st, struct sdl_image * si, int preload);
+	// This function is ONLY for single-threaded mode
+	// In multi-threaded mode, worker threads run their own loop
+	if (sdl_multi) {
+		return 0;
+	}
 
-	int idx = next_job_id();
-	if (idx == -1) {
+	// Pop a job from the queue (non-blocking)
+	texture_job_t job;
+	if (!tex_jobs_pop(&job, 0)) {
 		return 0; // Queue empty
 	}
 
-	int stx = pre[idx].stx;
-	if (stx == STX_NONE) {
-		// Job was neutralized
+	int cache_index = job.cache_index;
+	struct sdl_texture *tex = &sdlt[cache_index];
+
+	// Single-threaded: no races possible, generation check is sufficient
+	// If generation changed, the slot was evicted and reused - abandon this work
+	if (tex->generation != job.generation) {
 		return 0;
 	}
 
-	if (stx < 0 || stx >= MAX_TEXCACHE) {
-		// Invalid stx
+	// Mark in-worker (no lock needed in single-threaded mode)
+	tex->work_state = TX_WORK_IN_WORKER;
+
+	// Do the actual work: load image and do stages 1+2
+	unsigned int sprite = tex->sprite;
+
+	if (sdl_ic_load(sprite, NULL) < 0) {
+		// Failed: mark idle and leave DIDMAKE unset
+		// Generation can't change under us in single-threaded mode.
 		return 0;
 	}
 
-	// Check if already processed
-	uint16_t flags = flags_load(&sdlt[stx]);
-	if (flags & SF_DIDMAKE) {
-		// Already processed
-		return 0;
-	}
-
-	// Try to claim the job atomically
-	if (job_claimed(&sdlt[stx])) {
-		// Already claimed by another worker
-		return 0;
-	}
-
-	// Clear SF_INQUEUE now that we've claimed the job
-	uint16_t *flags_ptr = (uint16_t *)&sdlt[stx].flags;
-	__atomic_fetch_and(flags_ptr, (uint16_t)~SF_INQUEUE, __ATOMIC_RELEASE);
-
-	unsigned int sprite = sdlt[stx].sprite;
-
-	// Load image using worker's zip handles
-	if (sdl_ic_load(sprite, zips) < 0) {
-		// Loading failed; mark as done but with no texture
-		__atomic_fetch_or(flags_ptr, SF_DIDMAKE, __ATOMIC_RELEASE);
-		return 0;
-	}
-
-	// Stage 1: Allocate pixel buffer
-	sdl_make(sdlt + stx, sdli + sprite, 1);
-	if (!sdlt[stx].pixel) {
-		// Allocation failed
-		__atomic_fetch_or(flags_ptr, SF_DIDALLOC | SF_DIDMAKE, __ATOMIC_RELEASE);
-		return 0;
-	}
-
-	// Stage 2: Process pixels
-	sdl_make(sdlt + stx, sdli + sprite, 2);
-	__atomic_fetch_or(flags_ptr, SF_DIDMAKE, __ATOMIC_RELEASE);
+	// Stage 1 + 2
+	sdl_make(tex, &sdli[sprite], 1);
+	sdl_make(tex, &sdli[sprite], 2);
 
 	return 1;
 }
 
-void sdl_pre_add(tick_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
-    char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl,
-    char ul, char dl)
+void sdl_pre_add(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
+    char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl)
 {
-	int n;
 	Uint64 start;
 
 	if (sprite >= MAXSPRITE) {
@@ -903,59 +834,76 @@ void sdl_pre_add(tick_t attick, unsigned int sprite, signed char sink, unsigned 
 		return;
 	}
 
-	// Find in texture cache (expensive operation done outside lock)
-	// Will allocate a new entry if not found, or return -1 if already in cache
+	// Ensure there is a cache slot (but don't force full make+tex)
 	start = SDL_GetTicks64();
-	n = sdl_tx_load(sprite, sink, freeze, scale, cr, cg, cb, light, sat, c1, c2, c3, shine, ml, ll, rl, ul, dl, NULL, 0,
-	    0, NULL, 0, 1, (int)attick);
+	int cache_index = sdl_tx_load(sprite, sink, freeze, scale, cr, cg, cb, light, sat, c1, c2, c3, shine, ml, ll, rl,
+	    ul, dl, NULL, 0, 0, NULL, 0, 1);
 	extern long long sdl_time_alloc;
 	sdl_time_alloc += (long long)(SDL_GetTicks64() - start);
 
-	if (n == -1) {
-		// Already in cache or failed
+	if (cache_index == -1) {
+		// Already in cache
 		return;
 	}
 
-	// Check if job is already queued or claimed
-	extern struct sdl_texture *sdlt;
-	uint16_t flags = flags_load(&sdlt[n]);
-	if (flags & (SF_CLAIMJOB | SF_INQUEUE)) {
-		// Already queued or being processed
+	if (cache_index == STX_NONE) {
+		// Failed to allocate
 		return;
 	}
 
-	// Lock mutex to add to queue
-	SDL_LockMutex(premutex);
+	struct sdl_texture *slot = &sdlt[cache_index];
 
-	// Double-check after acquiring lock
-	flags = flags_load(&sdlt[n]);
-	if (flags & (SF_CLAIMJOB | SF_INQUEUE)) {
-		SDL_UnlockMutex(premutex);
+	// Single-threaded: do the CPU work inline
+	if (!sdl_multi) {
+		if (!(flags_load(slot) & SF_DIDMAKE)) {
+			unsigned int sprite_id = slot->sprite;
+			if (sdl_ic_load(sprite_id, NULL) >= 0) {
+				sdl_make(slot, &sdli[sprite_id], 1);
+				sdl_make(slot, &sdli[sprite_id], 2);
+			}
+		}
 		return;
 	}
 
-	// Check if buffer is full
-	if ((pre_in + 1) % MAXPRE == pre_done) {
-		SDL_UnlockMutex(premutex);
+	// Multi-threaded: enqueue background job
+	SDL_LockMutex(g_tex_jobs.mutex);
+
+	// Check if already queued or in-progress
+	if (slot->work_state != TX_WORK_IDLE) {
+		SDL_UnlockMutex(g_tex_jobs.mutex);
 		return;
 	}
 
-	// Set SF_INQUEUE before adding to queue
-	uint16_t *flags_ptr = (uint16_t *)&sdlt[n].flags;
-	__atomic_fetch_or(flags_ptr, SF_INQUEUE, __ATOMIC_RELEASE);
+	// Check if queue is full
+	if (g_tex_jobs.count >= TEX_JOB_CAPACITY) {
+#ifdef DEVELOPER
+		static uint64_t last_log_time = 0;
+		uint64_t now = SDL_GetTicks64();
+		if (now - last_log_time > 1000) {
+			warn("Texture job queue full: capacity=%d, dropping preload for sprite %u", TEX_JOB_CAPACITY, sprite);
+			last_log_time = now;
+		}
+#endif
+		SDL_UnlockMutex(g_tex_jobs.mutex);
+		return;
+	}
 
-	// Add to prefetch buffer
-	int idx = pre_in;
-	pre[idx].stx = n;
-	pre[idx].attick = attick;
-	pre_in = (pre_in + 1) % MAXPRE;
+	// Add job to queue
+	texture_job_t *job = &g_tex_jobs.jobs[g_tex_jobs.tail];
+	job->cache_index = cache_index;
+	job->generation = slot->generation;
+	job->kind = TEXTURE_JOB_MAKE_STAGES_1_2;
 
-	// Add to job queue
-	job_queue[jq_tail] = idx;
-	jq_tail = (jq_tail + 1) % MAXPRE;
+	g_tex_jobs.tail = (g_tex_jobs.tail + 1) % TEX_JOB_CAPACITY;
+	g_tex_jobs.count++;
 
-	SDL_UnlockMutex(premutex);
+	// Mark as queued
+	slot->work_state = TX_WORK_QUEUED;
 
+	SDL_CondSignal(g_tex_jobs.cond);
+	SDL_UnlockMutex(g_tex_jobs.mutex);
+
+	// Wake a worker
 	SDL_SemPost(prework);
 }
 
@@ -970,95 +918,41 @@ void sdl_lock(void *a)
 
 #define SDL_LockMutex(a) sdl_lock(a)
 
-int sdl_pre_ready(void)
-{
-	extern struct sdl_texture *sdlt;
-	extern struct sdl_image *sdli;
-
-	if (pre_in == pre_ready) {
-		return 0; // prefetch buffer is empty
-	}
-
-	int stx = pre[pre_ready].stx;
-	if (stx == STX_NONE) {
-		// Slot is dead; skip it
-		pre_ready = (pre_ready + 1) % MAXPRE;
-		return 1;
-	}
-
-	uint16_t flags = flags_load(&sdlt[stx]);
-
-	if (flags & SF_DIDMAKE) {
-		pre_ready = (pre_ready + 1) % MAXPRE;
-		return 1;
-	}
-
-	return 1; // work still pending
-}
-
-int sdl_pre_done(void)
-{
-	extern struct sdl_texture *sdlt;
-	extern struct sdl_image *sdli;
-
-	if (pre_ready == pre_done) {
-		return 0; // prefetch buffer is empty
-	}
-
-	int stx = pre[pre_done].stx;
-	if (stx == STX_NONE) {
-		pre_done = (pre_done + 1) % MAXPRE;
-		return 1;
-	}
-
-	uint16_t flags = flags_load(&sdlt[stx]);
-	if (!(flags & SF_DIDTEX) && (flags & SF_DIDMAKE)) {
-		sdl_make(sdlt + stx, sdli + sdlt[stx].sprite, 3);
-	}
-
-	pre[pre_done].stx = STX_NONE; // Clear slot after processing
-	pre_done = (pre_done + 1) % MAXPRE;
-
-	return 1;
-}
-
-int sdl_pre_do(tick_t curtick __attribute__((unused)))
+int sdl_pre_do(void)
 {
 	Uint64 start;
-	int size;
+	int uploads = 0;
 
 	start = SDL_GetTicks64();
-	sdl_pre_ready();
-	extern long long sdl_time_pre1;
-	sdl_time_pre1 += (long long)(SDL_GetTicks64() - start);
 
-	start = SDL_GetTicks64();
-	if (!sdl_multi) {
-		// In single-threaded mode, process jobs on main thread
-		sdl_pre_worker(NULL);
+	// Single-threaded: process jobs from queue (will no-op if called from multi)
+	sdl_pre_worker();
+
+	// Main thread: upload any textures where CPU work is done (SF_DIDMAKE) but
+	// GPU upload hasn't happened (!SF_DIDTEX)
+	// This is stage 3: creating the actual SDL_Texture
+	const int max_uploads_per_call = 64; // Safety bound to avoid stalling frame
+
+	for (int i = 0; i < MAX_TEXCACHE && uploads < max_uploads_per_call; i++) {
+		struct sdl_texture *slot = &sdlt[i];
+
+		uint16_t flags = flags_load(slot);
+		if (!(flags & SF_SPRITE)) {
+			continue;
+		}
+
+		// Worker did stage 1+2, GPU upload hasn't happened yet
+		if ((flags & SF_DIDMAKE) && !(flags & SF_DIDTEX)) {
+			unsigned int sprite = slot->sprite;
+			sdl_make(slot, &sdli[sprite], 3);
+			uploads++;
+		}
 	}
+
 	extern long long sdl_time_pre2;
 	sdl_time_pre2 += (long long)(SDL_GetTicks64() - start);
 
-	start = SDL_GetTicks64();
-	sdl_pre_done();
-	extern long long sdl_time_pre3;
-	sdl_time_pre3 += (long long)(SDL_GetTicks64() - start);
-
-	// Calculate queue size
-	if (pre_in >= pre_ready) {
-		size = pre_in - pre_ready;
-	} else {
-		size = MAXPRE + pre_in - pre_ready;
-	}
-
-	if (pre_ready >= pre_done) {
-		size += pre_ready - pre_done;
-	} else {
-		size += MAXPRE + pre_ready - pre_done;
-	}
-
-	return size;
+	return uploads;
 }
 
 uint64_t sdl_backgnd_wait = 0, sdl_backgnd_work = 0, sdl_backgnd_jobs = 0;
@@ -1068,47 +962,74 @@ int sdl_pre_backgnd(void *ptr)
 	int worker_id = (int)(long long)ptr;
 	struct zip_handles *zips = worker_zips ? &worker_zips[worker_id] : NULL;
 	uint64_t wait_start, work_start;
-	int sem_result;
 
-	// Validate semaphore and mutex
-	if (!prework) {
-		SDL_Log("sdl_pre_backgnd: prework semaphore is NULL, exiting thread");
-		return -1;
-	}
-	if (!premutex) {
-		SDL_Log("sdl_pre_backgnd: premutex is NULL, exiting thread");
-		return -1;
-	}
+	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_LOW);
 
 	for (;;) {
 		// Wait for work to be available (blocks until signaled)
 		wait_start = SDL_GetTicks64();
-		sem_result = SDL_SemWait(prework);
+		int sem_result = SDL_SemWait(prework);
 		sdl_backgnd_wait += SDL_GetTicks64() - wait_start;
 
-		// Check for semaphore wait errors
-		// SDL_SemWait returns -1 only on fatal errors:
-		// 1. Invalid semaphore (already validated above) - persistent error
-		// 2. Semaphore destroyed during wait (shutdown race) - unrecoverable
-		// 3. System-level failure (extremely rare) - persistent error
-		// In all cases, continuing would fail immediately again, so exit thread
-		// cleanly.
 		if (sem_result != 0) {
 			SDL_Log("sdl_pre_backgnd: SDL_SemWait failed: %s - exiting worker thread", SDL_GetError());
-			return -1; // Semaphore failure is fatal for this worker
+			return -1;
 		}
 
-		// Check for shutdown before each job attempt.
-		if (quit || SDL_AtomicGet(&pre_quit)) {
+		// Check for shutdown before each job attempt
+		if (quit || SDL_AtomicGet(&worker_quit)) {
 			return 0;
 		}
 
-		// Process one job from the queue
 		work_start = SDL_GetTicks64();
-		if (sdl_pre_worker(zips) == 0) {
-			// No work found, wait on semaphore.
+
+		// Pop a job from the queue
+		texture_job_t job;
+		if (!tex_jobs_pop(&job, 0)) {
+			// No work found
 			continue;
 		}
+
+		int cache_index = job.cache_index;
+		struct sdl_texture *tex = &sdlt[cache_index];
+
+		// Check generation: if stale, skip
+		if (tex->generation != job.generation) {
+			continue;
+		}
+
+		// Mark in-worker
+		SDL_LockMutex(g_tex_jobs.mutex);
+		if (tex->generation != job.generation) {
+			SDL_UnlockMutex(g_tex_jobs.mutex);
+			continue;
+		}
+		tex->work_state = TX_WORK_IN_WORKER;
+		SDL_UnlockMutex(g_tex_jobs.mutex);
+
+		// Do the actual work: load image and do stages 1+2
+		unsigned int sprite = tex->sprite;
+
+		if (sdl_ic_load(sprite, zips) < 0) {
+			// Failed: leave DIDMAKE unset, allow main thread to handle fallback
+			SDL_LockMutex(g_tex_jobs.mutex);
+			if (tex->generation == job.generation) {
+				tex->work_state = TX_WORK_IDLE;
+			}
+			SDL_UnlockMutex(g_tex_jobs.mutex);
+			continue;
+		}
+
+		// Stage 1 + 2
+		sdl_make(tex, &sdli[sprite], 1);
+		sdl_make(tex, &sdli[sprite], 2);
+
+		SDL_LockMutex(g_tex_jobs.mutex);
+		if (tex->generation == job.generation) {
+			// CPU work done; GPU creation is main-thread
+			tex->work_state = TX_WORK_IDLE;
+		}
+		SDL_UnlockMutex(g_tex_jobs.mutex);
 
 		sdl_backgnd_work += SDL_GetTicks64() - work_start;
 		sdl_backgnd_jobs++;

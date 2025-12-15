@@ -1394,9 +1394,9 @@ void prefetch_game(tick_t attick)
 	set_map_values(map2, attick);
 	set_mapadd(-map2[mapmn(MAPDX / 2, MAPDY / 2)].xadd, -map2[mapmn(MAPDX / 2, MAPDY / 2)].yadd);
 	display_game_map(map2);
-	dl_prefetch(attick);
+	dl_prefetch();
 
 #ifdef TICKPRINT
-	printf("Prefetch %d\n", attick);
+	printf("Prefetch %u\n", attick);
 #endif
 }

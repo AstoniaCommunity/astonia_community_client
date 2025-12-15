@@ -7,6 +7,7 @@
  *
  */
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -194,16 +195,12 @@ DLL_EXPORT int render_sprite_fx(RenderFX *fx, int scrx, int scry)
 {
 	int stx;
 
-	// cppcheck-suppress nullPointerRedundantCheck
-	PARANOIA(if (!fx) paranoia("render_sprite_fx: fx=NULL");)
-	// cppcheck-suppress nullPointerRedundantCheck
-	PARANOIA(if (fx->light < 0 || fx->light > 16) paranoia("render_sprite_fx: fx->light=%d", fx->light);)
-	// cppcheck-suppress nullPointerRedundantCheck
-	PARANOIA(if (fx->freeze < 0 || fx->freeze >= RENDERFX_MAX_FREEZE)
-	        paranoia("render_sprite_fx: fx->freeze=%d", fx->freeze);)
+	assert(fx != NULL && "render_sprite_fx: fx=NULL");
+	assert(fx->light >= 0 && fx->light <= 16 && "render_sprite_fx: fx->light out of range");
+	assert(fx->freeze >= 0 && fx->freeze < RENDERFX_MAX_FREEZE && "render_sprite_fx: fx->freeze out of range");
 
 	stx = sdl_tx_load(fx->sprite, fx->sink, fx->freeze, fx->scale, fx->cr, fx->cg, fx->cb, fx->clight, fx->sat, fx->c1,
-	    fx->c2, fx->c3, fx->shine, fx->ml, fx->ll, fx->rl, fx->ul, fx->dl, NULL, 0, 0, NULL, 0, 0, 0);
+	    fx->c2, fx->c3, fx->shine, fx->ml, fx->ll, fx->rl, fx->ul, fx->dl, NULL, 0, 0, NULL, 0, 0);
 
 	if (stx == -1) {
 		return 0;

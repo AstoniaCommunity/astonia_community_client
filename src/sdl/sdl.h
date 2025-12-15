@@ -58,17 +58,18 @@ void sdl_show_cursor(int flag);
 void sdl_capture_mouse(int flag);
 int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
     char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl,
-    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload, int fortick);
+    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload);
 int sdl_init(int width, int height, char *title);
 void sdl_exit(void);
 void sdl_loop(void);
 int sdl_clear(void);
 int sdl_render(void);
-int sdlt_xoff(int stx);
-int sdlt_yoff(int stx);
-int sdlt_xres(int stx);
-int sdlt_yres(int stx);
-void sdl_blit(int stx, int sx, int sy, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+int sdlt_xoff(int cache_index);
+int sdlt_yoff(int cache_index);
+int sdlt_xres(int cache_index);
+int sdlt_yres(int cache_index);
+void sdl_blit(
+    int cache_index, int sx, int sy, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
 int sdl_drawtext(int sx, int sy, unsigned short int color, int flags, const char *text, struct renderfont *font,
     int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
 void sdl_rect(int sx, int sy, int ex, int ey, unsigned short int color, int clipsx, int clipsy, int clipex, int clipey,
@@ -83,14 +84,14 @@ void sdl_set_title(char *title);
 void *sdl_create_texture(int width, int height);
 void sdl_render_copy(void *tex, void *sr, void *dr);
 void sdl_render_copy_ex(void *tex, void *sr, void *dr, double angle);
-int sdl_tex_xres(int stx);
-int sdl_tex_yres(int stx);
+int sdl_tex_xres(int cache_index);
+int sdl_tex_yres(int cache_index);
 void sdl_render_circle(int32_t centreX, int32_t centreY, int32_t radius, uint32_t color);
 void sdl_flush_textinput(void);
 void sdl_dump(FILE *fp);
 #ifdef DEVELOPER
 void sdl_dump_spritecache(void);
 #endif
-void sdl_tex_alpha(int stx, int alpha);
+void sdl_tex_alpha(int cache_index, int alpha);
 int sdl_check_mouse(void);
 long long sdl_get_mem_tex(void);

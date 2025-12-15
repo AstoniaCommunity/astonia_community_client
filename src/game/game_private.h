@@ -156,7 +156,7 @@ DL *dl_next(void);
 DL *dl_next_set(int layer, unsigned int sprite, int scrx, int scry, unsigned char light);
 int dl_qcmp(const void *ca, const void *cb);
 void dl_play(void);
-void dl_prefetch(tick_t attick);
+void dl_prefetch(void);
 void add_bubble(int x, int y, int h);
 void show_bubbles(void);
 void make_quick(int game, int mcx, int mcy);

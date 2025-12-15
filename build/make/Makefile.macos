@@ -16,7 +16,7 @@ ifeq ($(BUILD_TYPE),debug)
 else
     OPT=-O3
     DEBUG=-gdwarf-4
-    DEVELOPER_FLAGS=
+    DEVELOPER_FLAGS=-DNDEBUG
     $(info Building RELEASE configuration)
 endif
 PKG_CONFIG?=pkg-config

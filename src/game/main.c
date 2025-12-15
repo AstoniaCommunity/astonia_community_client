@@ -262,7 +262,7 @@ void display_usage(void)
 	snprintf(buf, (size_t)size,
 	    "The Astonia Client can only be started from the command line or with a specially created shortcut.\n\n"
 	    "Usage: moac -u playername -p password -d url\n ... [-w width] [-h height]\n"
-	    " ... [-m threads] [-o options] [-c cachesize]\n ... [-k framespersecond]\n\n"
+	    " ... [-m threads] [-o options]\n ... [-k framespersecond]\n\n"
 	    "url being, for example, \"server.astonia.com\" or \"192.168.77.132\" (without the quotes).\n\n"
 	    "width and height are the desired window size. If this matches the desktop size the client "
 	    "will start in windowed borderless pseudo-fullscreen mode.\n\n"
@@ -281,7 +281,6 @@ void display_usage(void)
 	    "Bit 17 reduces lighting effects (more performance, less pretty).\n"
 	    "Bit 18 disables the minimap.\n"
 	    "Default depends on screen height.\n\n"
-	    "cachesize is the size of the texture cache. Default is 8000. Lower numbers might crash!\n\n"
 	    "framespersecond will set the display rate in frames per second.\n\n");
 
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Usage", buf, NULL);
@@ -392,17 +391,12 @@ int parse_args(int argc, char *argv[])
 			}
 			break;
 		case 'c':
+			// Legacy flag: cache size is now statically allocated (MAX_TEXCACHE = 32768).
+			// Accept but ignore this flag for backward compatibility.
 			if (!val && i + 1 < argc) {
 				val = argv[++i];
 			}
-			if (val) {
-				long c = strtol(val, &end, 10);
-				if (c < INT_MIN || c > INT_MAX) {
-					sdl_cache_size = 0;
-				} else {
-					sdl_cache_size = (int)c;
-				}
-			}
+			// Silently ignored - cache is compile-time fixed
 			break;
 		case 'k':
 			if (!val && i + 1 < argc) {

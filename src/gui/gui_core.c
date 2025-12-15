@@ -247,11 +247,11 @@ void main_exit(void)
 static void flip_at(unsigned int t)
 {
 	unsigned int tnow;
-	int sdl_pre_do(tick_t curtick);
+	int sdl_pre_do(void);
 
 	do {
 		sdl_loop();
-		if (!sdl_is_shown() || !sdl_pre_do(tick)) {
+		if (!sdl_is_shown() || !sdl_pre_do()) {
 			SDL_Delay(1);
 		}
 		tnow = SDL_GetTicks();
@@ -327,7 +327,7 @@ int main_loop(void)
 
 		if (timediff > -MPF / 2) {
 #ifdef TICKPRINT
-			printf("Display tick %d\n", tick);
+			printf("Display tick %u\n", tick);
 #endif
 			gui_frametime = SDL_GetTicks64() - gui_last_frame;
 			gui_last_frame = SDL_GetTicks64();
@@ -352,7 +352,7 @@ int main_loop(void)
 			flip_at((unsigned int)nextframe);
 		} else {
 #ifdef TICKPRINT
-			printf("Skip tick %d\n", tick);
+			printf("Skip tick %u\n", tick);
 #endif
 			skip -= timediff;
 
