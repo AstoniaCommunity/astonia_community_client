@@ -39,7 +39,7 @@ sudo pacman -S base-devel sdl3 sdl2-compat sdl2_mixer libpng libzip zlib mimallo
 
 **Debian/Ubuntu**
 ```
-sudo apt install libsdl3-dev libsdl2-compat-dev libsdl2-mixer libpng-dev libzip-dev rustup git git-lfs
+sudo apt install libsdl3-dev libsdl2-compat-dev libsdl2-mixer libpng-dev libzip-dev libmimalloc-dev rustup git git-lfs
 ```
 Note: Zig (optional) is not part of the official debian repositories. You can use an [unofficial repository](https://debian.griffo.io).
 
