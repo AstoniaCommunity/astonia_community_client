@@ -200,252 +200,375 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 
 // Forward declarations
 extern SDL_mutex *premutex;
-extern int sdl_pre_worker(void); // in sdl_core.c
+extern int if_single_thread_process_one_job(void); // in sdl_core.c
 
-int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
-    char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl,
-    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload)
+// ============================================================================
+// Texture Cache Concurrency Invariants
+// ============================================================================
+//
+// The texture cache (sdlt[]) is shared between the render thread and background
+// workers. To avoid data races and corruption, we maintain strict invariants:
+//
+// FLAGS (struct sdl_texture::flags, atomic uint16_t):
+//   - SF_USED: Entry is in use (not free for eviction)
+//   - SF_SPRITE: Entry holds a sprite texture
+//   - SF_TEXT: Entry holds a text texture
+//   - SF_DIDALLOC: Pixel buffer allocated (sdlt[].pixel is valid)
+//   - SF_DIDMAKE: CPU processing complete (pixels ready for GPU upload)
+//   - SF_DIDTEX: GPU texture created (sdlt[].tex is valid)
+//
+// WORK STATE (struct sdl_texture::work_state, atomic uint8_t):
+//   - TX_WORK_IDLE: No work in progress, safe to evict
+//   - TX_WORK_QUEUED: Job queued but not yet claimed by a worker
+//   - TX_WORK_IN_WORKER: Worker actively processing this entry
+//
+// OWNERSHIP RULES:
+//   Render thread (main):
+//     - WRITES: All flags, work_state, LRU pointers (prev/next), hash chains (hnext/hprev)
+//     - READS: All fields
+//     - Can evict entries when work_state == TX_WORK_IDLE && flags allow
+//
+//   Background workers:
+//     - WRITES: flags (SF_DIDALLOC, SF_DIDMAKE), work_state, pixel buffer, generation checks
+//     - READS: Non-atomic sprite parameters (sprite, sink, freeze, scale, colors, lights, etc.)
+//     - NEVER touch: LRU pointers, hash chains, tex pointer (GPU texture)
+//     - Only operate on entries with jobs they claimed from the queue
+//
+// FLAG COMBINATION RULES:
+//   - SF_DIDTEX => SF_DIDMAKE && SF_DIDALLOC (GPU texture requires completed CPU work)
+//   - SF_DIDMAKE => SF_DIDALLOC (CPU work complete requires pixel buffer)
+//   - SF_SPRITE and SF_TEXT are mutually exclusive
+//   - SF_USED is set whenever any other flags are set
+//
+// MEMORY ORDERING:
+//   - Render thread sets non-atomic fields BEFORE setting flags with RELEASE
+//   - Workers read flags with ACQUIRE BEFORE reading non-atomic fields
+//   - This establishes happens-before relationship per C11 memory model
+//
+// EVICTION SAFETY:
+//   - Render thread checks work_state under g_tex_jobs.mutex before evicting
+//   - If work_state != TX_WORK_IDLE, entry cannot be evicted
+//   - Generation counter (uint32_t) invalidates in-flight jobs after eviction
+//   - Workers check generation before writing results to detect stale jobs
+//
+// WORKER CONTRACT:
+//   - Workers never touch LRU pointers (prev/next)
+//   - Workers never mutate hash chains (hnext/hprev)
+//   - Workers only operate on existing entries referenced by jobs
+//   - Workers never create or destroy GPU textures (that's render thread only)
+//   - Workers set flags atomically to signal completion to render thread
+//
+// PHASE BOUNDARIES:
+//   1. Render thread creates entry, sets sprite params, sets SF_USED | SF_SPRITE
+//   2. Worker (or render thread) allocates pixels, sets SF_DIDALLOC
+//   3. Worker (or render thread) processes pixels, sets SF_DIDMAKE
+//   4. Render thread (only) uploads to GPU, sets SF_DIDTEX
+//
+// These invariants are tested extensively in test_texture_workers.c
+// ============================================================================
+
+// Request struct for texture loading
+struct tex_request {
+	/* 8-byte-ish on 64-bit: put pointers first */
+	const char *text;
+	void *text_font;
+
+	/* 32-bit values next */
+	uint32_t sprite;
+	int c1, c2, c3;
+	int shine;
+	int text_color;
+	int text_flags;
+	int checkonly;
+	int preload;
+
+	/* 8-bit fields packed together */
+	signed char sink;
+	unsigned char freeze;
+	unsigned char scale;
+
+	char cr, cg, cb;
+	char light, sat;
+	char ml, ll, rl, ul, dl;
+};
+
+static struct tex_request tex_request_from_args(uint32_t sprite, signed char sink, unsigned char freeze,
+    unsigned char scale, char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml,
+    char ll, char rl, char ul, char dl, const char *text, int text_color, int text_flags, void *text_font,
+    int checkonly, int preload)
 {
-	int cache_index, ptx, ntx, panic = 0;
-	int hash;
+	struct tex_request r;
 
-	if (!text) {
-		hash = (int)hashfunc(sprite, ml, ll, rl, ul, dl);
+	r.text = text;
+	r.text_font = text_font;
+
+	r.sprite = sprite;
+	r.c1 = c1;
+	r.c2 = c2;
+	r.c3 = c3;
+	r.shine = shine;
+	r.text_color = text_color;
+	r.text_flags = text_flags;
+	r.checkonly = checkonly;
+	r.preload = preload;
+
+	r.sink = sink;
+	r.freeze = freeze;
+	r.scale = scale;
+
+	r.cr = cr;
+	r.cg = cg;
+	r.cb = cb;
+	r.light = light;
+	r.sat = sat;
+	r.ml = ml;
+	r.ll = ll;
+	r.rl = rl;
+	r.ul = ul;
+	r.dl = dl;
+
+	return r;
+}
+
+static int tex_request_hash(const struct tex_request *r)
+{
+	if (r->text) {
+		return (int)hashfunc_text(r->text, r->text_color, r->text_flags);
 	} else {
-		hash = (int)hashfunc_text(text, text_color, text_flags);
+		return (int)hashfunc(r->sprite, r->ml, r->ll, r->rl, r->ul, r->dl);
 	}
+}
 
-	if (sprite >= MAXSPRITE) {
-		note("illegal sprite %u wanted in sdl_tx_load", sprite);
-		return STX_NONE;
+static int tex_entry_matches_request(int idx, const struct tex_request *r)
+{
+	uint16_t flags = flags_load(&sdlt[idx]);
+
+	if (r->text) {
+		/* Text entry */
+		if (!(flags & SF_TEXT)) {
+			return 0;
+		}
+		if (!(sdlt[idx].tex)) {
+			return 0;
+		}
+		if (!sdlt[idx].text || strcmp(sdlt[idx].text, r->text) != 0) {
+			return 0;
+		}
+		if (sdlt[idx].text_flags != r->text_flags) {
+			return 0;
+		}
+		if (sdlt[idx].text_color != (uint32_t)r->text_color) {
+			return 0;
+		}
+		if (sdlt[idx].text_font != r->text_font) {
+			return 0;
+		}
+		return 1;
+	} else {
+		/* Sprite entry */
+		if (!(flags & SF_SPRITE)) {
+			return 0;
+		}
+		if (sdlt[idx].sprite != r->sprite) {
+			return 0;
+		}
+
+		/* Compare sprite params */
+		if (sdlt[idx].sink != r->sink || sdlt[idx].freeze != r->freeze || sdlt[idx].scale != r->scale ||
+		    sdlt[idx].cr != r->cr || sdlt[idx].cg != r->cg || sdlt[idx].cb != r->cb || sdlt[idx].light != r->light ||
+		    sdlt[idx].sat != r->sat || sdlt[idx].c1 != r->c1 || sdlt[idx].c2 != r->c2 || sdlt[idx].c3 != r->c3 ||
+		    sdlt[idx].shine != r->shine || sdlt[idx].ml != r->ml || sdlt[idx].ll != r->ll || sdlt[idx].rl != r->rl ||
+		    sdlt[idx].ul != r->ul || sdlt[idx].dl != r->dl) {
+			return 0;
+		}
+		return 1;
 	}
+}
 
-	for (cache_index = sdlt_cache[hash]; cache_index != STX_NONE; cache_index = sdlt[cache_index].hnext, panic++) {
+static int texcache_lookup(const struct tex_request *r, int hash, int *out_panic)
+{
+	int stx = sdlt_cache[hash];
+	int panic = 0;
+
+	while (stx != STX_NONE) {
 #ifdef DEVELOPER
 		// Detect and break self-loops to recover gracefully
-		if (sdlt[cache_index].hnext == cache_index) {
-			warn("Hash self-loop detected at cache_index=%d for sprite=%d - breaking chain", cache_index, sprite);
-			sdlt[cache_index].hnext = STX_NONE; // break the loop to recover gracefully
+		if (sdlt[stx].hnext == stx) {
+			warn("Hash self-loop detected at cache_index=%d for sprite=%d - breaking chain", stx, (int)r->sprite);
+			sdlt[stx].hnext = STX_NONE;
 			if (panic > maxpanic) {
 				maxpanic = panic;
 			}
 			break;
 		}
 #endif
-		if (panic > 999) {
+		if (panic > 1099) {
+#ifdef DEVELOPER
 			warn("%04d: cache_index=%d, hprev=%d, hnext=%d sprite=%d (%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d%d,%p) PANIC\n",
-			    panic, cache_index, sdlt[cache_index].hprev, sdlt[cache_index].hnext, sprite, sdlt[cache_index].sink,
-			    sdlt[cache_index].freeze, sdlt[cache_index].scale, sdlt[cache_index].cr, sdlt[cache_index].cg,
-			    sdlt[cache_index].cb, sdlt[cache_index].light, sdlt[cache_index].sat, sdlt[cache_index].c1,
-			    sdlt[cache_index].c2, sdlt[cache_index].c3, sdlt[cache_index].shine, sdlt[cache_index].ml,
-			    sdlt[cache_index].ll, sdlt[cache_index].rl, sdlt[cache_index].ul, sdlt[cache_index].dl,
-			    (void *)sdlt[cache_index].text);
-			if (panic > 1099) {
-#ifdef DEVELOPER
-				sdl_dump_spritecache();
+			    panic, stx, sdlt[stx].hprev, sdlt[stx].hnext, (int)r->sprite, sdlt[stx].sink, sdlt[stx].freeze,
+			    sdlt[stx].scale, sdlt[stx].cr, sdlt[stx].cg, sdlt[stx].cb, sdlt[stx].light, sdlt[stx].sat, sdlt[stx].c1,
+			    sdlt[stx].c2, sdlt[stx].c3, sdlt[stx].shine, sdlt[stx].ml, sdlt[stx].ll, sdlt[stx].rl, sdlt[stx].ul,
+			    sdlt[stx].dl, (void *)sdlt[stx].text);
+			sdl_dump_spritecache();
 #endif
-				exit(42);
-			}
-		}
-		if (text) {
-			if (!(flags_load(&sdlt[cache_index]) & SF_TEXT)) {
-				continue;
-			}
-			if (!(sdlt[cache_index].tex)) {
-				continue; // text does not go through the preloader, so if the texture is empty maketext failed earlier.
-			}
-			if (!sdlt[cache_index].text || strcmp(sdlt[cache_index].text, text) != 0) {
-				continue;
-			}
-			if (sdlt[cache_index].text_flags != text_flags) {
-				continue;
-			}
-			if (sdlt[cache_index].text_color != (uint32_t)text_color) {
-				continue;
-			}
-			if (sdlt[cache_index].text_font != text_font) {
-				continue;
-			}
-		} else {
-			if (!(flags_load(&sdlt[cache_index]) & SF_SPRITE)) {
-				continue;
-			}
-			if (sdlt[cache_index].sprite != sprite) {
-				continue;
-			}
-			if (sdlt[cache_index].sink != sink) {
-				continue;
-			}
-			if (sdlt[cache_index].freeze != freeze) {
-				continue;
-			}
-			if (sdlt[cache_index].scale != scale) {
-				continue;
-			}
-			if (sdlt[cache_index].cr != cr) {
-				continue;
-			}
-			if (sdlt[cache_index].cg != cg) {
-				continue;
-			}
-			if (sdlt[cache_index].cb != cb) {
-				continue;
-			}
-			if (sdlt[cache_index].light != light) {
-				continue;
-			}
-			if (sdlt[cache_index].sat != sat) {
-				continue;
-			}
-			if (sdlt[cache_index].c1 != c1) {
-				continue;
-			}
-			if (sdlt[cache_index].c2 != c2) {
-				continue;
-			}
-			if (sdlt[cache_index].c3 != c3) {
-				continue;
-			}
-			if (sdlt[cache_index].shine != shine) {
-				continue;
-			}
-			if (sdlt[cache_index].ml != ml) {
-				continue;
-			}
-			if (sdlt[cache_index].ll != ll) {
-				continue;
-			}
-			if (sdlt[cache_index].rl != rl) {
-				continue;
-			}
-			if (sdlt[cache_index].ul != ul) {
-				continue;
-			}
-			if (sdlt[cache_index].dl != dl) {
-				continue;
-			}
+			exit(42);
 		}
 
-		if (checkonly) {
-			return 1;
-		}
-		if (preload == 1) {
-			return -1;
+		if (tex_entry_matches_request(stx, r)) {
+			*out_panic = panic;
+			return stx;
 		}
 
-		if (panic > maxpanic) {
-			maxpanic = panic;
-		}
+		stx = sdlt[stx].hnext;
+		panic++;
+	}
 
-		if (!preload && (flags_load(&sdlt[cache_index]) & SF_SPRITE)) {
-			// Wait for background workers to complete processing
-			panic = 0;
-#ifdef DEVELOPER
-			uint64_t wait_start = 0;
-#endif
-			while (!(flags_load(&sdlt[cache_index]) & SF_DIDMAKE)) {
-#ifdef DEVELOPER
-				if (wait_start == 0) {
-					wait_start = SDL_GetTicks64();
-					extern uint64_t sdl_render_wait_count;
-					sdl_render_wait_count++;
-				}
-#endif
+	*out_panic = panic;
+	return STX_NONE;
+}
 
-				// In single-threaded mode, process queue to make progress
-				// (function guards on sdl_multi internally)
-				sdl_pre_worker();
+// Move an existing entry to the head of its hash chain
+// This is done when we hit an existing entry to promote it
+static void texcache_promote_to_hash_head(int cache_index, int hash)
+{
+	int ntx, ptx;
 
-				SDL_Delay(1);
+	// Remove from old position in hash chain
+	ntx = sdlt[cache_index].hnext;
+	ptx = sdlt[cache_index].hprev;
 
-				if (panic++ > 1000) {
-					uint16_t flags = flags_load(&sdlt[cache_index]);
-					uint8_t wstate = work_state_load(&sdlt[cache_index]);
-					const char *wstate_str = (wstate == TX_WORK_IDLE)        ? "idle"
-					                         : (wstate == TX_WORK_QUEUED)    ? "queued"
-					                         : (wstate == TX_WORK_IN_WORKER) ? "in_worker"
-					                                                         : "unknown";
-					// Worker is stuck or taking too long - give up this frame rather than corrupting memory
-					warn("Render thread timeout waiting for sprite %d (cache_index=%d, work_state=%s, flags=%s%s%s) - "
-					     "giving up "
-					     "this frame",
-					    sdlt[cache_index].sprite, cache_index, wstate_str, (flags & SF_DIDALLOC) ? "didalloc " : "",
-					    (flags & SF_DIDMAKE) ? "didmake " : "", (flags & SF_DIDTEX) ? "didtex" : "");
-					// Return STX_NONE to skip this texture this frame - better than use-after-free
-					return STX_NONE;
-				}
-			}
-#ifdef DEVELOPER
-			if (wait_start > 0) {
-				uint64_t wait_time = SDL_GetTicks64() - wait_start;
-				extern uint64_t sdl_render_wait;
-				sdl_render_wait += wait_time;
-#ifdef DEVELOPER_NOISY
-				// Suppress warnings during boot - only show "real" stalls (>= 10ms)
-				extern int sockstate;
-				if (sockstate >= 4 && wait_time >= 10) {
-					warn("Render thread waited %lu ms for sprite %d", (unsigned long)wait_time,
-					    sdlt[cache_index].sprite);
-				}
-#endif
-			}
-#endif
+	if (ptx == STX_NONE) {
+		// Already at head, just update head pointer
+		sdlt_cache[hash] = ntx;
+	} else {
+		sdlt[ptx].hnext = sdlt[cache_index].hnext;
+	}
 
-			// make texture now if preload didn't finish it
-			if (!(flags_load(&sdlt[cache_index]) & SF_DIDTEX)) {
-#ifdef DEVELOPER
-				Uint64 start = SDL_GetTicks64();
-				sdl_make(sdlt + cache_index, sdli + sprite, 3);
-				sdl_time_tex_main += (long long)(SDL_GetTicks64() - start);
+	if (ntx != STX_NONE) {
+		sdlt[ntx].hprev = sdlt[cache_index].hprev;
+	}
+
+	// Add to head of hash chain
+	ntx = sdlt_cache[hash];
+	if (ntx != STX_NONE) {
+		sdlt[ntx].hprev = cache_index;
+	}
+
+	sdlt[cache_index].hprev = STX_NONE;
+	sdlt[cache_index].hnext = ntx;
+	sdlt_cache[hash] = cache_index;
+}
+
+// Build a text entry in a given slot, linking it into the hash chain and LRU
+// Returns the cache_index on success, or STX_NONE if text creation failed
+static int tex_entry_build_text(int cache_index, const struct tex_request *r, int hash)
+{
+	int w, h;
+	int ntx;
+
+	sdlt[cache_index].tex =
+	    sdl_maketext(r->text, (struct renderfont *)r->text_font, (uint32_t)r->text_color, r->text_flags);
+	sdlt[cache_index].text_color = (uint32_t)r->text_color;
+	sdlt[cache_index].text_flags = (uint16_t)r->text_flags;
+	sdlt[cache_index].text_font = r->text_font;
+#ifdef SDL_FAST_MALLOC
+	sdlt[cache_index].text = STRDUP(r->text);
 #else
-				sdl_make(sdlt + cache_index, sdli + sprite, 3);
+	sdlt[cache_index].text = xstrdup(r->text, MEM_TEMP7);
 #endif
-			}
-		}
-
-		sdl_tx_best(cache_index);
-
-		// remove from old pos
-		ntx = sdlt[cache_index].hnext;
-		ptx = sdlt[cache_index].hprev;
-
-		if (ptx == STX_NONE) {
-			sdlt_cache[hash] = ntx;
-		} else {
-			sdlt[ptx].hnext = sdlt[cache_index].hnext;
-		}
-
-		if (ntx != STX_NONE) {
-			sdlt[ntx].hprev = sdlt[cache_index].hprev;
-		}
-
-		// add to top pos
-		ntx = sdlt_cache[hash];
-
-		if (ntx != STX_NONE) {
-			sdlt[ntx].hprev = cache_index;
-		}
-
-		sdlt[cache_index].hprev = STX_NONE;
-		sdlt[cache_index].hnext = ntx;
-
-		sdlt_cache[hash] = cache_index;
-
-		// update statistics
-		if (!preload) {
-			texc_hit++;
-		}
-
-		return cache_index;
-	}
-	if (checkonly) {
-		return 0;
+	if (sdlt[cache_index].tex) {
+		SDL_QueryTexture(sdlt[cache_index].tex, NULL, NULL, &w, &h);
+		sdlt[cache_index].xres = (uint16_t)w;
+		sdlt[cache_index].yres = (uint16_t)h;
+		// Set flags ONLY if tex creation succeeded
+		uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
+		__atomic_store_n(flags_ptr, SF_USED | SF_TEXT | SF_DIDALLOC | SF_DIDMAKE | SF_DIDTEX, __ATOMIC_RELEASE);
+	} else {
+		sdlt[cache_index].xres = sdlt[cache_index].yres = 0;
+		// Text creation failed - don't set SF_DIDTEX
+		uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
+		__atomic_store_n(flags_ptr, SF_USED | SF_TEXT | SF_DIDALLOC | SF_DIDMAKE, __ATOMIC_RELEASE);
 	}
 
-	cache_index = sdlt_last;
+	// Link into hash chain
+	ntx = sdlt_cache[hash];
+	if (ntx != STX_NONE) {
+		sdlt[ntx].hprev = cache_index;
+	}
+	sdlt[cache_index].hprev = STX_NONE;
+	sdlt[cache_index].hnext = ntx;
+	sdlt_cache[hash] = cache_index;
 
-	// Try to evict an entry, potentially trying multiple LRU candidates if
-	// workers are stuck
+	// Link into LRU (at head)
+	sdl_tx_best(cache_index);
+
+	return cache_index;
+}
+
+// Build a sprite entry in a given slot, linking it into the hash chain and LRU
+// Returns the cache_index on success, or STX_NONE if loading failed
+static int tex_entry_build_sprite(int cache_index, const struct tex_request *r, int hash)
+{
+	int ntx;
+
+	if (r->preload != 1) {
+		if (sdl_ic_load(r->sprite, NULL) < 0) {
+			return STX_NONE;
+		}
+	}
+
+	// Initialize all non-atomic fields first
+	sdlt[cache_index].sprite = r->sprite;
+	sdlt[cache_index].sink = r->sink;
+	sdlt[cache_index].freeze = r->freeze;
+	sdlt[cache_index].scale = r->scale;
+	sdlt[cache_index].cr = r->cr;
+	sdlt[cache_index].cg = r->cg;
+	sdlt[cache_index].cb = r->cb;
+	sdlt[cache_index].light = r->light;
+	sdlt[cache_index].sat = r->sat;
+	sdlt[cache_index].c1 = (uint16_t)r->c1;
+	sdlt[cache_index].c2 = (uint16_t)r->c2;
+	sdlt[cache_index].c3 = (uint16_t)r->c3;
+	sdlt[cache_index].shine = (uint16_t)r->shine;
+	sdlt[cache_index].ml = r->ml;
+	sdlt[cache_index].ll = r->ll;
+	sdlt[cache_index].rl = r->rl;
+	sdlt[cache_index].ul = r->ul;
+	sdlt[cache_index].dl = r->dl;
+
+	// Set flags with RELEASE to establish happens-before: workers reading flags with ACQUIRE
+	// will see all the above fields as initialized
+	uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
+	__atomic_store_n(flags_ptr, SF_USED | SF_SPRITE, __ATOMIC_RELEASE);
+
+	if (r->preload != 1) {
+		sdl_make(sdlt + cache_index, sdli + r->sprite, r->preload);
+	}
+
+	// Link into hash chain
+	ntx = sdlt_cache[hash];
+	if (ntx != STX_NONE) {
+		sdlt[ntx].hprev = cache_index;
+	}
+	sdlt[cache_index].hprev = STX_NONE;
+	sdlt[cache_index].hnext = ntx;
+	sdlt_cache[hash] = cache_index;
+
+	// Link into LRU (at head)
+	sdl_tx_best(cache_index);
+
+	return cache_index;
+}
+
+// Acquire a slot from the cache (evicting LRU entry if needed)
+// Returns a cache index that is safe to reuse, or STX_NONE if we must bail
+static int texcache_acquire_slot(void)
+{
+	int cache_index = sdlt_last;
+	int ptx, ntx;
+
+	// Try to evict an entry, potentially trying multiple LRU candidates if workers are stuck
 #ifdef DEVELOPER
 	static int sdl_eviction_failures = 0;
 #endif
@@ -557,6 +680,9 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 			new_gen = 1;
 		}
 		sdlt[cache_index].generation = new_gen;
+		// Reset work_state to IDLE (safe without mutex here: we already verified
+		// work_state was IDLE under mutex above, and flags are now cleared so no
+		// worker can queue new jobs for this slot until we reinitialize it)
 		sdlt[cache_index].work_state = TX_WORK_IDLE;
 
 		break; // Successfully evicted, exit the retry loop
@@ -580,79 +706,162 @@ int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, uns
 	// From here on, cache_index is guaranteed empty
 	texc_used++;
 
-	// build
-	if (text) {
-		int w, h;
-		sdlt[cache_index].tex = sdl_maketext(text, (struct renderfont *)text_font, (uint32_t)text_color, text_flags);
-		sdlt[cache_index].text_color = (uint32_t)text_color;
-		sdlt[cache_index].text_flags = (uint16_t)text_flags;
-		sdlt[cache_index].text_font = text_font;
-#ifdef SDL_FAST_MALLOC
-		sdlt[cache_index].text = STRDUP(text);
-#else
-		sdlt[cache_index].text = xstrdup(text, MEM_TEMP7);
+	return cache_index;
+}
+
+// Ensure an existing cache entry is ready for rendering
+// For text: always ready (created synchronously)
+// For sprites: wait for workers if needed, then create GPU texture if needed
+// Returns the cache_index on success, or STX_NONE on timeout
+static int tex_entry_ensure_ready(int cache_index, const struct tex_request *r)
+{
+	if (r->text) {
+		/* Text textures are created synchronously; nothing to do. */
+		return cache_index;
+	}
+
+	/* Sprite path - wait for workers and ensure GPU texture is ready */
+	if (!r->preload && (flags_load(&sdlt[cache_index]) & SF_SPRITE)) {
+		// Wait for background workers to complete processing
+		int panic = 0;
+#ifdef DEVELOPER
+		uint64_t wait_start = 0;
 #endif
-		if (sdlt[cache_index].tex) {
-			SDL_QueryTexture(sdlt[cache_index].tex, NULL, NULL, &w, &h);
-			sdlt[cache_index].xres = (uint16_t)w;
-			sdlt[cache_index].yres = (uint16_t)h;
-			// Set flags ONLY if tex creation succeeded
-			uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
-			__atomic_store_n(flags_ptr, SF_USED | SF_TEXT | SF_DIDALLOC | SF_DIDMAKE | SF_DIDTEX, __ATOMIC_RELEASE);
-		} else {
-			sdlt[cache_index].xres = sdlt[cache_index].yres = 0;
-			// Text creation failed - don't set SF_DIDTEX
-			uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
-			__atomic_store_n(flags_ptr, SF_USED | SF_TEXT | SF_DIDALLOC | SF_DIDMAKE, __ATOMIC_RELEASE);
+		while (!(flags_load(&sdlt[cache_index]) & SF_DIDMAKE)) {
+#ifdef DEVELOPER
+			if (wait_start == 0) {
+				wait_start = SDL_GetTicks64();
+				extern uint64_t sdl_render_wait_count;
+				sdl_render_wait_count++;
+			}
+#endif
+
+			// (function guards on sdl_multi internally)
+			if_single_thread_process_one_job();
+
+			SDL_Delay(1);
+
+			if (panic++ > 1000) {
+				uint16_t flags = flags_load(&sdlt[cache_index]);
+				uint8_t wstate = work_state_load(&sdlt[cache_index]);
+				const char *wstate_str = (wstate == TX_WORK_IDLE)        ? "idle"
+				                         : (wstate == TX_WORK_QUEUED)    ? "queued"
+				                         : (wstate == TX_WORK_IN_WORKER) ? "in_worker"
+				                                                         : "unknown";
+				// Worker is stuck or taking too long - give up this frame rather than corrupting memory
+				warn("Render thread timeout waiting for sprite %d (cache_index=%d, work_state=%s, flags=%s%s%s) - "
+				     "giving up "
+				     "this frame",
+				    sdlt[cache_index].sprite, cache_index, wstate_str, (flags & SF_DIDALLOC) ? "didalloc " : "",
+				    (flags & SF_DIDMAKE) ? "didmake " : "", (flags & SF_DIDTEX) ? "didtex" : "");
+				// Return STX_NONE to skip this texture this frame - better than use-after-free
+				return STX_NONE;
+			}
 		}
+#ifdef DEVELOPER
+		if (wait_start > 0) {
+			uint64_t wait_time = SDL_GetTicks64() - wait_start;
+			extern uint64_t sdl_render_wait;
+			sdl_render_wait += wait_time;
+#ifdef DEVELOPER_NOISY
+			// Suppress warnings during boot - only show "real" stalls (>= 10ms)
+			extern int sockstate;
+			if (sockstate >= 4 && wait_time >= 10) {
+				warn("Render thread waited %lu ms for sprite %d", (unsigned long)wait_time, sdlt[cache_index].sprite);
+			}
+#endif
+		}
+#endif
+
+		// make texture now if preload didn't finish it
+		if (!(flags_load(&sdlt[cache_index]) & SF_DIDTEX)) {
+#ifdef DEVELOPER
+			Uint64 start = SDL_GetTicks64();
+			sdl_make(sdlt + cache_index, sdli + r->sprite, 3);
+			sdl_time_tex_main += (long long)(SDL_GetTicks64() - start);
+#else
+			sdl_make(sdlt + cache_index, sdli + r->sprite, 3);
+#endif
+		}
+	}
+
+	return cache_index;
+}
+
+// ============================================================================
+// End of request struct helpers
+// ============================================================================
+
+int sdl_tx_load(uint32_t sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg, char cb,
+    char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl,
+    const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload)
+{
+	int cache_index, panic = 0;
+	int hash;
+
+	// Build request struct for cleaner parameter handling
+	struct tex_request req = tex_request_from_args(sprite, sink, freeze, scale, cr, cg, cb, light, sat, c1, c2, c3,
+	    shine, ml, ll, rl, ul, dl, text, text_color, text_flags, text_font, checkonly, preload);
+
+	hash = tex_request_hash(&req);
+
+	if (sprite >= MAXSPRITE) {
+		note("illegal sprite %u wanted in sdl_tx_load", sprite);
+		return STX_NONE;
+	}
+
+	// Try to find existing entry in cache
+	cache_index = texcache_lookup(&req, hash, &panic);
+	if (cache_index != STX_NONE) {
+		// Found existing entry
+		if (checkonly) {
+			return 1;
+		}
+		if (preload == 1) {
+			return -1;
+		}
+
+		if (panic > maxpanic) {
+			maxpanic = panic;
+		}
+
+		// Ensure texture is ready for rendering (wait for workers, create GPU texture if needed)
+		cache_index = tex_entry_ensure_ready(cache_index, &req);
+		if (cache_index == STX_NONE) {
+			return STX_NONE;
+		}
+
+		// Promote to head of LRU and hash chain (cache hit optimization)
+		sdl_tx_best(cache_index);
+		texcache_promote_to_hash_head(cache_index, hash);
+
+		// Update statistics
+		if (!preload) {
+			texc_hit++;
+		}
+
+		return cache_index;
+	}
+	if (checkonly) {
+		return 0;
+	}
+
+	// Acquire an empty slot (evicting LRU if needed)
+	cache_index = texcache_acquire_slot();
+	if (cache_index == STX_NONE) {
+		return STX_NONE; // safe bailout instead of corrupting cache
+	}
+
+	// Build text or sprite entry
+	if (text) {
+		cache_index = tex_entry_build_text(cache_index, &req, hash);
 	} else {
-		if (preload != 1) {
-			sdl_ic_load(sprite, NULL);
-		}
-
-		// Initialize all non-atomic fields first
-		sdlt[cache_index].sprite = sprite;
-		sdlt[cache_index].sink = sink;
-		sdlt[cache_index].freeze = freeze;
-		sdlt[cache_index].scale = scale;
-		sdlt[cache_index].cr = cr;
-		sdlt[cache_index].cg = cg;
-		sdlt[cache_index].cb = cb;
-		sdlt[cache_index].light = light;
-		sdlt[cache_index].sat = sat;
-		sdlt[cache_index].c1 = (uint16_t)c1;
-		sdlt[cache_index].c2 = (uint16_t)c2;
-		sdlt[cache_index].c3 = (uint16_t)c3;
-		sdlt[cache_index].shine = (uint16_t)shine;
-		sdlt[cache_index].ml = ml;
-		sdlt[cache_index].ll = ll;
-		sdlt[cache_index].rl = rl;
-		sdlt[cache_index].ul = ul;
-		sdlt[cache_index].dl = dl;
-
-		// Set flags with RELEASE to establish happens-before: workers reading
-		// flags with ACQUIRE
-		// will see all the above fields as initialized
-		uint16_t *flags_ptr = (uint16_t *)&sdlt[cache_index].flags;
-		__atomic_store_n(flags_ptr, SF_USED | SF_SPRITE, __ATOMIC_RELEASE);
-
-		if (preload != 1) {
-			sdl_make(sdlt + cache_index, sdli + sprite, preload);
-		}
+		cache_index = tex_entry_build_sprite(cache_index, &req, hash);
 	}
 
-	ntx = sdlt_cache[hash];
-
-	if (ntx != STX_NONE) {
-		sdlt[ntx].hprev = cache_index;
+	if (cache_index == STX_NONE) {
+		return STX_NONE;
 	}
-
-	sdlt[cache_index].hprev = STX_NONE;
-	sdlt[cache_index].hnext = ntx;
-
-	sdlt_cache[hash] = cache_index;
-
-	sdl_tx_best(cache_index);
 
 	// update statistics
 	if (preload) {

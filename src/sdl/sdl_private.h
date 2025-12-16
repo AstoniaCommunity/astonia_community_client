@@ -268,7 +268,7 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 // ============================================================================
 // Internal functions from sdl_core.c
 // ============================================================================
-int sdl_pre_worker(void);
+int if_single_thread_process_one_job(void);
 
 // ============================================================================
 // Test-only functions (compiled only when UNIT_TEST is defined)
@@ -277,10 +277,10 @@ int sdl_pre_worker(void);
 #ifdef UNIT_TEST
 
 // Initialize SDL subsystems for testing without window/audio/real I/O
-int sdl_init_for_tests(int requested_cache_size);
+int sdl_init_for_tests(void);
 
 // Initialize with background worker threads enabled
-int sdl_init_for_tests_with_workers(int requested_cache_size, int worker_count);
+int sdl_init_for_tests_with_workers(int worker_count);
 
 // Tear down test state (stop workers, free resources)
 void sdl_shutdown_for_tests(void);

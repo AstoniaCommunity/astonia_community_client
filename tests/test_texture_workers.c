@@ -121,7 +121,7 @@ static unsigned int get_valid_sprite(int index)
 
 TEST(test_single_thread_pipeline)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 	enumerate_valid_sprites();
 	ASSERT_TRUE(num_valid_sprites > 0); // Ensure we have sprites to test
 
@@ -168,7 +168,7 @@ TEST(test_single_thread_pipeline)
 
 TEST(test_workers_process_jobs)
 {
-	ASSERT_TRUE(sdl_init_for_tests_with_workers(MAX_TEXCACHE, 4));
+	ASSERT_TRUE(sdl_init_for_tests_with_workers(4));
 	enumerate_valid_sprites();
 
 	fprintf(stderr, "  → Testing 4 workers processing 1000 sprites...\n");
@@ -220,7 +220,7 @@ TEST(test_workers_process_jobs)
 
 TEST(test_workers_saturate_cache)
 {
-	ASSERT_TRUE(sdl_init_for_tests_with_workers(MAX_TEXCACHE, 4));
+	ASSERT_TRUE(sdl_init_for_tests_with_workers(4));
 	enumerate_valid_sprites();
 
 	fprintf(stderr, "  → Saturating cache with 4 workers (32,768 entries)...\n");
@@ -289,7 +289,7 @@ TEST(test_workers_saturate_cache)
 
 TEST(test_workers_with_eviction)
 {
-	ASSERT_TRUE(sdl_init_for_tests_with_workers(MAX_TEXCACHE, 4));
+	ASSERT_TRUE(sdl_init_for_tests_with_workers(4));
 	enumerate_valid_sprites();
 
 	fprintf(stderr, "  → Testing workers with eviction (thrashing cache)...\n");
@@ -342,7 +342,7 @@ TEST(test_workers_with_eviction)
 
 TEST(test_worker_fuzz)
 {
-	ASSERT_TRUE(sdl_init_for_tests_with_workers(MAX_TEXCACHE, 4));
+	ASSERT_TRUE(sdl_init_for_tests_with_workers(4));
 	enumerate_valid_sprites();
 
 	// Configurable seed

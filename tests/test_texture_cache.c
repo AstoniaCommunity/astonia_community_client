@@ -167,7 +167,7 @@ static void check_flags_invariants(int cache_index)
 
 TEST(test_basic_insert_and_lookup)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 	build_valid_sprite_list(); // Build sprite list after SDL init
 	ASSERT_TRUE(num_valid_sprites > 0); // Ensure we have sprites to test
 
@@ -210,7 +210,7 @@ TEST(test_basic_insert_and_lookup)
 
 TEST(test_different_sprites_different_slots)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	fprintf(stderr, "  → Testing different sprites get different slots...\n");
 
@@ -230,7 +230,7 @@ TEST(test_different_sprites_different_slots)
 
 TEST(test_different_parameters_different_slots)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	fprintf(stderr, "  → Testing parameter variations...\n");
 
@@ -259,7 +259,7 @@ TEST(test_different_parameters_different_slots)
 
 TEST(test_hash_chains_no_corruption_after_insertions)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	fprintf(stderr, "  → Loading 500 real sprites to stress hash chains...\n");
 
@@ -287,7 +287,7 @@ TEST(test_hash_chains_no_corruption_after_insertions)
 
 TEST(test_lru_list_stays_consistent)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	fprintf(stderr, "  → Testing LRU list consistency...\n");
 
@@ -312,7 +312,7 @@ TEST(test_lru_list_stays_consistent)
 
 TEST(test_eviction_basic)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	fprintf(stderr, "  → Testing basic eviction (1000 sprites)...\n");
 
@@ -338,7 +338,7 @@ TEST(test_eviction_basic)
 
 TEST(test_full_cache_stress)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	fprintf(stderr, "Loading full cache (%d textures)...\n", MAX_TEXCACHE);
 
@@ -382,7 +382,7 @@ TEST(test_full_cache_stress)
 
 TEST(test_cache_deduplication)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	fprintf(stderr, "  → Testing cache deduplication (same sprite, different params)...\n");
 
@@ -439,7 +439,7 @@ TEST(test_cache_deduplication)
 
 TEST(test_eviction_refuses_in_flight_jobs)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	fprintf(stderr, "  → Testing eviction safety (refuse to evict in-flight jobs)...\n");
 
@@ -478,7 +478,7 @@ TEST(test_eviction_refuses_in_flight_jobs)
 
 TEST(test_generation_invalidates_stale_jobs)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	fprintf(stderr, "  → Testing generation invalidation of stale jobs...\n");
 
@@ -510,7 +510,7 @@ TEST(test_generation_invalidates_stale_jobs)
 
 TEST(test_fuzz_random_cache_operations)
 {
-	ASSERT_TRUE(sdl_init_for_tests(MAX_TEXCACHE));
+	ASSERT_TRUE(sdl_init_for_tests());
 
 	// Configurable seed: use env var if set, else use time-based random
 	uint32_t seed;

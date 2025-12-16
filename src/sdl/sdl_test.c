@@ -76,10 +76,8 @@ static void sdl_zero_state_for_tests(void)
 // Public test initialization functions
 // ============================================================================
 
-int sdl_init_for_tests(int requested_cache_size)
+int sdl_init_for_tests(void)
 {
-	(void)requested_cache_size; // Cache is now statically allocated
-
 	// Minimal SDL init for timers/threads only
 	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
 		fprintf(stderr, "sdl_init_for_tests: SDL_Init failed: %s\n", SDL_GetError());
@@ -129,11 +127,11 @@ int sdl_init_for_tests(int requested_cache_size)
 	return 1;
 }
 
-int sdl_init_for_tests_with_workers(int requested_cache_size, int worker_count)
+int sdl_init_for_tests_with_workers(int worker_count)
 {
 	int i;
 
-	if (!sdl_init_for_tests(requested_cache_size)) {
+	if (!sdl_init_for_tests()) {
 		return 0;
 	}
 

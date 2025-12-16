@@ -782,7 +782,7 @@ void sdl_set_cursor(int cursor)
 // Used in single-threaded mode (called from main thread)
 // Returns 1 if work was found and processed, 0 if queue was empty or no work
 // was done because it was called from a multi-threaded context.
-int sdl_pre_worker(void)
+int if_single_thread_process_one_job(void)
 {
 	// This function is ONLY for single-threaded mode
 	// In multi-threaded mode, worker threads run their own loop
@@ -926,7 +926,7 @@ int sdl_pre_do(void)
 	start = SDL_GetTicks64();
 
 	// Single-threaded: process jobs from queue (will no-op if called from multi)
-	sdl_pre_worker();
+	if_single_thread_process_one_job();
 
 	// Main thread: upload any textures where CPU work is done (SF_DIDMAKE) but
 	// GPU upload hasn't happened (!SF_DIDTEX)
