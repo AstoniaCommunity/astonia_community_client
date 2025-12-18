@@ -205,6 +205,13 @@ ifeq ($(USE_MIMALLOC),1)
 LIBS += -lmimalloc
 endif
 
+# Release build ?
+ifneq (,$(findstring release,$(MAKECMDGOALS)))
+CFLAGS+= -DRELEASE
+CFLAGS_PIC+= -DRELEASE
+endif
+
+
 ASTONIA_NET_DIR=astonia_net
 ASTONIA_NET_TGT=x86_64-pc-windows-gnullvm
 ASTONIA_NET_LIB=$(ASTONIA_NET_DIR)/target/$(ASTONIA_NET_TGT)/release/libastonia_net.dll.a
@@ -230,6 +237,9 @@ bin/moac.exe lib/moac.a:	$(OBJS) $(ASTONIA_NET_LIB)
 			@echo "Build completed successfully!"
 			@echo "Output: bin/moac.exe, bin/astonia_net.dll"
 			@ls -lh bin/moac.exe bin/astonia_net.dll
+
+.PHONY: realease
+release: bin/moac.exe
 
 bin/moac_dbg.exe lib/moac_dbg.a:	$(OBJS) $(ASTONIA_NET_LIB)
 			$(CC) $(LDFLAGS_CONSOLE) -Wl,--out-implib,lib/moac_dbg.a -o bin/moac_dbg.exe $(OBJS) $(ASTONIA_NET_LIB) $(LIBS)
