@@ -57,14 +57,20 @@ BIN_DIR = ../bin
 # Test executables
 TEST_SERIALIZED = $(BIN_DIR)/test_serialized
 TEST_CONCURRENT = $(BIN_DIR)/test_concurrent
+TEST_HASH_DIAG = $(BIN_DIR)/test_hash_distribution
 
-all: $(TEST_SERIALIZED) $(TEST_CONCURRENT)
+all: $(TEST_SERIALIZED) $(TEST_CONCURRENT) $(TEST_HASH_DIAG)
+test: run
 
 $(TEST_SERIALIZED): test_texture_cache.c $(ALL_SRCS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(TEST_CONCURRENT): test_texture_workers.c $(ALL_SRCS)
+	@mkdir -p $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(TEST_HASH_DIAG): test_hash_distribution.c $(ALL_SRCS)
 	@mkdir -p $(BIN_DIR)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
@@ -84,14 +90,22 @@ test_concurrent: $(TEST_CONCURRENT)
 	@echo "==============================================="
 	cd .. && ./bin/test_concurrent
 
+# Run hash distribution diagnostic (separate from main test suite)
+test_hash_diag: $(TEST_HASH_DIAG)
+	@echo ""
+	@echo "==============================================="
+	@echo "Running hash distribution diagnostics..."
+	@echo "==============================================="
+	cd .. && ./bin/test_hash_distribution
+
 # Run all tests in sequence
-run: test_serialized test_concurrent
+run: test_serialized test_concurrent test_hash_diag
 	@echo ""
 	@echo "==============================================="
 	@echo "All tests passed!"
 	@echo "==============================================="
 
 clean:
-	rm -f $(TEST_SERIALIZED) $(TEST_CONCURRENT) *.o
+	rm -f $(TEST_SERIALIZED) $(TEST_CONCURRENT) $(TEST_HASH_DIAG) *.o
 
 .PHONY: all clean run test_serialized test_concurrent

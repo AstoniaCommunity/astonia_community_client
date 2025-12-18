@@ -162,39 +162,50 @@ void sdl_tx_best(int cache_index)
 
 static inline unsigned int hashfunc(unsigned int sprite, int ml, int ll, int rl, int ul, int dl)
 {
-	unsigned int hash;
+	// FNV-1a hash for better distribution
+	// Old XOR-based hash caused linear clustering: sprite N -> bucket N with default lighting
+	uint32_t hash = 2166136261u; // FNV-1a offset basis
 
-	hash = sprite ^ ((unsigned int)ml << 2) ^ ((unsigned int)ll << 4) ^ ((unsigned int)rl << 6) ^
-	       ((unsigned int)ul << 8) ^ ((unsigned int)dl << 10);
+	// Mix in sprite number
+	hash = (hash ^ sprite) * 16777619u; // FNV-1a prime
+
+	// Mix in lighting parameters (cast to unsigned to avoid sign extension issues)
+	hash = (hash ^ (uint32_t)(ml & 0xFF)) * 16777619u;
+	hash = (hash ^ (uint32_t)(ll & 0xFF)) * 16777619u;
+	hash = (hash ^ (uint32_t)(rl & 0xFF)) * 16777619u;
+	hash = (hash ^ (uint32_t)(ul & 0xFF)) * 16777619u;
+	hash = (hash ^ (uint32_t)(dl & 0xFF)) * 16777619u;
 
 	return hash % (unsigned int)MAX_TEXHASH;
 }
 
 static inline unsigned int hashfunc_text(const char *text, int color, int flags)
 {
-	unsigned int hash, t0, t1, t2, t3;
+	// FNV-1a hash for better distribution
+	// Old approach only used first 4 chars -> poor mixing, edge bucket clustering
+	uint32_t hash = 2166136261u; // FNV-1a offset basis
 
-	t0 = (unsigned char)text[0];
-	if (text[0]) {
-		t1 = (unsigned char)text[1];
-		if (text[1]) {
-			t2 = (unsigned char)text[2];
-			if (text[2]) {
-				t3 = (unsigned char)text[3];
-			} else {
-				t3 = 0;
-			}
-		} else {
-			t2 = t3 = 0;
-		}
-	} else {
-		t1 = t2 = t3 = 0;
+	// Mix in the full string (not just first 4 chars)
+	const unsigned char *p = (const unsigned char *)text;
+	while (*p) {
+		hash = (hash ^ *p) * 16777619u; // FNV-1a prime
+		p++;
 	}
 
-	hash = (t0 << 0) ^ (t1 << 3) ^ (t2 << 6) ^ (t3 << 9) ^ ((uint32_t)color << 0) ^ ((uint32_t)flags << 5);
+	// Mix in color and flags
+	hash = (hash ^ (uint32_t)color) * 16777619u;
+	hash = (hash ^ (uint32_t)flags) * 16777619u;
 
 	return hash % (unsigned int)MAX_TEXHASH;
 }
+
+#ifdef UNIT_TEST
+// Test-only wrapper to expose hashfunc_text for distribution testing
+unsigned int test_hashfunc_text(const char *text, int color, int flags)
+{
+	return hashfunc_text(text, color, flags);
+}
+#endif
 
 SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t color, int flags);
 
