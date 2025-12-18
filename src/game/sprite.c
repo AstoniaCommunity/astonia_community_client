@@ -4023,7 +4023,7 @@ DLL_EXPORT unsigned int _trans_asprite(map_index_t mn, unsigned int sprite, tick
 	case 59195:
 		c2 = IRGB(
 		    abs(30 - (int)(attick % 61)) / 4, abs(30 - (int)(attick % 61)) / 2 + 5, abs(30 - (int)(attick % 61)) / 4);
-		light = abs(30 - (attick % 61)) / 3;
+		light = abs(30 - (int)(attick % 61)) / 3;
 		shine = 5;
 		sprite = 51085;
 		break;

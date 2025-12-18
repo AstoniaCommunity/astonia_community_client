@@ -93,10 +93,6 @@ typedef size_t map_index_t; // Map tile index, selection indices
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 #endif
 
-#ifndef abs
-#define abs(a) ((a) < 0 ? (-(a)) : (a))
-#endif
-
 #ifndef ARRAYSIZE
 #define ARRAYSIZE(a) (sizeof(a) / sizeof((a)[0]))
 #endif

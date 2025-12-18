@@ -98,8 +98,10 @@ static int tests_failed = 0;
 	} while (0)
 
 #define TEST_MAIN(...)                                                                                                 \
-	int main(void)                                                                                                     \
+	int main(int argc, char *argv[])                                                                                   \
 	{                                                                                                                  \
+		(void)argc;                                                                                                    \
+		(void)argv;                                                                                                    \
 		fprintf(stderr, "Running tests...\n");                                                                         \
 		__VA_ARGS__                                                                                                    \
 		fprintf(stderr, "\n=== Test Results ===\n");                                                                   \

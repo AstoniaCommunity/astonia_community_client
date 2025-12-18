@@ -1,14 +1,30 @@
 # Test Makefile for Astonia Client
 # Compiles and runs unit tests without external test frameworks
 
+# Detect platform 
+UNAME_S := $(shell uname -s 2>/dev/null)
+ifeq ($(UNAME_S),Linux)
+    PLATFORM := linux
+else ifeq ($(UNAME_S),Darwin)
+    PLATFORM := macos
+else
+    PLATFORM := windows
+endif
+
 CC = clang
 CFLAGS = -O2 -g -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-unused-function
 CFLAGS += -DUNIT_TEST -DDEVELOPER
 CFLAGS += -I../src -I../include
 CFLAGS += $(shell pkg-config --cflags sdl2)
 
-LDFLAGS = $(shell pkg-config --libs sdl2)
-LDFLAGS += -lz -lpng -lzip -lm -lmimalloc
+# Platform-specific SDL linking
+ifeq ($(PLATFORM),windows)
+    # Note: -lmingw32 must come first, then -lSDL2main before -lSDL2
+    LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lz -lpng -lzip -lmimalloc
+else
+    LDFLAGS = $(shell pkg-config --libs sdl2)
+    LDFLAGS += -lz -lpng -lzip -lm -lmimalloc
+endif
 
 # SDL source files needed for testing
 # Note: We use REAL I/O (sdl_image.c included) and only stub GPU operations
@@ -25,9 +41,9 @@ HELPER_SRCS = ../src/game/memory.c \
               test_stubs.c
 
 # Platform-specific memory implementation
-ifeq ($(shell uname),Linux)
+ifeq ($(PLATFORM),linux)
     HELPER_SRCS += ../src/game/memory_linux.c
-else ifeq ($(shell uname),Darwin)
+else ifeq ($(PLATFORM),macos)
     HELPER_SRCS += ../src/game/memory_macos.c
 else
     HELPER_SRCS += ../src/game/memory_windows.c
