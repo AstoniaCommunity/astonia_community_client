@@ -67,7 +67,10 @@ ifeq ($(SDL_MIXER_LIBS),)
     endif
 endif
 
-SDL_CFLAGS=$(shell pkg-config sdl3 --cflags)
+# Get SDL3 flags and convert -I to -isystem to suppress warnings from SDL headers
+SDL_CFLAGS_RAW=$(shell pkg-config sdl3 --cflags)
+SDL_CFLAGS=$(patsubst -I%,-isystem %,$(SDL_CFLAGS_RAW))
+
 # Default to using mimalloc unless USE_MIMALLOC=0 is set
 USE_MIMALLOC ?= 1
 

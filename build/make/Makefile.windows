@@ -67,7 +67,9 @@ SYSROOT ?= /clang64
 WIN32_WINNT ?= 0x0601
 
 # SDL configuration
-SDL_CFLAGS ?= $(shell pkg-config sdl3 --cflags)
+# Get SDL3 flags and convert -I to -isystem to suppress warnings from SDL headers
+SDL_CFLAGS_RAW ?= $(shell pkg-config sdl3 --cflags)
+SDL_CFLAGS ?= $(patsubst -I%,-isystem %,$(SDL_CFLAGS_RAW))
 SDL_PREFIX ?= $(shell pkg-config sdl3 --variable=prefix)
 
 # ============================================================================

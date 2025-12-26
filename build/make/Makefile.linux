@@ -11,7 +11,9 @@ RUST_CPU_FLAGS=-C target-cpu=znver4
 else
 RUST_CPU_FLAGS=
 endif
-SDL_CFLAGS=$(shell pkg-config sdl3 --cflags)
+# Get SDL3 flags and convert -I to -isystem to suppress warnings from SDL headers
+SDL_CFLAGS_RAW=$(shell pkg-config sdl3 --cflags)
+SDL_CFLAGS=$(patsubst -I%,-isystem %,$(SDL_CFLAGS_RAW))
 
 # Build type configuration
 ifeq ($(BUILD_TYPE),debug)
