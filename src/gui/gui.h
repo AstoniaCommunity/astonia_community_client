@@ -3,6 +3,8 @@
  */
 
 #include <stdio.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_stdinc.h>
 #include "dll.h"
 
 #define MAXACTIONSLOT 14
@@ -19,7 +21,7 @@ struct quicks {
 typedef struct quicks QUICK;
 
 extern int nocut;
-extern unsigned int now;
+extern Uint64 now;
 extern int playersprite_override;
 extern int mapaddx, mapaddy;
 extern int mapoffx, mapoffy;
@@ -53,8 +55,8 @@ int main_init(void);
 int main_loop(void);
 void main_exit(void);
 void gui_dump(FILE *fp);
-void gui_sdl_keyproc(int wparam);
-void gui_sdl_mouseproc(int x, int y, int what);
+void gui_sdl_keyproc(SDL_Keycode wparam);
+void gui_sdl_mouseproc(float x, float y, int what);
 
 extern int (*get_skltab_sep)(int i);
 DLL_EXPORT int _get_skltab_sep(int i);

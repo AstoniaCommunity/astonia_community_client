@@ -10,10 +10,12 @@
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <zip.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3_mixer/SDL_mixer.h>
-#include <zip.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_render.h>
 
 #include "dll.h"
 #include "astonia.h"
@@ -90,7 +92,6 @@ void sdl_dump(FILE *fp)
 int sdl_init(int width, int height, char *title)
 {
 	int i;
-	SDL_DisplayMode DM;
 
 	if (!SDL_Init(SDL_INIT_VIDEO | ((game_options & GO_SOUND) ? SDL_INIT_AUDIO : 0))) {
 		fail("SDL_Init Error: %s", SDL_GetError());
@@ -98,16 +99,22 @@ int sdl_init(int width, int height, char *title)
 	}
 
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
-	SDL_SetHint(SDL_HINT_WINDOWS_NO_CLOSE_ON_ALT_F4, "1");
 
-	SDL_GetCurrentDisplayMode(0, &DM);
+	SDL_DisplayID display_id = SDL_GetPrimaryDisplay();
+	const SDL_DisplayMode *DM = SDL_GetCurrentDisplayMode(display_id);
 
-	if (!width || !height) {
-		width = DM.w;
-		height = DM.h;
+	if (!DM) {
+		fail("SDL_GetCurrentDisplayMode Error: %s", SDL_GetError());
+		SDL_Quit();
+		return 0;
 	}
 
-	sdlwnd = SDL_CreateWindow(title, DM.w / 2 - width / 2, DM.h / 2 - height / 2, width, height, SDL_WINDOW_SHOWN);
+	if (!width || !height) {
+		width = DM->w;
+		height = DM->h;
+	}
+
+	sdlwnd = SDL_CreateWindow(title, width, height, 0);
 	if (!sdlwnd) {
 		fail("SDL_Init Error: %s", SDL_GetError());
 		SDL_Quit();
@@ -115,18 +122,30 @@ int sdl_init(int width, int height, char *title)
 	}
 
 	if (game_options & GO_FULL) {
-		SDL_SetWindowFullscreen(sdlwnd, SDL_WINDOW_FULLSCREEN); // true full screen
-	} else if (DM.w == width && DM.h == height) {
-		SDL_SetWindowFullscreen(sdlwnd, SDL_WINDOW_FULLSCREEN_DESKTOP); // borderless windowed
+		// Exclusive fullscreen mode
+		SDL_SetWindowFullscreen(sdlwnd, true);
+	} else if (width == DM->w && height == DM->h) {
+		// Borderless fullscreen desktop
+		SDL_SetWindowFullscreenMode(sdlwnd, NULL);
+		SDL_SetWindowFullscreen(sdlwnd, true);
 	}
 
-	sdlren = SDL_CreateRenderer(sdlwnd, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	// Create renderer - NULL lets SDL choose the best option
+	sdlren = SDL_CreateRenderer(sdlwnd, NULL);
 	if (!sdlren) {
 		SDL_DestroyWindow(sdlwnd);
 		fail("SDL_Init Error: %s", SDL_GetError());
 		SDL_Quit();
 		return 0;
 	}
+
+	SDL_SetRenderVSync(sdlren, 1);
+	SDL_SetDefaultTextureScaleMode(sdlren, SDL_SCALEMODE_NEAREST);
+
+	// Use display mode's logical size for scaling calculations
+	// SDL3 automatically handles pixel_density scaling to physical pixels
+	width = DM->w;
+	height = DM->h;
 
 	// Initialize hash table (statically allocated)
 	for (i = 0; i < MAX_TEXHASH; i++) {
@@ -161,7 +180,7 @@ int sdl_init(int width, int height, char *title)
 	// but we don't really want the SDL line editing stuff.
 	// I hope just keeping it enabled all the time doesn't break
 	// anything.
-	SDL_StartTextInput();
+	SDL_StartTextInput(sdlwnd);
 
 	// decide on screen format
 	if (width != XRES || height != YRES) {
@@ -213,6 +232,9 @@ int sdl_init(int width, int height, char *title)
 		}
 	}
 	note("SDL using %dx%d scale %d, options=%" PRIu64, XRES, YRES, sdl_scale, game_options);
+
+	// Let SDL3 use its default rendering behavior
+	// The game's sdl_scale and render_set_offset() handle all scaling and centering
 
 	sdl_create_cursors();
 
@@ -534,7 +556,7 @@ void sdl_exit(void)
 }
 
 void cmd_proc(int key);
-void context_keyup(int key);
+void context_keyup(SDL_Keycode key);
 
 void sdl_loop(void)
 {
@@ -546,10 +568,10 @@ void sdl_loop(void)
 			quit = 1;
 			break;
 		case SDL_EVENT_KEY_DOWN:
-			gui_sdl_keyproc(event.key.keysym.sym);
+			gui_sdl_keyproc(event.key.key);
 			break;
 		case SDL_EVENT_KEY_UP:
-			context_keyup(event.key.keysym.sym);
+			context_keyup(event.key.key);
 			break;
 		case SDL_EVENT_TEXT_INPUT:
 			cmd_proc(event.text.text[0]);
@@ -559,37 +581,35 @@ void sdl_loop(void)
 			break;
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			if (event.button.button == SDL_BUTTON_LEFT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LDOWN);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_LDOWN);
 			}
 			if (event.button.button == SDL_BUTTON_MIDDLE) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_MDOWN);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_MDOWN);
 			}
 			if (event.button.button == SDL_BUTTON_RIGHT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RDOWN);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_RDOWN);
 			}
 			break;
 		case SDL_EVENT_MOUSE_BUTTON_UP:
 			if (event.button.button == SDL_BUTTON_LEFT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LUP);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_LUP);
 			}
 			if (event.button.button == SDL_BUTTON_MIDDLE) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_MUP);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_MUP);
 			}
 			if (event.button.button == SDL_BUTTON_RIGHT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RUP);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_RUP);
 			}
 			break;
 		case SDL_EVENT_MOUSE_WHEEL:
 			gui_sdl_mouseproc(event.wheel.x, event.wheel.y, SDL_MOUM_WHEEL);
 			break;
-		case SDL_WINDOWEVENT:
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
 #ifdef ENABLE_DRAGHACK
-			if (event.window.event == SDL_EVENT_WINDOW_FOCUS_GAINED) {
-				int x, y;
-				Uint32 mouseState = SDL_GetMouseState(&x, &y);
-				if (mouseState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
-					gui_sdl_draghack();
-				}
+			float x, y;
+			Uint32 mouseState = SDL_GetMouseState(&x, &y);
+			if (mouseState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
+				gui_sdl_draghack();
 			}
 #endif
 			break;
@@ -601,12 +621,7 @@ void sdl_loop(void)
 
 void sdl_set_cursor_pos(int x, int y)
 {
-	SDL_WarpMouseInWindow(sdlwnd, x, y);
-}
-
-void sdl_show_cursor(int flag)
-{
-	SDL_ShowCursor(flag ? SDL_ENABLE : SDL_DISABLE);
+	SDL_WarpMouseInWindow(sdlwnd, (float)x, (float)y);
 }
 
 void sdl_capture_mouse(int flag)
@@ -986,10 +1001,10 @@ int sdl_pre_backgnd(void *ptr)
 	for (;;) {
 		// Wait for work to be available (blocks until signaled)
 		wait_start = SDL_GetTicks();
-		int sem_result = SDL_WaitSemaphore(prework);
+		SDL_WaitSemaphore(prework);
 		sdl_backgnd_wait += SDL_GetTicks() - wait_start;
 
-		if (sem_result != 0) {
+		if (!prework) {
 			SDL_Log("sdl_pre_backgnd: SDL_WaitSemaphore failed: %s - exiting worker thread", SDL_GetError());
 			return -1;
 		}
@@ -1056,33 +1071,33 @@ int sdl_pre_backgnd(void *ptr)
 	return 0;
 }
 
-int sdl_is_shown(void)
+bool sdl_is_shown(void)
 {
-	uint32_t flags;
+	SDL_WindowFlags flags;
 
 	flags = SDL_GetWindowFlags(sdlwnd);
 
 	if (flags & SDL_WINDOW_HIDDEN) {
-		return 0;
+		return false;
 	}
 	if (flags & SDL_WINDOW_MINIMIZED) {
-		return 0;
+		return false;
 	}
 
-	return 1;
+	return true;
 }
 
-int sdl_has_focus(void)
+bool sdl_has_focus(void)
 {
-	uint32_t flags;
+	SDL_WindowFlags flags;
 
 	flags = SDL_GetWindowFlags(sdlwnd);
 
 	if (flags & SDL_WINDOW_MOUSE_FOCUS) {
-		return 1;
+		return true;
 	}
 
-	return 0;
+	return false;
 }
 
 void sdl_set_title(char *title)
@@ -1112,8 +1127,13 @@ void sdl_flush_textinput(void)
 
 int sdl_check_mouse(void)
 {
+	float fx, fy;
 	int x, y, x2, y2, x3, y3, top;
-	SDL_GetGlobalMouseState(&x, &y);
+	SDL_GetGlobalMouseState(&fx, &fy);
+
+	// Convert to int for discrete position comparisons
+	x = (int)fx;
+	y = (int)fy;
 
 	SDL_GetWindowPosition(sdlwnd, &x2, &y2);
 	SDL_GetWindowSize(sdlwnd, &x3, &y3);

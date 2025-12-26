@@ -10,6 +10,7 @@
 #include <stddef.h>
 #include <inttypes.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
 
 #include "astonia.h"
 #include "game/game.h"
@@ -163,7 +164,7 @@ void draw_pixel(int64_t x, int64_t y, int64_t color)
 void dl_play(void)
 {
 	int d;
-	Uint32 start;
+	Uint64 start;
 	void helper_cmp_dl(int attick, DL **dl, int dlused);
 
 	// helper_cmp_dl(tick,dlsort,dlused);

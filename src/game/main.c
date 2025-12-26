@@ -14,9 +14,10 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <time.h>
-#include <SDL3/SDL_stdinc.h>
+#include <ctype.h>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3/SDL_keycode.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -24,6 +25,7 @@
 #include "astonia.h"
 #include "game/game.h"
 #include "game/game_private.h"
+#include "sdl/sdl.h"
 #include "gui/gui.h"
 #include "client/client.h"
 #include "modder/modder.h"
@@ -46,7 +48,7 @@ char *localdata;
 
 static int panic_reached = 0;
 int xmemcheck_failed = 0;
-char user_keys[10] = {'Q', 'W', 'E', 'A', 'S', 'D', 'Z', 'X', 'C', 'V'};
+SDL_Keycode user_keys[10] = {'Q', 'W', 'E', 'A', 'S', 'D', 'Z', 'X', 'C', 'V'};
 
 DLL_EXPORT uint64_t game_options = GO_NOTSET;
 

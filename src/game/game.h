@@ -2,8 +2,10 @@
  * Part of Astonia Client (c) Daniel Brockhaus. Please read license.txt.
  */
 
-#include "astonia.h"
 #include <stdio.h>
+#include <SDL3/SDL_keycode.h>
+
+#include "astonia.h"
 
 // Sprite alignment constants
 #define RENDER_ALIGN_OFFSET 0 // Use sprite's built-in offset (must be zero for bzero default)
@@ -93,7 +95,7 @@ struct renderfx {
 typedef struct renderfx RenderFX;
 
 extern float mouse_scale; // mouse input needs to be scaled by this factor because the display window is stretched
-extern char user_keys[10];
+extern SDL_Keycode user_keys[10];
 extern int namesize;
 extern int stom_off_x, stom_off_y;
 extern int __textdisplay_sy;

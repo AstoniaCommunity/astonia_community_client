@@ -9,8 +9,10 @@
  *
  */
 
+#include <ctype.h>
 #include <time.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_mouse.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -81,9 +83,9 @@ void display_mouseover(void)
 	hide = display_hover();
 	hide += display_hover_skill();
 	if (hide) {
-		sdl_show_cursor(0);
+		SDL_HideCursor();
 	} else if (capbut == -1) {
-		sdl_show_cursor(1);
+		SDL_ShowCursor();
 	}
 }
 

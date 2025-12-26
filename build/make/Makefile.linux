@@ -46,8 +46,8 @@ WARNING_FLAGS ?= $(STRICT_WARNING_FLAGS) -Werror
 # Default to using mimalloc unless USE_MIMALLOC=0 is set
 USE_MIMALLOC ?= 1
 
-CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC)
-CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC)
+CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
+CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,\$$ORIGIN
 
 SDL_LIBS=$(shell pkg-config sdl3 --libs)

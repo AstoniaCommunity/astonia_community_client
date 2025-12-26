@@ -8,6 +8,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -51,7 +52,7 @@ DLL_EXPORT unsigned short int lightbluecolor, bluecolor, darkbluecolor;
 DLL_EXPORT unsigned short int textcolor;
 DLL_EXPORT unsigned short int lightorangecolor, orangecolor, darkorangecolor;
 
-unsigned int now;
+Uint64 now;
 
 int cur_cursor = 0;
 int mousex = 300, mousey = 300, vk_rbut, vk_lbut, shift_override = 0, control_override = 0;
@@ -60,7 +61,7 @@ int mousedx, mousedy;
 int vk_item, vk_char, vk_spell;
 
 int vk_special = 0;
-unsigned int vk_special_time = 0;
+Uint64 vk_special_time = 0;
 
 // globals wea
 
@@ -246,7 +247,7 @@ void main_exit(void)
 
 static void flip_at(unsigned int t)
 {
-	unsigned int tnow;
+	Uint64 tnow;
 	int sdl_pre_do(void);
 
 	do {

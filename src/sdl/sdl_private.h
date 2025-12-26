@@ -9,6 +9,7 @@
 #include <zip.h>
 #include <png.h>
 #include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 // Fixed upper bound for the texture cache metadata.
 // 32k entries is only a few MB of metadata and comfortably covers typical usage.
