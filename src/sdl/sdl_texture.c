@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "dll.h"
 #include "astonia.h"
@@ -68,7 +68,7 @@ void tex_jobs_init(void)
 {
 	memset(&g_tex_jobs, 0, sizeof(g_tex_jobs));
 	g_tex_jobs.mutex = SDL_CreateMutex();
-	g_tex_jobs.cond = SDL_CreateCond();
+	g_tex_jobs.cond = SDL_CreateCondition();
 	if (!g_tex_jobs.mutex || !g_tex_jobs.cond) {
 		fail("Failed to create texture job queue mutex/cond");
 		exit(1);
@@ -82,7 +82,7 @@ void tex_jobs_shutdown(void)
 		g_tex_jobs.mutex = NULL;
 	}
 	if (g_tex_jobs.cond) {
-		SDL_DestroyCond(g_tex_jobs.cond);
+		SDL_DestroyCondition(g_tex_jobs.cond);
 		g_tex_jobs.cond = NULL;
 	}
 }
@@ -102,7 +102,7 @@ int tex_jobs_pop(texture_job_t *out_job, int should_block)
 			SDL_UnlockMutex(q->mutex);
 			return 0;
 		}
-		SDL_CondWait(q->cond, q->mutex);
+		SDL_WaitCondition(q->cond, q->mutex);
 	}
 
 	// Pop job from queue
@@ -210,7 +210,7 @@ unsigned int test_hashfunc_text(const char *text, int color, int flags)
 SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t color, int flags);
 
 // Forward declarations
-extern SDL_mutex *premutex;
+extern SDL_Mutex *premutex;
 extern int if_single_thread_process_one_job(void); // in sdl_core.c
 
 // ============================================================================
@@ -741,7 +741,7 @@ static int tex_entry_ensure_ready(int cache_index, const struct tex_request *r)
 		while (!(flags_load(&sdlt[cache_index]) & SF_DIDMAKE)) {
 #ifdef DEVELOPER
 			if (wait_start == 0) {
-				wait_start = SDL_GetTicks64();
+				wait_start = SDL_GetTicks();
 				extern uint64_t sdl_render_wait_count;
 				sdl_render_wait_count++;
 			}
@@ -771,7 +771,7 @@ static int tex_entry_ensure_ready(int cache_index, const struct tex_request *r)
 		}
 #ifdef DEVELOPER
 		if (wait_start > 0) {
-			uint64_t wait_time = SDL_GetTicks64() - wait_start;
+			uint64_t wait_time = SDL_GetTicks() - wait_start;
 			extern uint64_t sdl_render_wait;
 			sdl_render_wait += wait_time;
 #ifdef DEVELOPER_NOISY
@@ -787,9 +787,9 @@ static int tex_entry_ensure_ready(int cache_index, const struct tex_request *r)
 		// make texture now if preload didn't finish it
 		if (!(flags_load(&sdlt[cache_index]) & SF_DIDTEX)) {
 #ifdef DEVELOPER
-			Uint64 start = SDL_GetTicks64();
+			Uint64 start = SDL_GetTicks();
 			sdl_make(sdlt + cache_index, sdli + r->sprite, 3);
-			sdl_time_tex_main += (long long)(SDL_GetTicks64() - start);
+			sdl_time_tex_main += (long long)(SDL_GetTicks() - start);
 #else
 			sdl_make(sdlt + cache_index, sdli + r->sprite, 3);
 #endif

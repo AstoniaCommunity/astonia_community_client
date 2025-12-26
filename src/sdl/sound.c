@@ -8,8 +8,8 @@
 
 #include <stdio.h>
 #include <zip.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3_mixer/SDL_mixer.h>
 
 #include "astonia.h"
 #include "sdl/sdl.h"
@@ -109,7 +109,7 @@ Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename)
 	zip_file_t *zip_file;
 	char *buffer;
 	zip_uint64_t len;
-	SDL_RWops *rw;
+	SDL_IOStream *rw;
 	Mix_Chunk *chunk;
 
 	// Get file stats from zip
@@ -140,10 +140,10 @@ Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename)
 	}
 	zip_fclose(zip_file);
 
-	// Create an SDL_RWops from the memory buffer
-	rw = SDL_RWFromConstMem(buffer, (int)len);
+	// Create an SDL_IOStream from the memory buffer
+	rw = SDL_IOFromConstMem(buffer, (int)len);
 	if (!rw) {
-		warn("Could not create SDL_RWops for sound %s.", filename);
+		warn("Could not create SDL_IOStream for sound %s.", filename);
 		xfree(buffer);
 		return NULL;
 	}
@@ -186,7 +186,7 @@ static void play_sdl_sound(unsigned int nr, int distance, int angle)
 	}
 
 	// For debugging/optimization
-	time_start = SDL_GetTicks64();
+	time_start = SDL_GetTicks();
 
 #if 0
 	note("nr = %d: %s, distance = %d, angle = %d", nr, sfx_name[nr], distance, angle);
@@ -208,7 +208,7 @@ static void play_sdl_sound(unsigned int nr, int distance, int angle)
 	}
 
 	// For debug/optimization
-	time_play_sound += SDL_GetTicks64() - time_start;
+	time_play_sound += SDL_GetTicks() - time_start;
 
 	return;
 }

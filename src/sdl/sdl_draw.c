@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "dll.h"
 #include "astonia.h"
@@ -41,7 +41,7 @@ static void sdl_blit_tex(
 {
 	int addx = 0, addy = 0, dx, dy;
 	SDL_Rect dr, sr;
-	Uint64 start = SDL_GetTicks64();
+	Uint64 start = SDL_GetTicks();
 
 	SDL_QueryTexture(tex, NULL, NULL, &dx, &dy);
 
@@ -76,9 +76,9 @@ static void sdl_blit_tex(
 	sr.y = addy * sdl_scale;
 	sr.h = dy;
 
-	SDL_RenderCopy(sdlren, tex, &sr, &dr);
+	SDL_RenderTexture(sdlren, tex, &sr, &dr);
 
-	sdl_time_blit += (long long)(SDL_GetTicks64() - start);
+	sdl_time_blit += (long long)(SDL_GetTicks() - start);
 }
 
 void sdl_blit(
@@ -95,7 +95,7 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 	unsigned char *rawrun;
 	int x, y = 0, sizex, sizey = 0, sx = 0;
 	const char *c, *otext = text;
-	Uint64 start = SDL_GetTicks64();
+	Uint64 start = SDL_GetTicks();
 
 	for (sizex = 0, c = text; *c; c++) {
 		sizex += font[(unsigned char)*c].dim * sdl_scale;
@@ -157,9 +157,9 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 	}
 
 	sizey++;
-	sdl_time_text += (long long)(SDL_GetTicks64() - start);
+	sdl_time_text += (long long)(SDL_GetTicks() - start);
 
-	start = SDL_GetTicks64();
+	start = SDL_GetTicks();
 	SDL_Texture *texture = SDL_CreateTexture(sdlren, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, sizex, sizey);
 	if (texture) {
 		SDL_UpdateTexture(texture, NULL, pixel, (int)((size_t)sizex * sizeof(uint32_t)));
@@ -172,7 +172,7 @@ SDL_Texture *sdl_maketext(const char *text, struct renderfont *font, uint32_t co
 #else
 	xfree(pixel);
 #endif
-	sdl_time_tex += SDL_GetTicks64() - start;
+	sdl_time_tex += SDL_GetTicks() - start;
 
 	return texture;
 }
@@ -311,7 +311,7 @@ void sdl_pixel(int x, int y, unsigned short color, int x_offset, int y_offset)
 	SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a);
 	switch (sdl_scale) {
 	case 1:
-		SDL_RenderDrawPoint(sdlren, x + x_offset, y + y_offset);
+		SDL_RenderPoint(sdlren, x + x_offset, y + y_offset);
 		return;
 	case 2:
 		pt[0].x = (x + x_offset) * sdl_scale;
@@ -384,7 +384,7 @@ void sdl_pixel(int x, int y, unsigned short color, int x_offset, int y_offset)
 		warn("unsupported scale %d in sdl_pixel()", sdl_scale);
 		return;
 	}
-	SDL_RenderDrawPoints(sdlren, pt, i);
+	SDL_RenderPoints(sdlren, pt, i);
 }
 
 void sdl_line(int fx, int fy, int tx, int ty, unsigned short color, int clipsx, int clipsy, int clipex, int clipey,
@@ -430,7 +430,7 @@ void sdl_line(int fx, int fy, int tx, int ty, unsigned short color, int clipsx, 
 
 	SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)a);
 	// TODO: This is a thinner line when scaled up. It looks surprisingly good. Maybe keep it this way?
-	SDL_RenderDrawLine(sdlren, fx * sdl_scale, fy * sdl_scale, tx * sdl_scale, ty * sdl_scale);
+	SDL_RenderLine(sdlren, fx * sdl_scale, fy * sdl_scale, tx * sdl_scale, ty * sdl_scale);
 }
 
 void sdl_bargraph_add(int dx, unsigned char *data, int val)
@@ -450,7 +450,7 @@ void sdl_bargraph(int sx, int sy, int dx, unsigned char *data, int x_offset, int
 			SDL_SetRenderDrawColor(sdlren, 80, 255, 80, 127);
 		}
 
-		SDL_RenderDrawLine(sdlren, (sx + n + x_offset) * sdl_scale, (sy + y_offset) * sdl_scale,
+		SDL_RenderLine(sdlren, (sx + n + x_offset) * sdl_scale, (sy + y_offset) * sdl_scale,
 		    (sx + n + x_offset) * sdl_scale, (sy - data[n] + y_offset) * sdl_scale);
 	}
 }
@@ -519,5 +519,5 @@ void sdl_render_circle(int32_t centreX, int32_t centreY, int32_t radius, uint32_
 
 	SDL_SetRenderDrawColor(
 	    sdlren, (Uint8)IGET_R(color), (Uint8)IGET_G(color), (Uint8)IGET_B(color), (Uint8)IGET_A(color));
-	SDL_RenderDrawPoints(sdlren, pts, (int)dC);
+	SDL_RenderPoints(sdlren, pts, (int)dC);
 }

@@ -9,10 +9,10 @@
 
 #include "dll.h"
 #include "astonia_net.h"
-#include <SDL2/SDL_timer.h>
+#include <SDL3/SDL_timer.h>
 #include <time.h>
 #include <zlib.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "client/client.h"

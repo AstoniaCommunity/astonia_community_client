@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <png.h>
 #include <zip.h>
 
@@ -756,7 +756,7 @@ int sdl_load_image(struct sdl_image *si, int sprite, struct zip_handles *zips)
 int sdl_ic_load(unsigned int sprite, struct zip_handles *zips)
 {
 #ifdef DEVELOPER
-	uint64_t start = SDL_GetTicks64();
+	uint64_t start = SDL_GetTicks();
 #endif
 
 	if (sprite >= MAXSPRITE) {
@@ -782,7 +782,7 @@ retry:
 	if (state == IMG_READY) {
 #ifdef DEVELOPER
 		extern long long sdl_time_load;
-		sdl_time_load += SDL_GetTicks64() - start;
+		sdl_time_load += SDL_GetTicks() - start;
 #endif
 		return (int)sprite;
 	}
@@ -811,7 +811,7 @@ retry:
 		__atomic_store_n((int *)&sdli_state[sprite], IMG_READY, __ATOMIC_RELEASE);
 #ifdef DEVELOPER
 		extern long long sdl_time_load;
-		sdl_time_load += SDL_GetTicks64() - start;
+		sdl_time_load += SDL_GetTicks() - start;
 #endif
 		return (int)sprite;
 	} else {
@@ -827,7 +827,7 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 	double ix, iy, low_x, low_y, high_x, high_y, dbr, dbg, dbb, dba;
 	uint32_t irgb;
 #ifdef DEVELOPER
-	Uint64 start = SDL_GetTicks64();
+	Uint64 start = SDL_GetTicks();
 #endif
 
 	if (si->xres == 0 || si->yres == 0) {
@@ -905,7 +905,7 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 		}
 
 #ifdef DEVELOPER
-		start = SDL_GetTicks64();
+		start = SDL_GetTicks();
 #endif
 
 		for (y = 0; y < st->yres * sdl_scale; y++) {
@@ -1119,10 +1119,10 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 #ifdef DEVELOPER
 		if (preload) {
 			extern long long sdl_time_preload;
-			sdl_time_preload += (long long)(SDL_GetTicks64() - start);
+			sdl_time_preload += (long long)(SDL_GetTicks() - start);
 		} else {
 			extern long long sdl_time_make;
-			sdl_time_make += (long long)(SDL_GetTicks64() - start);
+			sdl_time_make += (long long)(SDL_GetTicks() - start);
 		}
 #endif
 	}
@@ -1142,7 +1142,7 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 		}
 
 #ifdef DEVELOPER
-		start = SDL_GetTicks64();
+		start = SDL_GetTicks();
 #endif
 
 		if (st->xres > 0 && st->yres > 0) {
@@ -1177,7 +1177,7 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 
 #ifdef DEVELOPER
 		extern long long sdl_time_tex;
-		sdl_time_tex += SDL_GetTicks64() - start;
+		sdl_time_tex += SDL_GetTicks() - start;
 #endif
 	}
 }

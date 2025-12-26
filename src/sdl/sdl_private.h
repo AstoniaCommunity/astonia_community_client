@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <zip.h>
 #include <png.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 // Fixed upper bound for the texture cache metadata.
 // 32k entries is only a few MB of metadata and comfortably covers typical usage.
@@ -110,8 +110,8 @@ typedef struct texture_job_queue {
 	int tail; // push position
 	int count; // number of jobs in queue
 
-	SDL_mutex *mutex;
-	SDL_cond *cond;
+	SDL_Mutex *mutex;
+	SDL_Condition *cond;
 } texture_job_queue_t;
 
 // Lock-free flag operation helpers
@@ -188,7 +188,7 @@ extern zip_t *sdl_zip1p;
 extern zip_t *sdl_zip2p;
 extern zip_t *sdl_zip1m;
 extern zip_t *sdl_zip2m;
-extern SDL_mutex *premutex;
+extern SDL_Mutex *premutex;
 extern int *sdli_state; // Image loading state machine
 extern texture_job_queue_t g_tex_jobs; // Texture job queue
 extern int sdl_cache_size; // Requested size (for logging / config), not allocation

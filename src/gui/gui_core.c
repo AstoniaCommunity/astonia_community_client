@@ -7,7 +7,7 @@
 
 #include <inttypes.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -280,7 +280,7 @@ int main_loop(void)
 	while (!quit) {
 		now = SDL_GetTicks();
 
-		start = (long long)SDL_GetTicks64();
+		start = (long long)SDL_GetTicks();
 		poll_network();
 
 		// synchronise frames and ticks if at the same speed
@@ -303,8 +303,8 @@ int main_loop(void)
 			if (timediff < 0 ||
 			    nexttick <= nextframe) { // do ticks when they are due, or before the corresponding frame is shown
 				do_one_tick = 1;
-				gui_ticktime = SDL_GetTicks64() - gui_last_tick;
-				gui_last_tick = SDL_GetTicks64();
+				gui_ticktime = SDL_GetTicks() - gui_last_tick;
+				gui_last_tick = SDL_GetTicks();
 				do_tick();
 				ltick++;
 
@@ -323,14 +323,14 @@ int main_loop(void)
 		} else {
 			timediff = 1;
 		}
-		gui_time_network += (uint64_t)(SDL_GetTicks64() - (Uint64)start);
+		gui_time_network += (uint64_t)(SDL_GetTicks() - (Uint64)start);
 
 		if (timediff > -MPF / 2) {
 #ifdef TICKPRINT
 			printf("Display tick %u\n", tick);
 #endif
-			gui_frametime = SDL_GetTicks64() - gui_last_frame;
-			gui_last_frame = SDL_GetTicks64();
+			gui_frametime = SDL_GetTicks() - gui_last_frame;
+			gui_last_frame = SDL_GetTicks();
 
 			if (sdl_is_shown() && (!(tick & 3) || !game_slowdown || sockstate != 4)) {
 				sdl_clear();
@@ -525,13 +525,13 @@ int gui_keymode(void)
 	int ret = 0;
 
 	km = SDL_GetModState();
-	if (km & KMOD_SHIFT) {
+	if (km & SDL_KMOD_SHIFT) {
 		ret |= SDL_KEYM_SHIFT;
 	}
-	if (km & KMOD_CTRL) {
+	if (km & SDL_KMOD_CTRL) {
 		ret |= SDL_KEYM_CTRL;
 	}
-	if (km & KMOD_ALT) {
+	if (km & SDL_KMOD_ALT) {
 		ret |= SDL_KEYM_ALT;
 	}
 

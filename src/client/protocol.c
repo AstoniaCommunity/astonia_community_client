@@ -10,7 +10,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <ctype.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "client/client.h"

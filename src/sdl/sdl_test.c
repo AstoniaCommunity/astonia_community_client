@@ -10,17 +10,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "../astonia.h" // Must come first for tick_t
 #include "sdl_private.h"
 
 // Forward declarations for test-exposed functions
-extern SDL_atomic_t worker_quit;
+extern SDL_AtomicInt worker_quit;
 extern SDL_Thread **worker_threads;
 extern struct zip_handles *worker_zips;
 extern int sdl_multi;
-extern SDL_sem *prework;
+extern SDL_Semaphore *prework;
 
 // ============================================================================
 // State initialization helpers
@@ -119,7 +119,7 @@ int sdl_init_for_tests(void)
 		return 0;
 	}
 
-	SDL_AtomicSet(&worker_quit, 0);
+	SDL_SetAtomicInt(&worker_quit, 0);
 	worker_threads = NULL;
 
 	sdl_zero_state_for_tests();
@@ -156,7 +156,7 @@ int sdl_init_for_tests_with_workers(int worker_count)
 	// Don't allocate zip handles for tests - workers will use NULL
 	worker_zips = NULL;
 
-	SDL_AtomicSet(&worker_quit, 0);
+	SDL_SetAtomicInt(&worker_quit, 0);
 
 	for (i = 0; i < worker_count; i++) {
 		char name[64];
@@ -180,17 +180,17 @@ void sdl_shutdown_for_tests(void)
 
 	// Stop worker threads
 	if (sdl_multi && worker_threads) {
-		SDL_AtomicSet(&worker_quit, 1);
+		SDL_SetAtomicInt(&worker_quit, 1);
 
 		// Also signal the job queue condition variable (for any waiting on cond)
 		SDL_LockMutex(g_tex_jobs.mutex);
-		SDL_CondBroadcast(g_tex_jobs.cond);
+		SDL_BroadcastCondition(g_tex_jobs.cond);
 		SDL_UnlockMutex(g_tex_jobs.mutex);
 
 		// Wake up all workers from semaphore wait
-		// Each worker needs one semaphore post to wake from SDL_SemWait
+		// Each worker needs one semaphore post to wake from SDL_WaitSemaphore
 		for (i = 0; i < sdl_multi; i++) {
-			SDL_SemPost(prework);
+			SDL_SignalSemaphore(prework);
 		}
 
 		// Wait for all workers to exit

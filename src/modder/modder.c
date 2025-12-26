@@ -9,7 +9,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <SDL2/SDL_loadso.h>
+#include <SDL3/SDL_loadso.h>
 
 #include "astonia.h"
 #include "modder/modder.h"
@@ -74,7 +74,7 @@ int amod_init(void)
 	for (int i = 0; i < MAXMOD; i++) {
 #ifdef _WIN32
 		sprintf(fname, "bin\\%cmod.dll", i + 'a');
-#elif defined(__APPLE__)
+#elif defined(SDL_PLATFORM_APPLE)
 		sprintf(fname, "bin/%cmod.dylib", i + 'a');
 #else
 		sprintf(fname, "bin/%cmod.so", i + 'a');

@@ -14,7 +14,9 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -22,7 +24,6 @@
 #include "astonia.h"
 #include "game/game.h"
 #include "game/game_private.h"
-#include "sdl/sdl.h"
 #include "gui/gui.h"
 #include "client/client.h"
 #include "modder/modder.h"

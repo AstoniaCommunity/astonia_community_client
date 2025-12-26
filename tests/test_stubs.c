@@ -64,7 +64,7 @@ char *localdata = NULL;
 int xmemcheck_failed = 0;
 
 // SDL worker thread globals (defined in sdl_core.c, not here)
-// extern SDL_atomic_t worker_quit;
+// extern SDL_AtomicInt worker_quit;
 // extern SDL_Thread **worker_threads;
 // extern struct zip_handles *worker_zips;
 

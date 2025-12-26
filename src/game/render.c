@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include <math.h>
 #include <stdio.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "dll.h"
 #include "astonia.h"

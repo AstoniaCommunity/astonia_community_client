@@ -7,7 +7,7 @@
 
 #include <inttypes.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -130,7 +130,7 @@ void display(void)
 	extern long long sdl_time_make, sdl_time_tex, sdl_time_tex_main, sdl_time_text, sdl_time_blit;
 	time_t t;
 	int tmp;
-	uint64_t start = SDL_GetTicks64();
+	uint64_t start = SDL_GetTicks();
 
 #if 0
 	// Performance for stuff happening during the actual tick only.
@@ -222,7 +222,7 @@ void display(void)
 
 display_graphs:;
 
-	int64_t duration = (int64_t)(SDL_GetTicks64() - start);
+	int64_t duration = (int64_t)(SDL_GetTicks() - start);
 
 	if (display_vc) {
 		extern long long texc_miss, texc_pre; // mem_tex,

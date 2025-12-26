@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <inttypes.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "game/game.h"

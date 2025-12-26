@@ -8,7 +8,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include <ctype.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "gui/gui.h"

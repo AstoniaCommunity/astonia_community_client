@@ -7,12 +7,12 @@
  * event loop, and background prefetching system.
  */
 
-#include <SDL2/SDL_timer.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_timer.h>
+#include <SDL3_mixer/SDL_mixer.h>
 #include <zip.h>
 
 #include "dll.h"
@@ -37,8 +37,8 @@ zip_t *sdl_zip1m = NULL;
 zip_t *sdl_zip2m = NULL;
 
 // Prefetch threading (shared with sdl_texture.c)
-SDL_sem *prework = NULL;
-SDL_mutex *premutex = NULL;
+SDL_Semaphore *prework = NULL;
+SDL_Mutex *premutex = NULL;
 
 // Scale and resolution settings
 DLL_EXPORT int sdl_scale = 1;
@@ -51,7 +51,7 @@ DLL_EXPORT int __yres = YRES0;
 
 struct zip_handles;
 struct zip_handles *worker_zips = NULL;
-SDL_atomic_t worker_quit;
+SDL_AtomicInt worker_quit;
 SDL_Thread **worker_threads = NULL;
 
 // Image loading state machine (shared with sdl_image.c)
@@ -88,7 +88,7 @@ int sdl_init(int width, int height, char *title)
 	int i;
 	SDL_DisplayMode DM;
 
-	if (SDL_Init(SDL_INIT_VIDEO | ((game_options & GO_SOUND) ? SDL_INIT_AUDIO : 0)) != 0) {
+	if (!SDL_Init(SDL_INIT_VIDEO | ((game_options & GO_SOUND) ? SDL_INIT_AUDIO : 0))) {
 		fail("SDL_Init Error: %s", SDL_GetError());
 		return 0;
 	}
@@ -260,7 +260,7 @@ int sdl_init(int width, int height, char *title)
 		return 0;
 	}
 
-	SDL_AtomicSet(&worker_quit, 0);
+	SDL_SetAtomicInt(&worker_quit, 0);
 
 	if (sdl_multi) {
 		char buf[80];
@@ -365,7 +365,7 @@ int sdl_init(int width, int height, char *title)
 						if (!worker_threads[n]) {
 							warn("Failed to create worker thread %d", n);
 							// Signal quit and join already created threads
-							SDL_AtomicSet(&worker_quit, 1);
+							SDL_SetAtomicInt(&worker_quit, 1);
 							for (int i = 0; i < n; i++) {
 								if (worker_threads[i]) {
 									SDL_WaitThread(worker_threads[i], NULL);
@@ -430,13 +430,13 @@ void sdl_exit(void)
 {
 	// Signal workers to quit and join them
 	if (sdl_multi && worker_threads) {
-		SDL_AtomicSet(&worker_quit, 1);
+		SDL_SetAtomicInt(&worker_quit, 1);
 
 		// Wake all workers so they can see the quit signal
-		// (they're blocked on SDL_SemWait)
+		// (they're blocked on SDL_WaitSemaphore)
 		if (prework) {
 			for (int n = 0; n < sdl_multi; n++) {
-				SDL_SemPost(prework);
+				SDL_SignalSemaphore(prework);
 			}
 		}
 
@@ -524,22 +524,22 @@ void sdl_loop(void)
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
-		case SDL_QUIT:
+		case SDL_EVENT_QUIT:
 			quit = 1;
 			break;
-		case SDL_KEYDOWN:
+		case SDL_EVENT_KEY_DOWN:
 			gui_sdl_keyproc(event.key.keysym.sym);
 			break;
-		case SDL_KEYUP:
+		case SDL_EVENT_KEY_UP:
 			context_keyup(event.key.keysym.sym);
 			break;
-		case SDL_TEXTINPUT:
+		case SDL_EVENT_TEXT_INPUT:
 			cmd_proc(event.text.text[0]);
 			break;
-		case SDL_MOUSEMOTION:
+		case SDL_EVENT_MOUSE_MOTION:
 			gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_NONE);
 			break;
-		case SDL_MOUSEBUTTONDOWN:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LDOWN);
 			}
@@ -550,7 +550,7 @@ void sdl_loop(void)
 				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RDOWN);
 			}
 			break;
-		case SDL_MOUSEBUTTONUP:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
 			if (event.button.button == SDL_BUTTON_LEFT) {
 				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LUP);
 			}
@@ -561,15 +561,15 @@ void sdl_loop(void)
 				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RUP);
 			}
 			break;
-		case SDL_MOUSEWHEEL:
+		case SDL_EVENT_MOUSE_WHEEL:
 			gui_sdl_mouseproc(event.wheel.x, event.wheel.y, SDL_MOUM_WHEEL);
 			break;
 		case SDL_WINDOWEVENT:
 #ifdef ENABLE_DRAGHACK
-			if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
+			if (event.window.event == SDL_EVENT_WINDOW_FOCUS_GAINED) {
 				int x, y;
 				Uint32 mouseState = SDL_GetMouseState(&x, &y);
-				if (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+				if (mouseState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
 					gui_sdl_draghack();
 				}
 			}
@@ -593,7 +593,7 @@ void sdl_show_cursor(int flag)
 
 void sdl_capture_mouse(int flag)
 {
-	SDL_CaptureMouse(flag ? SDL_TRUE : SDL_FALSE);
+	SDL_CaptureMouse(flag ? true : false);
 }
 
 /* This function is a hack. It can only load one specific type of
@@ -835,11 +835,11 @@ void sdl_pre_add(unsigned int sprite, signed char sink, unsigned char freeze, un
 	}
 
 	// Ensure there is a cache slot (but don't force full make+tex)
-	start = SDL_GetTicks64();
+	start = SDL_GetTicks();
 	int cache_index = sdl_tx_load(sprite, sink, freeze, scale, cr, cg, cb, light, sat, c1, c2, c3, shine, ml, ll, rl,
 	    ul, dl, NULL, 0, 0, NULL, 0, 1);
 	extern long long sdl_time_alloc;
-	sdl_time_alloc += (long long)(SDL_GetTicks64() - start);
+	sdl_time_alloc += (long long)(SDL_GetTicks() - start);
 
 	if (cache_index == -1) {
 		// Already in cache
@@ -878,7 +878,7 @@ void sdl_pre_add(unsigned int sprite, signed char sink, unsigned char freeze, un
 	if (g_tex_jobs.count >= TEX_JOB_CAPACITY) {
 #ifdef DEVELOPER
 		static uint64_t last_log_time = 0;
-		uint64_t now = SDL_GetTicks64();
+		uint64_t now = SDL_GetTicks();
 		if (now - last_log_time > 1000) {
 			warn("Texture job queue full: capacity=%d, dropping preload for sprite %u", TEX_JOB_CAPACITY, sprite);
 			last_log_time = now;
@@ -900,20 +900,20 @@ void sdl_pre_add(unsigned int sprite, signed char sink, unsigned char freeze, un
 	// Mark as queued
 	slot->work_state = TX_WORK_QUEUED;
 
-	SDL_CondSignal(g_tex_jobs.cond);
+	SDL_SignalCondition(g_tex_jobs.cond);
 	SDL_UnlockMutex(g_tex_jobs.mutex);
 
 	// Wake a worker
-	SDL_SemPost(prework);
+	SDL_SignalSemaphore(prework);
 }
 
 long long sdl_time_mutex = 0;
 
 void sdl_lock(void *a)
 {
-	Uint64 start = SDL_GetTicks64();
+	Uint64 start = SDL_GetTicks();
 	SDL_LockMutex(a);
-	sdl_time_mutex += (long long)(SDL_GetTicks64() - start);
+	sdl_time_mutex += (long long)(SDL_GetTicks() - start);
 }
 
 #define SDL_LockMutex(a) sdl_lock(a)
@@ -923,7 +923,7 @@ int sdl_pre_do(void)
 	Uint64 start;
 	int uploads = 0;
 
-	start = SDL_GetTicks64();
+	start = SDL_GetTicks();
 
 	// Single-threaded: process jobs from queue (will no-op if called from multi)
 	if_single_thread_process_one_job();
@@ -950,7 +950,7 @@ int sdl_pre_do(void)
 	}
 
 	extern long long sdl_time_pre2;
-	sdl_time_pre2 += (long long)(SDL_GetTicks64() - start);
+	sdl_time_pre2 += (long long)(SDL_GetTicks() - start);
 
 	return uploads;
 }
@@ -963,25 +963,25 @@ int sdl_pre_backgnd(void *ptr)
 	struct zip_handles *zips = worker_zips ? &worker_zips[worker_id] : NULL;
 	uint64_t wait_start, work_start;
 
-	SDL_SetThreadPriority(SDL_THREAD_PRIORITY_LOW);
+	SDL_SetCurrentThreadPriority(SDL_THREAD_PRIORITY_LOW);
 
 	for (;;) {
 		// Wait for work to be available (blocks until signaled)
-		wait_start = SDL_GetTicks64();
-		int sem_result = SDL_SemWait(prework);
-		sdl_backgnd_wait += SDL_GetTicks64() - wait_start;
+		wait_start = SDL_GetTicks();
+		int sem_result = SDL_WaitSemaphore(prework);
+		sdl_backgnd_wait += SDL_GetTicks() - wait_start;
 
 		if (sem_result != 0) {
-			SDL_Log("sdl_pre_backgnd: SDL_SemWait failed: %s - exiting worker thread", SDL_GetError());
+			SDL_Log("sdl_pre_backgnd: SDL_WaitSemaphore failed: %s - exiting worker thread", SDL_GetError());
 			return -1;
 		}
 
 		// Check for shutdown before each job attempt
-		if (quit || SDL_AtomicGet(&worker_quit)) {
+		if (quit || SDL_GetAtomicInt(&worker_quit)) {
 			return 0;
 		}
 
-		work_start = SDL_GetTicks64();
+		work_start = SDL_GetTicks();
 
 		// Pop a job from the queue
 		texture_job_t job;
@@ -1031,7 +1031,7 @@ int sdl_pre_backgnd(void *ptr)
 		}
 		SDL_UnlockMutex(g_tex_jobs.mutex);
 
-		sdl_backgnd_work += SDL_GetTicks64() - work_start;
+		sdl_backgnd_work += SDL_GetTicks() - work_start;
 		sdl_backgnd_jobs++;
 	}
 
@@ -1079,17 +1079,17 @@ void *sdl_create_texture(int width, int height)
 
 void sdl_render_copy(void *tex, void *sr, void *dr)
 {
-	SDL_RenderCopy(sdlren, tex, sr, dr);
+	SDL_RenderTexture(sdlren, tex, sr, dr);
 }
 
 void sdl_render_copy_ex(void *tex, void *sr, void *dr, double angle)
 {
-	SDL_RenderCopyEx(sdlren, tex, sr, dr, angle, 0, SDL_FLIP_NONE);
+	SDL_RenderTextureRotated(sdlren, tex, sr, dr, angle, 0, SDL_FLIP_NONE);
 }
 
 void sdl_flush_textinput(void)
 {
-	SDL_FlushEvent(SDL_TEXTINPUT);
+	SDL_FlushEvent(SDL_EVENT_TEXT_INPUT);
 }
 
 int sdl_check_mouse(void)
