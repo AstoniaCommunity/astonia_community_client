@@ -543,7 +543,10 @@ int main(int argc, char *argv[])
 #if USE_MIMALLOC
 	// Configure SDL to use mimalloc for all its internal allocations
 	// This MUST be called before any SDL function, including SDL_GetPrefPath()
-	SDL_SetMemoryFunctions(MALLOC, CALLOC, REALLOC, FREE);
+	if (!SDL_SetMemoryFunctions(MALLOC, CALLOC, REALLOC, FREE)) {
+		// If this fails we should still carry on and just use malloc, but log error.
+		SDL_Log("Failed to set memory functions for mimalloc: %s", SDL_GetError());
+	}
 #endif
 
 	int ret;
