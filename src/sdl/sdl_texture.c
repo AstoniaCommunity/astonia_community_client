@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_render.h>
 
 #include "dll.h"
 #include "astonia.h"
@@ -474,7 +475,7 @@ static void texcache_promote_to_hash_head(int cache_index, int hash)
 // Returns the cache_index on success, or STX_NONE if text creation failed
 static int tex_entry_build_text(int cache_index, const struct tex_request *r, int hash)
 {
-	int w, h;
+	float w, h;
 	int ntx;
 
 	sdlt[cache_index].tex =
@@ -488,7 +489,7 @@ static int tex_entry_build_text(int cache_index, const struct tex_request *r, in
 	sdlt[cache_index].text = xstrdup(r->text, MEM_TEMP7);
 #endif
 	if (sdlt[cache_index].tex) {
-		SDL_QueryTexture(sdlt[cache_index].tex, NULL, NULL, &w, &h);
+		SDL_GetTextureSize(sdlt[cache_index].tex, &w, &h);
 		sdlt[cache_index].xres = (uint16_t)w;
 		sdlt[cache_index].yres = (uint16_t)h;
 		// Set flags ONLY if tex creation succeeded

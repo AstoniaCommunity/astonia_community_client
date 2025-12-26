@@ -51,10 +51,9 @@ void play_sound(unsigned int nr, int vol, int p);
 
 void sdl_bargraph_add(int dx, unsigned char *data, int val);
 void sdl_bargraph(int sx, int sy, int dx, unsigned char *data, int x_offset, int y_offset);
-int sdl_has_focus(void);
-int sdl_is_shown(void);
+bool sdl_has_focus(void);
+bool sdl_is_shown(void);
 void sdl_set_cursor_pos(int x, int y);
-void sdl_show_cursor(int flag);
 void sdl_capture_mouse(int flag);
 int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
     char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl,

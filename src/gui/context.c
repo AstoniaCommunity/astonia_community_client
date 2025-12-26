@@ -10,6 +10,7 @@
 
 #include <time.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_keycode.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -448,7 +449,7 @@ int context_key_click(void)
 	return CMD_NONE;
 }
 
-void context_keydown(int key)
+void context_keydown(SDL_Keycode key)
 {
 	if (!(game_options & GO_ACTION)) {
 		return;
@@ -581,7 +582,7 @@ int context_key_set_cmd(void)
 	return 1;
 }
 
-void context_keyup(int key)
+void context_keyup(SDL_Keycode key)
 {
 	size_t csel, isel, msel;
 

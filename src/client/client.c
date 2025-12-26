@@ -9,10 +9,12 @@
 
 #include "dll.h"
 #include "astonia_net.h"
-#include <SDL3/SDL_timer.h>
+#include <math.h>
 #include <time.h>
 #include <zlib.h>
 #include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_timer.h>
 
 #include "astonia.h"
 #include "client/client.h"
@@ -29,7 +31,7 @@ static int rec_bytes = 0;
 static int sent_bytes = 0;
 static astonia_sock *sock = NULL;
 int sockstate = 0;
-static unsigned int socktime = 0;
+static Uint64 socktime = 0;
 time_t socktimeout = 0;
 int change_area = 0;
 int kicked_out = 0;

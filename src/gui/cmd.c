@@ -155,7 +155,7 @@ static int client_cmd(char *buf)
 			addline("Key is out of bounds (must be between A and Z)");
 			return 1;
 		}
-		user_keys[what] = (char)key;
+		user_keys[what] = (SDL_Keycode)key;
 		update_user_keys();
 		save_options();
 
@@ -370,7 +370,7 @@ DLL_EXPORT void cmd_add_text(const char *buf, int typ __attribute__((unused)))
 	context_key_set(1);
 
 	while (*buf) {
-		cmd_proc(*buf++);
+		cmd_proc((unsigned char)*buf++);
 	}
 }
 

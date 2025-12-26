@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include <math.h>
 #include <SDL3/SDL.h>
 
 #include "astonia.h"
@@ -88,7 +89,7 @@ static void display_game_spells(void)
 {
 	int i, x, y, dx;
 	unsigned int sprite;
-	Uint32 start;
+	Uint64 start;
 	int nr, e;
 	unsigned int fn;
 	int mapx, mapy, mna, x1, y1, x2, y2, h1, h2, size, n;
@@ -888,7 +889,7 @@ void display_game_map(struct map *cmap)
 {
 	int i, nr, scrx, scry, light, sprite, sink, xoff, yoff;
 	map_index_t mn, mna;
-	Uint32 start;
+	Uint64 start;
 	DL *dl;
 	int heightadd;
 

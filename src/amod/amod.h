@@ -5,6 +5,7 @@
 #include "../dll.h"
 #include "../astonia.h"
 #include "amod_structs.h"
+#include <SDL3/SDL_keycode.h>
 
 void amod_init(void);
 void amod_exit(void);
@@ -20,8 +21,8 @@ void amod_update_hover_texts(void);
 // return -1 if you want the client to ignore it, but allow other mods to process it.
 // return 0 otherwise
 int amod_mouse_click(int x, int y, int what);
-int amod_keydown(int key); // if you catch keydown ...
-int amod_keyup(int key); // ... you must also catch keyup
+int amod_keydown(SDL_Keycode key); // if you catch keydown ...
+int amod_keyup(SDL_Keycode key); // ... you must also catch keyup
 int amod_client_cmd(const char *buf);
 
 // main mod only:

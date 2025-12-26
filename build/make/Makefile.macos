@@ -74,8 +74,8 @@ SDL_CFLAGS=$(patsubst -I%,-isystem %,$(SDL_CFLAGS_RAW))
 # Default to using mimalloc unless USE_MIMALLOC=0 is set
 USE_MIMALLOC ?= 1
 
-CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC)
-CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC)
+CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
+CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,@loader_path
 
 SDL_LIBS=$(shell pkg-config sdl3 --libs)

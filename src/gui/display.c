@@ -1117,7 +1117,7 @@ uint16_t has_action_skill(int i)
 	return value[0][action_skill[i]];
 }
 
-int action_key2slot(int key)
+int action_key2slot(SDL_Keycode key)
 {
 	int i;
 
@@ -1125,29 +1125,29 @@ int action_key2slot(int key)
 		if (!has_action_skill(i)) {
 			continue;
 		}
-		if (action_row[0][i] == key) {
+		if ((SDL_Keycode)action_row[0][i] == key) {
 			return i;
 		}
-		if (action_row[1][i] == key) {
+		if ((SDL_Keycode)action_row[1][i] == key) {
 			return i + 100;
 		}
 	}
 	return -1;
 }
 
-int action_slot2key(int slot)
+SDL_Keycode action_slot2key(int slot)
 {
 	if (slot > 100) {
 		slot -= 100;
 		if (slot < 0 || slot >= MAXACTIONSLOT) {
-			return -1;
+			return SDLK_UNKNOWN;
 		}
-		return action_row[1][slot];
+		return (SDL_Keycode)action_row[1][slot];
 	}
 	if (slot < 0 || slot >= MAXACTIONSLOT) {
-		return -1;
+		return SDLK_UNKNOWN;
 	}
-	return action_row[0][slot];
+	return (SDL_Keycode)action_row[0][slot];
 }
 
 int act_lck = 1;
@@ -1165,7 +1165,7 @@ static int get_action_key_row(int slot)
 	return 0;
 }
 
-void action_set_key(int slot, int key)
+void action_set_key(int slot, SDL_Keycode key)
 {
 	int row, i;
 
@@ -1183,7 +1183,7 @@ void action_set_key(int slot, int key)
 	}
 
 	for (i = 0; i < MAXACTIONSLOT * 2; i++) {
-		if (*(action_row[0] + i) == key) {
+		if ((SDL_Keycode) * (action_row[0] + i) == key) {
 			*(action_row[0] + i) = '-';
 		}
 	}

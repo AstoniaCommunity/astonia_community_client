@@ -125,6 +125,7 @@ FEATURE_FLAGS = -DSTORE_UNIQUE \
     -DENABLE_SHAREDMEM \
     -DENABLE_DRAGHACK \
     -DUSE_MIMALLOC=$(USE_MIMALLOC) \
+    -DSDL_FUNCTION_POINTER_IS_VOID_POINTER \
     $(DEVELOPER_FLAGS)
 
 # ============================================================================

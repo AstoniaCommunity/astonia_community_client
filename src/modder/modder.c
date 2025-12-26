@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <SDL3/SDL_loadso.h>
+#include <SDL3/SDL_keycode.h>
 
 #include "astonia.h"
 #include "modder/modder.h"
@@ -30,8 +31,8 @@ struct mod {
 	int (*_amod_mouse_click)(int x, int y, int what);
 	void (*_amod_mouse_capture)(int onoff);
 	void (*_amod_areachange)(void);
-	int (*_amod_keydown)(int);
-	int (*_amod_keyup)(int);
+	int (*_amod_keydown)(SDL_Keycode);
+	int (*_amod_keyup)(SDL_Keycode);
 	void (*_amod_update_hover_texts)(void);
 	int (*_amod_client_cmd)(const char *buf);
 	char *(*_amod_version)(void);
@@ -115,10 +116,10 @@ int amod_init(void)
 			mod[i]._amod_areachange = (void (*)(void))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_keydown"))) {
-			mod[i]._amod_keydown = (int (*)(int))tmp;
+			mod[i]._amod_keydown = (int (*)(SDL_Keycode))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_keyup"))) {
-			mod[i]._amod_keyup = (int (*)(int))tmp;
+			mod[i]._amod_keyup = (int (*)(SDL_Keycode))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_update_hover_texts"))) {
 			mod[i]._amod_update_hover_texts = (void (*)(void))tmp;
@@ -327,7 +328,7 @@ void amod_areachange(void)
 	}
 }
 
-int amod_keydown(int key)
+int amod_keydown(SDL_Keycode key)
 {
 	int ret = 0, tmp;
 	for (int i = 0; i < MAXMOD; i++) {
@@ -343,7 +344,7 @@ int amod_keydown(int key)
 	return ret;
 }
 
-int amod_keyup(int key)
+int amod_keyup(SDL_Keycode key)
 {
 	int ret = 0, tmp;
 	for (int i = 0; i < MAXMOD; i++) {

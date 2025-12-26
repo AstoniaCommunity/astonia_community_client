@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <SDL3/SDL_keycode.h>
 #include "amod.h"
 
 #if 0
@@ -80,12 +81,12 @@ DLL_EXPORT int amod_client_cmd(const char *buf)
 	return 0;
 }
 
-DLL_EXPORT int amod_keydown(int key __attribute__((unused)))
+DLL_EXPORT int amod_keydown(SDL_Keycode key __attribute__((unused)))
 {
 	return 0;
 }
 
-DLL_EXPORT int amod_keyup(int key __attribute__((unused)))
+DLL_EXPORT int amod_keyup(SDL_Keycode key __attribute__((unused)))
 {
 	return 0;
 }
