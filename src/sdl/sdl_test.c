@@ -79,7 +79,7 @@ static void sdl_zero_state_for_tests(void)
 int sdl_init_for_tests(void)
 {
 	// Minimal SDL init for timers/threads only
-	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTS) != 0) {
+	if (!SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTS)) {
 		fprintf(stderr, "sdl_init_for_tests: SDL_Init failed: %s\n", SDL_GetError());
 		return 0;
 	}
