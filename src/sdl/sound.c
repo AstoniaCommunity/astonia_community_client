@@ -73,9 +73,9 @@ static int sfx_name_cnt = ARRAYSIZE(sfx_name);
 int sound_volume = 128;
 static uint64_t time_play_sound = 0;
 
-static Mix_Chunk *sound_effect[MAXSOUND];
+static MIX_Audio *sound_effect[MAXSOUND];
 
-Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename);
+MIX_Audio *load_sound_from_zip(zip_t *zip_archive, const char *filename);
 
 int init_sound(void)
 {
@@ -103,14 +103,14 @@ int init_sound(void)
 	return 0;
 }
 
-Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename)
+MIX_Audio *load_sound_from_zip(zip_t *zip_archive, const char *filename)
 {
 	zip_stat_t stat;
 	zip_file_t *zip_file;
 	char *buffer;
 	zip_uint64_t len;
 	SDL_IOStream *rw;
-	Mix_Chunk *chunk;
+	MIX_Audio *audio;
 
 	// Get file stats from zip
 	if (zip_stat(zip_archive, filename, 0, &stat) != 0 || !(stat.valid & ZIP_STAT_SIZE)) {
@@ -141,18 +141,19 @@ Mix_Chunk *load_sound_from_zip(zip_t *zip_archive, const char *filename)
 	zip_fclose(zip_file);
 
 	// Create an SDL_IOStream from the memory buffer
-	rw = SDL_IOFromConstMem(buffer, (int)len);
+	rw = SDL_IOFromConstMem(buffer, (size_t)len);
 	if (!rw) {
 		warn("Could not create SDL_IOStream for sound %s.", filename);
 		xfree(buffer);
 		return NULL;
 	}
 
-	// Load WAV from the RWops. The '1' frees the RWops struct, but not the buffer.
-	chunk = Mix_LoadWAV_RW(rw, 1);
+	// Load WAV from the IOStream
+	// mixer=NULL means use first created mixer, predecode=true loads fully into memory, closeio=true frees the IOStream
+	audio = MIX_LoadAudio_IO(NULL, rw, true, true);
 	xfree(buffer); // Free the original buffer to prevent a memory leak.
 
-	return chunk;
+	return audio;
 }
 
 void sound_exit(void)
@@ -162,7 +163,7 @@ void sound_exit(void)
 	// Free all sound effects
 	// Starting at 1 since 0 is null
 	for (i = 1; i < sfx_name_cnt; i++) {
-		Mix_FreeChunk(sound_effect[i]);
+		MIX_DestroyAudio(sound_effect[i]);
 		sound_effect[i] = NULL;
 	}
 
@@ -185,6 +186,10 @@ static void play_sdl_sound(unsigned int nr, int distance, int angle)
 		return;
 	}
 
+	if (!sound_effect[nr]) {
+		return; // Audio not loaded
+	}
+
 	// For debugging/optimization
 	time_start = SDL_GetTicks();
 
@@ -192,16 +197,37 @@ static void play_sdl_sound(unsigned int nr, int distance, int angle)
 	note("nr = %d: %s, distance = %d, angle = %d", nr, sfx_name[nr], distance, angle);
 #endif
 
-	// Set position of sound relative to where you are
-	Mix_SetPosition(sound_channel, (Sint16)angle, (Uint8)distance);
+	// Get the track for this channel
+	MIX_Track *track = sdl_tracks[sound_channel];
+	if (!track) {
+		warn("Track %d is NULL - audio system not initialized correctly", sound_channel);
+		return;
+	}
 
-	// Ensure volume is set for channel - Should probably be put elsewhere
-	Mix_Volume(sound_channel, sound_volume);
+	// Convert angle/distance to 3D position for SDL3_mixer
+	// SDL2_mixer used angle (degrees) and distance (0-255)
+	// SDL3_mixer uses 3D coordinates via MIX_Point3D struct
+	const float radians = (float)angle * (SDL_PI_F / 180.0f);
+	const float f_dist = (float)distance / 255.0f; // Normalize to 0.0-1.0
+	MIX_Point3D position = {.x = SDL_cosf(radians) * f_dist,
+	    .y = 0.0f, // Keep vertically centered
+	    .z = SDL_sinf(radians) * f_dist};
 
-	// Play sound
-	Mix_PlayChannel(sound_channel, sound_effect[nr], 0);
+	// Set 3D position
+	MIX_SetTrack3DPosition(track, &position);
 
-	// Increment sound channel so the next sound played is on it's own layer and doesn't cancel this one
+	// Set volume gain
+	// Note: sound_volume is an int (0 to -128) for backwards compatibility with the server protocol.
+	// 0 = maximum volume (gain 1.0), -128 = silence (gain 0.0)
+	// Convert from negative attenuation to positive gain: gain = 1.0 + (sound_volume / 128.0)
+	float gain = 1.0f + ((float)sound_volume / 128.0f);
+	MIX_SetTrackGain(track, gain);
+
+	// Assign the audio to the track and play it
+	MIX_SetTrackAudio(track, sound_effect[nr]);
+	MIX_PlayTrack(track, 0); // 0 means use default properties
+
+	// Increment sound channel so the next sound played is on its own layer
 	sound_channel++;
 	if (sound_channel >= MAX_SOUND_CHANNELS) {
 		sound_channel = 0;

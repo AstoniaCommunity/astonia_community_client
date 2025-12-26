@@ -173,6 +173,10 @@ int sdl_pre_do(void);
 #define MAX_SOUND_CHANNELS 32
 #define MAXSOUND           100
 
+// SDL3_mixer globals
+extern MIX_Mixer *sdl_mixer;
+extern MIX_Track *sdl_tracks[MAX_SOUND_CHANNELS];
+
 struct png_helper;
 int png_load_helper(struct png_helper *p);
 void png_load_helper_exit(struct png_helper *p);

@@ -40,6 +40,10 @@ zip_t *sdl_zip2m = NULL;
 SDL_Semaphore *prework = NULL;
 SDL_Mutex *premutex = NULL;
 
+// SDL3_mixer globals
+MIX_Mixer *sdl_mixer = NULL;
+MIX_Track *sdl_tracks[MAX_SOUND_CHANNELS] = {NULL};
+
 // Scale and resolution settings
 DLL_EXPORT int sdl_scale = 1;
 DLL_EXPORT int sdl_frames = 0;
@@ -236,14 +240,28 @@ int sdl_init(int width, int height, char *title)
 		break;
 	}
 
-	if ((game_options & GO_SOUND) && Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-		warn("initializing audio failed");
-		game_options &= ~GO_SOUND;
-	}
-
 	if (game_options & GO_SOUND) {
-		int number_of_sound_channels = Mix_AllocateChannels(MAX_SOUND_CHANNELS);
-		note("Allocated %d sound channels", number_of_sound_channels);
+		if (!MIX_Init()) {
+			warn("MIX_Init failed: %s", SDL_GetError());
+			game_options &= ~GO_SOUND;
+		} else {
+			// Create mixer device (NULL spec means use reasonable defaults)
+			sdl_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+			if (!sdl_mixer) {
+				warn("MIX_CreateMixerDevice failed: %s", SDL_GetError());
+				game_options &= ~GO_SOUND;
+				MIX_Quit();
+			} else {
+				// Create tracks (SDL3_mixer doesn't auto-allocate channels like SDL2_mixer)
+				for (int i = 0; i < MAX_SOUND_CHANNELS; i++) {
+					sdl_tracks[i] = MIX_CreateTrack(sdl_mixer);
+					if (!sdl_tracks[i]) {
+						warn("MIX_CreateTrack failed for track %d: %s", i, SDL_GetError());
+					}
+				}
+				note("Created %d sound tracks", MAX_SOUND_CHANNELS);
+			}
+		}
 	}
 
 	// Initialize mutex unconditionally (needed for job queue even in single-threaded mode)
@@ -508,7 +526,7 @@ void sdl_exit(void)
 	tex_jobs_shutdown();
 
 	if (game_options & GO_SOUND) {
-		Mix_Quit();
+		MIX_Quit();
 	}
 #ifdef DEVELOPER
 	sdl_dump_spritecache();
