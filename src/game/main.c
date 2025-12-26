@@ -252,15 +252,7 @@ void display_messagebox(char *title, char *text)
 
 void display_usage(void)
 {
-	char *buf;
-	int size = 4096;
-
-	buf = xmalloc((size_t)size, MEM_TEMP);
-	if (!buf) {
-		return;
-	}
-
-	snprintf(buf, (size_t)size,
+	const char *help =
 	    "The Astonia Client can only be started from the command line or with a specially created shortcut.\n\n"
 	    "Usage: moac -u playername -p password -d url\n ... [-w width] [-h height]\n"
 	    " ... [-m threads] [-o options]\n ... [-k framespersecond]\n\n"
@@ -275,19 +267,17 @@ void display_usage(void)
 	    "legacy mouse wheel logic.\n"
 	    "Bit 10 enables out-of-order execution (read: faster) of inventory access and command feedback.\n"
 	    "Bit 11 reduces the animation buffer for faster reactions and more stutter.\n"
-	    "Bit 12 writes application files to %%appdata%% instead of the current folder.\n"
+	    "Bit 12 writes application files to %appdata% instead of the current folder.\n"
 	    "Bit 13 enables the loading and saving of minimaps.\n"
 	    "Bit 14 and 15 increase gamma.\n"
 	    "Bit 16 makes the sliding top bar less sensitive.\n"
 	    "Bit 17 reduces lighting effects (more performance, less pretty).\n"
 	    "Bit 18 disables the minimap.\n"
 	    "Default depends on screen height.\n\n"
-	    "framespersecond will set the display rate in frames per second.\n\n");
+	    "framespersecond will set the display rate in frames per second.\n\n";
 
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Usage", buf, NULL);
-	printf("%s", buf);
-
-	xfree(buf);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Usage", help, NULL);
+	printf("%s", help);
 }
 
 DLL_EXPORT char server_url[256];
