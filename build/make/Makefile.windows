@@ -18,10 +18,10 @@ ifndef CLANG64_PREFIX
     ifneq ($(MSYSTEM_PREFIX),)
         # In MSYS2 shell, use MSYSTEM_PREFIX
         CLANG64_PREFIX := $(MSYSTEM_PREFIX)
-    else ifeq ($(wildcard C:/msys64/clang64/bin/sdl2-config),C:/msys64/clang64/bin/sdl2-config)
+    else ifeq ($(wildcard C:/msys64/clang64/lib/pkgconfig/sdl3.pc),C:/msys64/clang64/lib/pkgconfig/sdl3.pc)
         # Standard MSYS2 installation (CMD/PowerShell)
         CLANG64_PREFIX := C:/msys64/clang64
-    else ifeq ($(wildcard /clang64/bin/sdl2-config),/clang64/bin/sdl2-config)
+    else ifeq ($(wildcard /clang64/lib/pkgconfig/sdl3.pc),/clang64/lib/pkgconfig/sdl3.pc)
         # MSYS2 path from within a different MSYS2 shell
         CLANG64_PREFIX := /clang64
     endif
@@ -29,12 +29,10 @@ endif
 
 # Configure build to use CLANG64 libraries explicitly
 ifneq ($(CLANG64_PREFIX),)
-    SDL_CONFIG := $(CLANG64_PREFIX)/bin/sdl2-config
     export PKG_CONFIG_PATH := $(CLANG64_PREFIX)/lib/pkgconfig:$(CLANG64_PREFIX)/share/pkgconfig
     export PATH := $(CLANG64_PREFIX)/bin:$(PATH)
     $(info Using CLANG64 libraries from: $(CLANG64_PREFIX))
 else
-    SDL_CONFIG := sdl2-config
     $(warning WARNING: Could not detect CLANG64 installation. Build may fail or use wrong libraries.)
     $(warning Set CLANG64_PREFIX environment variable to your clang64 installation path if needed.)
 endif
@@ -69,8 +67,8 @@ SYSROOT ?= /clang64
 WIN32_WINNT ?= 0x0601
 
 # SDL configuration
-SDL_CFLAGS ?= $(shell $(SDL_CONFIG) --cflags)
-SDL_PREFIX ?= $(shell $(SDL_CONFIG) --prefix)
+SDL_CFLAGS ?= $(shell pkg-config sdl3 --cflags)
+SDL_PREFIX ?= $(shell pkg-config sdl3 --variable=prefix)
 
 # ============================================================================
 # Compiler and Linker Flag Components
@@ -199,8 +197,8 @@ LDFLAGS_CONSOLE ?= $(LINKER_FLAGS) \
                    $(LDFLAGS_SECURITY) \
                    $(SUBSYSTEM_CONSOLE)
 
-SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
-LIBS = -lwsock32 -lws2_32 -lpsapi -lz -lpng -lzip -ldwarfstack $(SDL_LIBS) -lSDL2_mixer
+SDL_LIBS=$(shell pkg-config sdl3 --libs)
+LIBS = -lwsock32 -lws2_32 -lpsapi -lz -lpng -lzip -ldwarfstack $(SDL_LIBS) -lSDL3_mixer
 ifeq ($(USE_MIMALLOC),1)
 LIBS += -lmimalloc
 endif
@@ -371,4 +369,3 @@ release:
 	$(MAKE) -f build/make/Makefile.windows BUILD_TYPE=release
 
 .PHONY: debug release console
-

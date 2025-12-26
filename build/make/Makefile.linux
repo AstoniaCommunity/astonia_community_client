@@ -4,7 +4,6 @@ BUILD_TYPE ?= release
 
 all: bin/moac
 
-SDL_CONFIG=sdl2-config
 CC=clang
 EXTRA_ARCH_FLAGS ?=
 ifneq (,$(findstring znver4,$(EXTRA_ARCH_FLAGS)))
@@ -12,7 +11,7 @@ RUST_CPU_FLAGS=-C target-cpu=znver4
 else
 RUST_CPU_FLAGS=
 endif
-SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
+SDL_CFLAGS=$(shell pkg-config sdl3 --cflags)
 
 # Build type configuration
 ifeq ($(BUILD_TYPE),debug)
@@ -49,8 +48,8 @@ CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-point
 CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC)
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,\$$ORIGIN
 
-SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
-LIBS = -lz -lpng -lzip $(SDL_LIBS) -lSDL2_mixer -lm
+SDL_LIBS=$(shell pkg-config sdl3 --libs)
+LIBS = -lz -lpng -lzip $(SDL_LIBS) -lSDL3_mixer -lm
 ifeq ($(USE_MIMALLOC),1)
 LIBS += -lmimalloc
 endif

@@ -4,7 +4,6 @@ BUILD_TYPE ?= release
 
 all: bin/moac
 
-SDL_CONFIG=sdl2-config
 CC=clang
 
 # Build type configuration
@@ -53,8 +52,8 @@ ifeq ($(ZIP_LIBS),)
     endif
 endif
 
-SDL_MIXER_CFLAGS:=$(shell $(PKG_CONFIG) --cflags SDL2_mixer 2>/dev/null)
-SDL_MIXER_LIBS:=$(shell $(PKG_CONFIG) --libs SDL2_mixer 2>/dev/null)
+SDL_MIXER_CFLAGS:=$(shell $(PKG_CONFIG) --cflags SDL3_mixer 2>/dev/null)
+SDL_MIXER_LIBS:=$(shell $(PKG_CONFIG) --libs SDL3_mixer 2>/dev/null)
 ifeq ($(SDL_MIXER_CFLAGS),)
     ifneq ($(BREW_PREFIX),)
         SDL_MIXER_CFLAGS:=-I$(BREW_PREFIX)/include
@@ -62,13 +61,13 @@ ifeq ($(SDL_MIXER_CFLAGS),)
 endif
 ifeq ($(SDL_MIXER_LIBS),)
     ifneq ($(BREW_PREFIX),)
-        SDL_MIXER_LIBS:=-L$(BREW_PREFIX)/lib -lSDL2_mixer
+        SDL_MIXER_LIBS:=-L$(BREW_PREFIX)/lib -lSDL3_mixer
     else
-        SDL_MIXER_LIBS:=-lSDL2_mixer
+        SDL_MIXER_LIBS:=-lSDL3_mixer
     endif
 endif
 
-SDL_CFLAGS=$(shell $(SDL_CONFIG) --cflags)
+SDL_CFLAGS=$(shell pkg-config sdl3 --cflags)
 # Default to using mimalloc unless USE_MIMALLOC=0 is set
 USE_MIMALLOC ?= 1
 
@@ -76,8 +75,8 @@ CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-point
 CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC)
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,@loader_path
 
-SDL_LIBS=$(shell $(SDL_CONFIG) --libs)
-LIBS = -lz -lpng $(ZIP_LIBS) $(SDL_MIXER_LIBS) -lm
+SDL_LIBS=$(shell pkg-config sdl3 --libs)
+LIBS = -lz -lpng $(ZIP_LIBS) $(SDL_LIBS) $(SDL_MIXER_LIBS) -lm
 ifeq ($(USE_MIMALLOC),1)
 LIBS += -lmimalloc
 endif
