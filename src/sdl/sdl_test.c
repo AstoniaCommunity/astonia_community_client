@@ -78,8 +78,8 @@ static void sdl_zero_state_for_tests(void)
 
 int sdl_init_for_tests(void)
 {
-	// Minimal SDL init for timers/threads only
-	if (!SDL_Init(SDL_INIT_TIMER | SDL_INIT_EVENTS)) {
+	// Minimal SDL init for tests (SDL3 doesn't have SDL_INIT_TIMER or SDL_INIT_EVENTS)
+	if (!SDL_Init(0)) {
 		fprintf(stderr, "sdl_init_for_tests: SDL_Init failed: %s\n", SDL_GetError());
 		return 0;
 	}
@@ -487,19 +487,20 @@ int sdl_check_invariants_for_tests(void)
 static int dummy_texture;
 
 // Stub: Create texture (would normally require GPU renderer)
-SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer __attribute__((unused)), Uint32 format __attribute__((unused)),
-    int access __attribute__((unused)), int w __attribute__((unused)), int h __attribute__((unused)))
+SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer __attribute__((unused)),
+    SDL_PixelFormat format __attribute__((unused)), SDL_TextureAccess access __attribute__((unused)),
+    int w __attribute__((unused)), int h __attribute__((unused)))
 {
 	// Return non-NULL pointer (cache code just checks != NULL)
 	return (SDL_Texture *)&dummy_texture;
 }
 
 // Stub: Update texture with pixel data
-int SDL_UpdateTexture(SDL_Texture *texture __attribute__((unused)), const SDL_Rect *rect __attribute__((unused)),
+bool SDL_UpdateTexture(SDL_Texture *texture __attribute__((unused)), const SDL_Rect *rect __attribute__((unused)),
     const void *pixels __attribute__((unused)), int pitch __attribute__((unused)))
 {
 	// Success - we don't actually upload to GPU
-	return 0;
+	return true;
 }
 
 // Stub: Destroy texture

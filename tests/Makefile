@@ -1,7 +1,7 @@
 # Test Makefile for Astonia Client
 # Compiles and runs unit tests without external test frameworks
 
-# Detect platform 
+# Detect platform
 UNAME_S := $(shell uname -s 2>/dev/null)
 ifeq ($(UNAME_S),Linux)
     PLATFORM := linux
@@ -15,15 +15,14 @@ CC = clang
 CFLAGS = -O2 -g -Wall -Wextra -Wpedantic -Wno-unused-parameter -Wno-unused-function
 CFLAGS += -DUNIT_TEST -DDEVELOPER
 CFLAGS += -I../src -I../include
-CFLAGS += $(shell pkg-config --cflags sdl2)
+CFLAGS += $(shell pkg-config --cflags sdl3)
 
 # Platform-specific SDL linking
 ifeq ($(PLATFORM),windows)
-    # Note: -lmingw32 must come first, then -lSDL2main before -lSDL2
-    LDFLAGS = -lmingw32 -lSDL2main -lSDL2 -lSDL2_mixer -lz -lpng -lzip -lmimalloc
+    LDFLAGS = -lmingw32 -lSDL3 -lSDL3_mixer -lz -lpng -lzip -lmimalloc
 else
-    LDFLAGS = $(shell pkg-config --libs sdl2)
-    LDFLAGS += -lz -lpng -lzip -lm -lmimalloc
+    LDFLAGS = $(shell pkg-config --libs sdl3)
+    LDFLAGS += -lSDL3_mixer -lz -lpng -lzip -lm -lmimalloc
 endif
 
 # SDL source files needed for testing
