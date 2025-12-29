@@ -1,3 +1,5 @@
+.PHONY: all debug release console amod convert anicopy clean distrib-stage distrib check-sdl3 check-sdl3-mixer
+
 # Build type: release (default) or debug
 # Usage: make BUILD_TYPE=debug
 BUILD_TYPE ?= release
@@ -312,6 +314,43 @@ src/gui/draghack_windows.o: src/gui/draghack_windows.c
 src/game/resource.o:	src/game/resource.rc src/game/resource.h res/moa3.ico
 			$(WINDRES) -F pe-x86-64 src/game/resource.rc src/game/resource.o
 
+check-sdl3:
+	@if ! pkg-config --exists sdl3 2>/dev/null; then \
+		echo "SDL3 not found. Building from source..."; \
+		cd /tmp && \
+		rm -rf SDL SDL-build && \
+		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL.git SDL && \
+		cmake -S SDL -B SDL-build -G Ninja \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_INSTALL_PREFIX=$(CLANG64_PREFIX) \
+			-DSDL_STATIC=OFF && \
+		cmake --build SDL-build && \
+		cmake --install SDL-build && \
+		cd /tmp && \
+		rm -rf SDL SDL-build && \
+		echo "SDL3 installed to $(CLANG64_PREFIX)"; \
+	fi
+
+check-sdl3-mixer: check-sdl3
+	@if ! pkg-config --exists sdl3-mixer 2>/dev/null; then \
+		echo "SDL3_mixer not found. Building from source..."; \
+		cd /tmp && \
+		rm -rf SDL_mixer SDL_mixer-build && \
+		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL_mixer.git SDL_mixer && \
+		cmake -S SDL_mixer -B SDL_mixer-build -G Ninja \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_INSTALL_PREFIX=$(CLANG64_PREFIX) \
+			-DCMAKE_PREFIX_PATH=$(CLANG64_PREFIX) \
+			-DSDL3MIXER_VENDORED=ON && \
+		cmake --build SDL_mixer-build && \
+		cmake --install SDL_mixer-build && \
+		cd /tmp && \
+		rm -rf SDL_mixer SDL_mixer-build && \
+		echo "SDL3_mixer installed to $(CLANG64_PREFIX)"; \
+	fi
+
+bin/moac.exe lib/moac.a: check-sdl3-mixer
+
 clean:
 	@echo "Cleaning build artifacts..."
 	-rm -f src/*/*.o src/*/*-sanitizer.o src/*/*-coverage.o
@@ -364,11 +403,8 @@ convert:	bin/convert.exe
 anicopy:	bin/anicopy.exe
 console:	bin/moac_dbg.exe
 
-# Convenience targets for build types
 debug:
 	$(MAKE) -f build/make/Makefile.windows BUILD_TYPE=debug
 
 release:
 	$(MAKE) -f build/make/Makefile.windows BUILD_TYPE=release
-
-.PHONY: debug release console

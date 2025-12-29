@@ -124,6 +124,7 @@ pub fn build(b: *std.Build) void {
         "-fno-omit-frame-pointer",
         "-fvisibility=hidden",
         "-DUSE_MIMALLOC=1",
+        "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER",
     };
 
     const win_cflags = &.{
@@ -153,6 +154,7 @@ pub fn build(b: *std.Build) void {
         "-DENABLE_SHAREDMEM",
         "-DENABLE_DRAGHACK",
         "-DUSE_MIMALLOC=1",
+        "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER",
     };
 
     const exe = b.addExecutable(.{
@@ -166,6 +168,12 @@ pub fn build(b: *std.Build) void {
 
     if (optimize == .ReleaseFast) {
         exe.root_module.strip = true;
+    }
+
+    // Allow shared libraries to have undefined symbols (resolved at runtime)
+    if (tgt.os.tag == .linux) {
+        exe.link_z_notext = true;
+        exe.linker_allow_shlib_undefined = true;
     }
 
     addSearchPathsForWindowsTarget(b, exe, tgt, host);
@@ -200,6 +208,7 @@ pub fn build(b: *std.Build) void {
         "-fno-omit-frame-pointer",
         "-fvisibility=hidden",
         "-DUSE_MIMALLOC=1",
+        "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER",
     };
 
     if (tgt.os.tag == .linux) {
@@ -216,9 +225,9 @@ pub fn build(b: *std.Build) void {
 
     // Allow __DATE__/__TIME__ (warning rather than error)
     if (tgt.os.tag == .windows) {
-        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-Dmain=SDL_main", "-DSTORE_UNIQUE", "-DENABLE_CRASH_HANDLER", "-DENABLE_SHAREDMEM", "-DENABLE_DRAGHACK", "-DUSE_MIMALLOC=1" } });
+        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-Dmain=SDL_main", "-DSTORE_UNIQUE", "-DENABLE_CRASH_HANDLER", "-DENABLE_SHAREDMEM", "-DENABLE_DRAGHACK", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
     } else {
-        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-DUSE_MIMALLOC=1" } });
+        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
     }
 
     exe.root_module.addIncludePath(b.path(include_root));
@@ -351,14 +360,13 @@ pub fn build(b: *std.Build) void {
 
 fn linkCommonLibs(b: *std.Build, step: *std.Build.Step.Compile, tgt: std.Target) void {
     if (tgt.os.tag == .windows) {
-        // Windows Makefile library order: -lwsock32 -lws2_32 -lz -lpng -lzip -ldwarfstack $(SDL_LIBS) -lSDL2_mixer
-        // $(SDL_LIBS) expands to: -lmingw32 -mwindows -lSDL2main -lSDL2
+        // Windows Makefile library order: -lwsock32 -lws2_32 -lz -lpng -lzip -ldwarfstack $(SDL_LIBS) -lSDL3_mixer
+        // $(SDL_LIBS) expands to: -lmingw32 -mwindows -lSDL3
 
         // Static-only libraries (no .dll.a version) - use modern API
         step.root_module.linkSystemLibrary("wsock32", .{});
         step.root_module.linkSystemLibrary("ws2_32", .{});
         step.root_module.linkSystemLibrary("mingw32", .{});
-        step.root_module.linkSystemLibrary("SDL2main", .{});
 
         // Libraries with both .a and .dll.a versions - use our search function
         // which prefers .dll.a to avoid static linking and massive dependency chains
@@ -366,18 +374,19 @@ fn linkCommonLibs(b: *std.Build, step: *std.Build.Step.Compile, tgt: std.Target)
         linkSystemLibraryPreferDynamic(b, step, "png", tgt);
         linkSystemLibraryPreferDynamic(b, step, "zip", tgt);
         linkSystemLibraryPreferDynamic(b, step, "dwarfstack", tgt);
-        linkSystemLibraryPreferDynamic(b, step, "SDL2", tgt);
-        linkSystemLibraryPreferDynamic(b, step, "SDL2_mixer", tgt);
+        linkSystemLibraryPreferDynamic(b, step, "SDL3", tgt);
+        linkSystemLibraryPreferDynamic(b, step, "SDL3_mixer", tgt);
         linkSystemLibraryPreferDynamic(b, step, "mimalloc", tgt);
     } else {
         // Linux or OSX
         step.root_module.linkSystemLibrary("z", .{});
         step.root_module.linkSystemLibrary("png", .{});
         step.root_module.linkSystemLibrary("zip", .{});
-        step.root_module.linkSystemLibrary("SDL2", .{});
-        step.root_module.linkSystemLibrary("SDL2_mixer", .{});
         step.root_module.linkSystemLibrary("mimalloc", .{});
         step.root_module.linkSystemLibrary("m", .{});
+        // SDL3_mixer must come before SDL3 in link order (mixer depends on SDL3)
+        step.root_module.linkSystemLibrary("SDL3_mixer", .{});
+        step.root_module.linkSystemLibrary("SDL3", .{});
     }
 }
 
@@ -512,12 +521,12 @@ fn addSearchPathsForWindowsTarget(
         const clang64_root = "C:\\msys64\\clang64";
 
         const inc = std.fs.path.join(gpa, &.{ clang64_root, "include" }) catch unreachable;
-        const inc_sdl2 = std.fs.path.join(gpa, &.{ clang64_root, "include", "SDL2" }) catch unreachable;
+        const inc_sdl3 = std.fs.path.join(gpa, &.{ clang64_root, "include", "SDL3" }) catch unreachable;
         const inc_png = std.fs.path.join(gpa, &.{ clang64_root, "include", "libpng16" }) catch unreachable;
         const lib = std.fs.path.join(gpa, &.{ clang64_root, "lib" }) catch unreachable;
 
         a.root_module.addIncludePath(.{ .cwd_relative = inc });
-        a.root_module.addIncludePath(.{ .cwd_relative = inc_sdl2 });
+        a.root_module.addIncludePath(.{ .cwd_relative = inc_sdl3 });
         a.root_module.addIncludePath(.{ .cwd_relative = inc_png });
         a.addLibraryPath(.{ .cwd_relative = lib });
     } else if (host_target.os.tag == .linux) {

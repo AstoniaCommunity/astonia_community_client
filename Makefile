@@ -1,4 +1,4 @@
-.PHONY: all debug release windows linux macos macos-appbundle macos-signed-bundle clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-linux-debug docker-windows docker-windows-debug docker-windows-dev docker-linux-dev docker-distrib-windows docker-distrib-linux appimage zen4-appimage sanitizer coverage test
+.PHONY: all debug release windows linux macos macos-appbundle macos-signed-bundle clean distrib distrib-stage amod convert anicopy zig-build docker-linux docker-linux-debug docker-linux-dev docker-distrib-linux appimage zen4-appimage sanitizer coverage test
 
 # Root Makefile - Platform dispatcher
 #
@@ -12,9 +12,7 @@
 #   make zig-build      - Build with zig for current platform
 #   make docker-linux   - Build Linux in Docker (release, Zig build)
 #   make docker-linux-debug - Build Linux in Docker (debug with DEVELOPER)
-#   make docker-windows - Build Windows in Docker (release)
-#   make docker-windows-debug - Build Windows in Docker (debug with DEVELOPER)
-#   make linux-appimage - Build Linux AppImage (portable, all distros)
+#   make appimage       - Build Linux AppImage (portable, all distros)
 #   make clean          - Clean all platforms
 #   make distrib        - Create distribution package
 #
@@ -178,23 +176,6 @@ docker-linux-debug:
 	docker run $(DOCKER_RUN_FLAGS) astonia-linux-build -Ddeveloper=true
 	rm -f Dockerfile.linux
 
-# Docker build for Windows (production - release by default)
-# For debug: make docker-windows-debug
-docker-windows:
-	$(call docker-build-and-run,Dockerfile.windows-build,astonia-windows-build,$(DOCKER_RUN_FLAGS))
-
-# Docker build for Windows (debug mode with DEVELOPER enabled)
-docker-windows-debug:
-	@echo "Building Windows DEBUG in Docker (with DEVELOPER enabled)..."
-	cp $(DOCKER_CONTAINER_DIR)/Dockerfile.windows-build .
-	docker build -f Dockerfile.windows-build -t astonia-windows-build .
-	docker run $(DOCKER_RUN_FLAGS) astonia-windows-build BUILD_TYPE=debug
-	rm -f Dockerfile.windows-build
-
-# Docker development environment for Windows (interactive)
-docker-windows-dev:
-	$(call docker-build-and-run,Dockerfile.windows-dev,astonia-windows-dev,$(DOCKER_RUN_FLAGS_INTERACTIVE))
-
 # Docker development environment for Linux (interactive)
 docker-linux-dev:
 	$(call docker-build-and-run,Dockerfile.linux-dev,astonia-linux-dev,$(DOCKER_RUN_FLAGS_INTERACTIVE))
@@ -206,18 +187,6 @@ appimage:
 # Build Linux AppImage with Zen4 optimizations
 zen4-appimage:
 	$(call docker-build-and-run-appimage,astonia-appimage-build,astonia-client-zen4.AppImage,--build-arg ZEN4=1)
-
-# Docker distribution builds - create distribution packages
-docker-distrib-windows:
-	@echo "Building Windows distribution package in Docker..."
-	$(call docker-build-and-run,Dockerfile.windows-build,astonia-windows-build,$(DOCKER_RUN_FLAGS))
-	@echo "Creating distribution package..."
-	@cp $(DOCKER_CONTAINER_DIR)/Dockerfile.windows-build .
-	@docker build -f Dockerfile.windows-build -t astonia-windows-build . > /dev/null 2>&1
-	@docker run --rm -v "$(PWD):/app" -w /app --entrypoint make astonia-windows-build -f build/make/Makefile.windows distrib
-	@rm -f Dockerfile.windows-build
-	@echo "Windows distribution created: windows_client.zip"
-	@ls -lh windows_client.zip
 
 docker-distrib-linux:
 	@echo "Building Linux distribution package in Docker..."

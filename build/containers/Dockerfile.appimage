@@ -13,16 +13,20 @@ FROM cachyos/cachyos:latest
 
 ARG ZEN4=0
 
-# If ZEN4=1, append Zen4 repos to pacman.conf
+# If ZEN4=1, configure for Zen4 optimization
 RUN if [ "$ZEN4" = "1" ]; then \
       echo ">>> Enabling CachyOS Zen4 repos"; \
       printf "\n[cachyos-znver4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n" >> /etc/pacman.conf; \
       printf "\n[cachyos-core-znver4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n" >> /etc/pacman.conf; \
       printf "\n[cachyos-extra-znver4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n" >> /etc/pacman.conf; \
+      echo ">>> Configuring makepkg.conf for Zen4"; \
+      sed -i 's/-march=native/-march=znver4/g' /etc/makepkg.conf; \
+      sed -i 's/-march=x86-64/-march=znver4/g' /etc/makepkg.conf; \
     fi
 
 # Upgrade system with auto-resolve enabled
-RUN pacman -Syyu --noconfirm --ask=4 --overwrite="*"
+# Use --needed to skip already-installed packages and avoid 404 errors on old versions
+RUN pacman -Syyu --noconfirm --needed --ask=4 --overwrite="*"
 
 # Add -march=znver4 only if ZEN4=1
 ENV EXTRA_ARCH_FLAGS=""
@@ -36,7 +40,8 @@ ENV EXTRA_ARCH_FLAGS="$(cat /extra_arch)"
 
 
 # Install build dependencies
-RUN pacman -S --noconfirm --ask=4 --overwrite="*" \
+# Use --needed to avoid trying to reinstall packages at exact versions that may no longer exist
+RUN pacman -S --noconfirm --needed --ask=4 --overwrite="*" \
       base-devel \
       clang \
       binutils \
@@ -44,9 +49,6 @@ RUN pacman -S --noconfirm --ask=4 --overwrite="*" \
       curl \
       wget \
       file \
-      sdl3 \
-      sdl2-compat \
-      sdl2_mixer \
       libpng \
       libzip \
       zlib \
@@ -54,21 +56,36 @@ RUN pacman -S --noconfirm --ask=4 --overwrite="*" \
       desktop-file-utils \
       fuse2 \
       imagemagick \
+      unzip \
+      cmake \
+      ninja \
     && pacman -Scc --noconfirm
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Patch makepkg to allow running as root (safe in controlled Docker environment)
-RUN sed -i 's/if (( EUID == 0 )); then/if (( 0 )); then # Disabled root check for Docker/' /usr/bin/makepkg
+# Install paru AUR helper
+# Create a non-root user for building paru (AUR helpers shouldn't run as root)
+RUN useradd -m -G wheel -s /bin/bash builder && \
+    sed -i 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
 
-# Install mimalloc-git from AUR (mimalloc 3.x)
-RUN git clone https://aur.archlinux.org/mimalloc-git.git /tmp/mimalloc-git && \
-    cd /tmp/mimalloc-git && \
+USER builder
+WORKDIR /home/builder
+RUN git clone https://aur.archlinux.org/paru.git && \
+    cd paru && \
     makepkg -si --noconfirm && \
-    cd / && \
-    rm -rf /tmp/mimalloc-git
+    cd .. && \
+    rm -rf paru
+
+# Sync AUR databases with paru
+RUN paru -Syu --noconfirm
+
+# Install AUR packages (SDL3_mixer must be installed separately to avoid conflicts)
+USER root
+WORKDIR /
+RUN sudo -u builder paru -S --noconfirm --needed mimalloc-git sdl3-git && \
+    sudo -u builder paru -S --noconfirm --needed sdl3_mixer-git
 
 # Set working directory
 WORKDIR /build
@@ -147,8 +164,7 @@ RUN LD_LIBRARY_PATH=/build/AppDir/usr/lib:$LD_LIBRARY_PATH \
       --library=AppDir/usr/lib/libastonia_net.so \
       --library=AppDir/usr/share/astonia/bin/amod.so \
       --library=/usr/lib/libSDL3.so.0 \
-      --library=/usr/lib/libSDL2-2.0.so.0 \
-      --library=/usr/lib/libSDL2_mixer-2.0.so.0
+      --library=/usr/lib/libSDL3_mixer.so.0
 
 # Now replace AppRun with our custom wrapper
 RUN printf '#!/bin/bash\n\
@@ -181,4 +197,3 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
 
 # Set the entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
-

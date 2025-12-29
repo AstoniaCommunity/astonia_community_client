@@ -140,7 +140,6 @@ int sdl_init(int width, int height, char *title)
 	}
 
 	SDL_SetRenderVSync(sdlren, 1);
-	SDL_SetDefaultTextureScaleMode(sdlren, SDL_SCALEMODE_NEAREST);
 
 	// Use display mode's logical size for scaling calculations
 	// SDL3 automatically handles pixel_density scaling to physical pixels

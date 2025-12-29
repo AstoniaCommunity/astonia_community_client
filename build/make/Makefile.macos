@@ -52,6 +52,7 @@ ifeq ($(ZIP_LIBS),)
     endif
 endif
 
+# SDL3_mixer: Use pkg-config if available, otherwise use brew prefix
 SDL_MIXER_CFLAGS:=$(shell $(PKG_CONFIG) --cflags SDL3_mixer 2>/dev/null)
 SDL_MIXER_LIBS:=$(shell $(PKG_CONFIG) --libs SDL3_mixer 2>/dev/null)
 ifeq ($(SDL_MIXER_CFLAGS),)
@@ -68,14 +69,15 @@ ifeq ($(SDL_MIXER_LIBS),)
 endif
 
 # Get SDL3 flags and convert -I to -isystem to suppress warnings from SDL headers
-SDL_CFLAGS_RAW=$(shell pkg-config sdl3 --cflags)
+# Use BREW_PREFIX since we build SDL3 from source and install there
+SDL_CFLAGS_RAW=$(shell $(PKG_CONFIG) sdl3 --cflags 2>/dev/null || echo "-I$(BREW_PREFIX)/include -I$(BREW_PREFIX)/include/SDL3")
 SDL_CFLAGS=$(patsubst -I%,-isystem %,$(SDL_CFLAGS_RAW))
 
 # Default to using mimalloc unless USE_MIMALLOC=0 is set
 USE_MIMALLOC ?= 1
 
-CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
-CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(SDL_MIXER_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
+CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-pointer -flto -fvisibility=hidden $(SDL_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
+CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) -Iinclude -Isrc $(ZIP_CFLAGS) -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
 LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,@loader_path
 
 SDL_LIBS=$(shell pkg-config sdl3 --libs)
@@ -190,6 +192,46 @@ src/game/memory.o: src/game/memory.c src/game/memory.h src/astonia.h src/sdl/sdl
 
 src/game/memory_macos.o: src/game/memory_macos.c
 		$(CC) $(CFLAGS_PIC) -c -o $@ $<
+
+.PHONY: check-sdl3 check-sdl3-mixer
+
+check-sdl3:
+	@if ! pkg-config --exists sdl3 2>/dev/null && [ ! -f "$(BREW_PREFIX)/include/SDL3/SDL.h" ]; then \
+		echo "SDL3 not found. Building from source..."; \
+		cd /tmp && \
+		rm -rf SDL SDL-build && \
+		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL.git SDL && \
+		cmake -S SDL -B SDL-build \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_INSTALL_PREFIX=$(BREW_PREFIX) \
+			-DSDL_STATIC=OFF \
+			-DSDL_RPATH=OFF && \
+		cmake --build SDL-build && \
+		cmake --install SDL-build && \
+		cd /tmp && \
+		rm -rf SDL SDL-build && \
+		echo "SDL3 installed to $(BREW_PREFIX)"; \
+	fi
+
+check-sdl3-mixer: check-sdl3
+	@if ! pkg-config --exists sdl3-mixer 2>/dev/null && [ ! -f "$(BREW_PREFIX)/include/SDL3_mixer/SDL_mixer.h" ]; then \
+		echo "SDL3_mixer not found. Building from source..."; \
+		cd /tmp && \
+		rm -rf SDL_mixer SDL_mixer-build && \
+		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL_mixer.git SDL_mixer && \
+		cmake -S SDL_mixer -B SDL_mixer-build \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_INSTALL_PREFIX=$(BREW_PREFIX) \
+			-DCMAKE_PREFIX_PATH=$(BREW_PREFIX) \
+			-DSDL3MIXER_VENDORED=ON && \
+		cmake --build SDL_mixer-build && \
+		cmake --install SDL_mixer-build && \
+		cd /tmp && \
+		rm -rf SDL_mixer SDL_mixer-build && \
+		echo "SDL3_mixer installed to $(BREW_PREFIX)"; \
+	fi
+
+bin/moac: check-sdl3-mixer
 
 clean:
 	@echo "Cleaning build artifacts..."

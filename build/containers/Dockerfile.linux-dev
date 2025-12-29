@@ -1,27 +1,27 @@
-FROM archlinux:latest
+FROM cachyos/cachyos:latest
 
 # Linux development environment with clang-tidy and analysis tools
 # Use this for development, debugging, and code analysis
 
+# Upgrade system with auto-resolve enabled
+# Use --needed to skip already-installed packages and avoid 404 errors on old versions
+RUN pacman -Syyu --noconfirm --needed --ask=4 --overwrite="*"
+
 # Install basic dependencies and development tools
-RUN pacman -Syu --noconfirm \
+RUN pacman -S --noconfirm --needed --ask=4 --overwrite="*" \
     curl \
     wget \
     git \
     base-devel \
-    sdl3 \
-    sdl2-compat \
-    sdl2_mixer \
     libpng \
     libzip \
     zlib \
-    mimalloc \
     zig \
+    unzip \
     && pacman -Scc --noconfirm
 
 # Install Clang tooling for analysis
-RUN pacman -Syy --noconfirm && \
-    pacman -S --noconfirm \
+RUN pacman -S --noconfirm --needed --ask=4 --overwrite="*" \
     clang \
     clang-tools-extra \
     llvm \
@@ -38,9 +38,31 @@ RUN pacman -Syy --noconfirm && \
 
 # Install additional code quality tools
 RUN pip install --break-system-packages --no-cache-dir gcovr && \
-    pacman -Syy --noconfirm && \
-    pacman -S --noconfirm lcov && \
+    pacman -S --noconfirm --needed --ask=4 --overwrite="*" lcov && \
     pacman -Scc --noconfirm
+
+# Install paru AUR helper
+# Create a non-root user for building paru (AUR helpers shouldn't run as root)
+RUN useradd -m -G wheel -s /bin/bash builder && \
+    sed -i 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
+
+USER builder
+WORKDIR /home/builder
+RUN git clone https://aur.archlinux.org/paru.git && \
+    cd paru && \
+    makepkg -si --noconfirm && \
+    cd .. && \
+    rm -rf paru
+
+# Sync AUR databases with paru
+RUN paru -Syu --noconfirm
+
+# Install AUR packages (sdl3-git, sdl3_mixer-git, mimalloc-git)
+# Note: SDL3_mixer must be installed separately AFTER sdl3-git to avoid conflicts
+USER root
+WORKDIR /
+RUN sudo -u builder paru -S --noconfirm --needed mimalloc-git sdl3-git && \
+    sudo -u builder paru -S --noconfirm --needed sdl3_mixer-git
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable

@@ -2,15 +2,98 @@ name: Code Quality
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  build-sdl3-linux:
+    name: Build SDL3 for Linux
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Cache SDL3 libraries
+        id: cache-sdl3
+        uses: actions/cache@v4
+        with:
+          path: /tmp/sdl3-install
+          key: sdl3-linux-quality-${{ hashFiles('.github/workflows/quality.yml') }}-${{ github.run_id }}
+          restore-keys: |
+            sdl3-linux-quality-${{ hashFiles('.github/workflows/quality.yml') }}-
+
+      - name: Install build dependencies
+        if: steps.cache-sdl3.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            ninja-build \
+            libasound2-dev \
+            libpulse-dev \
+            libaudio-dev \
+            libfribidi-dev \
+            libjack-dev \
+            libsndio-dev \
+            libusb-1.0-0-dev \
+            libx11-dev \
+            libxext-dev \
+            libxrandr-dev \
+            libxcursor-dev \
+            libxfixes-dev \
+            libxi-dev \
+            libxss-dev \
+            libxtst-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libdrm-dev \
+            libgbm-dev \
+            libgl1-mesa-dev \
+            libgles2-mesa-dev \
+            libegl1-mesa-dev \
+            libdbus-1-dev \
+            libibus-1.0-dev \
+            libudev-dev \
+            libthai-dev
+
+      - name: Build SDL3 from source
+        if: steps.cache-sdl3.outputs.cache-hit != 'true'
+        run: |
+          cd /tmp
+          git clone --depth 1 --branch main https://github.com/libsdl-org/SDL.git
+          cmake -S SDL -B SDL-build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/tmp/sdl3-install \
+            -DSDL_STATIC=OFF
+          cmake --build SDL-build
+          cmake --install SDL-build
+          rm -rf SDL SDL-build
+
+      - name: Build SDL3_mixer from source
+        if: steps.cache-sdl3.outputs.cache-hit != 'true'
+        run: |
+          cd /tmp
+          git clone --depth 1 --branch main https://github.com/libsdl-org/SDL_mixer.git
+          cmake -S SDL_mixer -B SDL_mixer-build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=/tmp/sdl3-install \
+            -DCMAKE_PREFIX_PATH=/tmp/sdl3-install \
+            -DSDL3MIXER_VENDORED=ON
+          cmake --build SDL_mixer-build
+          cmake --install SDL_mixer-build
+          rm -rf SDL_mixer SDL_mixer-build
+
+      - name: Upload SDL3 libraries
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdl3-linux-quality
+          path: /tmp/sdl3-install
+          retention-days: 1
+
   # Format checking for C code only
   format-check:
     name: C Format Check
@@ -18,64 +101,75 @@ jobs:
     timeout-minutes: 5
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-    - name: Install clang-format-21
-      uses: ./.github/actions/setup-llvm-toolchain
-      with:
-        llvm-version: '21'
-        packages: clang-format-21
+      - name: Install clang-format-21
+        uses: ./.github/actions/setup-llvm-toolchain
+        with:
+          llvm-version: "21"
+          packages: clang-format-21
 
-    - name: Run C format check script
-      run: scripts/check-format-c.sh
+      - name: Run C format check script
+        run: scripts/check-format-c.sh
 
   # Static analysis for C code
   static-analysis:
     name: Static Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: [build-sdl3-linux]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-    - name: Install LLVM toolchain
-      uses: ./.github/actions/setup-llvm-toolchain
-      with:
-        llvm-version: '21'
-        packages: clang-21 clang-tidy-21 clang-format-21
-        create-alternatives: 'true'
+      - name: Download SDL3 libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: sdl3-linux-quality
+          path: /tmp/sdl3-install
 
-    - name: Install additional dependencies
-      run: |
-        sudo apt-get install -y \
-          bear \
-          cppcheck \
-          libsdl2-dev \
-          libsdl2-mixer-dev \
-          libpng-dev \
-          libzip-dev \
-          zlib1g-dev \
-          libmimalloc-dev
+      - name: Install SDL3 libraries
+        run: |
+          sudo cp -r /tmp/sdl3-install/* /usr/local/
+          sudo ldconfig
 
-    - name: Setup Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
-        cache: true
-        cache-workspaces: astonia_net
+      - name: Install LLVM toolchain
+        uses: ./.github/actions/setup-llvm-toolchain
+        with:
+          llvm-version: "21"
+          packages: clang-21 clang-tidy-21 clang-format-21
+          create-alternatives: "true"
 
-    - name: Run static analysis script
-      run: scripts/check-static-analysis.sh
+      - name: Install additional dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            bear \
+            cppcheck \
+            libpng-dev \
+            libzip-dev \
+            zlib1g-dev \
+            libmimalloc-dev
 
-    - name: Upload analysis reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: static-analysis-reports
-        path: build/logs/*.log
-        retention-days: 90
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          cache: true
+          cache-workspaces: astonia_net
+
+      - name: Run static analysis script
+        run: scripts/check-static-analysis.sh
+
+      - name: Upload analysis reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: static-analysis-reports
+          path: build/logs/*.log
+          retention-days: 90
 
   # Rust formatting check
   rust-format-check:
@@ -84,19 +178,19 @@ jobs:
     timeout-minutes: 5
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-    - name: Setup Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
-        components: rustfmt
-        cache: true
-        cache-workspaces: astonia_net
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+          cache: true
+          cache-workspaces: astonia_net
 
-    - name: Run Rust format check script
-      run: scripts/check-format-rust.sh
+      - name: Run Rust format check script
+        run: scripts/check-format-rust.sh
 
   # Rust linting (clippy)
   rust-lint-check:
@@ -105,19 +199,19 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-    - name: Setup Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
-        components: clippy
-        cache: true
-        cache-workspaces: astonia_net
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          cache: true
+          cache-workspaces: astonia_net
 
-    - name: Run Rust linting script
-      run: scripts/check-clippy.sh
+      - name: Run Rust linting script
+        run: scripts/check-clippy.sh
 
   # File consistency checks
   file-checks:
@@ -126,53 +220,64 @@ jobs:
     timeout-minutes: 5
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-    - name: Run file consistency script
-      run: scripts/check-files.sh
+      - name: Run file consistency script
+        run: scripts/check-files.sh
 
   # Sanitizer build test
   sanitizer:
     name: AddressSanitizer/UBSan Build
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    needs: [build-sdl3-linux]
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v6
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-    - name: Install LLVM toolchain
-      uses: ./.github/actions/setup-llvm-toolchain
-      with:
-        llvm-version: '21'
-        packages: clang-21
-        create-alternatives: 'true'
+      - name: Download SDL3 libraries
+        uses: actions/download-artifact@v4
+        with:
+          name: sdl3-linux-quality
+          path: /tmp/sdl3-install
 
-    - name: Install additional dependencies
-      run: |
-        sudo apt-get install -y \
-          libsdl2-dev \
-          libsdl2-mixer-dev \
-          libpng-dev \
-          libzip-dev \
-          zlib1g-dev \
-          libmimalloc-dev
+      - name: Install SDL3 libraries
+        run: |
+          sudo cp -r /tmp/sdl3-install/* /usr/local/
+          sudo ldconfig
 
-    - name: Setup Rust
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
-        cache: true
-        cache-workspaces: astonia_net
+      - name: Install LLVM toolchain
+        uses: ./.github/actions/setup-llvm-toolchain
+        with:
+          llvm-version: "21"
+          packages: clang-21
+          create-alternatives: "true"
 
-    - name: Build with sanitizers
-      run: make sanitizer
-      env:
-        CC: clang
+      - name: Install additional dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libpng-dev \
+            libzip-dev \
+            zlib1g-dev \
+            libmimalloc-dev
 
-    - name: Check sanitizer binary
-      run: |
-        echo "Sanitizer build successful!"
-        ls -lh bin/moac-sanitizer
-        file bin/moac-sanitizer
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          cache: true
+          cache-workspaces: astonia_net
+
+      - name: Build with sanitizers
+        run: make sanitizer
+        env:
+          CC: clang
+
+      - name: Check sanitizer binary
+        run: |
+          echo "Sanitizer build successful!"
+          ls -lh bin/moac-sanitizer
+          file bin/moac-sanitizer
