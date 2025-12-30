@@ -232,6 +232,7 @@ build-sdl3:
 		cmake -S SDL -B SDL-build \
 			-DCMAKE_BUILD_TYPE=Release \
 			-DCMAKE_INSTALL_PREFIX=$(BREW_PREFIX) \
+			-DCMAKE_INSTALL_NAME_DIR=$(BREW_PREFIX)/lib \
 			-DSDL_STATIC=OFF \
 			-DSDL_RPATH=OFF && \
 		cmake --build SDL-build && \
@@ -252,6 +253,7 @@ build-sdl3-mixer: verify-sdl3
 		cmake -S SDL_mixer -B SDL_mixer-build \
 			-DCMAKE_BUILD_TYPE=Release \
 			-DCMAKE_INSTALL_PREFIX=$(BREW_PREFIX) \
+			-DCMAKE_INSTALL_NAME_DIR=$(BREW_PREFIX)/lib \
 			-DCMAKE_PREFIX_PATH=$(BREW_PREFIX) \
 			-DSDL3MIXER_VENDORED=ON && \
 		cmake --build SDL_mixer-build && \

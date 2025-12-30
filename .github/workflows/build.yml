@@ -255,6 +255,7 @@ jobs:
           cmake -S SDL -B SDL-build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/opt/homebrew \
+            -DCMAKE_INSTALL_NAME_DIR=/opt/homebrew/lib \
             -DSDL_STATIC=OFF \
             -DSDL_RPATH=OFF
           cmake --build SDL-build
@@ -268,6 +269,7 @@ jobs:
           cmake -S SDL_mixer -B SDL_mixer-build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=/opt/homebrew \
+            -DCMAKE_INSTALL_NAME_DIR=/opt/homebrew/lib \
             -DCMAKE_PREFIX_PATH=/opt/homebrew \
             -DSDL3MIXER_VENDORED=ON
           cmake --build SDL_mixer-build
