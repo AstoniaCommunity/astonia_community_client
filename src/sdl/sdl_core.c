@@ -134,9 +134,39 @@ int sdl_init(int width, int height, char *title)
 		SDL_SyncWindow(sdlwnd);
 	}
 
-	// Create renderer - NULL lets SDL choose the best option
-	sdlren = SDL_CreateRenderer(sdlwnd, NULL);
+	// Prefer native GPU APIs for best performance and compatibility:
+	// - Windows: Direct3D avoids SDL3 OpenGL gamma issues
+	// - Linux: Vulkan for modern driver support
+	// - macOS: Metal required (OpenGL deprecated since 10.14)
+#ifdef _WIN32
+	const char *renderers_to_try[] = {"direct3d11", "direct3d12", NULL};
+#elif __linux__
+	const char *renderers_to_try[] = {"vulkan", NULL};
+#else
+	const char *renderers_to_try[] = {"metal", NULL};
+#endif
+
+	for (int i = 0; renderers_to_try[i] != NULL; i++) {
+		SDL_PropertiesID renderer_props_create = SDL_CreateProperties();
+		if (renderer_props_create != 0) {
+			SDL_SetPointerProperty(renderer_props_create, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER, sdlwnd);
+			SDL_SetStringProperty(renderer_props_create, SDL_PROP_RENDERER_CREATE_NAME_STRING, renderers_to_try[i]);
+			SDL_SetNumberProperty(
+			    renderer_props_create, SDL_PROP_RENDERER_CREATE_OUTPUT_COLORSPACE_NUMBER, (Sint64)SDL_COLORSPACE_SRGB);
+			sdlren = SDL_CreateRendererWithProperties(renderer_props_create);
+			SDL_DestroyProperties(renderer_props_create);
+			if (sdlren) {
+				break; // Success, use this renderer
+			}
+		}
+	}
 	if (!sdlren) {
+		// Fallback to default if all options fail.
+		sdlren = SDL_CreateRenderer(sdlwnd, NULL);
+	}
+
+	if (!sdlren) {
+		// Even the fallback didn't work, so we need to exit.
 		SDL_DestroyWindow(sdlwnd);
 		fail("SDL_Init Error: %s", SDL_GetError());
 		SDL_Quit();
@@ -185,7 +215,13 @@ int sdl_init(int width, int height, char *title)
 	// anything.
 	SDL_StartTextInput(sdlwnd);
 
-	// Use actual renderer output size for calculations (not display mode, which may include reserved space on macOS)
+#ifdef __APPLE__
+	// On macOS, use actual renderer output size for scaling calculations.
+	// SDL_GetCurrentDisplayMode() includes reserved space (menu bar, dock, notch),
+	// but the Metal renderer only renders to the usable area. Using display mode
+	// dimensions causes clipping at the bottom of the window.
+	// On Linux/Windows, SDL_GetRenderOutputSize() can return HiDPI-scaled dimensions
+	// (e.g., 2x physical pixels), which breaks scaling calculations.
 	int render_output_w = 0, render_output_h = 0;
 	if (SDL_GetRenderOutputSize(sdlren, &render_output_w, &render_output_h)) {
 		// Fallback to window pixel size if renderer output size fails
@@ -195,6 +231,7 @@ int sdl_init(int width, int height, char *title)
 		width = render_output_w;
 		height = render_output_h;
 	}
+#endif
 
 	// decide on screen format
 	if (width != XRES || height != YRES) {
