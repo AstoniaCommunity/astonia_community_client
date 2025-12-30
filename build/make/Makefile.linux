@@ -1,3 +1,5 @@
+.PHONY: all debug release build-sdl3 build-sdl3-mixer verify-sdl3 verify-sdl3-mixer
+
 # Build type: release (default) or debug
 # Usage: make BUILD_TYPE=debug
 BUILD_TYPE ?= release
@@ -72,7 +74,7 @@ OBJS	=		src/gui/gui_core.o src/gui/gui_input.o src/gui/gui_display.o src/gui/gui
 			src/gui/questlog.o src/gui/context.o src/gui/hover.o src/gui/minimap.o\
 			src/game/memory_linux.o src/game/version.o
 
-bin/moac:	$(OBJS) $(ASTONIA_NET_LIB)
+bin/moac:	verify-sdl3-mixer $(OBJS) $(ASTONIA_NET_LIB)
 		mkdir -p bin
 		cp $(ASTONIA_NET_LIB) bin/
 		$(CC) $(LDFLAGS) -o bin/moac $(OBJS) $(LIBS) -Lbin -lastonia_net
@@ -230,4 +232,83 @@ debug:
 release:
 	$(MAKE) -f build/make/Makefile.linux BUILD_TYPE=release
 
-.PHONY: debug release
+# Verify SDL3 is available (fails with helpful message if not found)
+verify-sdl3:
+	@if ! pkg-config --exists sdl3 2>/dev/null; then \
+		echo ""; \
+		echo "ERROR: SDL3 not found."; \
+		echo ""; \
+		echo "Please install SDL3 using your package manager. For example:"; \
+		echo "  Ubuntu/Debian: sudo apt-get install libsdl3-dev"; \
+		echo "  Fedora: sudo dnf install SDL3-devel"; \
+		echo "  Arch: sudo pacman -S sdl3"; \
+		echo ""; \
+		echo "Alternatively, you can build from source using:"; \
+		echo "  make build-sdl3"; \
+		echo ""; \
+		echo "Note: Using your package manager is usually recommended."; \
+		echo ""; \
+		exit 1; \
+	fi
+
+# Verify SDL3_mixer is available (fails with helpful message if not found)
+verify-sdl3-mixer: verify-sdl3
+	@if ! pkg-config --exists sdl3-mixer 2>/dev/null; then \
+		echo ""; \
+		echo "ERROR: SDL3_mixer not found."; \
+		echo ""; \
+		echo "Please install SDL3_mixer using your package manager. For example:"; \
+		echo "  Ubuntu/Debian: sudo apt-get install libsdl3-mixer-dev"; \
+		echo "  Fedora: sudo dnf install SDL3_mixer-devel"; \
+		echo "  Arch: sudo pacman -S sdl3_mixer"; \
+		echo ""; \
+		echo "Alternatively, you can build from source using:"; \
+		echo "  make build-sdl3-mixer"; \
+		echo ""; \
+		echo "Note: Using your package manager is usually recommended."; \
+		echo "      SDL3_mixer requires SDL3 to be installed first."; \
+		echo ""; \
+		exit 1; \
+	fi
+
+# Build SDL3 from source (always builds, no detection)
+# Installs to /usr/local (standard for Linux source builds)
+build-sdl3:
+	@echo "Building SDL3 from source..."
+	@TMP_DIR=$${TMPDIR:-$${TMP:-/tmp}}; \
+	BUILD_DIR=$$([ -d "$$TMP_DIR" ] && echo "$$TMP_DIR" || echo "/tmp"); \
+	cd "$$BUILD_DIR" && \
+		rm -rf SDL SDL-build && \
+		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL.git SDL && \
+		cmake -S SDL -B SDL-build \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_INSTALL_PREFIX=/usr/local \
+			-DSDL_STATIC=OFF && \
+		cmake --build SDL-build && \
+		sudo cmake --install SDL-build && \
+		sudo ldconfig && \
+		cd "$$BUILD_DIR" && \
+		rm -rf SDL SDL-build && \
+		echo "SDL3 installed to /usr/local"
+
+# Build SDL3_mixer from source (always builds, no detection)
+# Note: SDL3 must be installed first
+# Installs to /usr/local (standard for Linux source builds)
+build-sdl3-mixer: verify-sdl3
+	@echo "Building SDL3_mixer from source..."
+	@TMP_DIR=$${TMPDIR:-$${TMP:-/tmp}}; \
+	BUILD_DIR=$$([ -d "$$TMP_DIR" ] && echo "$$TMP_DIR" || echo "/tmp"); \
+	cd "$$BUILD_DIR" && \
+		rm -rf SDL_mixer SDL_mixer-build && \
+		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL_mixer.git SDL_mixer && \
+		cmake -S SDL_mixer -B SDL_mixer-build \
+			-DCMAKE_BUILD_TYPE=Release \
+			-DCMAKE_INSTALL_PREFIX=/usr/local \
+			-DCMAKE_PREFIX_PATH=/usr/local \
+			-DSDL3MIXER_VENDORED=ON && \
+		cmake --build SDL_mixer-build && \
+		sudo cmake --install SDL_mixer-build && \
+		sudo ldconfig && \
+		cd "$$BUILD_DIR" && \
+		rm -rf SDL_mixer SDL_mixer-build && \
+		echo "SDL3_mixer installed to /usr/local"

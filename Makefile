@@ -144,6 +144,12 @@ convert:
 anicopy:
 	@$(MAKE) -f build/make/Makefile.$(PLATFORM) anicopy
 
+build-sdl3:
+	@$(MAKE) -f build/make/Makefile.$(PLATFORM) build-sdl3
+
+build-sdl3-mixer:
+	@$(MAKE) -f build/make/Makefile.$(PLATFORM) build-sdl3-mixer
+
 # Code quality targets
 sanitizer:
 	@echo "Building with AddressSanitizer/UBSan for $(PLATFORM)..."
