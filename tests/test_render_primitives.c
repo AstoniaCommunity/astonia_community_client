@@ -289,8 +289,9 @@ TEST(test_blend_mode)
 	// Test all blend modes (constants from game.h, but we define locally for test)
 	#define BLEND_NORMAL   0
 	#define BLEND_ADDITIVE 1
-	#define BLEND_MULTIPLY 2
-	#define BLEND_SCREEN   3
+	#define BLEND_MOD      2
+	#define BLEND_MUL      3
+	#define BLEND_NONE     4
 
 	sdl_set_blend_mode(BLEND_NORMAL);
 	ASSERT_EQ_INT(BLEND_NORMAL, sdl_get_blend_mode());
@@ -298,19 +299,24 @@ TEST(test_blend_mode)
 	sdl_set_blend_mode(BLEND_ADDITIVE);
 	ASSERT_EQ_INT(BLEND_ADDITIVE, sdl_get_blend_mode());
 
-	sdl_set_blend_mode(BLEND_MULTIPLY);
-	ASSERT_EQ_INT(BLEND_MULTIPLY, sdl_get_blend_mode());
+	sdl_set_blend_mode(BLEND_MOD);
+	ASSERT_EQ_INT(BLEND_MOD, sdl_get_blend_mode());
 
-	sdl_set_blend_mode(BLEND_SCREEN);
-	// BLEND_SCREEN is simulated with SDL_BLENDMODE_ADD, so getter returns ADDITIVE
-	ASSERT_EQ_INT(BLEND_ADDITIVE, sdl_get_blend_mode());
+	sdl_set_blend_mode(BLEND_MUL);
+	ASSERT_EQ_INT(BLEND_MUL, sdl_get_blend_mode());
+
+	sdl_set_blend_mode(BLEND_NONE);
+	ASSERT_EQ_INT(BLEND_NONE, sdl_get_blend_mode());
 
 	// Draw with different blend modes
 	sdl_set_blend_mode(BLEND_ADDITIVE);
 	sdl_circle_filled_alpha(100, 100, 30, 0x7C00, 128, TEST_XOFF, TEST_YOFF);
 
-	sdl_set_blend_mode(BLEND_MULTIPLY);
+	sdl_set_blend_mode(BLEND_MOD);
 	sdl_circle_filled_alpha(100, 100, 30, 0x03E0, 128, TEST_XOFF, TEST_YOFF);
+
+	sdl_set_blend_mode(BLEND_MUL);
+	sdl_circle_filled_alpha(100, 100, 30, 0x001F, 128, TEST_XOFF, TEST_YOFF);
 
 	// Restore original
 	sdl_set_blend_mode(original_mode);
@@ -320,8 +326,9 @@ TEST(test_blend_mode)
 
 	#undef BLEND_NORMAL
 	#undef BLEND_ADDITIVE
-	#undef BLEND_MULTIPLY
-	#undef BLEND_SCREEN
+	#undef BLEND_MOD
+	#undef BLEND_MUL
+	#undef BLEND_NONE
 }
 
 // ============================================================================

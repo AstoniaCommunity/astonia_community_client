@@ -52,10 +52,11 @@
 #define RENDERFX_BRIGHT       0 // Maximum brightness
 
 // Blend mode constants for render_set_blend_mode()
-#define BLEND_NORMAL   0 // Standard alpha blending
-#define BLEND_ADDITIVE 1 // Additive blending (fire, glow effects)
-#define BLEND_MULTIPLY 2 // Multiply blending (shadows, darkening)
-#define BLEND_SCREEN   3 // Screen blending (lightening, simulated as additive)
+#define BLEND_NORMAL   0 // Alpha blending: dstRGB = (srcRGB * srcA) + (dstRGB * (1-srcA))
+#define BLEND_ADDITIVE 1 // Additive blending: dstRGB = (srcRGB * srcA) + dstRGB (glow, fire)
+#define BLEND_MOD      2 // Color modulate: dstRGB = srcRGB * dstRGB (tinting)
+#define BLEND_MUL      3 // Color multiply: dstRGB = (srcRGB * dstRGB) + (dstRGB * (1-srcA))
+#define BLEND_NONE     4 // No blending: dstRGBA = srcRGBA (overwrite)
 
 #define MMF_SIGHTBLOCK (1 << 1) // indicates sight block (set_map_lights)
 #define MMF_DOOR       (1 << 2) // a door - helpful when cutting sprites - (set_map_sprites)

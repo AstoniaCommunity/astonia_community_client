@@ -606,11 +606,14 @@ void sdl_set_blend_mode(int mode)
 	case 1: // BLEND_ADDITIVE
 		current_blend_mode = SDL_BLENDMODE_ADD;
 		break;
-	case 2: // BLEND_MULTIPLY
+	case 2: // BLEND_MOD
 		current_blend_mode = SDL_BLENDMODE_MOD;
 		break;
-	case 3: // BLEND_SCREEN (simulated with additive for SDL2)
-		current_blend_mode = SDL_BLENDMODE_ADD;
+	case 3: // BLEND_MUL
+		current_blend_mode = SDL_BLENDMODE_MUL;
+		break;
+	case 4: // BLEND_NONE
+		current_blend_mode = SDL_BLENDMODE_NONE;
 		break;
 	default:
 		current_blend_mode = SDL_BLENDMODE_BLEND;
@@ -623,11 +626,15 @@ int sdl_get_blend_mode(void)
 {
 	switch (current_blend_mode) {
 	case SDL_BLENDMODE_BLEND:
-		return 0;
+		return 0; // BLEND_NORMAL
 	case SDL_BLENDMODE_ADD:
-		return 1;
+		return 1; // BLEND_ADDITIVE
 	case SDL_BLENDMODE_MOD:
-		return 2;
+		return 2; // BLEND_MOD
+	case SDL_BLENDMODE_MUL:
+		return 3; // BLEND_MUL
+	case SDL_BLENDMODE_NONE:
+		return 4; // BLEND_NONE
 	default:
 		return 0;
 	}
