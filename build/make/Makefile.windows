@@ -1,4 +1,4 @@
-.PHONY: all debug release console amod convert anicopy clean distrib-stage distrib check-sdl3 check-sdl3-mixer
+.PHONY: all debug release console amod convert anicopy clean distrib-stage distrib build-sdl3 build-sdl3-mixer verify-sdl3 verify-sdl3-mixer
 
 # Build type: release (default) or debug
 # Usage: make BUILD_TYPE=debug
@@ -38,6 +38,29 @@ else
     $(warning WARNING: Could not detect CLANG64 installation. Build may fail or use wrong libraries.)
     $(warning Set CLANG64_PREFIX environment variable to your clang64 installation path if needed.)
 endif
+
+# ============================================================================
+# Bash Detection for Cross-Environment Compatibility
+# ============================================================================
+# Detects bash executable path for use in shell commands
+# Works in MSYS2 shells, CMD, and PowerShell
+# Usage: $(BASH_CMD) -c 'your command here'
+# ============================================================================
+# Shell command fragment that finds bash in order of preference:
+# 1. MSYSTEM_PREFIX/usr/bin/bash (MSYS2 environment variable)
+# 2. /usr/bin/bash (MSYS2 path from within MSYS2 shell)
+# 3. C:/msys64/usr/bin/bash.exe (Standard MSYS2 installation from CMD/PowerShell)
+# 4. bash (fallback, assumes it's in PATH)
+BASH_DETECT_CMD = if [ -n "$$MSYSTEM_PREFIX" ] && [ -x "$$MSYSTEM_PREFIX/usr/bin/bash" ]; then \
+		echo "$$MSYSTEM_PREFIX/usr/bin/bash"; \
+	elif [ -n "$$MSYSTEM_PREFIX" ] && [ -x "/usr/bin/bash" ]; then \
+		echo "/usr/bin/bash"; \
+	elif [ -x "C:/msys64/usr/bin/bash.exe" ]; then \
+		echo "C:/msys64/usr/bin/bash.exe"; \
+	else \
+		echo "bash"; \
+	fi
+
 # ============================================================================
 # Build Configuration Variables
 # ============================================================================
@@ -226,7 +249,7 @@ OBJS	=		src/gui/gui_core.o src/gui/gui_input.o src/gui/gui_display.o src/gui/gui
 			src/game/memory_windows.o src/gui/draghack_windows.o src/client/unique_windows.o\
 			src/game/version.o
 
-bin/moac.exe lib/moac.a:	$(OBJS) $(ASTONIA_NET_LIB)
+bin/moac.exe lib/moac.a:	verify-sdl3-mixer $(OBJS) $(ASTONIA_NET_LIB)
 			$(CC) $(LDFLAGS) -Wl,--out-implib,lib/moac.a -o bin/moac.exe $(OBJS) $(ASTONIA_NET_LIB) $(LIBS)
 			@echo "Copying Rust DLL to bin directory..."
 			@cp $(ASTONIA_NET_DIR)/target/$(ASTONIA_NET_TGT)/release/astonia_net.dll bin/ || { echo "Failed to copy DLL"; exit 1; }
@@ -314,10 +337,47 @@ src/gui/draghack_windows.o: src/gui/draghack_windows.c
 src/game/resource.o:	src/game/resource.rc src/game/resource.h res/moa3.ico
 			$(WINDRES) -F pe-x86-64 src/game/resource.rc src/game/resource.o
 
-check-sdl3:
-	@if ! pkg-config --exists sdl3 2>/dev/null; then \
-		echo "SDL3 not found. Building from source..."; \
-		cd /tmp && \
+# Verify SDL3 is available (fails with helpful message if not found)
+verify-sdl3:
+	@BASH_CMD=$$($(BASH_DETECT_CMD)); \
+	$$BASH_CMD -c 'if ! pkg-config --exists sdl3 2>/dev/null; then \
+		echo ""; \
+		echo "ERROR: SDL3 not found."; \
+		echo ""; \
+		echo "Please build and install SDL3 from source by running:"; \
+		echo "  make build-sdl3"; \
+		echo ""; \
+		exit 1; \
+	fi'
+
+# Verify SDL3_mixer is available (fails with helpful message if not found)
+verify-sdl3-mixer: verify-sdl3
+	@BASH_CMD=$$($(BASH_DETECT_CMD)); \
+	$$BASH_CMD -c 'if ! pkg-config --exists sdl3-mixer 2>/dev/null; then \
+		echo ""; \
+		echo "ERROR: SDL3_mixer not found."; \
+		echo ""; \
+		echo "Please build and install SDL3_mixer from source by running:"; \
+		echo "  make build-sdl3-mixer"; \
+		echo ""; \
+		echo "Note: SDL3_mixer requires SDL3 to be installed first."; \
+		echo ""; \
+		exit 1; \
+	fi'
+
+# Build SDL3 from source (always builds, no detection)
+build-sdl3:
+	@echo "Building SDL3 from source..."
+	@BASH_CMD=$$($(BASH_DETECT_CMD)); \
+	$$BASH_CMD -c 'TMP_DIR=$${TMPDIR:-$${TMP:-$${TEMP:-/tmp}}}; \
+		if [ -d "$$TMP_DIR" ]; then \
+			BUILD_DIR="$$TMP_DIR"; \
+		elif [ -d "/tmp" ]; then \
+			BUILD_DIR="/tmp"; \
+		else \
+			BUILD_DIR=$$(mktemp -d); \
+		fi; \
+		cd "$$BUILD_DIR" && \
 		rm -rf SDL SDL-build && \
 		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL.git SDL && \
 		cmake -S SDL -B SDL-build -G Ninja \
@@ -326,15 +386,24 @@ check-sdl3:
 			-DSDL_STATIC=OFF && \
 		cmake --build SDL-build && \
 		cmake --install SDL-build && \
-		cd /tmp && \
+		cd "$$BUILD_DIR" && \
 		rm -rf SDL SDL-build && \
-		echo "SDL3 installed to $(CLANG64_PREFIX)"; \
-	fi
+		echo "SDL3 installed to $(CLANG64_PREFIX)"'
 
-check-sdl3-mixer: check-sdl3
-	@if ! pkg-config --exists sdl3-mixer 2>/dev/null; then \
-		echo "SDL3_mixer not found. Building from source..."; \
-		cd /tmp && \
+# Build SDL3_mixer from source (always builds, no detection)
+# Note: SDL3 must be installed first
+build-sdl3-mixer: verify-sdl3
+	@echo "Building SDL3_mixer from source..."
+	@BASH_CMD=$$($(BASH_DETECT_CMD)); \
+	$$BASH_CMD -c 'TMP_DIR=$${TMPDIR:-$${TMP:-$${TEMP:-/tmp}}}; \
+		if [ -d "$$TMP_DIR" ]; then \
+			BUILD_DIR="$$TMP_DIR"; \
+		elif [ -d "/tmp" ]; then \
+			BUILD_DIR="/tmp"; \
+		else \
+			BUILD_DIR=$$(mktemp -d); \
+		fi; \
+		cd "$$BUILD_DIR" && \
 		rm -rf SDL_mixer SDL_mixer-build && \
 		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL_mixer.git SDL_mixer && \
 		cmake -S SDL_mixer -B SDL_mixer-build -G Ninja \
@@ -344,12 +413,9 @@ check-sdl3-mixer: check-sdl3
 			-DSDL3MIXER_VENDORED=ON && \
 		cmake --build SDL_mixer-build && \
 		cmake --install SDL_mixer-build && \
-		cd /tmp && \
+		cd "$$BUILD_DIR" && \
 		rm -rf SDL_mixer SDL_mixer-build && \
-		echo "SDL3_mixer installed to $(CLANG64_PREFIX)"; \
-	fi
-
-bin/moac.exe lib/moac.a: check-sdl3-mixer
+		echo "SDL3_mixer installed to $(CLANG64_PREFIX)"'
 
 clean:
 	@echo "Cleaning build artifacts..."
@@ -381,15 +447,8 @@ clean:
 # Prepare distribution staging directory
 distrib-stage:
 	@echo "Preparing Windows distribution staging..."
-	@if [ -n "$$MSYSTEM_PREFIX" ] && [ -x "$$MSYSTEM_PREFIX/usr/bin/bash" ]; then \
-		$$MSYSTEM_PREFIX/usr/bin/bash build/tools/package_windows.sh; \
-	elif [ -n "$$MSYSTEM_PREFIX" ] && [ -x "/usr/bin/bash" ]; then \
-		/usr/bin/bash build/tools/package_windows.sh; \
-	elif [ -x "C:/msys64/usr/bin/bash.exe" ]; then \
-		C:/msys64/usr/bin/bash.exe build/tools/package_windows.sh; \
-	else \
-		bash build/tools/package_windows.sh; \
-	fi
+	@BASH_CMD=$$($(BASH_DETECT_CMD)); \
+	$$BASH_CMD build/tools/package_windows.sh
 
 # Legacy target for local development (creates archive)
 distrib: distrib-stage

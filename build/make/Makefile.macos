@@ -1,3 +1,5 @@
+.PHONY: all debug release build-sdl3 build-sdl3-mixer verify-sdl3 verify-sdl3-mixer
+
 # Build type: release (default) or debug
 # Usage: make BUILD_TYPE=debug
 BUILD_TYPE ?= release
@@ -193,12 +195,38 @@ src/game/memory.o: src/game/memory.c src/game/memory.h src/astonia.h src/sdl/sdl
 src/game/memory_macos.o: src/game/memory_macos.c
 		$(CC) $(CFLAGS_PIC) -c -o $@ $<
 
-.PHONY: check-sdl3 check-sdl3-mixer
-
-check-sdl3:
+# Verify SDL3 is available (fails with helpful message if not found)
+verify-sdl3:
 	@if ! pkg-config --exists sdl3 2>/dev/null && [ ! -f "$(BREW_PREFIX)/include/SDL3/SDL.h" ]; then \
-		echo "SDL3 not found. Building from source..."; \
-		cd /tmp && \
+		echo ""; \
+		echo "ERROR: SDL3 not found."; \
+		echo ""; \
+		echo "Please build and install SDL3 from source by running:"; \
+		echo "  make build-sdl3"; \
+		echo ""; \
+		exit 1; \
+	fi
+
+# Verify SDL3_mixer is available (fails with helpful message if not found)
+verify-sdl3-mixer: verify-sdl3
+	@if ! pkg-config --exists sdl3-mixer 2>/dev/null && [ ! -f "$(BREW_PREFIX)/include/SDL3_mixer/SDL_mixer.h" ]; then \
+		echo ""; \
+		echo "ERROR: SDL3_mixer not found."; \
+		echo ""; \
+		echo "Please build and install SDL3_mixer from source by running:"; \
+		echo "  make build-sdl3-mixer"; \
+		echo ""; \
+		echo "Note: SDL3_mixer requires SDL3 to be installed first."; \
+		echo ""; \
+		exit 1; \
+	fi
+
+# Build SDL3 from source (always builds, no detection)
+build-sdl3:
+	@echo "Building SDL3 from source..."
+	@TMP_DIR=$${TMPDIR:-$${TMP:-/tmp}}; \
+	BUILD_DIR=$$([ -d "$$TMP_DIR" ] && echo "$$TMP_DIR" || echo "/tmp"); \
+	cd "$$BUILD_DIR" && \
 		rm -rf SDL SDL-build && \
 		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL.git SDL && \
 		cmake -S SDL -B SDL-build \
@@ -208,15 +236,17 @@ check-sdl3:
 			-DSDL_RPATH=OFF && \
 		cmake --build SDL-build && \
 		cmake --install SDL-build && \
-		cd /tmp && \
+		cd "$$BUILD_DIR" && \
 		rm -rf SDL SDL-build && \
-		echo "SDL3 installed to $(BREW_PREFIX)"; \
-	fi
+		echo "SDL3 installed to $(BREW_PREFIX)"
 
-check-sdl3-mixer: check-sdl3
-	@if ! pkg-config --exists sdl3-mixer 2>/dev/null && [ ! -f "$(BREW_PREFIX)/include/SDL3_mixer/SDL_mixer.h" ]; then \
-		echo "SDL3_mixer not found. Building from source..."; \
-		cd /tmp && \
+# Build SDL3_mixer from source (always builds, no detection)
+# Note: SDL3 must be installed first
+build-sdl3-mixer: verify-sdl3
+	@echo "Building SDL3_mixer from source..."
+	@TMP_DIR=$${TMPDIR:-$${TMP:-/tmp}}; \
+	BUILD_DIR=$$([ -d "$$TMP_DIR" ] && echo "$$TMP_DIR" || echo "/tmp"); \
+	cd "$$BUILD_DIR" && \
 		rm -rf SDL_mixer SDL_mixer-build && \
 		git clone --depth 1 --branch main https://github.com/libsdl-org/SDL_mixer.git SDL_mixer && \
 		cmake -S SDL_mixer -B SDL_mixer-build \
@@ -226,12 +256,11 @@ check-sdl3-mixer: check-sdl3
 			-DSDL3MIXER_VENDORED=ON && \
 		cmake --build SDL_mixer-build && \
 		cmake --install SDL_mixer-build && \
-		cd /tmp && \
+		cd "$$BUILD_DIR" && \
 		rm -rf SDL_mixer SDL_mixer-build && \
-		echo "SDL3_mixer installed to $(BREW_PREFIX)"; \
-	fi
+		echo "SDL3_mixer installed to $(BREW_PREFIX)"
 
-bin/moac: check-sdl3-mixer
+bin/moac: verify-sdl3-mixer
 
 clean:
 	@echo "Cleaning build artifacts..."
@@ -336,5 +365,3 @@ debug:
 
 release:
 	$(MAKE) -f build/make/Makefile.macos BUILD_TYPE=release
-
-.PHONY: debug release
