@@ -124,10 +124,14 @@ int sdl_init(int width, int height, char *title)
 	if (game_options & GO_FULL) {
 		// Exclusive fullscreen mode
 		SDL_SetWindowFullscreen(sdlwnd, true);
+		// Wait for fullscreen transition to complete (prevents resize events on macOS)
+		SDL_SyncWindow(sdlwnd);
 	} else if (width == DM->w && height == DM->h) {
 		// Borderless fullscreen desktop
 		SDL_SetWindowFullscreenMode(sdlwnd, NULL);
 		SDL_SetWindowFullscreen(sdlwnd, true);
+		// Wait for fullscreen transition to complete (prevents resize events on macOS)
+		SDL_SyncWindow(sdlwnd);
 	}
 
 	// Create renderer - NULL lets SDL choose the best option
@@ -180,6 +184,17 @@ int sdl_init(int width, int height, char *title)
 	// I hope just keeping it enabled all the time doesn't break
 	// anything.
 	SDL_StartTextInput(sdlwnd);
+
+	// Use actual renderer output size for calculations (not display mode, which may include reserved space on macOS)
+	int render_output_w = 0, render_output_h = 0;
+	if (SDL_GetRenderOutputSize(sdlren, &render_output_w, &render_output_h)) {
+		// Fallback to window pixel size if renderer output size fails
+		SDL_GetWindowSizeInPixels(sdlwnd, &render_output_w, &render_output_h);
+	}
+	if (render_output_w > 0 && render_output_h > 0) {
+		width = render_output_w;
+		height = render_output_h;
+	}
 
 	// decide on screen format
 	if (width != XRES || height != YRES) {
