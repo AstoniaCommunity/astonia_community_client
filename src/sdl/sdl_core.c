@@ -121,6 +121,14 @@ int sdl_init(int width, int height, char *title)
 		return 0;
 	}
 
+	// Use display mode's logical size for scaling calculations
+	// SDL3 automatically handles pixel_density scaling to physical pixels
+	// Fall back to supplied width and height if less than logical, as this is required for windowed.
+	if (width > DM->w || height > DM->h) {
+		width = DM->w;
+		height = DM->h;
+	}
+
 	if (game_options & GO_FULL) {
 		// Exclusive fullscreen mode
 		SDL_SetWindowFullscreen(sdlwnd, true);
@@ -174,11 +182,6 @@ int sdl_init(int width, int height, char *title)
 	}
 
 	SDL_SetRenderVSync(sdlren, 1);
-
-	// Use display mode's logical size for scaling calculations
-	// SDL3 automatically handles pixel_density scaling to physical pixels
-	width = DM->w;
-	height = DM->h;
 
 	// Initialize hash table (statically allocated)
 	for (i = 0; i < MAX_TEXHASH; i++) {
