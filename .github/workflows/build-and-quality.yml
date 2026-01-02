@@ -1,13 +1,14 @@
-name: Release
+name: Build-and-Quality
 
 on:
   push:
-    tags:
-      - "*"
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build-sdl3-linux:
@@ -210,9 +211,9 @@ jobs:
           sudo cmake --install SDL_mixer-build
           rm -rf SDL_mixer SDL_mixer-build
 
-  build-linux-release:
-    needs: [build-sdl3-linux]
-    name: Build Linux Release
+  build-linux:
+    needs: build-sdl3-linux
+    name: Build Linux
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -236,12 +237,19 @@ jobs:
           sudo cp -r /tmp/sdl3-install/* /usr/local/
           sudo ldconfig
 
+      - name: Install LLVM/Clang 21
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 21
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-21 100
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-21 100
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y \
             build-essential \
-            clang \
             libpng-dev \
             libzip-dev \
             zlib1g-dev \
@@ -254,29 +262,24 @@ jobs:
           cache: true
           cache-workspaces: astonia_net
 
-      - name: Build release
+      - name: Build
         run: make linux
 
-      - name: Strip debug symbols
-        run: |
-          strip bin/moac
-          strip bin/libastonia_net.so
-
-      - name: Prepare distribution staging
-        run: make distrib-stage
-
-      - name: Upload distribution staging
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: linux-staging
-          path: distrib/linux_client/
-          retention-days: 7
+          name: linux-build
+          path: |
+            bin/moac
+            bin/libastonia_net.so
+          retention-days: 30
+          if-no-files-found: error
 
-  build-windows-release:
+  build-windows:
     needs: build-sdl3-windows
-    name: Build Windows Release
+    name: Build Windows
     runs-on: windows-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     defaults:
       run:
         shell: msys2 {0}
@@ -284,12 +287,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          lfs: true
-
-      - name: Checkout LFS objects
-        shell: bash
-        run: git lfs pull
 
       - name: Install Rust toolchain (LLVM variant)
         uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -328,36 +325,36 @@ jobs:
       - name: Install SDL3 libraries
         run: cp -r /sdl3-tmp/* /clang64/
 
-      - name: Build release
-        run: make windows
+      - name: Build
+        run: make CC=clang windows
 
       - name: Copy DLL to bin
         run: cp astonia_net/target/x86_64-pc-windows-gnullvm/release/astonia_net.dll bin/
 
-      - name: Strip debug symbols
-        run: |
-          strip bin/moac.exe
-          strip bin/astonia_net.dll
-
-      - name: Prepare distribution staging
-        run: make distrib-stage
-
-      - name: Upload distribution staging
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-staging
-          path: distrib/windows_client/
-          retention-days: 7
+          name: windows-build
+          path: |
+            bin/moac.exe
+            bin/astonia_net.dll
+          retention-days: 30
+          if-no-files-found: error
 
-  build-macos-release:
+  build-macos-arm:
     needs: build-sdl3-macos
-    name: Build MacOS Release
+    name: Build macOS (Apple Silicon)
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Install LLVM/Clang 21
+        run: |
+          brew install llvm@21
+          echo "/opt/homebrew/opt/llvm@21/bin" >> $GITHUB_PATH
 
       - name: Install dependencies
         run: |
@@ -391,190 +388,290 @@ jobs:
           cache: true
           cache-workspaces: astonia_net
 
-      - name: Build release (moac + Rust lib)
+      - name: Build
         run: make macos
 
-      - name: Strip debug symbols
-        run: |
-          strip bin/moac
-          strip -x bin/libastonia_net.dylib
-
-      # Build unsigned .app bundle
-      - name: Build .app bundle
-        run: make macos-appbundle
-
-      # Materialize the signing certificate from a base64-encoded secret
-      - name: Install signing certificate
-        run: |
-          mkdir -p certs
-          echo "${{ secrets.APPLE_CERT_P12 }}" | base64 --decode > certs/dist.p12
-
-      # Materialize the App Store Connect API key file in ./private_keys
-      # File name must match the api_key (KEY_ID) used later.
-      - name: Install App Store Connect API key
-        run: |
-          mkdir -p private_keys
-          echo '${{ secrets.APP_STORE_CONNECT_KEY }}' > "private_keys/AuthKey_${{ secrets.APP_STORE_CONNECT_KEY_ID }}.p8"
-
-      - name: Install App Store Connect API key JSON
-        run: |
-          echo '${{ secrets.APP_STORE_CONNECT_KEY_JSON }}' > private_keys/appstore_key.json
-
-      - name: Rename app with to tmp name
-        run: |
-          mv distrib/Astonia.app distrib/Astonia-unsigned.app
-
-      # 1) Sign app bundle
-      - name: Sign Astonia.app
-        uses: indygreg/apple-code-sign-action@v1
-        with:
-          input_path: distrib/Astonia-unsigned.app
-          output_path: distrib/Astonia.app
-
-          # Code signing certificate
-          p12_file: certs/dist.p12
-          p12_password: ${{ secrets.APPLE_CERT_P12_PASSWORD }}
-
-          notarize: false
-          staple: false
-
-          rcodesign_version: 0.29.0
-
-          # Extra arguments passed directly to `rcodesign sign`
-          sign_args: |
-            --binary-identifier
-            com.prismaphonic.astonia
-            --for-notarization
-
-      - name: Remove unsigned app bundle
-        run: rm -rf distrib/Astonia-unsigned.app
-
-      # 2) Create an unsigned DMG wrapping the notarized .app
-      - name: Create unsigned DMG from notarized app
-        run: |
-          cd distrib
-          hdiutil create \
-            -volname "Astonia" \
-            -srcfolder "Astonia.app" \
-            -ov \
-            -format UDZO \
-            "Astonia-macOS-unsigned.dmg"
-          cd ..
-          ls -lh distrib/Astonia-macOS-unsigned.dmg
-
-      # 3) Sign + notarize + staple the DMG
-      - name: Sign, notarize, and staple DMG
-        uses: indygreg/apple-code-sign-action@v1
-        with:
-          input_path: distrib/Astonia-macOS-unsigned.dmg
-          output_path: distrib/Astonia-macOS.dmg
-
-          # Code signing certificate
-          p12_file: certs/dist.p12
-          p12_password: ${{ secrets.APPLE_CERT_P12_PASSWORD }}
-
-          rcodesign_version: 0.29.0
-
-          sign_args: |
-            --for-notarization
-
-          # Notarization
-          notarize: true
-          staple: true
-          app_store_connect_api_key_json_file: private_keys/appstore_key.json
-          app_store_connect_api_issuer: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          app_store_connect_api_key: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-
-      - name: Remove unsigned DMG
-        run: rm -f distrib/Astonia-macOS-unsigned.dmg
-
-      - name: Upload signed DMG
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: macos-dmg
-          path: distrib/Astonia-macOS.dmg
-          retention-days: 7
+          name: macos-arm-build
+          path: |
+            bin/moac
+            bin/libastonia_net.dylib
+          retention-days: 30
           if-no-files-found: error
 
-  build-appimage-release:
-    name: Build AppImage Release
+  build-docker-linux:
+    name: Build Linux (Docker/Zig)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 25
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
 
-      - name: Build AppImage
-        run: make appimage
+      - name: Build with Docker (Zig)
+        run: make docker-linux
 
-      - name: Upload AppImage
+      - name: Verify artifacts
+        run: |
+          test -f bin/moac
+          test -f bin/libastonia_net.so
+          file bin/moac
+
+      - name: Upload Docker build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: appimage-release
-          path: astonia-client.AppImage
-          retention-days: 7
+          name: docker-linux-build
+          path: |
+            bin/moac
+            bin/libastonia_net.so
+          retention-days: 30
+          if-no-files-found: error
 
-  create-release:
-    name: Create GitHub Release
-    needs:
-      [
-        build-linux-release,
-        build-windows-release,
-        build-macos-release,
-        build-appimage-release,
-      ]
+  test:
+    name: Run Unit Tests
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
+    timeout-minutes: 10
+    needs: [build-sdl3-linux]
 
     steps:
-      - name: Download Linux staging
-        uses: actions/download-artifact@v4
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
-          name: linux-staging
-          path: linux_client
+          lfs: true
 
-      - name: Download Windows staging
-        uses: actions/download-artifact@v4
+      - name: Get week of year
+        id: week
+        run: echo "week=$(date +%Y-W%U)" >> $GITHUB_OUTPUT
+
+      - name: Restore SDL3 libraries from cache
+        uses: actions/cache/restore@v4
         with:
-          name: windows-staging
-          path: windows_client
+          path: /tmp/sdl3-install
+          key: sdl3-linux-${{ steps.week.outputs.week }}
+          fail-on-cache-miss: true
 
-      - name: Download macOS DMG
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-dmg
-          path: .
-
-      - name: Download AppImage
-        uses: actions/download-artifact@v4
-        with:
-          name: appimage-release
-
-      - name: Create distribution archives
+      - name: Install SDL3 libraries
         run: |
-          tar czf linux_client.tar.gz linux_client
-          zip -q -r windows_client.zip windows_client
+          sudo cp -r /tmp/sdl3-install/* /usr/local/
+          sudo ldconfig
 
-      - name: Generate checksums
+      - name: Install LLVM/Clang 21
         run: |
-          sha256sum linux_client.tar.gz > checksums.txt
-          sha256sum windows_client.zip >> checksums.txt
-          sha256sum astonia-client.AppImage >> checksums.txt
-          sha256sum Astonia-macOS.dmg >> checksums.txt
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 21
+          sudo update-alternatives --install /usr/bin/clang clang /usr/bin/clang-21 100
+          sudo update-alternatives --install /usr/bin/clang++ clang++ /usr/bin/clang++-21 100
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            libpng-dev \
+            libzip-dev \
+            zlib1g-dev \
+            libmimalloc-dev
+
+      - name: Run tests
+        run: make test
+
+  # Format checking for C code only
+  format-check:
+    name: C Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install clang-format-21
+        uses: ./.github/actions/setup-llvm-toolchain
         with:
-          files: |
-            linux_client.tar.gz
-            windows_client.zip
-            astonia-client.AppImage
-            Astonia-macOS.dmg
-            checksums.txt
-          draft: false
-          prerelease: false
-          generate_release_notes: true
+          llvm-version: "21"
+          packages: clang-format-21
+
+      - name: Run C format check script
+        run: scripts/check-format-c.sh
+
+  # Static analysis for C code
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build-sdl3-linux]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Get week of year
+        id: week
+        run: echo "week=$(date +%Y-W%U)" >> $GITHUB_OUTPUT
+
+      - name: Restore SDL3 libraries from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/sdl3-install
+          key: sdl3-linux-${{ steps.week.outputs.week }}
+          fail-on-cache-miss: true
+
+      - name: Install SDL3 libraries
+        run: |
+          sudo cp -r /tmp/sdl3-install/* /usr/local/
+          sudo ldconfig
+
+      - name: Install LLVM toolchain
+        uses: ./.github/actions/setup-llvm-toolchain
+        with:
+          llvm-version: "21"
+          packages: clang-21 clang-tidy-21 clang-format-21
+          create-alternatives: "true"
+
+      - name: Install additional dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            bear \
+            cppcheck \
+            libpng-dev \
+            libzip-dev \
+            zlib1g-dev \
+            libmimalloc-dev
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          cache: true
+          cache-workspaces: astonia_net
+
+      - name: Run static analysis script
+        run: scripts/check-static-analysis.sh
+
+      - name: Upload analysis reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: static-analysis-reports
+          path: build/logs/*.log
+          retention-days: 90
+
+  # Rust formatting check
+  rust-format-check:
+    name: Rust Format Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt
+          cache: true
+          cache-workspaces: astonia_net
+
+      - name: Run Rust format check script
+        run: scripts/check-format-rust.sh
+
+  # Rust linting (clippy)
+  rust-lint-check:
+    name: Rust Linting (clippy)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+          cache: true
+          cache-workspaces: astonia_net
+
+      - name: Run Rust linting script
+        run: scripts/check-clippy.sh
+
+  # File consistency checks
+  file-checks:
+    name: File Consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Run file consistency script
+        run: scripts/check-files.sh
+
+  # Sanitizer build test
+  sanitizer:
+    name: AddressSanitizer/UBSan Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [build-sdl3-linux]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Get week of year
+        id: week
+        run: echo "week=$(date +%Y-W%U)" >> $GITHUB_OUTPUT
+
+      - name: Restore SDL3 libraries from cache
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/sdl3-install
+          key: sdl3-linux-${{ steps.week.outputs.week }}
+          fail-on-cache-miss: true
+
+      - name: Install SDL3 libraries
+        run: |
+          sudo cp -r /tmp/sdl3-install/* /usr/local/
+          sudo ldconfig
+
+      - name: Install LLVM toolchain
+        uses: ./.github/actions/setup-llvm-toolchain
+        with:
+          llvm-version: "21"
+          packages: clang-21
+          create-alternatives: "true"
+
+      - name: Install additional dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libpng-dev \
+            libzip-dev \
+            zlib1g-dev \
+            libmimalloc-dev
+
+      - name: Setup Rust
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          cache: true
+          cache-workspaces: astonia_net
+
+      - name: Build with sanitizers
+        run: make sanitizer
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CC: clang
+
+      - name: Check sanitizer binary
+        run: |
+          echo "Sanitizer build successful!"
+          ls -lh bin/moac-sanitizer
+          file bin/moac-sanitizer
