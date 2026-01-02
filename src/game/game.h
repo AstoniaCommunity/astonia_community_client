@@ -198,7 +198,7 @@ DLL_EXPORT void render_pop_clip(void);
 DLL_EXPORT void render_more_clip(int sx, int sy, int ex, int ey);
 DLL_EXPORT void render_set_clip(int sx, int sy, int ex, int ey);
 DLL_EXPORT void render_clear_clip(void);
-DLL_EXPORT void render_get_clip(int *sx, int *sy, int *ex, int *ey);
+DLL_EXPORT void render_get_clip(int *out_start_x, int *out_start_y, int *out_end_x, int *out_end_y);
 
 // Screen effects for modders
 DLL_EXPORT void render_screen_tint(unsigned short color, unsigned char intensity);

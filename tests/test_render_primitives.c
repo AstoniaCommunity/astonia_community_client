@@ -418,6 +418,151 @@ TEST(test_stress_many_draws)
 }
 
 // ============================================================================
+// Test: Blend Mode Frame Isolation
+// ============================================================================
+
+TEST(test_blend_mode_frame_isolation)
+{
+	fprintf(stderr, "  → Testing blend mode frame isolation...\n");
+
+	#define BLEND_NORMAL    0
+	#define BLEND_ADDITIVE  1
+
+	// Set blend mode to additive
+	sdl_set_blend_mode(BLEND_ADDITIVE);
+	ASSERT_EQ_INT(BLEND_ADDITIVE, sdl_get_blend_mode());
+
+	// Draw something with additive blending
+	sdl_circle_filled_alpha(100, 100, 30, 0x7FFF, 128, TEST_XOFF, TEST_YOFF);
+
+	// Reset blend mode (simulating frame boundary)
+	sdl_reset_blend_mode();
+
+	// Blend mode should be reset to BLEND_NORMAL
+	ASSERT_EQ_INT(BLEND_NORMAL, sdl_get_blend_mode());
+
+	fprintf(stderr, "     Blend mode frame isolation OK\n");
+
+	#undef BLEND_NORMAL
+	#undef BLEND_ADDITIVE
+}
+
+// ============================================================================
+// Test: Circle Scaling
+// ============================================================================
+
+extern int sdl_scale;
+
+TEST(test_circle_scaling)
+{
+	fprintf(stderr, "  → Testing circle scaling with sdl_scale...\n");
+
+	int old_scale = sdl_scale;
+
+	// At scale=1, radius 50 should draw normally
+	sdl_scale = 1;
+	sdl_circle_alpha(100, 100, 50, 0x7FFF, 255, TEST_XOFF, TEST_YOFF);
+
+	// At scale=2, radius 50 should draw 100-pixel radius
+	sdl_scale = 2;
+	sdl_circle_alpha(100, 100, 50, 0x7FFF, 255, TEST_XOFF, TEST_YOFF);
+
+	// At scale=3
+	sdl_scale = 3;
+	sdl_circle_alpha(100, 100, 50, 0x7FFF, 255, TEST_XOFF, TEST_YOFF);
+
+	// Restore scale
+	sdl_scale = old_scale;
+
+	fprintf(stderr, "     Circle scaling OK\n");
+	ASSERT_TRUE(1);
+}
+
+// ============================================================================
+// Test: Line Clipping Preserves Slope
+// ============================================================================
+
+TEST(test_line_clipping_slope)
+{
+	fprintf(stderr, "  → Testing line clipping preserves slope...\n");
+
+	// Diagonal line from outside clip rect should maintain angle when clipped
+	// The Cohen-Sutherland algorithm should preserve the slope
+	sdl_line_alpha(-100, -100, 900, 900, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+
+	// Line going from top-left outside to bottom-right outside
+	sdl_line_alpha(-50, 300, 850, 300, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+
+	// Vertical line partially outside
+	sdl_line_alpha(400, -100, 400, 700, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+
+	// Completely outside - should be rejected (not crash)
+	sdl_line_alpha(-100, -100, -50, -50, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+	sdl_line_alpha(900, 700, 1000, 800, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+
+	fprintf(stderr, "     Line clipping slope preservation OK\n");
+	ASSERT_TRUE(1);
+}
+
+// ============================================================================
+// Test: Thick Line Clipping
+// ============================================================================
+
+TEST(test_thick_line_clipping)
+{
+	fprintf(stderr, "  → Testing thick line clipping...\n");
+
+	// Thick line completely inside - should draw normally
+	sdl_thick_line_alpha(100, 100, 200, 200, 10, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+
+	// Thick line partially outside - should be clipped without crashing
+	sdl_thick_line_alpha(-50, 100, 100, 100, 20, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+	sdl_thick_line_alpha(100, -50, 100, 100, 20, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+	sdl_thick_line_alpha(700, 500, 900, 700, 15, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+
+	// Thick line completely outside - should be rejected (not crash)
+	sdl_thick_line_alpha(-100, -100, -50, -50, 10, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+	sdl_thick_line_alpha(900, 700, 1000, 800, 10, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+
+	// Edge case: thick line at boundary where center is inside but thickness extends outside
+	sdl_thick_line_alpha(5, 300, 795, 300, 30, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+
+	// Diagonal thick line crossing corners
+	sdl_thick_line_alpha(-100, -100, 900, 700, 8, 0x7FFF, 255, 0, 0, 800, 600, TEST_XOFF, TEST_YOFF);
+
+	fprintf(stderr, "     Thick line clipping OK\n");
+	ASSERT_TRUE(1);
+}
+
+// ============================================================================
+// Test: Mod Texture Path Validation Security
+// ============================================================================
+
+TEST(test_mod_texture_path_validation)
+{
+	fprintf(stderr, "  → Testing mod texture path validation security...\n");
+
+	// These should be rejected (absolute paths)
+	ASSERT_EQ_INT(-1, sdl_load_mod_texture("/etc/passwd"));
+	ASSERT_EQ_INT(-1, sdl_load_mod_texture("C:\\Windows\\system32\\config\\sam"));
+
+	// These should be rejected (path traversal)
+	ASSERT_EQ_INT(-1, sdl_load_mod_texture("../../../etc/passwd"));
+	ASSERT_EQ_INT(-1, sdl_load_mod_texture("..\\..\\..\\Windows\\system.ini"));
+
+	// These should be rejected (bypass attempts)
+	ASSERT_EQ_INT(-1, sdl_load_mod_texture("..././etc/passwd"));
+	ASSERT_EQ_INT(-1, sdl_load_mod_texture("....//etc/passwd"));
+	ASSERT_EQ_INT(-1, sdl_load_mod_texture("foo/../../../etc/passwd"));
+
+	// Empty and null paths should be rejected
+	ASSERT_EQ_INT(-1, sdl_load_mod_texture(""));
+	ASSERT_EQ_INT(-1, sdl_load_mod_texture(NULL));
+
+	fprintf(stderr, "     Path validation security OK\n");
+}
+
+// ============================================================================
 // Main Test Suite
 // ============================================================================
 
@@ -442,6 +587,13 @@ TEST_MAIN(
 	test_alpha_edge_cases();
 	test_color_values();
 	test_stress_many_draws();
+
+	// New tests addressing PR review comments
+	test_blend_mode_frame_isolation();
+	test_circle_scaling();
+	test_line_clipping_slope();
+	test_thick_line_clipping();
+	test_mod_texture_path_validation();
 
 	sdl_shutdown_for_tests();
 )

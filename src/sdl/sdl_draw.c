@@ -552,6 +552,94 @@ void sdl_pixel_alpha(int x, int y, unsigned short color, unsigned char alpha, in
 	SDL_RenderPoints(sdlren, pt, i);
 }
 
+// Cohen-Sutherland outcodes for line clipping
+#define CLIP_INSIDE 0  // 0000
+#define CLIP_LEFT   1  // 0001
+#define CLIP_RIGHT  2  // 0010
+#define CLIP_BOTTOM 4  // 0100
+#define CLIP_TOP    8  // 1000
+
+static int compute_outcode(int x, int y, int xmin, int ymin, int xmax, int ymax)
+{
+	int code = CLIP_INSIDE;
+	if (x < xmin) {
+		code |= CLIP_LEFT;
+	} else if (x > xmax) {
+		code |= CLIP_RIGHT;
+	}
+	if (y < ymin) {
+		code |= CLIP_BOTTOM;
+	} else if (y > ymax) {
+		code |= CLIP_TOP;
+	}
+	return code;
+}
+
+// Cohen-Sutherland line clipping algorithm - preserves line slope
+// Returns 1 if line should be drawn (and modifies coordinates), 0 if completely outside
+static int clip_line(int *x0, int *y0, int *x1, int *y1, int xmin, int ymin, int xmax, int ymax)
+{
+	int outcode0 = compute_outcode(*x0, *y0, xmin, ymin, xmax, ymax);
+	int outcode1 = compute_outcode(*x1, *y1, xmin, ymin, xmax, ymax);
+
+	while (1) {
+		if (!(outcode0 | outcode1)) {
+			// Both endpoints inside - draw it
+			return 1;
+		} else if (outcode0 & outcode1) {
+			// Both endpoints outside same region - reject
+			return 0;
+		} else {
+			// Line crosses boundary - clip it
+			int x, y;
+			int outcodeOut = outcode0 ? outcode0 : outcode1;
+
+			// Find intersection point using line equation
+			// Avoid division by zero by checking dx/dy
+			if (outcodeOut & CLIP_TOP) {
+				if (*y1 != *y0) {
+					x = *x0 + (*x1 - *x0) * (ymax - *y0) / (*y1 - *y0);
+				} else {
+					x = *x0;
+				}
+				y = ymax;
+			} else if (outcodeOut & CLIP_BOTTOM) {
+				if (*y1 != *y0) {
+					x = *x0 + (*x1 - *x0) * (ymin - *y0) / (*y1 - *y0);
+				} else {
+					x = *x0;
+				}
+				y = ymin;
+			} else if (outcodeOut & CLIP_RIGHT) {
+				if (*x1 != *x0) {
+					y = *y0 + (*y1 - *y0) * (xmax - *x0) / (*x1 - *x0);
+				} else {
+					y = *y0;
+				}
+				x = xmax;
+			} else { // CLIP_LEFT
+				if (*x1 != *x0) {
+					y = *y0 + (*y1 - *y0) * (xmin - *x0) / (*x1 - *x0);
+				} else {
+					y = *y0;
+				}
+				x = xmin;
+			}
+
+			// Replace endpoint outside clip rectangle
+			if (outcodeOut == outcode0) {
+				*x0 = x;
+				*y0 = y;
+				outcode0 = compute_outcode(*x0, *y0, xmin, ymin, xmax, ymax);
+			} else {
+				*x1 = x;
+				*y1 = y;
+				outcode1 = compute_outcode(*x1, *y1, xmin, ymin, xmax, ymax);
+			}
+		}
+	}
+}
+
 void sdl_line_alpha(int fx, int fy, int tx, int ty, unsigned short color, unsigned char alpha, int clipsx, int clipsy,
     int clipex, int clipey, int x_offset, int y_offset)
 {
@@ -561,32 +649,13 @@ void sdl_line_alpha(int fx, int fy, int tx, int ty, unsigned short color, unsign
 	g = G16TO32(color);
 	b = B16TO32(color);
 
-	if (fx < clipsx) {
-		fx = clipsx;
-	}
-	if (fy < clipsy) {
-		fy = clipsy;
-	}
-	if (fx >= clipex) {
-		fx = clipex - 1;
-	}
-	if (fy >= clipey) {
-		fy = clipey - 1;
+	// Properly clip the line (preserves slope) using Cohen-Sutherland algorithm
+	if (!clip_line(&fx, &fy, &tx, &ty, clipsx, clipsy, clipex - 1, clipey - 1)) {
+		// Line is completely outside clip rect
+		return;
 	}
 
-	if (tx < clipsx) {
-		tx = clipsx;
-	}
-	if (ty < clipsy) {
-		ty = clipsy;
-	}
-	if (tx >= clipex) {
-		tx = clipex - 1;
-	}
-	if (ty >= clipey) {
-		ty = clipey - 1;
-	}
-
+	// Apply offset
 	fx += x_offset;
 	tx += x_offset;
 	fy += y_offset;
@@ -641,6 +710,12 @@ int sdl_get_blend_mode(void)
 	}
 }
 
+void sdl_reset_blend_mode(void)
+{
+	current_blend_mode = SDL_BLENDMODE_BLEND;
+	SDL_SetRenderDrawBlendMode(sdlren, current_blend_mode);
+}
+
 // ============================================================================
 // Custom Texture Loading API for Modders
 // ============================================================================
@@ -665,18 +740,44 @@ static void init_mod_textures(void)
 	}
 }
 
+// Cleanup all mod textures - called from sdl_exit() for clean shutdown
+// Gated behind DEVELOPER for cleaner valgrind/address sanitizer reports
+void sdl_cleanup_mod_textures(void)
+{
+#ifdef DEVELOPER
+	if (!mod_textures_initialized) {
+		return;
+	}
+	for (int i = 0; i < MAX_MOD_TEXTURES; i++) {
+		if (mod_textures[i].used && mod_textures[i].tex) {
+			SDL_DestroyTexture(mod_textures[i].tex);
+			mod_textures[i].tex = NULL;
+			mod_textures[i].used = 0;
+		}
+	}
+	mod_textures_initialized = 0;
+#endif
+}
+
 /**
  * Validate a path for safety before loading.
  * Rejects path traversal attempts and absolute paths.
- *
- * @param path The path to validate
- * @return 1 if safe, 0 if rejected
+ * Uses conservative checks to prevent bypasses like "..././" or "....//".
  */
 static int validate_mod_path(const char *path)
 {
 	const char *p;
+	size_t len;
 
 	if (!path || !*path) {
+		return 0;
+	}
+
+	len = strlen(path);
+
+	// Reject paths that are too long (prevent buffer overflows)
+	if (len > 1024) {
+		warn("mod texture: path too long: %s", path);
 		return 0;
 	}
 
@@ -685,27 +786,36 @@ static int validate_mod_path(const char *path)
 		warn("mod texture: absolute paths not allowed: %s", path);
 		return 0;
 	}
-	if (strlen(path) >= 2 && path[1] == ':') {
+	if (len >= 2 && path[1] == ':') {
 		warn("mod texture: absolute paths not allowed: %s", path);
 		return 0;
 	}
 
-	// Reject path traversal sequences
+	// Check each character for dangerous patterns
 	p = path;
 	while (*p) {
-		// Check for ".." at start or after path separator
-		if (p[0] == '.' && p[1] == '.') {
-			if (p == path || p[-1] == '/' || p[-1] == '\\') {
-				if (p[2] == '\0' || p[2] == '/' || p[2] == '\\') {
-					warn("mod texture: path traversal not allowed: %s", path);
-					return 0;
-				}
-			}
-		}
-		// Reject null bytes
+		// Reject embedded null bytes (shouldn't happen with strlen, but be safe)
 		if (*p == '\0') {
 			break;
 		}
+
+		// Reject any ".." sequence - conservative but safe
+		// This catches: "..", "../", "..\\", "...", "..foo", etc.
+		// Only legitimate ".." is as a directory component, which we don't want anyway
+		if (p[0] == '.' && p[1] == '.') {
+			// Check if this could be a traversal attempt
+			// Reject if: at start, after separator, or followed by separator/end
+			int at_start = (p == path);
+			int after_sep = (p > path && (p[-1] == '/' || p[-1] == '\\'));
+			int before_sep = (p[2] == '\0' || p[2] == '/' || p[2] == '\\');
+			int before_dot = (p[2] == '.'); // catches "...", "..../" etc.
+
+			if ((at_start || after_sep) && (before_sep || before_dot)) {
+				warn("mod texture: path traversal not allowed: %s", path);
+				return 0;
+			}
+		}
+
 		p++;
 	}
 
@@ -1156,14 +1266,15 @@ void sdl_circle_alpha(int cx, int cy, int radius, unsigned short color, unsigned
 	SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)alpha);
 	SDL_SetRenderDrawBlendMode(sdlren, current_blend_mode);
 
-	// Midpoint circle algorithm
-	x = radius;
-	y = 0;
-	d = 1 - radius;
-
+	// Scale center and radius
 	cx = (cx + x_offset) * sdl_scale;
 	cy = (cy + y_offset) * sdl_scale;
 	int sr = radius * sdl_scale;
+
+	// Midpoint circle algorithm using scaled radius
+	x = sr;
+	y = 0;
+	d = 1 - sr;
 
 	while (x >= y) {
 		// Draw 8 symmetric points
@@ -1184,7 +1295,6 @@ void sdl_circle_alpha(int cx, int cy, int radius, unsigned short color, unsigned
 			d += 2 * (y - x) + 1;
 		}
 	}
-	(void)sr; // unused but shows intention
 }
 
 void sdl_circle_filled_alpha(
@@ -1670,14 +1780,14 @@ void sdl_thick_line_alpha(int fx, int fy, int tx, int ty, int thickness, unsigne
 {
 	int r, g, b;
 
-	// Mark clipping params as intentionally unused for now (thick line uses simple approach)
-	(void)clipsx;
-	(void)clipsy;
-	(void)clipex;
-	(void)clipey;
-
 	if (thickness <= 0) {
 		thickness = 1;
+	}
+
+	// Clip the center line first (preserves slope)
+	if (!clip_line(&fx, &fy, &tx, &ty, clipsx, clipsy, clipex - 1, clipey - 1)) {
+		// Line is completely outside clip rect
+		return;
 	}
 
 	r = R16TO32(color);
@@ -1706,10 +1816,25 @@ void sdl_thick_line_alpha(int fx, int fy, int tx, int ty, int thickness, unsigne
 	float ny = dx / len;
 
 	// Draw multiple parallel lines
+	// For thick lines, we also need to clip each parallel line to handle edge cases
+	int clip_min_x = (clipsx + x_offset) * sdl_scale;
+	int clip_min_y = (clipsy + y_offset) * sdl_scale;
+	int clip_max_x = (clipex - 1 + x_offset) * sdl_scale;
+	int clip_max_y = (clipey - 1 + y_offset) * sdl_scale;
+
 	for (int i = -(thickness / 2); i <= thickness / 2; i++) {
 		int ox = (int)(nx * (float)i);
 		int oy = (int)(ny * (float)i);
-		SDL_RenderLine(sdlren, (float)(fx + ox), (float)(fy + oy), (float)(tx + ox), (float)(ty + oy));
+
+		int lx0 = fx + ox;
+		int ly0 = fy + oy;
+		int lx1 = tx + ox;
+		int ly1 = ty + oy;
+
+		// Clip each parallel line (the offset may push it outside the clip rect)
+		if (clip_line(&lx0, &ly0, &lx1, &ly1, clip_min_x, clip_min_y, clip_max_x, clip_max_y)) {
+			SDL_RenderLine(sdlren, (float)lx0, (float)ly0, (float)lx1, (float)ly1);
+		}
 	}
 }
 
@@ -1780,20 +1905,27 @@ void sdl_gradient_rect_h(int sx, int sy, int ex, int ey, unsigned short color1, 
 
 	SDL_SetRenderDrawBlendMode(sdlren, current_blend_mode);
 
-	float r1 = (float)R16TO32(color1), g1 = (float)G16TO32(color1), b1 = (float)B16TO32(color1);
-	float r2 = (float)R16TO32(color2), g2 = (float)G16TO32(color2), b2 = (float)B16TO32(color2);
+	Uint8 r1 = (Uint8)R16TO32(color1), g1 = (Uint8)G16TO32(color1), b1 = (Uint8)B16TO32(color1);
+	Uint8 r2 = (Uint8)R16TO32(color2), g2 = (Uint8)G16TO32(color2), b2 = (Uint8)B16TO32(color2);
 
-	float width = (float)(ex - sx);
-	for (int x = sx; x < ex; x++) {
-		float t = (float)(x - sx) / width;
-		int r = (int)(r1 + t * (r2 - r1));
-		int g = (int)(g1 + t * (g2 - g1));
-		int b = (int)(b1 + t * (b2 - b1));
+	// Apply offset and scale
+	float fsx = (float)((sx + x_offset) * sdl_scale);
+	float fsy = (float)((sy + y_offset) * sdl_scale);
+	float fex = (float)((ex + x_offset) * sdl_scale);
+	float fey = (float)((ey + y_offset) * sdl_scale);
 
-		SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)alpha);
-		SDL_RenderLine(sdlren, (float)((x + x_offset) * sdl_scale), (float)((sy + y_offset) * sdl_scale),
-		    (float)((x + x_offset) * sdl_scale), (float)((ey - 1 + y_offset) * sdl_scale));
-	}
+	// Use SDL_RenderGeometry for GPU-accelerated gradient (single draw call)
+	// Horizontal gradient: left side = color1, right side = color2
+	SDL_Vertex vertices[4] = {
+	    {{fsx, fsy}, {r1, g1, b1, alpha}, {0, 0}}, // Top-left
+	    {{fex, fsy}, {r2, g2, b2, alpha}, {0, 0}}, // Top-right
+	    {{fex, fey}, {r2, g2, b2, alpha}, {0, 0}}, // Bottom-right
+	    {{fsx, fey}, {r1, g1, b1, alpha}, {0, 0}}  // Bottom-left
+	};
+
+	int indices[6] = {0, 1, 2, 0, 2, 3};
+
+	SDL_RenderGeometry(sdlren, NULL, vertices, 4, indices, 6);
 }
 
 void sdl_gradient_rect_v(int sx, int sy, int ex, int ey, unsigned short color1, unsigned short color2,
@@ -1819,20 +1951,27 @@ void sdl_gradient_rect_v(int sx, int sy, int ex, int ey, unsigned short color1, 
 
 	SDL_SetRenderDrawBlendMode(sdlren, current_blend_mode);
 
-	float r1 = (float)R16TO32(color1), g1 = (float)G16TO32(color1), b1 = (float)B16TO32(color1);
-	float r2 = (float)R16TO32(color2), g2 = (float)G16TO32(color2), b2 = (float)B16TO32(color2);
+	Uint8 r1 = (Uint8)R16TO32(color1), g1 = (Uint8)G16TO32(color1), b1 = (Uint8)B16TO32(color1);
+	Uint8 r2 = (Uint8)R16TO32(color2), g2 = (Uint8)G16TO32(color2), b2 = (Uint8)B16TO32(color2);
 
-	float height = (float)(ey - sy);
-	for (int y = sy; y < ey; y++) {
-		float t = (float)(y - sy) / height;
-		int r = (int)(r1 + t * (r2 - r1));
-		int g = (int)(g1 + t * (g2 - g1));
-		int b = (int)(b1 + t * (b2 - b1));
+	// Apply offset and scale
+	float fsx = (float)((sx + x_offset) * sdl_scale);
+	float fsy = (float)((sy + y_offset) * sdl_scale);
+	float fex = (float)((ex + x_offset) * sdl_scale);
+	float fey = (float)((ey + y_offset) * sdl_scale);
 
-		SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)alpha);
-		SDL_RenderLine(sdlren, (float)((sx + x_offset) * sdl_scale), (float)((y + y_offset) * sdl_scale),
-		    (float)((ex - 1 + x_offset) * sdl_scale), (float)((y + y_offset) * sdl_scale));
-	}
+	// Use SDL_RenderGeometry for GPU-accelerated gradient (single draw call)
+	// Vertical gradient: top = color1, bottom = color2
+	SDL_Vertex vertices[4] = {
+	    {{fsx, fsy}, {r1, g1, b1, alpha}, {0, 0}}, // Top-left
+	    {{fex, fsy}, {r1, g1, b1, alpha}, {0, 0}}, // Top-right
+	    {{fex, fey}, {r2, g2, b2, alpha}, {0, 0}}, // Bottom-right
+	    {{fsx, fey}, {r2, g2, b2, alpha}, {0, 0}}  // Bottom-left
+	};
+
+	int indices[6] = {0, 1, 2, 0, 2, 3};
+
+	SDL_RenderGeometry(sdlren, NULL, vertices, 4, indices, 6);
 }
 
 void sdl_bezier_quadratic_alpha(int x0, int y0, int x1, int y1, int x2, int y2, unsigned short color,

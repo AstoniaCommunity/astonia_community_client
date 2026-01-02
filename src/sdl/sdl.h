@@ -134,6 +134,7 @@ void sdl_gradient_circle(int cx, int cy, int radius, unsigned short color, unsig
 // Blend mode control
 void sdl_set_blend_mode(int mode);
 int sdl_get_blend_mode(void);
+void sdl_reset_blend_mode(void);
 
 // Texture utilities
 DLL_EXPORT uint32_t *sdl_load_png(char *filename, int *dx, int *dy);
@@ -147,6 +148,7 @@ int sdl_tex_yres(int cache_index);
 // Custom texture loading
 int sdl_load_mod_texture(const char *path);
 void sdl_unload_mod_texture(int tex_id);
+void sdl_cleanup_mod_textures(void);
 void sdl_render_mod_texture(int tex_id, int x, int y, unsigned char alpha, int clipsx, int clipsy, int clipex,
     int clipey, int x_offset, int y_offset);
 void sdl_render_mod_texture_scaled(int tex_id, int x, int y, float scale, unsigned char alpha, int clipsx, int clipsy,

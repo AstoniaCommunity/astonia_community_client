@@ -51,7 +51,6 @@ static int clipstore[32][4], clippos = 0;
  * Dump rendering system state to file for debugging.
  * Used by the crash handler to report rendering state when errors occur.
  *
- * @param fp File pointer to write debug information to
  */
 void render_dump(FILE *fp)
 {
@@ -111,10 +110,6 @@ DLL_EXPORT void render_pop_clip(void)
  * Restrict the clipping rectangle further by intersecting with new bounds.
  * The resulting clip rect is the intersection of the current rect and the new rect.
  *
- * @param sx Start X coordinate for new clipping bounds
- * @param sy Start Y coordinate for new clipping bounds
- * @param ex End X coordinate for new clipping bounds
- * @param ey End Y coordinate for new clipping bounds
  */
 DLL_EXPORT void render_more_clip(int sx, int sy, int ex, int ey)
 {
@@ -136,10 +131,6 @@ DLL_EXPORT void render_more_clip(int sx, int sy, int ex, int ey)
  * Set the clipping rectangle to specific bounds.
  * All rendering operations will be clipped to this rectangle.
  *
- * @param sx Start X coordinate for clipping bounds
- * @param sy Start Y coordinate for clipping bounds
- * @param ex End X coordinate for clipping bounds
- * @param ey End Y coordinate for clipping bounds
  */
 DLL_EXPORT void render_set_clip(int sx, int sy, int ex, int ey)
 {
@@ -163,25 +154,20 @@ DLL_EXPORT void render_clear_clip(void)
 
 /**
  * Get the current clipping rectangle bounds.
- *
- * @param sx Pointer to store start X coordinate
- * @param sy Pointer to store start Y coordinate
- * @param ex Pointer to store end X coordinate
- * @param ey Pointer to store end Y coordinate
  */
-DLL_EXPORT void render_get_clip(int *sx, int *sy, int *ex, int *ey)
+DLL_EXPORT void render_get_clip(int *out_start_x, int *out_start_y, int *out_end_x, int *out_end_y)
 {
-	if (sx) {
-		*sx = clipsx;
+	if (out_start_x) {
+		*out_start_x = clipsx;
 	}
-	if (sy) {
-		*sy = clipsy;
+	if (out_start_y) {
+		*out_start_y = clipsy;
 	}
-	if (ex) {
-		*ex = clipex;
+	if (out_end_x) {
+		*out_end_x = clipex;
 	}
-	if (ey) {
-		*ey = clipey;
+	if (out_end_y) {
+		*out_end_y = clipey;
 	}
 }
 
@@ -223,9 +209,6 @@ int render_exit(void)
  * This is the primary sprite rendering function supporting lighting, scaling,
  * color manipulation, alpha blending, animation freeze frames, and custom clipping.
  *
- * @param fx Pointer to RenderFX structure containing all rendering parameters
- * @param scrx Screen X coordinate for sprite position
- * @param scry Screen Y coordinate for sprite position
  * @return 1 on success, 0 if sprite could not be loaded
  */
 DLL_EXPORT int render_sprite_fx(RenderFX *fx, int scrx, int scry)
@@ -284,12 +267,6 @@ DLL_EXPORT int render_sprite_fx(RenderFX *fx, int scrx, int scry)
  * Render a sprite with basic effects (internal helper function).
  * Simplified version of render_sprite_fx() for internal use with minimal parameters.
  *
- * @param sprite Sprite number to render
- * @param scrx Screen X coordinate
- * @param scry Screen Y coordinate
- * @param light Lighting level (unused if >= 1000)
- * @param ml Multi-directional lighting value
- * @param align Alignment mode (RENDER_ALIGN_OFFSET, RENDER_ALIGN_CENTER, RENDER_ALIGN_NORMAL)
  */
 void render_sprite_callfx(unsigned int sprite, int scrx, int scry, char light, char ml, char align)
 {
@@ -315,11 +292,6 @@ void render_sprite_callfx(unsigned int sprite, int scrx, int scry, char light, c
  * Simplified sprite rendering with basic lighting support.
  * This is the most commonly used sprite rendering function in the codebase.
  *
- * @param sprite Sprite number to render
- * @param scrx Screen X coordinate
- * @param scry Screen Y coordinate
- * @param light Lighting value (applied to all directions)
- * @param align Alignment mode (RENDER_ALIGN_OFFSET, RENDER_ALIGN_CENTER, RENDER_ALIGN_NORMAL)
  */
 DLL_EXPORT void render_sprite(unsigned int sprite, int scrx, int scry, char light, char align)
 {
@@ -341,11 +313,6 @@ DLL_EXPORT void render_sprite(unsigned int sprite, int scrx, int scry, char ligh
  * Draw a filled rectangle.
  * Renders a solid colored rectangle with clipping support.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param color RGB color value (16-bit IRGB format)
  */
 DLL_EXPORT void render_rect(int sx, int sy, int ex, int ey, unsigned short int color)
 {
@@ -356,12 +323,6 @@ DLL_EXPORT void render_rect(int sx, int sy, int ex, int ey, unsigned short int c
  * Draw a filled rectangle with alpha blending.
  * Renders a semi-transparent colored rectangle.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param color RGB color value (16-bit IRGB format)
- * @param alpha Alpha transparency value (0-255)
  */
 void render_shaded_rect(int sx, int sy, int ex, int ey, unsigned short color, unsigned short alpha)
 {
@@ -372,11 +333,6 @@ void render_shaded_rect(int sx, int sy, int ex, int ey, unsigned short color, un
  * Draw a line between two points.
  * Renders a 1-pixel wide line with clipping support.
  *
- * @param fx From X coordinate
- * @param fy From Y coordinate
- * @param tx To X coordinate
- * @param ty To Y coordinate
- * @param col Line color (16-bit IRGB format)
  */
 DLL_EXPORT void render_line(int fx, int fy, int tx, int ty, unsigned short col)
 {
@@ -387,10 +343,6 @@ DLL_EXPORT void render_line(int fx, int fy, int tx, int ty, unsigned short col)
  * Render a lightning strike effect between two points.
  * Used for spell effects and combat visuals.
  *
- * @param fx From X coordinate
- * @param fy From Y coordinate
- * @param tx To X coordinate
- * @param ty To Y coordinate
  */
 void render_display_strike(int fx, int fy, int tx, int ty)
 {
@@ -453,10 +405,6 @@ void render_draw_curve(int cx, int cy, int nr, int size, int col)
  * Render a green pulseback lightning effect between two points.
  * Used for healing/buff spell effects.
  *
- * @param fx From X coordinate
- * @param fy From Y coordinate
- * @param tx To X coordinate
- * @param ty To Y coordinate
  */
 void render_display_pulseback(int fx, int fy, int tx, int ty)
 {
@@ -493,8 +441,6 @@ void render_display_pulseback(int fx, int fy, int tx, int ty)
  * Calculate the pixel width of text.
  * Stops at text terminator character.
  *
- * @param flags Font and style flags (RENDER_TEXT_SMALL, RENDER_TEXT_BIG, etc.)
- * @param text Text string to measure
  * @return Width in pixels
  */
 DLL_EXPORT int render_text_length(int flags, const char *text)
@@ -547,11 +493,6 @@ int render_text_len(int flags, const char *text, int n)
  * Render text at specified position.
  * Supports multiple fonts, alignment, shadows, and outlines.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param color Text color (16-bit IRGB format)
- * @param flags Font and style flags (combine with bitwise OR)
- * @param text Text string to render
  * @return Final X coordinate after rendering
  */
 DLL_EXPORT int render_text(int sx, int sy, unsigned short int color, int flags, const char *text)
@@ -621,12 +562,6 @@ DLL_EXPORT int render_text(int sx, int sy, unsigned short int color, int flags, 
  * Render text with word wrapping.
  * Automatically wraps text at word boundaries when reaching breakx.
  *
- * @param x Start X coordinate
- * @param y Start Y coordinate
- * @param breakx X coordinate to wrap at
- * @param color Text color (16-bit IRGB format)
- * @param flags Font and style flags
- * @param ptr Text string to render
  * @return Final Y coordinate after rendering
  */
 DLL_EXPORT int render_text_break(int x, int y, int breakx, unsigned short color, int flags, const char *ptr)
@@ -710,23 +645,15 @@ DLL_EXPORT int render_text_break_length(int x, int y, int breakx, unsigned short
 
 /**
  * Draw a single pixel.
- *
- * @param x X coordinate
- * @param y Y coordinate
- * @param col Pixel color (16-bit IRGB format)
  */
-DLL_EXPORT void render_pixel(int x, int y, unsigned short col)
+DLL_EXPORT void render_pixel(int x, int y, unsigned short color)
 {
-	sdl_pixel(x, y, col, x_offset, y_offset);
+	sdl_pixel(x, y, color, x_offset, y_offset);
 }
 
 /**
  * Draw a single pixel with alpha blending.
  *
- * @param x X coordinate
- * @param y Y coordinate
- * @param col Pixel color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_pixel_alpha(int x, int y, unsigned short col, unsigned char alpha)
 {
@@ -737,12 +664,6 @@ DLL_EXPORT void render_pixel_alpha(int x, int y, unsigned short col, unsigned ch
  * Draw a filled rectangle with alpha blending.
  * Exported version of render_shaded_rect for modders.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param color RGB color value (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_rect_alpha(int sx, int sy, int ex, int ey, unsigned short color, unsigned char alpha)
 {
@@ -752,12 +673,6 @@ DLL_EXPORT void render_rect_alpha(int sx, int sy, int ex, int ey, unsigned short
 /**
  * Draw a line with alpha blending.
  *
- * @param fx From X coordinate
- * @param fy From Y coordinate
- * @param tx To X coordinate
- * @param ty To Y coordinate
- * @param col Line color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_line_alpha(int fx, int fy, int tx, int ty, unsigned short col, unsigned char alpha)
 {
@@ -771,11 +686,6 @@ DLL_EXPORT void render_line_alpha(int fx, int fy, int tx, int ty, unsigned short
 /**
  * Draw a circle outline with alpha blending.
  *
- * @param cx Center X coordinate
- * @param cy Center Y coordinate
- * @param radius Circle radius in pixels
- * @param color Circle color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_circle_alpha(int cx, int cy, int radius, unsigned short color, unsigned char alpha)
 {
@@ -785,11 +695,6 @@ DLL_EXPORT void render_circle_alpha(int cx, int cy, int radius, unsigned short c
 /**
  * Draw a filled circle with alpha blending.
  *
- * @param cx Center X coordinate
- * @param cy Center Y coordinate
- * @param radius Circle radius in pixels
- * @param color Fill color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_circle_filled_alpha(int cx, int cy, int radius, unsigned short color, unsigned char alpha)
 {
@@ -799,12 +704,6 @@ DLL_EXPORT void render_circle_filled_alpha(int cx, int cy, int radius, unsigned 
 /**
  * Draw an ellipse outline with alpha blending.
  *
- * @param cx Center X coordinate
- * @param cy Center Y coordinate
- * @param rx Horizontal radius in pixels
- * @param ry Vertical radius in pixels
- * @param color Ellipse color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_ellipse_alpha(int cx, int cy, int rx, int ry, unsigned short color, unsigned char alpha)
 {
@@ -814,12 +713,6 @@ DLL_EXPORT void render_ellipse_alpha(int cx, int cy, int rx, int ry, unsigned sh
 /**
  * Draw a filled ellipse with alpha blending.
  *
- * @param cx Center X coordinate
- * @param cy Center Y coordinate
- * @param rx Horizontal radius in pixels
- * @param ry Vertical radius in pixels
- * @param color Fill color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_ellipse_filled_alpha(int cx, int cy, int rx, int ry, unsigned short color, unsigned char alpha)
 {
@@ -829,12 +722,6 @@ DLL_EXPORT void render_ellipse_filled_alpha(int cx, int cy, int rx, int ry, unsi
 /**
  * Draw a rectangle outline (hollow) with alpha blending.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param color Outline color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_rect_outline_alpha(int sx, int sy, int ex, int ey, unsigned short color, unsigned char alpha)
 {
@@ -844,13 +731,6 @@ DLL_EXPORT void render_rect_outline_alpha(int sx, int sy, int ex, int ey, unsign
 /**
  * Draw a rounded rectangle outline with alpha blending.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param radius Corner radius in pixels
- * @param color Outline color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_rounded_rect_alpha(
     int sx, int sy, int ex, int ey, int radius, unsigned short color, unsigned char alpha)
@@ -861,13 +741,6 @@ DLL_EXPORT void render_rounded_rect_alpha(
 /**
  * Draw a filled rounded rectangle with alpha blending.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param radius Corner radius in pixels
- * @param color Fill color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_rounded_rect_filled_alpha(
     int sx, int sy, int ex, int ey, int radius, unsigned short color, unsigned char alpha)
@@ -879,14 +752,6 @@ DLL_EXPORT void render_rounded_rect_filled_alpha(
 /**
  * Draw a triangle outline with alpha blending.
  *
- * @param x1 First vertex X coordinate
- * @param y1 First vertex Y coordinate
- * @param x2 Second vertex X coordinate
- * @param y2 Second vertex Y coordinate
- * @param x3 Third vertex X coordinate
- * @param y3 Third vertex Y coordinate
- * @param color Outline color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_triangle_alpha(
     int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha)
@@ -897,14 +762,6 @@ DLL_EXPORT void render_triangle_alpha(
 /**
  * Draw a filled triangle with alpha blending.
  *
- * @param x1 First vertex X coordinate
- * @param y1 First vertex Y coordinate
- * @param x2 Second vertex X coordinate
- * @param y2 Second vertex Y coordinate
- * @param x3 Third vertex X coordinate
- * @param y3 Third vertex Y coordinate
- * @param color Fill color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_triangle_filled_alpha(
     int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha)
@@ -916,13 +773,6 @@ DLL_EXPORT void render_triangle_filled_alpha(
  * Draw a thick line with alpha blending.
  * Unlike render_line_alpha which is 1 pixel wide, this allows configurable thickness.
  *
- * @param fx From X coordinate
- * @param fy From Y coordinate
- * @param tx To X coordinate
- * @param ty To Y coordinate
- * @param thickness Line thickness in pixels
- * @param color Line color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_thick_line_alpha(
     int fx, int fy, int tx, int ty, int thickness, unsigned short color, unsigned char alpha)
@@ -934,13 +784,6 @@ DLL_EXPORT void render_thick_line_alpha(
  * Draw an arc (partial circle outline) with alpha blending.
  * Angles are in degrees, 0 = right (3 o'clock), increasing clockwise.
  *
- * @param cx Center X coordinate
- * @param cy Center Y coordinate
- * @param radius Arc radius in pixels
- * @param start_angle Starting angle in degrees (0-359)
- * @param end_angle Ending angle in degrees (0-359)
- * @param color Arc color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_arc_alpha(
     int cx, int cy, int radius, int start_angle, int end_angle, unsigned short color, unsigned char alpha)
@@ -952,13 +795,6 @@ DLL_EXPORT void render_arc_alpha(
  * Draw a horizontal gradient rectangle with alpha blending.
  * Colors interpolate from color1 (left) to color2 (right).
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param color1 Left color (16-bit IRGB format)
- * @param color2 Right color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_gradient_rect_h(
     int sx, int sy, int ex, int ey, unsigned short color1, unsigned short color2, unsigned char alpha)
@@ -970,13 +806,6 @@ DLL_EXPORT void render_gradient_rect_h(
  * Draw a vertical gradient rectangle with alpha blending.
  * Colors interpolate from color1 (top) to color2 (bottom).
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param color1 Top color (16-bit IRGB format)
- * @param color2 Bottom color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_gradient_rect_v(
     int sx, int sy, int ex, int ey, unsigned short color1, unsigned short color2, unsigned char alpha)
@@ -988,14 +817,6 @@ DLL_EXPORT void render_gradient_rect_v(
  * Draw a quadratic Bezier curve with alpha blending.
  * The curve passes through (x0,y0) and (x2,y2), with (x1,y1) as the control point.
  *
- * @param x0 Start X coordinate
- * @param y0 Start Y coordinate
- * @param x1 Control point X coordinate
- * @param y1 Control point Y coordinate
- * @param x2 End X coordinate
- * @param y2 End Y coordinate
- * @param color Curve color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_bezier_quadratic_alpha(
     int x0, int y0, int x1, int y1, int x2, int y2, unsigned short color, unsigned char alpha)
@@ -1007,16 +828,6 @@ DLL_EXPORT void render_bezier_quadratic_alpha(
  * Draw a cubic Bezier curve with alpha blending.
  * The curve passes through (x0,y0) and (x3,y3), with (x1,y1) and (x2,y2) as control points.
  *
- * @param x0 Start X coordinate
- * @param y0 Start Y coordinate
- * @param x1 First control point X coordinate
- * @param y1 First control point Y coordinate
- * @param x2 Second control point X coordinate
- * @param y2 Second control point Y coordinate
- * @param x3 End X coordinate
- * @param y3 End Y coordinate
- * @param color Curve color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_bezier_cubic_alpha(
     int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha)
@@ -1029,12 +840,6 @@ DLL_EXPORT void render_bezier_cubic_alpha(
  * Creates a soft glowing effect with bright center fading to transparent edge.
  * Perfect for particles, auras, and light sources.
  *
- * @param cx Center X coordinate
- * @param cy Center Y coordinate
- * @param radius Circle radius in pixels
- * @param color Glow color (16-bit IRGB format)
- * @param center_alpha Alpha at center (0=transparent, 255=opaque)
- * @param edge_alpha Alpha at edge (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_gradient_circle(
     int cx, int cy, int radius, unsigned short color, unsigned char center_alpha, unsigned char edge_alpha)
@@ -1047,12 +852,6 @@ DLL_EXPORT void render_gradient_circle(
  * Uses Xiaolin Wu's algorithm for smooth lines without jaggies.
  * Ideal for lightning effects, beams, and trails.
  *
- * @param x0 Start X coordinate
- * @param y0 Start Y coordinate
- * @param x1 End X coordinate
- * @param y1 End Y coordinate
- * @param color Line color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_line_aa(int x0, int y0, int x1, int y1, unsigned short color, unsigned char alpha)
 {
@@ -1064,14 +863,6 @@ DLL_EXPORT void render_line_aa(int x0, int y0, int x1, int y1, unsigned short co
  * Perfect for shockwaves, expanding rings, circular sweeps.
  * Angles are in degrees, 0 = right (3 o'clock), increasing clockwise.
  *
- * @param cx Center X coordinate
- * @param cy Center Y coordinate
- * @param inner_radius Inner radius in pixels (hole size)
- * @param outer_radius Outer radius in pixels
- * @param start_angle Starting angle in degrees (0-359)
- * @param end_angle Ending angle in degrees (0-359)
- * @param color Ring color (16-bit IRGB format)
- * @param alpha Alpha transparency value (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_ring_alpha(int cx, int cy, int inner_radius, int outer_radius, int start_angle, int end_angle,
     unsigned short color, unsigned char alpha)
@@ -1083,7 +874,6 @@ DLL_EXPORT void render_ring_alpha(int cx, int cy, int inner_radius, int outer_ra
  * Set the blend mode for subsequent rendering operations.
  * Affects how colors are blended when drawing with alpha.
  *
- * @param mode Blend mode: BLEND_NORMAL (0), BLEND_ADDITIVE (1), BLEND_MULTIPLY (2), BLEND_SCREEN (3)
  */
 DLL_EXPORT void render_set_blend_mode(int mode)
 {
@@ -1108,7 +898,6 @@ DLL_EXPORT int render_get_blend_mode(void)
  * Load a texture from a PNG file.
  * The texture can be rendered using render_texture() or render_texture_scaled().
  *
- * @param path Path to the PNG file (relative to game directory or absolute)
  * @return Texture ID (>= 0) on success, -1 on failure
  */
 DLL_EXPORT int render_load_texture(const char *path)
@@ -1120,7 +909,6 @@ DLL_EXPORT int render_load_texture(const char *path)
  * Unload a previously loaded texture.
  * Frees the GPU memory associated with the texture.
  *
- * @param tex_id Texture ID returned by render_load_texture()
  */
 DLL_EXPORT void render_unload_texture(int tex_id)
 {
@@ -1130,10 +918,6 @@ DLL_EXPORT void render_unload_texture(int tex_id)
 /**
  * Render a custom texture at the specified position.
  *
- * @param tex_id Texture ID returned by render_load_texture()
- * @param x X coordinate for rendering
- * @param y Y coordinate for rendering
- * @param alpha Alpha transparency (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_texture(int tex_id, int x, int y, unsigned char alpha)
 {
@@ -1143,11 +927,6 @@ DLL_EXPORT void render_texture(int tex_id, int x, int y, unsigned char alpha)
 /**
  * Render a custom texture with scaling.
  *
- * @param tex_id Texture ID returned by render_load_texture()
- * @param x X coordinate for rendering
- * @param y Y coordinate for rendering
- * @param scale Scale factor (1.0 = original size, 0.5 = half size, 2.0 = double size)
- * @param alpha Alpha transparency (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_texture_scaled(int tex_id, int x, int y, float scale, unsigned char alpha)
 {
@@ -1157,7 +936,6 @@ DLL_EXPORT void render_texture_scaled(int tex_id, int x, int y, float scale, uns
 /**
  * Get the width of a loaded texture.
  *
- * @param tex_id Texture ID returned by render_load_texture()
  * @return Width in pixels, or 0 if invalid texture ID
  */
 DLL_EXPORT int render_texture_width(int tex_id)
@@ -1168,7 +946,6 @@ DLL_EXPORT int render_texture_width(int tex_id)
 /**
  * Get the height of a loaded texture.
  *
- * @param tex_id Texture ID returned by render_load_texture()
  * @return Height in pixels, or 0 if invalid texture ID
  */
 DLL_EXPORT int render_texture_height(int tex_id)
@@ -1185,8 +962,6 @@ DLL_EXPORT int render_texture_height(int tex_id)
  * Draws a semi-transparent colored overlay over the current frame.
  * Should be called after all other rendering, typically at the end of on_frame.
  *
- * @param color RGB color value (16-bit IRGB format)
- * @param intensity Intensity of the tint (0=none, 255=fully opaque)
  */
 DLL_EXPORT void render_screen_tint(unsigned short color, unsigned char intensity)
 {
@@ -1201,7 +976,6 @@ DLL_EXPORT void render_screen_tint(unsigned short color, unsigned char intensity
  * Creates a cinematic fade-to-black effect at the screen borders.
  * Should be called after all other rendering, typically at the end of on_frame.
  *
- * @param intensity Intensity of the vignette (0=none, 255=very dark edges)
  */
 DLL_EXPORT void render_vignette(unsigned char intensity)
 {
@@ -1213,6 +987,8 @@ DLL_EXPORT void render_vignette(unsigned char intensity)
 	}
 
 	// Calculate border size based on intensity (max ~15% of screen)
+	// 1700 = 255 / 0.15 (roughly), where 255 is max intensity and 0.15 is max border ratio
+	// This gives: at intensity=255, border_size = min_dimension * 0.15 (15% of screen)
 	border_size = (XRES < YRES ? XRES : YRES) * intensity / 1700;
 	if (border_size < 1) {
 		border_size = 1;
@@ -1248,8 +1024,6 @@ DLL_EXPORT void render_vignette(unsigned char intensity)
  * Flash the screen with a color effect.
  * Useful for damage feedback, healing effects, or other visual cues.
  *
- * @param color RGB color value (16-bit IRGB format)
- * @param intensity Intensity of the flash (0=none, 255=fully opaque)
  */
 DLL_EXPORT void render_screen_flash(unsigned short color, unsigned char intensity)
 {
@@ -1264,8 +1038,6 @@ DLL_EXPORT void render_screen_flash(unsigned short color, unsigned char intensit
  * Create a render target (offscreen buffer) for rendering.
  * Useful for post-processing effects, motion blur, bloom, etc.
  *
- * @param width Width of the render target in pixels
- * @param height Height of the render target in pixels
  * @return Target ID (>= 0) on success, -1 on failure
  */
 DLL_EXPORT int render_create_target(int width, int height)
@@ -1277,7 +1049,6 @@ DLL_EXPORT int render_create_target(int width, int height)
  * Destroy a previously created render target.
  * Frees the GPU memory associated with the target.
  *
- * @param target_id Target ID returned by render_create_target()
  */
 DLL_EXPORT void render_destroy_target(int target_id)
 {
@@ -1289,7 +1060,6 @@ DLL_EXPORT void render_destroy_target(int target_id)
  * All subsequent rendering will go to this target instead of the screen.
  * Pass -1 or RENDER_TARGET_SCREEN to render to the screen again.
  *
- * @param target_id Target ID returned by render_create_target(), or -1 for screen
  * @return 0 on success, -1 on failure
  */
 DLL_EXPORT int render_set_target(int target_id)
@@ -1300,10 +1070,6 @@ DLL_EXPORT int render_set_target(int target_id)
 /**
  * Render a target to the screen at the specified position.
  *
- * @param target_id Target ID returned by render_create_target()
- * @param x X coordinate on screen
- * @param y Y coordinate on screen
- * @param alpha Alpha transparency (0=transparent, 255=opaque)
  */
 DLL_EXPORT void render_target_to_screen(int target_id, int x, int y, unsigned char alpha)
 {
@@ -1313,7 +1079,6 @@ DLL_EXPORT void render_target_to_screen(int target_id, int x, int y, unsigned ch
 /**
  * Clear a render target to transparent black.
  *
- * @param target_id Target ID returned by render_create_target()
  */
 DLL_EXPORT void render_clear_target(int target_id)
 {
@@ -1324,12 +1089,6 @@ DLL_EXPORT void render_clear_target(int target_id)
  * Render formatted text (printf-style) at specified position.
  * Supports all render_text() features with printf-style formatting.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param color Text color (16-bit IRGB format)
- * @param flags Font and style flags
- * @param format Printf-style format string
- * @param ... Format arguments
  * @return Final X coordinate after rendering
  */
 DLL_EXPORT int render_text_fmt(int64_t sx, int64_t sy, unsigned short int color, int flags, const char *format, ...)
@@ -1808,7 +1567,6 @@ void render_display_text(void)
  * Add a line of text to the chat window.
  * Handles word wrapping, color codes, and clickable links.
  *
- * @param ptr Text string (may contain color codes)
  */
 void render_add_text(char *ptr)
 {
@@ -1919,9 +1677,6 @@ int render_text_init_done(void)
  * Check if mouse is over clickable text in chat window.
  * Extracts the clicked text link if found.
  *
- * @param x Mouse X coordinate
- * @param y Mouse Y coordinate
- * @param hit Buffer to store clicked text (output parameter)
  * @return Link type (1 or 2) if over link, 0 otherwise
  */
 int render_scantext(int x, int y, char *hit)
@@ -2045,8 +1800,6 @@ void render_text_pagedown(void)
  * Set global rendering offset.
  * Used for window scaling and positioning.
  *
- * @param x X offset in pixels
- * @param y Y offset in pixels
  */
 void render_set_offset(int x, int y)
 {
