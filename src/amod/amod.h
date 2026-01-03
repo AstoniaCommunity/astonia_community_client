@@ -197,8 +197,8 @@ DLL_EXPORT int get_chr_height(unsigned int csprite);
 DLL_EXPORT unsigned int trans_asprite(map_index_t mn, unsigned int sprite, tick_t attick, unsigned char *pscale,
     unsigned char *pcr, unsigned char *pcg, unsigned char *pcb, unsigned char *plight, unsigned char *psat,
     unsigned short *pc1, unsigned short *pc2, unsigned short *pc3, unsigned short *pshine);
-DLL_EXPORT int trans_charno(int csprite, int *pscale, int *pcr, int *pcg, int *pcb, int *plight, int *psat, int *pc1, int *pc2,
-    int *pc3, int *pshine, int attick);
+DLL_EXPORT int trans_charno(int csprite, int *pscale, int *pcr, int *pcg, int *pcb, int *plight, int *psat, int *pc1,
+    int *pc2, int *pc3, int *pshine, int attick);
 DLL_EXPORT int get_player_sprite(int nr, int zdir, int action, int step, int duration, int attick);
 DLL_EXPORT void trans_csprite(int mn, struct map *cmap, int attick);
 DLL_EXPORT int get_lay_sprite(int sprite, int lay);

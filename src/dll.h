@@ -1,7 +1,7 @@
 #ifdef _WIN32
 // On Windows, always use __declspec for DLL exports (works with all compilers)
 #define DLL_EXPORT __declspec(dllexport)
-//#define DLL_IMPORT __declspec(dllimport)
+// #define DLL_IMPORT __declspec(dllimport)
 #define DLL_IMPORT
 #else
 // On Unix-like systems, use visibility attributes for GCC/Clang
