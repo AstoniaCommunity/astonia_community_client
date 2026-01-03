@@ -6,6 +6,7 @@
  * Processes key strokes and executes commands.
  */
 
+#define _GNU_SOURCE // needs to be defined so that clang gives us the declaration of strcasestr reliably
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
