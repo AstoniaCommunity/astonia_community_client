@@ -510,6 +510,11 @@ int sdl_clear(void)
 	// note("mem: %.2fM PNG, %.2fM Tex, Hit: %ld, Miss: %ld, Max:
 	// %d\n",mem_png/(1024.0*1024.0),mem_tex/(1024.0*1024.0),texc_hit,texc_miss,maxpanic);
 	maxpanic = 0;
+
+	// Reset blend mode to default at start of each frame to prevent mods from
+	// accidentally leaving non-default blend modes that affect subsequent rendering
+	sdl_reset_blend_mode();
+
 	return 1;
 }
 
@@ -604,6 +609,10 @@ void sdl_exit(void)
 	if (game_options & GO_SOUND) {
 		MIX_Quit();
 	}
+
+	// Clean up mod textures (gated behind DEVELOPER for address sanitizer)
+	sdl_cleanup_mod_textures();
+
 #ifdef DEVELOPER
 	sdl_dump_spritecache();
 #endif

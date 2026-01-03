@@ -73,13 +73,70 @@ void sdl_blit(
     int cache_index, int sx, int sy, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
 int sdl_drawtext(int sx, int sy, unsigned short int color, int flags, const char *text, struct renderfont *font,
     int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+// Basic drawing primitives
+void sdl_pixel(int x, int y, unsigned short color, int x_offset, int y_offset);
+void sdl_pixel_alpha(int x, int y, unsigned short color, unsigned char alpha, int x_offset, int y_offset);
+void sdl_line(int fx, int fy, int tx, int ty, unsigned short color, int clipsx, int clipsy, int clipex, int clipey,
+    int x_offset, int y_offset);
+void sdl_line_alpha(int fx, int fy, int tx, int ty, unsigned short color, unsigned char alpha, int clipsx, int clipsy,
+    int clipex, int clipey, int x_offset, int y_offset);
+void sdl_line_aa(int x0, int y0, int x1, int y1, unsigned short color, unsigned char alpha, int x_offset, int y_offset);
+void sdl_thick_line_alpha(int fx, int fy, int tx, int ty, int thickness, unsigned short color, unsigned char alpha,
+    int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+
+// Rectangle primitives
 void sdl_rect(int sx, int sy, int ex, int ey, unsigned short int color, int clipsx, int clipsy, int clipex, int clipey,
     int x_offset, int y_offset);
 void sdl_shaded_rect(int sx, int sy, int ex, int ey, unsigned short int color, unsigned short alpha, int clipsx,
     int clipsy, int clipex, int clipey, int x_offset, int y_offset);
-void sdl_pixel(int x, int y, unsigned short color, int x_offset, int y_offset);
-void sdl_line(int fx, int fy, int tx, int ty, unsigned short color, int clipsx, int clipsy, int clipex, int clipey,
-    int x_offset, int y_offset);
+void sdl_rect_outline_alpha(int sx, int sy, int ex, int ey, unsigned short color, unsigned char alpha, int clipsx,
+    int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+void sdl_rounded_rect_alpha(int sx, int sy, int ex, int ey, int radius, unsigned short color, unsigned char alpha,
+    int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+void sdl_rounded_rect_filled_alpha(int sx, int sy, int ex, int ey, int radius, unsigned short color,
+    unsigned char alpha, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+
+// Circle and ellipse primitives
+void sdl_render_circle(int32_t centreX, int32_t centreY, int32_t radius, uint32_t color);
+void sdl_circle_alpha(
+    int cx, int cy, int radius, unsigned short color, unsigned char alpha, int x_offset, int y_offset);
+void sdl_circle_filled_alpha(
+    int cx, int cy, int radius, unsigned short color, unsigned char alpha, int x_offset, int y_offset);
+void sdl_ellipse_alpha(
+    int cx, int cy, int rx, int ry, unsigned short color, unsigned char alpha, int x_offset, int y_offset);
+void sdl_ellipse_filled_alpha(
+    int cx, int cy, int rx, int ry, unsigned short color, unsigned char alpha, int x_offset, int y_offset);
+void sdl_ring_alpha(int cx, int cy, int inner_radius, int outer_radius, int start_angle, int end_angle,
+    unsigned short color, unsigned char alpha, int x_offset, int y_offset);
+
+// Triangle primitives
+void sdl_triangle_alpha(int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha,
+    int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+void sdl_triangle_filled_alpha(int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color,
+    unsigned char alpha, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+
+// Arc and curve primitives
+void sdl_arc_alpha(int cx, int cy, int radius, int start_angle, int end_angle, unsigned short color,
+    unsigned char alpha, int x_offset, int y_offset);
+void sdl_bezier_quadratic_alpha(int x0, int y0, int x1, int y1, int x2, int y2, unsigned short color,
+    unsigned char alpha, int x_offset, int y_offset);
+void sdl_bezier_cubic_alpha(int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color,
+    unsigned char alpha, int x_offset, int y_offset);
+
+// Gradient primitives
+void sdl_gradient_rect_h(int sx, int sy, int ex, int ey, unsigned short color1, unsigned short color2,
+    unsigned char alpha, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+void sdl_gradient_rect_v(int sx, int sy, int ex, int ey, unsigned short color1, unsigned short color2,
+    unsigned char alpha, int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
+void sdl_gradient_circle(int cx, int cy, int radius, unsigned short color, unsigned char center_alpha,
+    unsigned char edge_alpha, int x_offset, int y_offset);
+
+// Blend mode control
+void sdl_set_blend_mode(int mode);
+int sdl_get_blend_mode(void);
+void sdl_reset_blend_mode(void);
+
+// Texture utilities
 DLL_EXPORT uint32_t *sdl_load_png(char *filename, int *dx, int *dy);
 void sdl_set_title(char *title);
 void *sdl_create_texture(int width, int height);
@@ -87,7 +144,25 @@ void sdl_render_copy(void *tex, void *sr, void *dr);
 void sdl_render_copy_ex(void *tex, void *sr, void *dr, double angle);
 int sdl_tex_xres(int cache_index);
 int sdl_tex_yres(int cache_index);
-void sdl_render_circle(int32_t centreX, int32_t centreY, int32_t radius, uint32_t color);
+
+// Custom texture loading
+int sdl_load_mod_texture(const char *path);
+void sdl_unload_mod_texture(int tex_id);
+void sdl_cleanup_mod_textures(void);
+void sdl_render_mod_texture(int tex_id, int x, int y, unsigned char alpha, int clipsx, int clipsy, int clipex,
+    int clipey, int x_offset, int y_offset);
+void sdl_render_mod_texture_scaled(int tex_id, int x, int y, float scale, unsigned char alpha, int clipsx, int clipsy,
+    int clipex, int clipey, int x_offset, int y_offset);
+int sdl_get_mod_texture_width(int tex_id);
+int sdl_get_mod_texture_height(int tex_id);
+
+// Render targets
+int sdl_create_render_target(int width, int height);
+void sdl_destroy_render_target(int target_id);
+int sdl_set_render_target(int target_id);
+void sdl_render_target_to_screen(int target_id, int x, int y, unsigned char alpha);
+void sdl_clear_render_target(int target_id);
+
 void sdl_flush_textinput(void);
 void sdl_dump(FILE *fp);
 #ifdef DEVELOPER
