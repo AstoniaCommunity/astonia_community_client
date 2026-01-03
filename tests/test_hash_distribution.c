@@ -301,13 +301,15 @@ TEST(test_text_hash_distribution)
 	fprintf(stderr, "     Generated %d text hashes\n", total_hashes);
 	fprintf(stderr, "     Low bucket clustering: %d/%d (%.2f%%)\n",
 		low_bucket_count, total_hashes, 100.0 * low_bucket_count / total_hashes);
-	fprintf(stderr, "     Expected with uniform hash: ~0.3%% (%d hashes in buckets 0-99)\n",
-		total_hashes * 100 / MAX_TEXHASH);
+	fprintf(stderr, "     Expected with uniform hash: ~%.1f%% (%d hashes in buckets 0-99)\n",
+		100.0 * 100 / MAX_TEXHASH, total_hashes * 100 / MAX_TEXHASH);
 	fprintf(stderr, "\n");
 	
-	// With uniform distribution, expect ~0.3% in first 100 buckets
-	// Allow up to 1% variance
-	ASSERT_TRUE(low_bucket_count < total_hashes / 100);
+	// With uniform distribution, expect (100/MAX_TEXHASH)% in first 100 buckets
+	// Allow 3x the expected percentage to account for statistical variance
+	int expected_in_low_buckets = (total_hashes * 100) / MAX_TEXHASH;
+	int threshold = expected_in_low_buckets * 3;
+	ASSERT_TRUE(low_bucket_count < threshold);
 }
 
 TEST(test_sprite_zero_rendering)
@@ -391,12 +393,14 @@ TEST(test_hash_function_quality)
 	fprintf(stderr, "     Final cache contains: %d entries\n", total_entries);
 	fprintf(stderr, "     Low bucket clustering: %d/%d (%.1f%%)\n", 
 		low_bucket_count, total_entries, 100.0 * low_bucket_count / total_entries);
-	fprintf(stderr, "     Expected with uniform hash: ~0.3%%\n");
+	fprintf(stderr, "     Expected with uniform hash: ~%.1f%%\n", 100.0 * 100 / MAX_TEXHASH);
 	fprintf(stderr, "\n");
 	
-	// With uniform distribution, we expect ~0.3% in first 100 buckets
-	// Allow up to 1% to account for variance with evictions
-	ASSERT_TRUE(low_bucket_count < total_entries / 100);
+	// With uniform distribution, we expect (100/MAX_TEXHASH)% in first 100 buckets
+	// Allow 3x the expected percentage to account for variance with evictions
+	int expected_in_low_buckets = (total_entries * 100) / MAX_TEXHASH;
+	int threshold = expected_in_low_buckets * 3;
+	ASSERT_TRUE(low_bucket_count < threshold);
 }
 
 // ============================================================================

@@ -342,7 +342,7 @@ TEST(test_full_cache_stress)
 
 	fprintf(stderr, "Loading full cache (%d textures)...\n", MAX_TEXCACHE);
 
-	// Fill the ENTIRE cache (32768 textures) to simulate real gameplay
+	// Fill the ENTIRE cache (8000 textures) to simulate real gameplay
 	// This is critical - real gameplay fills the cache in minutes
 	for (int i = 0; i < MAX_TEXCACHE; i++) {
 		// Cycle through valid sprites, using different parameters to create unique cache entries

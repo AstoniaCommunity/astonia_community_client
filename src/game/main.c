@@ -384,7 +384,7 @@ int parse_args(int argc, char *argv[])
 			}
 			break;
 		case 'c':
-			// Legacy flag: cache size is now statically allocated (MAX_TEXCACHE = 32768).
+			// Legacy flag: cache size is now statically allocated (MAX_TEXCACHE = 8000).
 			// Accept but ignore this flag for backward compatibility.
 			if (!val && i + 1 < argc) {
 				val = argv[++i];

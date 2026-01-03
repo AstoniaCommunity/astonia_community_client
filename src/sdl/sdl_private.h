@@ -12,10 +12,9 @@
 #include <SDL3_mixer/SDL_mixer.h>
 
 // Fixed upper bound for the texture cache metadata.
-// 32k entries is only a few MB of metadata and comfortably covers typical usage.
 // Statically allocated at compile time
-#define MAX_TEXCACHE 32768
-#define MAX_TEXHASH  32768
+#define MAX_TEXCACHE 8000
+#define MAX_TEXHASH  8000
 
 #define STX_NONE (-1)
 
