@@ -4,6 +4,8 @@ set -e
 # Script to run clang-tidy with proper compilation database
 # This ensures clang-tidy knows about all includes, flags, and defines
 
+FIND="/usr/bin/find"
+
 echo "=== Clang-Tidy Runner ==="
 echo ""
 
@@ -32,12 +34,12 @@ MODE="${1:-check}"
 case "$MODE" in
     check)
         echo "Running clang-tidy in check mode (no fixes)..."
-        find src -type f -name "*.c" -print0 | \
+        $FIND src -type f -name "*.c" -print0 | \
             xargs -0 clang-tidy -p . $CHECKS_ARG
         ;;
     fix)
         echo "Running clang-tidy in fix mode..."
-        find src -type f -name "*.c" -print0 | \
+        $FIND src -type f -name "*.c" -print0 | \
             xargs -0 clang-tidy -p . -fix-errors $CHECKS_ARG
         ;;
     regen)
