@@ -577,7 +577,12 @@ static int compute_outcode(int x, int y, int xmin, int ymin, int xmax, int ymax)
 
 // Cohen-Sutherland line clipping algorithm - preserves line slope
 // Returns 1 if line should be drawn (and modifies coordinates), 0 if completely outside
+#ifdef UNIT_TEST
+// Non-static for unit testing (prototype in sdl_private.h)
+int clip_line(int *x0, int *y0, int *x1, int *y1, int xmin, int ymin, int xmax, int ymax)
+#else
 static int clip_line(int *x0, int *y0, int *x1, int *y1, int xmin, int ymin, int xmax, int ymax)
+#endif
 {
 	int outcode0 = compute_outcode(*x0, *y0, xmin, ymin, xmax, ymax);
 	int outcode1 = compute_outcode(*x1, *y1, xmin, ymin, xmax, ymax);

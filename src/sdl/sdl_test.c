@@ -477,6 +477,74 @@ int sdl_check_invariants_for_tests(void)
 }
 
 // ============================================================================
+// Render Call Counters for Test Verification
+// ============================================================================
+
+// Counters to track that render functions are actually called
+static struct {
+	int points;
+	int lines;
+	int rects;
+	int fill_rects;
+	int geometry;
+	int set_draw_color;
+	int set_blend_mode;
+	int total;
+} render_counters = {0};
+
+void sdl_test_reset_render_counters(void)
+{
+	render_counters.points = 0;
+	render_counters.lines = 0;
+	render_counters.rects = 0;
+	render_counters.fill_rects = 0;
+	render_counters.geometry = 0;
+	render_counters.set_draw_color = 0;
+	render_counters.set_blend_mode = 0;
+	render_counters.total = 0;
+}
+
+int sdl_test_get_render_point_count(void)
+{
+	return render_counters.points;
+}
+
+int sdl_test_get_render_line_count(void)
+{
+	return render_counters.lines;
+}
+
+int sdl_test_get_render_rect_count(void)
+{
+	return render_counters.rects;
+}
+
+int sdl_test_get_render_fill_rect_count(void)
+{
+	return render_counters.fill_rects;
+}
+
+int sdl_test_get_render_geometry_count(void)
+{
+	return render_counters.geometry;
+}
+
+int sdl_test_get_render_total_count(void)
+{
+	return render_counters.total;
+}
+
+int sdl_test_get_set_draw_color_count(void)
+{
+	return render_counters.set_draw_color;
+}
+
+int sdl_test_get_set_blend_mode_count(void)
+{
+	return render_counters.set_blend_mode;
+}
+
+// ============================================================================
 // GPU Stub Implementations (SDL Texture Operations)
 // ============================================================================
 
@@ -485,6 +553,97 @@ int sdl_check_invariants_for_tests(void)
 
 // Fake SDL_Texture object for tests
 static int dummy_texture;
+
+// ============================================================================
+// SDL Render Function Stubs with Counters
+// ============================================================================
+
+bool SDL_RenderPoint(
+    SDL_Renderer *renderer __attribute__((unused)), float x __attribute__((unused)), float y __attribute__((unused)))
+{
+	render_counters.points++;
+	render_counters.total++;
+	return true;
+}
+
+bool SDL_RenderPoints(SDL_Renderer *renderer __attribute__((unused)), const SDL_FPoint *points __attribute__((unused)),
+    int count __attribute__((unused)))
+{
+	render_counters.points++;
+	render_counters.total++;
+	return true;
+}
+
+bool SDL_RenderLine(SDL_Renderer *renderer __attribute__((unused)), float x1 __attribute__((unused)),
+    float y1 __attribute__((unused)), float x2 __attribute__((unused)), float y2 __attribute__((unused)))
+{
+	render_counters.lines++;
+	render_counters.total++;
+	return true;
+}
+
+bool SDL_RenderLines(SDL_Renderer *renderer __attribute__((unused)), const SDL_FPoint *points __attribute__((unused)),
+    int count __attribute__((unused)))
+{
+	render_counters.lines++;
+	render_counters.total++;
+	return true;
+}
+
+bool SDL_RenderRect(SDL_Renderer *renderer __attribute__((unused)), const SDL_FRect *rect __attribute__((unused)))
+{
+	render_counters.rects++;
+	render_counters.total++;
+	return true;
+}
+
+bool SDL_RenderFillRect(SDL_Renderer *renderer __attribute__((unused)), const SDL_FRect *rect __attribute__((unused)))
+{
+	render_counters.fill_rects++;
+	render_counters.total++;
+	return true;
+}
+
+bool SDL_RenderGeometry(SDL_Renderer *renderer __attribute__((unused)), SDL_Texture *texture __attribute__((unused)),
+    const SDL_Vertex *vertices __attribute__((unused)), int num_vertices __attribute__((unused)),
+    const int *indices __attribute__((unused)), int num_indices __attribute__((unused)))
+{
+	render_counters.geometry++;
+	render_counters.total++;
+	return true;
+}
+
+bool SDL_SetRenderDrawColor(SDL_Renderer *renderer __attribute__((unused)), Uint8 r __attribute__((unused)),
+    Uint8 g __attribute__((unused)), Uint8 b __attribute__((unused)), Uint8 a __attribute__((unused)))
+{
+	render_counters.set_draw_color++;
+	return true;
+}
+
+bool SDL_SetRenderDrawBlendMode(
+    SDL_Renderer *renderer __attribute__((unused)), SDL_BlendMode blendMode __attribute__((unused)))
+{
+	render_counters.set_blend_mode++;
+	return true;
+}
+
+bool SDL_RenderTexture(SDL_Renderer *renderer __attribute__((unused)), SDL_Texture *texture __attribute__((unused)),
+    const SDL_FRect *srcrect __attribute__((unused)), const SDL_FRect *dstrect __attribute__((unused)))
+{
+	render_counters.total++;
+	return true;
+}
+
+bool SDL_GetTextureSize(SDL_Texture *texture __attribute__((unused)), float *w, float *h)
+{
+	if (w) {
+		*w = 64.0f;
+	}
+	if (h) {
+		*h = 64.0f;
+	}
+	return true;
+}
 
 // Stub: Create texture (would normally require GPU renderer)
 SDL_Texture *SDL_CreateTexture(SDL_Renderer *renderer __attribute__((unused)),

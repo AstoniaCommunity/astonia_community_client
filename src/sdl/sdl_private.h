@@ -280,6 +280,20 @@ int if_single_thread_process_one_job(void);
 
 #ifdef UNIT_TEST
 
+// Line clipping function (non-static for testing)
+int clip_line(int *x0, int *y0, int *x1, int *y1, int xmin, int ymin, int xmax, int ymax);
+
+// Render call counter functions for test verification
+void sdl_test_reset_render_counters(void);
+int sdl_test_get_render_point_count(void);
+int sdl_test_get_render_line_count(void);
+int sdl_test_get_render_rect_count(void);
+int sdl_test_get_render_fill_rect_count(void);
+int sdl_test_get_render_geometry_count(void);
+int sdl_test_get_render_total_count(void);
+int sdl_test_get_set_draw_color_count(void);
+int sdl_test_get_set_blend_mode_count(void);
+
 // Initialize SDL subsystems for testing without window/audio/real I/O
 int sdl_init_for_tests(void);
 
