@@ -70,6 +70,7 @@ pub fn build(b: *std.Build) void {
         "src/game/main.c",
         "src/game/memory.c",
         "src/game/sprite.c",
+        "src/game/sprite_config.c",
 
         // MODDER core
         "src/modder/modder.c",
@@ -229,6 +230,9 @@ pub fn build(b: *std.Build) void {
     } else {
         exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
     }
+
+    // cJSON library (third-party, relaxed warning flags)
+    exe.addCSourceFile(.{ .file = b.path("src/lib/cjson/cJSON.c"), .flags = &.{ "-O3", "-fPIC", "-fno-omit-frame-pointer", "-fvisibility=hidden", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
 
     exe.root_module.addIncludePath(b.path(include_root));
     exe.root_module.addIncludePath(b.path(src_root));

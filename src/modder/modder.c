@@ -25,6 +25,7 @@ struct mod {
 	void (*_amod_init)(void);
 	void (*_amod_exit)(void);
 	void (*_amod_gamestart)(void);
+	void (*_amod_sprite_config)(void);
 	void (*_amod_frame)(void);
 	void (*_amod_tick)(void);
 	void (*_amod_mouse_move)(int x, int y);
@@ -43,6 +44,7 @@ struct mod mod[MAXMOD] = {{
     NULL, // _amod_init
     NULL, // _amod_exit
     NULL, // _amod_gamestart
+    NULL, // _amod_sprite_config
     NULL, // _amod_frame
     NULL, // _amod_tick
     NULL, // _amod_mouse_move
@@ -96,6 +98,9 @@ int amod_init(void)
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_gamestart"))) {
 			mod[i]._amod_gamestart = (void (*)(void))tmp;
+		}
+		if ((tmp = SDL_LoadFunction(dll_instance, "amod_sprite_config"))) {
+			mod[i]._amod_sprite_config = (void (*)(void))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_frame"))) {
 			mod[i]._amod_frame = (void (*)(void))tmp;
@@ -264,6 +269,15 @@ void amod_gamestart(void)
 	for (int i = 0; i < MAXMOD; i++) {
 		if (mod[i]._amod_gamestart) {
 			mod[i]._amod_gamestart();
+		}
+	}
+}
+
+void amod_sprite_config(void)
+{
+	for (int i = 0; i < MAXMOD; i++) {
+		if (mod[i]._amod_sprite_config) {
+			mod[i]._amod_sprite_config();
 		}
 	}
 }

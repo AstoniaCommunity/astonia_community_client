@@ -9,6 +9,7 @@ int amod_init(void);
 void amod_exit(void);
 char *amod_version(int idx);
 void amod_gamestart(void);
+void amod_sprite_config(void);
 void amod_frame(void);
 void amod_tick(void);
 int amod_display_skill_line(int v, int base, int curr, int cn, char *buf);
@@ -28,6 +29,11 @@ int amod_is_playersprite(int sprite);
 int sharedmem_init(void);
 void sharedmem_update(void);
 void sharedmem_exit(void);
+
+/* Sprite config API - load additional variants from JSON in amod_sprite_config() */
+int sprite_config_load_characters(const char *path);
+int sprite_config_load_animated(const char *path);
+int sprite_config_load_metadata(const char *path);
 
 extern char *game_email_main;
 extern char *game_email_cash;
