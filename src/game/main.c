@@ -622,6 +622,7 @@ int main(int argc, char *argv[])
 
 	amod_init();
 	sprite_config_init();
+	amod_sprite_config();
 #ifdef ENABLE_SHAREDMEM
 	sharedmem_init();
 #endif
