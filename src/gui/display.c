@@ -1127,7 +1127,7 @@ void display_game_special(void)
 
 int action_enabled = 1;
 
-static char v3_action_row[2][MAXACTIONSLOT] = {
+char v3_action_row[2][MAXACTIONSLOT] = {
     // 01234567890123
     "asd   f   g  ", " qwertzuiop m"};
 
@@ -1153,7 +1153,7 @@ static char *v3_action_desc[MAXACTIONSLOT] = {"Attacks another character using y
 static int v3_action_skill[MAXACTIONSLOT] = {V3_PERCEPT, V3_FIREBALL, V3_FLASH, V3_FLASH, V3_FREEZE, V3_MAGICSHIELD,
     V3_BLESS, V3_HEAL, V3_WARCRY, V3_PULSE, V3_FIREBALL, V3_PERCEPT, -1, -1};
 
-static char v35_action_row[2][MAXACTIONSLOT] = {
+char v35_action_row[2][MAXACTIONSLOT] = {
     // 01234567890123
     "asd   f   g  ", " qwertzuiop m"};
 

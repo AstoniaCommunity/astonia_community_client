@@ -394,3 +394,8 @@ void set_v35_skilldesc(void)
 {
 	game_skilldesc = v35_game_skilldesc;
 }
+
+void set_v35_profbase(void)
+{
+	_game_v_profbase = V35_PROFBASE;
+}

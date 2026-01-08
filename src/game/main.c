@@ -435,6 +435,7 @@ int parse_args(int argc, char *argv[])
 					set_v35_actions();
 					set_v35_skilltab();
 					set_v35_skilldesc();
+					set_v35_profbase();
 				}
 			}
 			break;
@@ -463,7 +464,8 @@ void save_options(void)
 	}
 
 	fwrite(&user_keys, sizeof(user_keys), 1, fp);
-	fwrite(&action_row, sizeof(action_row), 1, fp);
+	fwrite(&v3_action_row, sizeof(v3_action_row), 1, fp);
+	fwrite(&v35_action_row, sizeof(v35_action_row), 1, fp);
 	fwrite(&action_enabled, sizeof(action_enabled), 1, fp);
 	fwrite(&gear_lock, sizeof(gear_lock), 1, fp);
 	fclose(fp);
@@ -486,7 +488,8 @@ void load_options(void)
 	}
 
 	fread(&user_keys, sizeof(user_keys), 1, fp);
-	fread(&action_row, sizeof(action_row), 1, fp);
+	fread(&v3_action_row, sizeof(v3_action_row), 1, fp);
+	fread(&v35_action_row, sizeof(v35_action_row), 1, fp);
 	fread(&action_enabled, sizeof(action_enabled), 1, fp);
 	fread(&gear_lock, sizeof(gear_lock), 1, fp);
 	fclose(fp);
