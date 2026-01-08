@@ -25,6 +25,7 @@
 #include "astonia.h"
 #include "game/game.h"
 #include "game/game_private.h"
+#include "game/sprite_config.h"
 #include "sdl/sdl.h"
 #include "gui/gui.h"
 #include "client/client.h"
@@ -606,6 +607,7 @@ int main(int argc, char *argv[])
 #endif
 
 	amod_init();
+	sprite_config_init();
 #ifdef ENABLE_SHAREDMEM
 	sharedmem_init();
 #endif
