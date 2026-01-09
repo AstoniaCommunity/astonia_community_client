@@ -605,3 +605,9 @@ DLL_EXPORT map_index_t mapmn(unsigned int x, unsigned int y)
 	}
 	return x + y * MAPDX;
 }
+
+void set_v35_inventory(void)
+{
+	_inventorysize = V35_INVENTORYSIZE;
+	_containersize = V35_CONTAINERSIZE;
+}

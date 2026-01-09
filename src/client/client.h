@@ -692,3 +692,4 @@ typedef enum {
 
 vval_t v_val(svval_t v);
 svval_t sv_val(vval_t v);
+void set_v35_inventory(void);

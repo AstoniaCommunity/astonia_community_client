@@ -190,11 +190,6 @@ struct skill v35_game_skill[V_MAX] = {
 
 struct skill *game_skill = v3_game_skill;
 
-void set_v35_skilltab(void)
-{
-	game_skill = v35_game_skill;
-}
-
 DLL_EXPORT int raise_cost(int v, int n)
 {
 	int nr;
@@ -390,13 +385,10 @@ char *v35_game_skilldesc[] = {
 
 char **game_skilldesc = v3_game_skilldesc;
 
-void set_v35_skilldesc(void)
+void set_v35_skilltab(void)
 {
+	game_skill = v35_game_skill;
 	game_skilldesc = v35_game_skilldesc;
-}
-
-void set_v35_vmax(void)
-{
 	_game_v_profbase = V35_PROFBASE;
 	_game_v_max = V35_MAX;
 }

@@ -429,13 +429,10 @@ int parse_args(int argc, char *argv[])
 				} else {
 					sv_ver = 35;
 					target_port = 27584;
-					_inventorysize = V35_INVENTORYSIZE;
-					_containersize = V35_CONTAINERSIZE;
+					set_v35_inventory();
 					set_v35_keytab();
 					set_v35_actions();
 					set_v35_skilltab();
-					set_v35_skilldesc();
-					set_v35_vmax();
 				}
 			}
 			break;
