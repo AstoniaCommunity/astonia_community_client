@@ -280,45 +280,28 @@ void display_teleport(void)
 		}
 	}
 
-	if (sv_ver == 35) {
-		for (n = 0; n < 8; n++) {
-			if (telsel == n + 64) {
-				dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
-			} else {
-				dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);
-			}
+	for (n = 0; n < 8; n++) {
+		if (sv_ver == 30 && !may_teleport[n + 64 + clan_offset]) {
+			dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 0);
+		} else if (telsel == n + 64 + clan_offset) {
+			dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
+		} else {
+			dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);
 		}
-		for (n = 0; n < 8; n++) {
-			if (8 + clan_offset + n >= 60) {
-				continue;
-			}
-			if (telsel == n + 64 + 8) {
-				dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
-			} else {
-				dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);
-			}
+	}
+	for (n = 0; n < 8; n++) {
+		if (sv_ver == 30 && 8 + clan_offset + n == 31) {
+			continue;
 		}
-	} else {
-		for (n = 0; n < 8; n++) {
-			if (!may_teleport[n + 64 + clan_offset]) {
-				dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 0);
-			} else if (telsel == n + 64 + clan_offset) {
-				dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
-			} else {
-				dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);
-			}
+		if (sv_ver == 35 && 8 + clan_offset + n >= 60) {
+			continue;
 		}
-		for (n = 0; n < 8; n++) {
-			if (8 + clan_offset + n == 31) {
-				continue;
-			}
-			if (!may_teleport[n + 64 + 8 + clan_offset]) {
-				dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 0);
-			} else if (telsel == n + 64 + 8 + clan_offset) {
-				dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
-			} else {
-				dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);
-			}
+		if (sv_ver == 30 && !may_teleport[n + 64 + 8 + clan_offset]) {
+			dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 0);
+		} else if (telsel == n + 64 + 8 + clan_offset) {
+			dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
+		} else {
+			dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);
 		}
 	}
 
