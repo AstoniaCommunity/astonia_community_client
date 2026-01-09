@@ -427,12 +427,7 @@ int parse_args(int argc, char *argv[])
 				if (v < INT_MIN || v > INT_MAX) {
 					sv_ver = 30;
 				} else {
-					sv_ver = 35;
-					target_port = 27584;
-					set_v35_inventory();
-					set_v35_keytab();
-					set_v35_actions();
-					set_v35_skilltab();
+					sv_ver = v;
 				}
 			}
 			break;
@@ -550,6 +545,15 @@ void determine_resolution(void)
 	}
 }
 
+static void set_v35_values(void)
+{
+	target_port = 27584;
+	set_v35_inventory();
+	set_v35_keytab();
+	set_v35_actions();
+	set_v35_skilltab();
+}
+
 // main
 int main(int argc, char *argv[])
 {
@@ -567,6 +571,10 @@ int main(int argc, char *argv[])
 
 	if ((ret = parse_args(argc, argv)) != 0) {
 		return -1;
+	}
+
+	if (sv_ver == 35) {
+		set_v35_values();
 	}
 
 	init_logging();
