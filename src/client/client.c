@@ -80,8 +80,8 @@ DLL_EXPORT struct map map[MAPDX * MAPDY];
 DLL_EXPORT struct map map2[MAPDX * MAPDY];
 
 DLL_EXPORT uint16_t value[2][V_MAX];
-DLL_EXPORT uint32_t item[VMAX_INVENTORYSIZE];
-DLL_EXPORT uint32_t item_flags[VMAX_INVENTORYSIZE];
+DLL_EXPORT uint32_t item[MAX_INVENTORYSIZE];
+DLL_EXPORT uint32_t item_flags[MAX_INVENTORYSIZE];
 DLL_EXPORT stat_t hp;
 DLL_EXPORT stat_t mana;
 DLL_EXPORT stat_t rage;
@@ -100,9 +100,9 @@ DLL_EXPORT unsigned char ueffect[MAXEF];
 DLL_EXPORT int con_type;
 DLL_EXPORT char con_name[80];
 DLL_EXPORT int con_cnt;
-DLL_EXPORT uint32_t container[VMAX_CONTAINERSIZE];
-DLL_EXPORT uint32_t price[VMAX_CONTAINERSIZE];
-DLL_EXPORT uint32_t itemprice[VMAX_CONTAINERSIZE];
+DLL_EXPORT uint32_t container[MAX_CONTAINERSIZE];
+DLL_EXPORT uint32_t price[MAX_CONTAINERSIZE];
+DLL_EXPORT uint32_t itemprice[MAX_CONTAINERSIZE];
 DLL_EXPORT uint32_t cprice;
 
 DLL_EXPORT uint32_t lookinv[12];

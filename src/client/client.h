@@ -141,8 +141,8 @@ typedef enum {
 #define V35_INVENTORYSIZE 70
 #define V35_CONTAINERSIZE 130
 
-#define VMAX_INVENTORYSIZE (V3_INVENTORYSIZE)
-#define VMAX_CONTAINERSIZE (V35_CONTAINERSIZE)
+#define MAX_INVENTORYSIZE (V3_INVENTORYSIZE)
+#define MAX_CONTAINERSIZE (V35_CONTAINERSIZE)
 
 DLL_EXPORT extern int _inventorysize, _containersize;
 
@@ -471,8 +471,8 @@ DLL_EXPORT extern struct map map2[MAPDX * MAPDY];
 DLL_EXPORT extern uint16_t value[2][V_MAX];
 DLL_EXPORT extern int *game_v_max;
 DLL_EXPORT extern int *game_v_profbase;
-DLL_EXPORT extern uint32_t item[VMAX_INVENTORYSIZE];
-DLL_EXPORT extern uint32_t item_flags[VMAX_INVENTORYSIZE];
+DLL_EXPORT extern uint32_t item[MAX_INVENTORYSIZE];
+DLL_EXPORT extern uint32_t item_flags[MAX_INVENTORYSIZE];
 DLL_EXPORT extern stat_t hp;
 DLL_EXPORT extern stat_t mana;
 DLL_EXPORT extern stat_t rage;
@@ -491,9 +491,9 @@ DLL_EXPORT extern unsigned int csprite; // and sprite
 DLL_EXPORT extern int con_cnt;
 DLL_EXPORT extern int con_type;
 DLL_EXPORT extern char con_name[80];
-DLL_EXPORT extern uint32_t container[VMAX_CONTAINERSIZE];
-DLL_EXPORT extern uint32_t price[VMAX_CONTAINERSIZE];
-DLL_EXPORT extern uint32_t itemprice[VMAX_CONTAINERSIZE];
+DLL_EXPORT extern uint32_t container[MAX_CONTAINERSIZE];
+DLL_EXPORT extern uint32_t price[MAX_CONTAINERSIZE];
+DLL_EXPORT extern uint32_t itemprice[MAX_CONTAINERSIZE];
 DLL_EXPORT extern uint32_t cprice;
 DLL_EXPORT extern int protocol_version;
 

@@ -34,7 +34,7 @@ DLL_EXPORT char hover_time_text[120];
 
 static int display_hover(void);
 static void display_hover_update(void);
-static int display_hover_skill(void);
+static void display_hover_skill(void);
 
 void display_mouseover(void)
 {
@@ -87,7 +87,7 @@ void display_mouseover(void)
 
 	display_hover_update();
 	hide = display_hover();
-	hide += display_hover_skill();
+	display_hover_skill();
 	if (hide) {
 		SDL_HideCursor();
 	} else if (capbut == -1) {
@@ -105,7 +105,7 @@ struct hover_item {
 	char *desc[MAXDESC];
 };
 
-static struct hover_item hi[VMAX_INVENTORYSIZE + VMAX_CONTAINERSIZE] = {0};
+static struct hover_item hi[MAX_INVENTORYSIZE + MAX_CONTAINERSIZE] = {0};
 
 static int last_look = 0, last_invsel = -1, last_line = 0, capture = 0;
 static tick_t last_tick = 0;
@@ -394,47 +394,42 @@ static char *nicenumber(int n)
 	return nicebuf;
 }
 
-static int display_hover_skill(void)
+static void display_hover_skill_v35(void)
 {
-	if (capbut != -1) {
-		return 0; // dont display hover when dragging scrollthumb
-	}
+	if (skltab && sklsel2 != -1 && tick - last_tick > HOVER_DELAY) {
+		int height = 0, width = 200;
 
-	if (sv_ver == 35) {
-		if (skltab && sklsel2 != -1 && tick - last_tick > HOVER_DELAY) {
-			int height = 0, width = 200;
-
-			int v = skltab[sklsel2 + skloff].v;
-			if (v < 0 || v >= *game_v_max) {
-				return 0;
-			}
-
-			height += render_text_break_length(0, 0, width - 12, 0xffff, 0, game_skilldesc[v]);
-
-			int sx = mousex + 8;
-			if (sx < dotx(DOT_TL)) {
-				sx = dotx(DOT_TL);
-			}
-			if (sx > dotx(DOT_BR) - width - 8) {
-				sx = dotx(DOT_BR) - width - 8;
-			}
-
-			int sy = mousey - height / 2 - 4;
-			if (sy < doty(DOT_TL)) {
-				sy = doty(DOT_TL);
-			}
-			if (sy > doty(DOT_BR) - height - 8) {
-				sy = doty(DOT_BR) - height - 8;
-			}
-
-			render_shaded_rect(sx, sy, sx + width + 8, sy + height + 8, 0x0000, 150);
-
-			sy = render_text_break(sx + 4, sy + 4, sx + width - 8, 0xffff, 0, game_skilldesc[v]) + 10;
+		int v = skltab[sklsel2 + skloff].v;
+		if (v < 0 || v >= *game_v_max) {
+			return;
 		}
 
-		return 0;
-	}
+		height += render_text_break_length(0, 0, width - 12, 0xffff, 0, game_skilldesc[v]);
 
+		int sx = mousex + 8;
+		if (sx < dotx(DOT_TL)) {
+			sx = dotx(DOT_TL);
+		}
+		if (sx > dotx(DOT_BR) - width - 8) {
+			sx = dotx(DOT_BR) - width - 8;
+		}
+
+		int sy = mousey - height / 2 - 4;
+		if (sy < doty(DOT_TL)) {
+			sy = doty(DOT_TL);
+		}
+		if (sy > doty(DOT_BR) - height - 8) {
+			sy = doty(DOT_BR) - height - 8;
+		}
+
+		render_shaded_rect(sx, sy, sx + width + 8, sy + height + 8, 0x0000, 150);
+
+		sy = render_text_break(sx + 4, sy + 4, sx + width - 8, 0xffff, 0, game_skilldesc[v]) + 10;
+	}
+}
+
+static void display_hover_skill_v3(void)
+{
 	if (skltab && sklsel2 != -1 && tick - last_tick > HOVER_DELAY) {
 		int height = 0, width = 200;
 		int base = 0, cap = 0, raisecost = 0, unused = -1;
@@ -443,7 +438,7 @@ static int display_hover_skill(void)
 
 		int v = skltab[sklsel2 + skloff].v;
 		if (v < 0 || v >= *game_v_max) {
-			return 0;
+			return;
 		}
 
 		int v1 = game_skill[v].base1;
@@ -608,9 +603,18 @@ static int display_hover_skill(void)
 				render_text_fmt(sx + 4, sy, 0xffff, 0, "You have %s unused exp", nicenumber(unused));
 			}
 		}
+	}
+}
 
-		return 0;
+static void display_hover_skill(void)
+{
+	if (capbut != -1) {
+		return; // dont display hover when dragging scrollthumb
 	}
 
-	return 0;
+	if (sv_ver == 35) {
+		display_hover_skill_v35();
+	} else {
+		display_hover_skill_v3();
+	}
 }
