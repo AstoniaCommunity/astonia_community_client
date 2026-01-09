@@ -363,9 +363,9 @@ uint16_t tactics2spell(int val)
 	return (uint16_t)((float)val * 0.125f);
 }
 
-static char *vbasename(vval_t v)
+static char *v3_basename(int v)
 {
-	switch (v_val(v)) {
+	switch (v) {
 	case V3_WIS:
 		return "WIS";
 	case V3_INT:
@@ -553,11 +553,11 @@ static int display_hover_skill(void)
 
 		if (base) {
 			if (cap && v != V3_SPEED) {
-				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s) (capped at %d)", base, vbasename(v1),
-				    vbasename(v2), vbasename(v3), cap);
+				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s) (capped at %d)", base, v3_basename(v1),
+				    v3_basename(v2), v3_basename(v3), cap);
 			} else {
-				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s)", base, vbasename(v1), vbasename(v2),
-				    vbasename(v3));
+				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s)", base, v3_basename(v1), v3_basename(v2),
+				    v3_basename(v3));
 			}
 			sy += 10;
 		}
