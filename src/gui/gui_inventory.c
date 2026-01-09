@@ -188,18 +188,11 @@ void set_skltab(void)
 				skltab = xrealloc(skltab, (size_t)skltab_max * sizeof(SKLTAB), MEM_GUI);
 			}
 
-			if (sv_ver == 35) {
-				if (value[1][i] && i != V35_DEMON && i != V35_COLD && i < V_PROFBASE) {
-					skltab[use].button = 1;
-				} else {
-					skltab[use].button = 0;
-				}
+
+			if (value[1][i] && i != sv_val(V_DEMON) && i != sv_val(V_COLD) && i < V_PROFBASE) {
+				skltab[use].button = 1;
 			} else {
-				if (value[1][i] && i != V35_DEMON && i != V35_COLD && i < V_PROFBASE) {
-					skltab[use].button = 1;
-				} else {
-					skltab[use].button = 0;
-				}
+				skltab[use].button = 0;
 			}
 
 			skltab[use].v = i;

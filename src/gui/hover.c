@@ -363,34 +363,19 @@ uint16_t tactics2spell(int val)
 	return (uint16_t)((float)val * 0.125f);
 }
 
-static char *vbasename(int v)
+static char *vbasename(vval_t v)
 {
-	if (sv_ver == 35) {
-		switch (v) {
-		case V35_WIS:
-			return "WIS";
-		case V35_INT:
-			return "INT";
-		case V35_AGI:
-			return "AGI";
-		case V35_STR:
-			return "STR";
-		default:
-			return "err";
-		}
-	} else {
-		switch (v) {
-		case V3_WIS:
-			return "WIS";
-		case V3_INT:
-			return "INT";
-		case V3_AGI:
-			return "AGI";
-		case V3_STR:
-			return "STR";
-		default:
-			return "err";
-		}
+	switch (v_val(v)) {
+	case V3_WIS:
+		return "WIS";
+	case V3_INT:
+		return "INT";
+	case V3_AGI:
+		return "AGI";
+	case V3_STR:
+		return "STR";
+	default:
+		return "err";
 	}
 }
 

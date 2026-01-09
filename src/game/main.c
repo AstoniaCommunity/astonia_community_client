@@ -435,7 +435,7 @@ int parse_args(int argc, char *argv[])
 					set_v35_actions();
 					set_v35_skilltab();
 					set_v35_skilldesc();
-					set_v35_profbase();
+					set_v35_vmax();
 				}
 			}
 			break;

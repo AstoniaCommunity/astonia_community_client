@@ -279,7 +279,7 @@ static void sv_setval(unsigned char *buf, int nr)
 		return;
 	}
 
-	if (nr != 0 || (sv_ver == 35 && n != V35_PROFESSION) || (sv_ver == 30 && n != V3_PROFESSION)) {
+	if (nr != 0 || n != sv_val(V_PROFESSION)) {
 		value[nr][n] = load_u16(buf + 2);
 	}
 
@@ -981,11 +981,7 @@ static void sv_prof(unsigned char *buf)
 	for (n = 0; n < pmax; n++) {
 		cnt += (value[1][n + V_PROFBASE] = buf[n + 1]);
 	}
-	if (sv_ver == 35) {
-		value[0][V35_PROFESSION] = cnt;
-	} else {
-		value[0][V3_PROFESSION] = cnt;
-	}
+	value[0][sv_val(V_PROFESSION)] = cnt;
 
 	update_skltab = 1;
 }

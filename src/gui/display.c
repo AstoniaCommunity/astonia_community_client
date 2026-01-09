@@ -1001,17 +1001,11 @@ void display_military(void)
 
 void display_rage(void)
 {
-	int step, skl;
-
-	if (sv_ver == 35) {
-		skl = V35_RAGE;
-	} else {
-		skl = V3_RAGE;
-	}
+	int step;
 
 	sprintf(hover_rage_text, "Rage: Not active");
 
-	if (!value[0][skl] || !rage) {
+	if (!value[0][sv_val(V_RAGE)] || !rage) {
 		return;
 	}
 
@@ -1383,28 +1377,15 @@ void display_action(void)
 					}
 					int y = 30;
 					if (action_row[0][i] > ' ' && action_row[1][i] > ' ') {
-						if (sv_ver == 35) {
-							if (row == 0) {
-								render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
-								    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at character version)");
-							} else if (action_skill[i] == V35_BLESS || action_skill[i] == V35_HEAL) {
-								render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
-								    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at self version)");
-							} else {
-								render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
-								    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at map tile version)");
-							}
+						if (row == 0) {
+							render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
+							    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at character version)");
+						} else if (action_skill[i] == sv_val(V_BLESS) || action_skill[i] == sv_val(V_HEAL)) {
+							render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
+							    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at self version)");
 						} else {
-							if (row == 0) {
-								render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
-								    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at character version)");
-							} else if (action_skill[i] == V3_BLESS || action_skill[i] == V3_HEAL) {
-								render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
-								    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at self version)");
-							} else {
-								render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
-								    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at map tile version)");
-							}
+							render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
+							    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at map tile version)");
 						}
 						y += 10;
 					}
@@ -1478,18 +1459,8 @@ static void display_bar(int sx, int sy, int perc, unsigned short color, int xs, 
 
 static int warcryperccost(void)
 {
-	int skl_end, skl_war;
-
-	if (sv_ver == 35) {
-		skl_war = V35_WARCRY;
-		skl_end = V35_ENDURANCE;
-	} else {
-		skl_war = V3_WARCRY;
-		skl_end = V3_ENDURANCE;
-	}
-
-	if (value[0][skl_end]) {
-		return 100 * value[0][skl_war] / value[0][skl_end] / 3 + 1;
+	if (value[0][sv_val(V_ENDURANCE)]) {
+		return 100 * value[0][sv_val(V_WARCRY)] / value[0][sv_val(V_ENDURANCE)] / 3 + 1;
 	} else {
 		return 911;
 	}
@@ -1507,17 +1478,6 @@ void display_selfbars(void)
 	if (!(game_options & GO_BIGBAR)) {
 		return;
 	}
-	int skl_end, skl_man, skl_war;
-
-	if (sv_ver == 35) {
-		skl_man = V35_MANA;
-		skl_war = V35_WARCRY;
-		skl_end = V35_ENDURANCE;
-	} else {
-		skl_man = V3_MANA;
-		skl_war = V3_WARCRY;
-		skl_end = V3_ENDURANCE;
-	}
 
 	x = dotx(DOT_MTL) + 7;
 	y = doty(DOT_MTL) + 7;
@@ -1525,8 +1485,8 @@ void display_selfbars(void)
 	lifep = map[plrmn].health;
 	shieldp = map[plrmn].shield;
 	manap = map[plrmn].mana;
-	if (value[0][skl_end]) {
-		endup = (int)(100 * endurance / value[0][skl_end]);
+	if (value[0][sv_val(V_ENDURANCE)]) {
+		endup = (int)(100 * endurance / value[0][sv_val(V_ENDURANCE)]);
 	} else {
 		endup = 100;
 	}
@@ -1538,9 +1498,9 @@ void display_selfbars(void)
 
 	display_bar(x, y, lifep, healthcolor, xs, ys);
 	display_bar(x + xs + xd, y, shieldp, shieldcolor, xs, ys);
-	if (!value[0][skl_man]) {
+	if (!value[0][sv_val(V_MANA)]) {
 		display_bar(x + xs * 2 + xd * 2, y, endup, endurancecolor, xs, ys);
-		if (value[0][skl_war]) {
+		if (value[0][sv_val(V_WARCRY)]) {
 			int wpc = warcryperccost();
 			for (int i = wpc; i < 100; i += wpc) {
 				int j;

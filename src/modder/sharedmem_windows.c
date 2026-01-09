@@ -106,25 +106,17 @@ void sharedmem_exit(void)
 
 void sharedmem_update(void)
 {
-	int endup, skl_end, skl_man;
+	int endup;
 
-	if (sv_ver == 35) {
-		skl_man = V35_MANA;
-		skl_end = V35_ENDURANCE;
-	} else {
-		skl_man = V3_MANA;
-		skl_end = V3_ENDURANCE;
-	}
-
-	if (value[0][skl_end]) {
-		endup = 100 * endurance / value[0][skl_end];
+	if (value[0][sv_val(V_ENDURANCE)]) {
+		endup = 100 * endurance / value[0][sv_val(V_ENDURANCE)];
 	} else {
 		endup = 100;
 	}
 
 	sm->hp = map[plrmn].health;
 	sm->shield = map[plrmn].shield;
-	if (value[0][skl_man]) {
+	if (value[0][sv_val(V_MANA)]) {
 		sm->mana = (signed char)map[plrmn].mana;
 	} else {
 		sm->mana = -1;

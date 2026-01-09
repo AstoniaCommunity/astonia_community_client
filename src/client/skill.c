@@ -395,7 +395,223 @@ void set_v35_skilldesc(void)
 	game_skilldesc = v35_game_skilldesc;
 }
 
-void set_v35_profbase(void)
+void set_v35_vmax(void)
 {
 	_game_v_profbase = V35_PROFBASE;
+	_game_v_max = V35_MAX;
+}
+
+static vval_t v3_val(svval_t v)
+{
+	return (vval_t)v;
+}
+
+static vval_t v35_val(svval_t v)
+{
+	switch (v) {
+	case V35_HP:
+		return V_HP;
+	case V35_ENDURANCE:
+		return V_ENDURANCE;
+	case V35_MANA:
+		return V_MANA;
+	case V35_WIS:
+		return V_WIS;
+	case V35_INT:
+		return V_INT;
+	case V35_AGI:
+		return V_AGI;
+	case V35_STR:
+		return V_STR;
+	case V35_ARMOR:
+		return V_ARMOR;
+	case V35_WEAPON:
+		return V_WEAPON;
+	case V35_OFFENSE:
+		return V_ILLEGAL;
+	case V35_DEFENSE:
+		return V_ILLEGAL;
+	case V35_LIGHT:
+		return V_LIGHT;
+	case V35_SPEED:
+		return V_SPEED;
+	case V35_DAGGER:
+		return V_DAGGER;
+	case V35_HAND:
+		return V_HAND;
+	case V35_STAFF:
+		return V_STAFF;
+	case V35_SWORD:
+		return V_SWORD;
+	case V35_TWOHAND:
+		return V_TWOHAND;
+	case V35_ATTACK:
+		return V_ATTACK;
+	case V35_PARRY:
+		return V_PARRY;
+	case V35_WARCRY:
+		return V_WARCRY;
+	case V35_TACTICS:
+		return V_TACTICS;
+	case V35_SURROUND:
+		return V_SURROUND;
+	case V35_SPEEDSKILL:
+		return V_SPEEDSKILL;
+	case V35_BARTER:
+		return V_BARTER;
+	case V35_PERCEPT:
+		return V_PERCEPT;
+	case V35_STEALTH:
+		return V_STEALTH;
+	case V35_BLESS:
+		return V_BLESS;
+	case V35_HEAL:
+		return V_HEAL;
+	case V35_FREEZE:
+		return V_FREEZE;
+	case V35_MAGICSHIELD:
+		return V_MAGICSHIELD;
+	case V35_FLASH:
+		return V_FLASH;
+	case V35_FIRE:
+		return V_FIREBALL;
+	case V35_REGENERATE:
+		return V_REGENERATE;
+	case V35_MEDITATE:
+		return V_MEDITATE;
+	case V35_IMMUNITY:
+		return V_IMMUNITY;
+	case V35_DEMON:
+		return V_DEMON;
+	case V35_DURATION:
+		return V_DURATION;
+	case V35_RAGE:
+		return V_RAGE;
+	case V35_COLD:
+		return V_COLD;
+	case V35_PROFESSION:
+		return V_PROFESSION;
+
+	case V35_ILLEGAL:
+		return V_ILLEGAL;
+	}
+
+	return V_ILLEGAL; // not reached
+}
+
+vval_t v_val(svval_t v)
+{
+	if (sv_ver == 35) {
+		return v35_val(v);
+	} else {
+		return v3_val(v);
+	}
+}
+
+static svval_t sv3_val(vval_t v)
+{
+	return (svval_t)v;
+}
+
+static svval_t sv35_val(vval_t v)
+{
+	switch (v) {
+	case V_HP:
+		return V35_HP;
+	case V_ENDURANCE:
+		return V35_ENDURANCE;
+	case V_MANA:
+		return V35_MANA;
+	case V_WIS:
+		return V35_WIS;
+	case V_INT:
+		return V35_INT;
+	case V_AGI:
+		return V35_AGI;
+	case V_STR:
+		return V35_STR;
+	case V_ARMOR:
+		return V35_ARMOR;
+	case V_WEAPON:
+		return V35_WEAPON;
+	case V_LIGHT:
+		return V35_LIGHT;
+	case V_SPEED:
+		return V35_SPEED;
+	case V_PULSE:
+		return V35_ILLEGAL;
+	case V_DAGGER:
+		return V35_DAGGER;
+	case V_HAND:
+		return V35_HAND;
+	case V_STAFF:
+		return V35_STAFF;
+	case V_SWORD:
+		return V35_SWORD;
+	case V_TWOHAND:
+		return V35_TWOHAND;
+	case V_ARMORSKILL:
+		return V35_ILLEGAL;
+	case V_ATTACK:
+		return V35_ATTACK;
+	case V_PARRY:
+		return V35_PARRY;
+	case V_WARCRY:
+		return V35_WARCRY;
+	case V_TACTICS:
+		return V35_TACTICS;
+	case V_SURROUND:
+		return V35_SURROUND;
+	case V_BODYCONTROL:
+		return V35_ILLEGAL;
+	case V_SPEEDSKILL:
+		return V35_SPEEDSKILL;
+	case V_BARTER:
+		return V35_BARTER;
+	case V_PERCEPT:
+		return V35_PERCEPT;
+	case V_STEALTH:
+		return V35_STEALTH;
+	case V_BLESS:
+		return V35_BLESS;
+	case V_HEAL:
+		return V35_HEAL;
+	case V_FREEZE:
+		return V35_FREEZE;
+	case V_MAGICSHIELD:
+		return V35_MAGICSHIELD;
+	case V_FLASH:
+		return V35_FLASH;
+	case V_FIREBALL:
+		return V35_FIRE;
+	case V_REGENERATE:
+		return V35_REGENERATE;
+	case V_MEDITATE:
+		return V35_MEDITATE;
+	case V_IMMUNITY:
+		return V35_IMMUNITY;
+	case V_DEMON:
+		return V35_DEMON;
+	case V_DURATION:
+		return V35_DURATION;
+	case V_RAGE:
+		return V35_RAGE;
+	case V_COLD:
+		return V35_COLD;
+	case V_PROFESSION:
+		return V35_PROFESSION;
+
+	case V_ILLEGAL:
+		return V35_ILLEGAL;
+	}
+	return V35_ILLEGAL; // not reached
+}
+
+svval_t sv_val(vval_t v)
+{
+	if (sv_ver == 35) {
+		return sv35_val(v);
+	} else {
+		return sv3_val(v);
+	}
 }
