@@ -511,69 +511,55 @@ void display_skill(void)
 			render_rect(bsx, bsy, bex + barsize, bsy + 1, redcolor);
 		}
 
+		int done = 0;
 		if (sv_ver == 35) {
 			switch (skltab[i].v) {
-			case V35_SPEED:
-			case V35_LIGHT:
-			case V35_COLD:
-				sprintf(buf, "%d", skltab[i].curr);
-				break;
-
 			case V35_OFFENSE:
 			case V35_DEFENSE:
 				sprintf(buf, "%d", skltab[i].curr + rage / 4);
+				done = 1;
 				break;
 
 			case V35_IMMUNITY:
 				sprintf(buf, "%2d/%2d", skltab[i].base, skltab[i].curr + rage / 4);
+				done = 1;
 				break;
 			case V35_WEAPON:
-			case V35_ARMOR:
 				sprintf(buf, "%.2f", skltab[i].curr / 20.0);
-				break;
-			case V35_MANA:
-				sprintf(buf, "%d/%2d/%2d", mana, skltab[i].base, skltab[i].curr);
-				break;
-			case V35_HP:
-				if (lifeshield) {
-					sprintf(buf, "%d+%d/%2d/%2d", hp, lifeshield, skltab[i].base, skltab[i].curr);
-				} else {
-					sprintf(buf, "%d/%2d/%2d", hp, skltab[i].base, skltab[i].curr);
-				}
-				break;
-			case V35_ENDURANCE:
-				sprintf(buf, "%d/%2d/%2d", endurance, skltab[i].base, skltab[i].curr);
-				break;
-			default:
-				if (skltab[i].v >= V_PROFBASE) {
-					sprintf(buf, "%d", skltab[i].base);
-				} else {
-					sprintf(buf, "%2d/%2d", skltab[i].base, skltab[i].curr);
-				}
+				done = 1;
 				break;
 			}
 		} else {
 			switch (skltab[i].v) {
 			case V3_WEAPON:
-			case V3_SPEED:
-			case V3_LIGHT:
-			case V3_COLD:
+				sprintf(buf, "%d", skltab[i].curr);
+				done = 1;
+				break;
+			}
+		}
+
+		if (!done) {
+			switch (v_val(skltab[i].v)) {
+			case V_SPEED:
+			case V_LIGHT:
+			case V_COLD:
 				sprintf(buf, "%d", skltab[i].curr);
 				break;
-			case V3_ARMOR:
+
+			case V_ARMOR:
 				sprintf(buf, "%.2f", skltab[i].curr / 20.0);
 				break;
-			case V3_MANA:
+			case V_MANA:
 				sprintf(buf, "%d/%2d/%2d", mana, skltab[i].base, skltab[i].curr);
 				break;
-			case V3_HP:
+			case V_HP:
 				if (lifeshield) {
 					sprintf(buf, "%d+%d/%2d/%2d", hp, lifeshield, skltab[i].base, skltab[i].curr);
 				} else {
 					sprintf(buf, "%d/%2d/%2d", hp, skltab[i].base, skltab[i].curr);
 				}
 				break;
-			case V3_ENDURANCE:
+			case V_ENDURANCE:
 				sprintf(buf, "%d/%2d/%2d", endurance, skltab[i].base, skltab[i].curr);
 				break;
 			default:
@@ -585,6 +571,7 @@ void display_skill(void)
 					}
 				}
 				break;
+				;
 			}
 		}
 

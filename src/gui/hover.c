@@ -556,8 +556,8 @@ static int display_hover_skill(void)
 				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s) (capped at %d)", base, v3_basename(v1),
 				    v3_basename(v2), v3_basename(v3), cap);
 			} else {
-				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s)", base, v3_basename(v1), v3_basename(v2),
-				    v3_basename(v3));
+				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s)", base, v3_basename(v1),
+				    v3_basename(v2), v3_basename(v3));
 			}
 			sy += 10;
 		}
