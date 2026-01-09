@@ -283,12 +283,13 @@ void display_teleport(void)
 	for (n = 0; n < 8; n++) {
 		if (sv_ver == 30 && !may_teleport[n + 64 + clan_offset]) {
 			dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 0);
-		} else if (telsel == n + 64 + clan_offset) {
+		} else if (telsel == n + 64) {
 			dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
 		} else {
 			dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);
 		}
 	}
+
 	for (n = 0; n < 8; n++) {
 		if (sv_ver == 30 && 8 + clan_offset + n == 31) {
 			continue;
@@ -298,7 +299,7 @@ void display_teleport(void)
 		}
 		if (sv_ver == 30 && !may_teleport[n + 64 + 8 + clan_offset]) {
 			dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 0);
-		} else if (telsel == n + 64 + 8 + clan_offset) {
+		} else if (telsel == n + 64 + 8) {
 			dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
 		} else {
 			dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);

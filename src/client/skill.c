@@ -196,15 +196,11 @@ DLL_EXPORT int raise_cost(int v, int n)
 
 	nr = n - game_skill[v].start + 1 + 5;
 
-	if (sv_ver == 35) {
-		return max(1, nr * nr * nr * game_skill[v].cost / 10);
+	// hack to determine if we are a seyan:
+	if (sv_ver == 30 && value[0][V3_ATTACK] && value[0][V3_BLESS]) {
+		return max(1, nr * nr * nr * game_skill[v].cost * 4 / 30);
 	} else {
-		// hack to determine if we are a seyan:
-		if (value[0][V3_ATTACK] && value[0][V3_BLESS]) {
-			return max(1, nr * nr * nr * game_skill[v].cost * 4 / 30);
-		} else {
-			return max(1, nr * nr * nr * game_skill[v].cost / 10);
-		}
+		return max(1, nr * nr * nr * game_skill[v].cost / 10);
 	}
 }
 
