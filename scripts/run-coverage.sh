@@ -4,6 +4,8 @@ set -e
 # Code coverage analysis script
 # Generates HTML coverage reports showing which code paths are executed
 
+FIND="/usr/bin/find"
+
 echo "=== Code Coverage Analysis ==="
 echo ""
 
@@ -22,7 +24,7 @@ shift 2>/dev/null || true
 
 # Clean previous coverage data
 echo "Cleaning previous coverage data..."
-find . -name "*.gcda" -delete 2>/dev/null || true
+$FIND . -name "*.gcda" -delete 2>/dev/null || true
 rm -rf coverage-html 2>/dev/null || true
 
 echo "Running coverage-instrumented binary: $BINARY $@"

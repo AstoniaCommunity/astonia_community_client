@@ -5,6 +5,7 @@ set -e
 # Used by both CI pipeline and local development (make lint)
 # Applies formatting fixes automatically
 
+FIND="/usr/bin/find"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
@@ -37,7 +38,7 @@ if [ "$CLANG_FORMAT_VERSION" != "21" ]; then
 fi
 
 # Format all C/H files
-find src -type f \( -name "*.c" -o -name "*.h" \) -exec $CLANG_FORMAT -i --style=file {} \;
+$FIND src -type f \( -name "*.c" -o -name "*.h" \) -exec $CLANG_FORMAT -i --style=file {} \;
 echo "  ✓ C code formatted"
 echo ""
 
