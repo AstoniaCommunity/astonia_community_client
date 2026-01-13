@@ -7566,7 +7566,7 @@
     {
       "id": 60000,
       "comment": "white berries",
-      "base_sprite": 60000,
+      "base_sprite": 11020,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7574,7 +7574,7 @@
     {
       "id": 60001,
       "comment": "white berries",
-      "base_sprite": 60001,
+      "base_sprite": 11021,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7582,7 +7582,7 @@
     {
       "id": 60002,
       "comment": "white berries",
-      "base_sprite": 60002,
+      "base_sprite": 11022,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7590,7 +7590,7 @@
     {
       "id": 60003,
       "comment": "white berries",
-      "base_sprite": 60003,
+      "base_sprite": 11023,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7598,7 +7598,7 @@
     {
       "id": 60004,
       "comment": "white berries",
-      "base_sprite": 60004,
+      "base_sprite": 11024,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7606,7 +7606,7 @@
     {
       "id": 60005,
       "comment": "white berries",
-      "base_sprite": 60005,
+      "base_sprite": 11025,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7614,7 +7614,7 @@
     {
       "id": 60006,
       "comment": "white berries",
-      "base_sprite": 60006,
+      "base_sprite": 11026,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7622,7 +7622,7 @@
     {
       "id": 60007,
       "comment": "white berries",
-      "base_sprite": 60007,
+      "base_sprite": 11027,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7630,7 +7630,7 @@
     {
       "id": 60008,
       "comment": "white berries",
-      "base_sprite": 60008,
+      "base_sprite": 11028,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7638,7 +7638,7 @@
     {
       "id": 60009,
       "comment": "white berries",
-      "base_sprite": 60009,
+      "base_sprite": 11029,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7646,7 +7646,7 @@
     {
       "id": 60010,
       "comment": "white berries",
-      "base_sprite": 60010,
+      "base_sprite": 11030,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7654,7 +7654,7 @@
     {
       "id": 60011,
       "comment": "white berries",
-      "base_sprite": 60011,
+      "base_sprite": 11031,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7662,7 +7662,7 @@
     {
       "id": 60012,
       "comment": "white berries",
-      "base_sprite": 60012,
+      "base_sprite": 11032,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7670,7 +7670,7 @@
     {
       "id": 60013,
       "comment": "white berries",
-      "base_sprite": 60013,
+      "base_sprite": 11033,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7678,7 +7678,7 @@
     {
       "id": 60014,
       "comment": "white berries",
-      "base_sprite": 60014,
+      "base_sprite": 11034,
       "scale": 70,
       "light": 125,
       "saturation": 10
@@ -7686,141 +7686,141 @@
     {
       "id": 60015,
       "comment": "norther land wallset",
-      "base_sprite": 60015,
+      "base_sprite": 14433,
       "saturation": 10
     },
     {
       "id": 60016,
       "comment": "norther land wallset",
-      "base_sprite": 60016,
+      "base_sprite": 14434,
       "saturation": 10
     },
     {
       "id": 60017,
       "comment": "norther land wallset",
-      "base_sprite": 60017,
+      "base_sprite": 14435,
       "saturation": 10
     },
     {
       "id": 60018,
       "comment": "norther land wallset",
-      "base_sprite": 60018,
+      "base_sprite": 14436,
       "saturation": 10
     },
     {
       "id": 60019,
       "comment": "norther land wallset",
-      "base_sprite": 60019,
+      "base_sprite": 14437,
       "saturation": 10
     },
     {
       "id": 60020,
-      "base_sprite": 60020,
+      "base_sprite": 14438,
       "saturation": 10
     },
     {
       "id": 60021,
-      "base_sprite": 60021,
+      "base_sprite": 14439,
       "saturation": 10
     },
     {
       "id": 60022,
-      "base_sprite": 60022,
+      "base_sprite": 14440,
       "saturation": 10
     },
     {
       "id": 60023,
-      "base_sprite": 60023,
+      "base_sprite": 14441,
       "saturation": 10
     },
     {
       "id": 60024,
-      "base_sprite": 60024,
+      "base_sprite": 14442,
       "saturation": 10
     },
     {
       "id": 60025,
-      "base_sprite": 60025,
+      "base_sprite": 14443,
       "saturation": 10
     },
     {
       "id": 60026,
-      "base_sprite": 60026,
+      "base_sprite": 14444,
       "saturation": 10
     },
     {
       "id": 60027,
-      "base_sprite": 60027,
+      "base_sprite": 14445,
       "saturation": 10
     },
     {
       "id": 60028,
-      "base_sprite": 60028,
+      "base_sprite": 14446,
       "saturation": 10
     },
     {
       "id": 60029,
-      "base_sprite": 60029,
+      "base_sprite": 14447,
       "saturation": 10
     },
     {
       "id": 60030,
-      "base_sprite": 60030,
+      "base_sprite": 14448,
       "saturation": 10
     },
     {
       "id": 60031,
-      "base_sprite": 60031,
+      "base_sprite": 14449,
       "saturation": 10
     },
     {
       "id": 60032,
-      "base_sprite": 60032,
+      "base_sprite": 14450,
       "saturation": 10
     },
     {
       "id": 60033,
-      "base_sprite": 60033,
+      "base_sprite": 14451,
       "saturation": 10
     },
     {
       "id": 60034,
-      "base_sprite": 60034,
+      "base_sprite": 14452,
       "saturation": 10
     },
     {
       "id": 60035,
-      "base_sprite": 60035,
+      "base_sprite": 14453,
       "saturation": 10
     },
     {
       "id": 60036,
-      "base_sprite": 60036,
+      "base_sprite": 14454,
       "saturation": 10
     },
     {
       "id": 60037,
-      "base_sprite": 60037,
+      "base_sprite": 14455,
       "saturation": 10
     },
     {
       "id": 60038,
-      "base_sprite": 60038,
+      "base_sprite": 14456,
       "saturation": 10
     },
     {
       "id": 60039,
-      "base_sprite": 60039,
+      "base_sprite": 14457,
       "saturation": 10
     },
     {
       "id": 60040,
-      "base_sprite": 60040,
+      "base_sprite": 14458,
       "saturation": 10
     },
     {
       "id": 60041,
-      "base_sprite": 60041,
+      "base_sprite": 14459,
       "saturation": 10
     }
   ]

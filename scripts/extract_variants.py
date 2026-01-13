@@ -334,6 +334,14 @@ def extract_animated_variant(case_id, body):
         body
     )
 
+    # Pattern 0c: Pseudo sprite formula: sprite = BASE + (sprite - OFFSET);
+    # e.g., sprite = 11020 + (sprite - 60000); means base_sprite = 11020 + (case_id - 60000)
+    # This handles pseudo sprites that remap to a different sprite range
+    pseudo_sprite_match = re.search(
+        r'sprite\s*=\s*(\d+)\s*\+\s*\(\s*sprite\s*-\s*(\d+)\s*\)\s*;',
+        body
+    )
+
     # Pattern 1: sprite = BASE + (...) % frames (with base number)
     anim_match = re.search(
         r'sprite\s*=\s*(\d+)\s*\+.*?%\s*(\d+)',
@@ -363,6 +371,11 @@ def extract_animated_variant(case_id, body):
         a = int(offset_minus_plus.group(1))
         b = int(offset_minus_plus.group(2))
         variant["base_sprite"] = case_id - a + b
+    elif pseudo_sprite_match:
+        # sprite = BASE + (sprite - OFFSET) → base = BASE + (case_id - OFFSET)
+        base = int(pseudo_sprite_match.group(1))
+        offset = int(pseudo_sprite_match.group(2))
+        variant["base_sprite"] = base + (case_id - offset)
     elif anim_match:
         variant["base_sprite"] = int(anim_match.group(1))
         frames = int(anim_match.group(2))
