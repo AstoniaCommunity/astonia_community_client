@@ -47,6 +47,13 @@ void display_color(void)
 	} else {
 		dx_copysprite_emerald(dotx(DOT_COL) - 38 + 24, doty(DOT_COL) + 40, 2, 1);
 	}
+    
+    // Shiny toggle
+	if (COL_IS_SHINY(show_color_c[show_cur])) {
+        dx_copysprite_emerald(dotx(DOT_COL) - 38 + 84, doty(DOT_COL) + 40 - 16 , 2, 2);
+    } else {
+        dx_copysprite_emerald(dotx(DOT_COL) - 38 + 84, doty(DOT_COL) + 40 - 16 , 2, 1);
+    }
 
 	render_sprite(51083, dotx(DOT_COL) - 55, doty(DOT_COL) - 50 + 64 - IGET_R(show_color_c[show_cur]) * 2, 14, 0);
 	render_sprite(51083, dotx(DOT_COL) - 55 + 20, doty(DOT_COL) - 50 + 64 - IGET_G(show_color_c[show_cur]) * 2, 14, 0);
@@ -124,6 +131,10 @@ int get_color(int x, int y)
 	if (abs(x - dotx(DOT_COL) - 19) < 10 && abs(y - doty(DOT_COL) - 39) < 5) {
 		return 8;
 	}
+    
+    if (abs(x - dotx(DOT_COL) - 46) < 4 && abs(y - doty(DOT_COL) - 23) < 4) {
+        return 9;
+    }
 
 	if (x - dotx(DOT_COL) < -60 || x - dotx(DOT_COL) > 60 || y - doty(DOT_COL) < -60 || y - doty(DOT_COL) > 60) {
 		return -1;
@@ -136,6 +147,7 @@ void cmd_color(int nr)
 {
 	int val;
 	char buf[80];
+    unsigned short shiny;
 
 	switch (nr) {
 	case 1:
@@ -149,29 +161,38 @@ void cmd_color(int nr)
 		break;
 	case 4:
 		val = max(min(31, show_cx / 2), 1);
+        shiny = show_color_c[show_cur] & 0x8000;
 		show_color_c[show_cur] =
-		    (unsigned short)IRGB(val, IGET_G(show_color_c[show_cur]), IGET_B(show_color_c[show_cur]));
+		    (unsigned short)IRGB(val, IGET_G(show_color_c[show_cur]), IGET_B(show_color_c[show_cur])) | shiny;
 		break;
 	case 5:
 		val = max(min(31, show_cx / 2), 1);
+        shiny = show_color_c[show_cur] & 0x8000;
 		show_color_c[show_cur] =
-		    (unsigned short)IRGB(IGET_R(show_color_c[show_cur]), val, IGET_B(show_color_c[show_cur]));
+		    (unsigned short)IRGB(IGET_R(show_color_c[show_cur]), val, IGET_B(show_color_c[show_cur])) | shiny;
 		break;
 	case 6:
 		val = max(min(31, show_cx / 2), 1);
+        shiny = show_color_c[show_cur] & 0x8000;
 		show_color_c[show_cur] =
-		    (unsigned short)IRGB(IGET_R(show_color_c[show_cur]), IGET_G(show_color_c[show_cur]), val);
+		    (unsigned short)IRGB(IGET_R(show_color_c[show_cur]), IGET_G(show_color_c[show_cur]), val) | shiny;
 		break;
 	case 7:
 		show_color = 0;
 		break;
-	case 8:
-		sprintf(buf, "/col1 %d %d %d", IGET_R(show_color_c[0]), IGET_G(show_color_c[0]), IGET_B(show_color_c[0]));
-		cmd_text(buf);
-		sprintf(buf, "/col2 %d %d %d", IGET_R(show_color_c[1]), IGET_G(show_color_c[1]), IGET_B(show_color_c[1]));
-		cmd_text(buf);
-		sprintf(buf, "/col3 %d %d %d", IGET_R(show_color_c[2]), IGET_G(show_color_c[2]), IGET_B(show_color_c[2]));
-		cmd_text(buf);
-		break;
+    case 8:		
+        shiny = (show_color_c[0] & 0x8000) ? 32 : 0;
+        sprintf(buf, "/col1 %d %d %d", IGET_R(show_color_c[0]) + shiny, IGET_G(show_color_c[0]), IGET_B(show_color_c[0]));
+        cmd_text(buf);
+        shiny = (show_color_c[1] & 0x8000) ? 32 : 0;
+        sprintf(buf, "/col2 %d %d %d", IGET_R(show_color_c[1]) + shiny, IGET_G(show_color_c[1]), IGET_B(show_color_c[1]));
+        cmd_text(buf);
+        shiny = (show_color_c[2] & 0x8000) ? 32 : 0;
+        sprintf(buf, "/col3 %d %d %d", IGET_R(show_color_c[2]) + shiny, IGET_G(show_color_c[2]), IGET_B(show_color_c[2]));
+        cmd_text(buf);
+        break;
+    case 9:
+        COL_TOGGLE_SHINY(show_color_c[show_cur]);
+        break;
 	}
 }

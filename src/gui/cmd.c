@@ -104,6 +104,21 @@ static int client_cmd(char *buf)
 		show_color_c[2] = map[MAPDX * MAPDY / 2].rc.c3;
 		return 1;
 	}
+	if (!strncmp(buf,"#getcolors",7) || !strncmp(buf,"/getcolors",7)) {
+		int shiny;
+		int get_color_c[3]={1,1,1};
+		get_color_c[0]=map[MAPDX*MAPDY/2].rc.c1;
+		get_color_c[1]=map[MAPDX*MAPDY/2].rc.c2;
+		get_color_c[2]=map[MAPDX*MAPDY/2].rc.c3;
+		addline("Color values.");
+		shiny = (get_color_c[0] & 0x8000) ? 32 : 0;
+		addline("/col1 %d %d %d",IGET_R(get_color_c[0])+shiny,IGET_G(get_color_c[0]),IGET_B(get_color_c[0]));
+		shiny = (get_color_c[1] & 0x8000) ? 32 : 0;
+		addline("/col2 %d %d %d",IGET_R(get_color_c[1])+shiny,IGET_G(get_color_c[1]),IGET_B(get_color_c[1]));
+		shiny = (get_color_c[2] & 0x8000) ? 32 : 0;
+		addline("/col3 %d %d %d",IGET_R(get_color_c[2])+shiny,IGET_G(get_color_c[2]),IGET_B(get_color_c[2]));
+		return 1;
+	}
 	if (!strncmp(buf, "#sound ", 7)) {
 		play_sound((unsigned int)atoi(&buf[7]), 0, 0);
 		return 1;

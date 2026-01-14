@@ -72,6 +72,8 @@
 #define IGET_G(c)     ((((unsigned short int)(c)) >> 5) & 0x1F)
 #define IGET_B(c)     ((((unsigned short int)(c)) >> 0) & 0x1F)
 #define IRGB(r, g, b) (((r) << 10) | ((g) << 5) | ((b) << 0))
+#define COL_IS_SHINY(c) (((c) & 0x8000) != 0)
+#define COL_TOGGLE_SHINY(c) ((c) ^= 0x8000)
 
 /**
  * Rendering effects structure for sprite rendering.
