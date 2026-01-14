@@ -6,6 +6,7 @@ set -e
 # For local development, use check-format.sh instead (checks all languages)
 # Exit code 0 = all formatted correctly, 1 = formatting issues found
 
+FIND="/usr/bin/find"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_ROOT"
@@ -45,7 +46,7 @@ fi
 rm -f "$LOG_DIR/clang-format.log"
 C_FORMAT_FAILED=0
 
-for file in $(find src -type f \( -name "*.c" -o -name "*.h" \)); do
+for file in $($FIND src -type f \( -name "*.c" -o -name "*.h" \)); do
     if ! $CLANG_FORMAT --dry-run -Werror --style=file "$file" 2>/dev/null; then
         if [ $C_FORMAT_FAILED -eq 0 ]; then
             echo "ERROR: The following files need formatting:" | tee "$LOG_DIR/clang-format.log"
