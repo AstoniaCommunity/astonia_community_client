@@ -81,7 +81,7 @@ void display_wheel(void)
 	int i;
 
 	render_push_clip();
-	render_more_clip(0, 0, 800, 600);
+	render_more_clip(0, 0, XRES, YRES0);
 
 	if (now - vk_special_time < 2000) {
 		int n, panic = 99;
@@ -160,19 +160,20 @@ void display(void)
 	set_cmd_states();
 
 	if (sockstate < 4 && ((t = time(NULL) - (time_t)socktimeout) > 10 || !originx)) {
-		render_rect(0, 0, 800, 540, blackcolor);
+		render_rect(0, 0, XRES, YRES0 - 60, blackcolor);
 		display_screen();
 		display_text();
 		if ((now / 1000) & 1) {
-			render_text(800 / 2, 540 / 2 - 60, redcolor, RENDER_ALIGN_CENTER | RENDER_TEXT_LARGE, "not connected");
+			render_text(
+			    XRES / 2, (YRES0 - 60) / 2 - 60, redcolor, RENDER_ALIGN_CENTER | RENDER_TEXT_LARGE, "not connected");
 		}
-		render_sprite(60, 800 / 2, (540 - 240) / 2, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_CENTER);
+		render_sprite(60, XRES / 2, ((YRES0 - 60) - 240) / 2, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_CENTER);
 		if (!kicked_out) {
-			render_text_fmt(800 / 2, 540 / 2 - 40, textcolor,
+			render_text_fmt(XRES / 2, (YRES0 - 60) / 2 - 40, textcolor,
 			    RENDER_TEXT_SMALL | RENDER_ALIGN_CENTER | RENDER_TEXT_FRAMED,
 			    "Trying to establish connection. %ld seconds...", (long)t);
 			if (t > 15) {
-				render_text_fmt(800 / 2, 540 / 2 - 0, textcolor,
+				render_text_fmt(XRES / 2, (YRES0 - 60) / 2 - 0, textcolor,
 				    RENDER_TEXT_LARGE | RENDER_ALIGN_CENTER | RENDER_TEXT_FRAMED,
 				    "Please check %s for troubleshooting advice.", game_url);
 			}
@@ -237,7 +238,7 @@ display_graphs:;
 		static unsigned char pre1_graph[100], pre2_graph[100], pre3_graph[100];
 		// static int frame_min=99,frame_max=0,frame_step=0;
 		// static int tick_min=99,tick_max=0,tick_step=0;
-		int px = 800 - 110, py = 35 + (!(game_options & GO_SMALLTOP) ? 0 : gui_topoff);
+		int px = XRES - 110, py = 35 + (!(game_options & GO_SMALLTOP) ? 0 : gui_topoff);
 
 		// render_text_fmt(px,py+=10,0xffff,RENDER_TEXT_SMALL|RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED|RENDER_TEXT_NOCACHE,"skip
 		// %3.0f%%",100.0*skip/tota);
