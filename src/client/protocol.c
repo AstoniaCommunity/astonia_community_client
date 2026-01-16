@@ -1712,6 +1712,9 @@ void cmd_some_spell(int spell, int x, int y, unsigned int chr)
 		return;
 	}
 
+	// Flash the corresponding action icon
+	action_flash_spell(spell);
+
 	client_send(buf, (size_t)len);
 }
 

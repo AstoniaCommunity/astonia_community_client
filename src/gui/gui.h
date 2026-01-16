@@ -102,3 +102,6 @@ extern int last_right_click_invsel;
 
 // Platform-specific GUI functions
 void gui_sdl_draghack(void);
+
+// Action icon flash for spell casting feedback
+void action_flash_spell(int spell_cl_type);
