@@ -293,7 +293,11 @@ void display_minimap(void)
 		sr.y = 0.0f;
 		sr.h = (float)(MINIMAP * 2);
 
-		sdl_render_copy_ex(maptex2, &sr, &dr, 45.0);
+		// TODO: SDL3 bug #13284 - SDL_RenderTextureRotated doesn't work on Linux
+		// with non-zero angles (fixed in SDL 3.3.x/3.4, not in 3.2.x stable)
+		// Workaround: render without rotation until SDL 3.4 is released
+		// Original code: sdl_render_copy_ex(maptex2, &sr, &dr, 45.0);
+		sdl_render_copy(maptex2, &sr, &dr);
 		draw_center(mx + MINIMAP, my + MINIMAP);
 
 		for (i = 0; i < sdl_scale; i++) {
