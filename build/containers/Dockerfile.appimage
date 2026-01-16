@@ -9,24 +9,22 @@
 #
 # The AppImage will be created in your current directory.
 
-FROM cachyos/cachyos:latest
+FROM archlinux:latest
 
 ARG ZEN4=0
 
-# If ZEN4=1, configure for Zen4 optimization
+# If ZEN4=1, configure makepkg for Zen4 optimization
 RUN if [ "$ZEN4" = "1" ]; then \
-      echo ">>> Enabling CachyOS Zen4 repos"; \
-      printf "\n[cachyos-znver4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n" >> /etc/pacman.conf; \
-      printf "\n[cachyos-core-znver4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n" >> /etc/pacman.conf; \
-      printf "\n[cachyos-extra-znver4]\nInclude = /etc/pacman.d/cachyos-v4-mirrorlist\n" >> /etc/pacman.conf; \
       echo ">>> Configuring makepkg.conf for Zen4"; \
       sed -i 's/-march=native/-march=znver4/g' /etc/makepkg.conf; \
       sed -i 's/-march=x86-64/-march=znver4/g' /etc/makepkg.conf; \
     fi
 
-# Upgrade system with auto-resolve enabled
+# Initialize pacman keyring and upgrade system
 # Use --needed to skip already-installed packages and avoid 404 errors on old versions
-RUN pacman -Syyu --noconfirm --needed --ask=4 --overwrite="*"
+RUN pacman-key --init && \
+    pacman-key --populate archlinux && \
+    pacman -Syyu --noconfirm --needed --ask=4 --overwrite="*"
 
 # Add -march=znver4 only if ZEN4=1
 ENV EXTRA_ARCH_FLAGS=""

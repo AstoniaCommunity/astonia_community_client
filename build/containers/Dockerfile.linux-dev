@@ -1,11 +1,13 @@
-FROM cachyos/cachyos:latest
+FROM archlinux:latest
 
 # Linux development environment with clang-tidy and analysis tools
 # Use this for development, debugging, and code analysis
 
-# Upgrade system with auto-resolve enabled
+# Initialize pacman keyring and upgrade system
 # Use --needed to skip already-installed packages and avoid 404 errors on old versions
-RUN pacman -Syyu --noconfirm --needed --ask=4 --overwrite="*"
+RUN pacman-key --init && \
+    pacman-key --populate archlinux && \
+    pacman -Syyu --noconfirm --needed --ask=4 --overwrite="*"
 
 # Install basic dependencies and development tools
 RUN pacman -S --noconfirm --needed --ask=4 --overwrite="*" \
