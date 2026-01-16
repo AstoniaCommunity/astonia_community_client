@@ -1292,6 +1292,10 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 			}
 			SDL_UpdateTexture(texture, NULL, st->pixel, (int)(st->xres * sizeof(uint32_t) * (size_t)sdl_scale));
 			SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+			// Set texture scale mode based on smoothify value:
+			// 0 (nearest) or 2 (scale2x) = NEAREST, 1 (bilinear) = LINEAR
+			int smoothify = do_smoothify(st->sprite);
+			SDL_SetTextureScaleMode(texture, (smoothify == 1) ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
 			// Update memory accounting when texture is actually created
 			extern long long mem_tex;
 			__atomic_add_fetch(&mem_tex, st->xres * st->yres * sizeof(uint32_t), __ATOMIC_RELAXED);
