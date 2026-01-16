@@ -1294,7 +1294,7 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 			SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 			// Set texture scale mode based on smoothify value:
 			// 0 (nearest) or 2 (scale2x) = NEAREST, 1 (bilinear) = LINEAR
-			int smoothify = do_smoothify(st->sprite);
+			int smoothify = do_smoothify((int)st->sprite);
 			SDL_SetTextureScaleMode(texture, (smoothify == 1) ? SDL_SCALEMODE_LINEAR : SDL_SCALEMODE_NEAREST);
 			// Update memory accounting when texture is actually created
 			extern long long mem_tex;
