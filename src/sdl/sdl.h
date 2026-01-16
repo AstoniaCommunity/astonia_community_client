@@ -60,7 +60,7 @@ void sdl_capture_mouse(int flag);
 int sdl_tx_load(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
     char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl,
     const char *text, int text_color, int text_flags, void *text_font, int checkonly, int preload);
-int sdl_init(int width, int height, char *title);
+int sdl_init(int width, int height, char *title, int monitor);
 void sdl_exit(void);
 void sdl_loop(void);
 int sdl_clear(void);

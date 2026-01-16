@@ -287,6 +287,7 @@ DLL_EXPORT char server_url[256];
 DLL_EXPORT int server_port = 0;
 DLL_EXPORT int want_width = 0;
 DLL_EXPORT int want_height = 0;
+DLL_EXPORT int want_monitor = 0; // Monitor number for multi-monitor support (0=default)
 
 int parse_args(int argc, char *argv[])
 {
@@ -428,6 +429,19 @@ int parse_args(int argc, char *argv[])
 					sv_ver = 30;
 				} else {
 					sv_ver = (int)v;
+				}
+			}
+			break;
+		case 'n': // -n monitor number for multi-monitor support
+			if (!val && i + 1 < argc) {
+				val = argv[++i];
+			}
+			if (val) {
+				long n = strtol(val, &end, 10);
+				if (n < INT_MIN || n > INT_MAX) {
+					want_monitor = 0;
+				} else {
+					want_monitor = (int)n;
 				}
 			}
 			break;
@@ -640,7 +654,7 @@ int main(int argc, char *argv[])
 	determine_resolution();
 
 	sprintf(buf, "Astonia 3 v%d.%d.%d", (VERSION >> 16) & 255, (VERSION >> 8) & 255, (VERSION) & 255);
-	if (!sdl_init(want_width, want_height, buf)) {
+	if (!sdl_init(want_width, want_height, buf, want_monitor)) {
 		render_exit();
 		return -1;
 	}
