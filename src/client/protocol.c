@@ -21,6 +21,8 @@
 #include "sdl/sdl.h"
 #include "sdl/sdl_private.h"
 
+struct otext otext[MAXOTEXT];
+
 static size_t sv_map01(unsigned char *buf, int *last, struct map *cmap)
 {
 	size_t p;
@@ -277,7 +279,7 @@ static void sv_setval(unsigned char *buf, int nr)
 		return;
 	}
 
-	if (nr != 0 || n != V_PROFESSION) {
+	if (nr != 0 || n != sv_val(V_PROFESSION)) {
 		value[nr][n] = load_u16(buf + 2);
 	}
 
@@ -314,7 +316,7 @@ static void sv_setitem(unsigned char *buf)
 	int n;
 
 	n = buf[1];
-	if (n < 0 || n >= INVENTORYSIZE) {
+	if (n < 0 || n >= _inventorysize) {
 		return;
 	}
 
@@ -402,6 +404,14 @@ static size_t sv_text(unsigned char *buf)
 				strcpy(pent_str[5], line + 2);
 			} else if (line[1] == '9') {
 				strcpy(pent_str[6], line + 2);
+			} else if (line[1] == '0') {
+				if (otext[MAXOTEXT - 1].text) {
+					xfree(otext[MAXOTEXT - 1].text);
+				}
+				memmove(otext + 1, otext, sizeof(otext) - sizeof(otext[0]));
+				otext[0].text = xstrdup(line + 3, MEM_GUI);
+				otext[0].time = tick;
+				otext[0].type = line[2] - '0';
 			}
 		} else {
 			if (!hover_capture_text(line)) {
@@ -792,7 +802,7 @@ static void sv_container(unsigned char *buf)
 	uint8_t nr;
 
 	nr = buf[1];
-	if (nr >= CONTAINERSIZE) {
+	if (nr >= _containersize) {
 		fail("illegal nr %d in sv_container!", nr);
 		exit(-1);
 	}
@@ -806,7 +816,7 @@ static void sv_price(unsigned char *buf)
 	uint8_t nr;
 
 	nr = buf[1];
-	if (nr >= CONTAINERSIZE) {
+	if (nr >= _containersize) {
 		fail("illegal nr %d in sv_price!", nr);
 		exit(-1);
 	}
@@ -819,7 +829,7 @@ static void sv_itemprice(unsigned char *buf)
 	uint8_t nr;
 
 	nr = buf[1];
-	if (nr >= CONTAINERSIZE) {
+	if (nr >= _containersize) {
 		fail("illegal nr %d in sv_itemprice!", nr);
 		exit(-1);
 	}
@@ -842,7 +852,7 @@ static void sv_concnt(unsigned char *buf)
 	uint8_t nr;
 
 	nr = buf[1];
-	if (nr > CONTAINERSIZE) {
+	if (nr > _containersize) {
 		fail("illegal nr %d in sv_contcnt!", nr);
 		exit(-1);
 	}
@@ -936,9 +946,15 @@ static void sv_special(unsigned char *buf)
 
 static void sv_teleport(unsigned char *buf)
 {
-	int n, i, b;
+	int n, i, b, len;
 
-	for (n = 0; n < 64 + 32; n++) {
+	if (sv_ver == 35) {
+		len = 64;
+	} else {
+		len = 64 + 32;
+	}
+
+	for (n = 0; n < len; n++) {
 		i = n / 8;
 		b = 1 << (n & 7);
 		if (buf[i + 1] & b) {
@@ -953,13 +969,19 @@ static void sv_teleport(unsigned char *buf)
 
 static void sv_prof(unsigned char *buf)
 {
-	int n;
+	int n, pmax;
 	uint16_t cnt = 0;
 
-	for (n = 0; n < P_MAX; n++) {
+	if (sv_ver == 35) {
+		pmax = P35_MAX;
+	} else {
+		pmax = P3_MAX;
+	}
+
+	for (n = 0; n < pmax; n++) {
 		cnt += (value[1][n + V_PROFBASE] = buf[n + 1]);
 	}
-	value[0][V_PROFESSION] = cnt;
+	value[0][sv_val(V_PROFESSION)] = cnt;
 
 	update_skltab = 1;
 }
@@ -1194,7 +1216,11 @@ void process(unsigned char *buf, int size)
 				break;
 			case SV_TELEPORT:
 				sv_teleport(buf);
-				len = 13;
+				if (sv_ver == 35) {
+					len = 9;
+				} else {
+					len = 13;
+				}
 				break;
 
 			case SV_MIRROR:
@@ -1203,7 +1229,11 @@ void process(unsigned char *buf, int size)
 				break;
 			case SV_PROF:
 				sv_prof(buf);
-				len = 21;
+				if (sv_ver == 35) {
+					len = P35_MAX + 1;
+				} else {
+					len = P3_MAX + 1;
+				}
 				break;
 			case SV_PING:
 				len = sv_ping(buf);
@@ -1423,10 +1453,18 @@ uint32_t prefetch(unsigned char *buf, int size)
 				len = 13;
 				break;
 			case SV_TELEPORT:
-				len = 13;
+				if (sv_ver == 35) {
+					len = 9;
+				} else {
+					len = 13;
+				}
 				break;
 			case SV_PROF:
-				len = 21;
+				if (sv_ver == 35) {
+					len = P35_MAX + 1;
+				} else {
+					len = P3_MAX + 1;
+				}
 				break;
 			case SV_PING:
 				len = svl_ping(buf);
@@ -1623,9 +1661,16 @@ void cmd_speed(int mode)
 void cmd_teleport(int nr)
 {
 	unsigned char buf[64];
+	int off;
 
-	if (nr > 100) { // ouch
-		newmirror = (uint32_t)(nr - 100);
+	if (sv_ver == 35) {
+		off = 200;
+	} else {
+		off = 100;
+	}
+
+	if (nr > off) { // ouch
+		newmirror = (uint32_t)(nr - off);
 		return;
 	}
 

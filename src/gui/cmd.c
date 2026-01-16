@@ -122,7 +122,11 @@ static int client_cmd(char *buf)
 	}
 	if (!strncmp(buf, "#version", 5) || !strncmp(buf, "/version", 5)) {
 		cmd_version();
-		return 1;
+		if (sv_ver == 35) {
+			return 0;
+		} else {
+			return 1;
+		}
 	}
 	if (!strncmp(buf, "#set ", 5) || !strncmp(buf, "/set ", 5)) {
 		int what, key;
@@ -165,10 +169,11 @@ static int client_cmd(char *buf)
 		return 1;
 	}
 	if (strcasestr(buf, password)) {
-		addline("�c3Sorry, but you are not allowed to say your password. No matter what you're promised, do not give "
-		        "your password to anyone! The only things which happened to players who did are: Loss of all items, "
-		        "lots of negative experience, bad karma and locked characters. If you really, really think you have to "
-		        "tell your password to someone, then I'm sure you'll find a way around this block.");
+		addline(
+		    "\260c3Sorry, but you are not allowed to say your password. No matter what you're promised, do not give "
+		    "your password to anyone! The only things which happened to players who did are: Loss of all items, "
+		    "lots of negative experience, bad karma and locked characters. If you really, really think you have to "
+		    "tell your password to someone, then I'm sure you'll find a way around this block.");
 		return 1;
 	}
 

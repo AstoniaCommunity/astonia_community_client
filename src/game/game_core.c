@@ -196,6 +196,9 @@ void dl_play(void)
 				render_draw_bless(
 				    dlsort[d]->call_x1, dlsort[d]->call_y1, dlsort[d]->call_x2, dlsort[d]->call_y2, dlsort[d]->call_x3);
 				break;
+			case DLC_HEAL:
+				render_draw_heal(dlsort[d]->call_x1, dlsort[d]->call_y1, dlsort[d]->call_x2, dlsort[d]->call_x3);
+				break;
 			case DLC_POTION:
 				render_draw_potion(
 				    dlsort[d]->call_x1, dlsort[d]->call_y1, dlsort[d]->call_x2, dlsort[d]->call_y2, dlsort[d]->call_x3);

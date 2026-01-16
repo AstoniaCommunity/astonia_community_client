@@ -14,6 +14,7 @@ typedef uint16_t stat_t; // Character stats: hp, mana, rage, endurance, lifeshie
 typedef uint16_t char_id_t; // Character network ID (cn)
 typedef uint16_t sprite_id_t; // Sprite/texture ID
 typedef size_t map_index_t; // Map tile index, selection indices
+typedef int32_t svval_t; // skill index, server side (V3_HP, V3_BLESS *or* V35_HP, V35_BLESS)
 
 // DEVELOPER mode: Enables extra debugging output and developer features
 // Can be enabled via compiler flag: -DDEVELOPER
@@ -194,3 +195,5 @@ char *client_version(void);
 
 // Crash handler (platform-specific, Windows only)
 void register_crash_handler(void);
+
+extern int sv_ver;

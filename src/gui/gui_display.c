@@ -452,13 +452,19 @@ void update_ui_layout(void)
 		set_conoff(0, conoff);
 		set_skloff(0, skloff);
 	}
-	max_invoff = ((INVENTORYSIZE - 30) / INVDX) - INVDY;
+	max_invoff = ((_inventorysize - 30) / INVDX) - INVDY;
 	set_button_flags();
 }
 
 DLL_EXPORT int _do_display_help(int nr)
 {
 	int x = dotx(DOT_HLP) + 10, y = doty(DOT_HLP) + 8, oldy;
+
+	if (sv_ver == 35) {
+		return render_text_break(
+		           x, y, x + 192, whitecolor, 0, "V3.5 Help not implemented, awaiting help system rework.") +
+		       15;
+	}
 
 	switch (nr) {
 	case 1:
