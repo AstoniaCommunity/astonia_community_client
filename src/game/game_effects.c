@@ -89,6 +89,30 @@ DL *dl_call_bless(int layer, int x, int y, int ticker, int strength, int front)
 	return dl;
 }
 
+DL *dl_call_heal(int layer, int x, int y, int start, int front)
+{
+	DL *dl;
+
+	dl = dl_next();
+
+	dl->call = DLC_HEAL;
+	dl->layer = layer;
+
+	dl->call_x1 = x;
+	dl->call_y1 = y;
+	dl->call_x2 = start;
+	dl->call_x3 = front;
+
+	dl->x = x;
+	if (front) {
+		dl->y = y + 8;
+	} else {
+		dl->y = y - 8;
+	}
+
+	return dl;
+}
+
 DL *dl_call_pulse(int layer, int x, int y, int nr, int size, int color)
 {
 	DL *dl;

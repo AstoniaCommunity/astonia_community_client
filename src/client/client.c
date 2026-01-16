@@ -80,8 +80,8 @@ DLL_EXPORT struct map map[MAPDX * MAPDY];
 DLL_EXPORT struct map map2[MAPDX * MAPDY];
 
 DLL_EXPORT uint16_t value[2][V_MAX];
-DLL_EXPORT uint32_t item[INVENTORYSIZE];
-DLL_EXPORT uint32_t item_flags[INVENTORYSIZE];
+DLL_EXPORT uint32_t item[MAX_INVENTORYSIZE];
+DLL_EXPORT uint32_t item_flags[MAX_INVENTORYSIZE];
 DLL_EXPORT stat_t hp;
 DLL_EXPORT stat_t mana;
 DLL_EXPORT stat_t rage;
@@ -100,9 +100,9 @@ DLL_EXPORT unsigned char ueffect[MAXEF];
 DLL_EXPORT int con_type;
 DLL_EXPORT char con_name[80];
 DLL_EXPORT int con_cnt;
-DLL_EXPORT uint32_t container[CONTAINERSIZE];
-DLL_EXPORT uint32_t price[CONTAINERSIZE];
-DLL_EXPORT uint32_t itemprice[CONTAINERSIZE];
+DLL_EXPORT uint32_t container[MAX_CONTAINERSIZE];
+DLL_EXPORT uint32_t price[MAX_CONTAINERSIZE];
+DLL_EXPORT uint32_t itemprice[MAX_CONTAINERSIZE];
 DLL_EXPORT uint32_t cprice;
 
 DLL_EXPORT uint32_t lookinv[12];
@@ -117,6 +117,9 @@ DLL_EXPORT int pspeed = 0; // 0=normal   1=fast      2=stealth     - like the se
 int may_teleport[64 + 32];
 
 DLL_EXPORT int frames_per_second = TICKS;
+
+DLL_EXPORT int _inventorysize = V3_INVENTORYSIZE;
+DLL_EXPORT int _containersize = V3_CONTAINERSIZE;
 
 // Unaligned load/store helpers
 DLL_EXPORT void client_send(void *buf, size_t len)
@@ -196,6 +199,7 @@ void bzero_client(int part)
 		    pent_str[6][0] = 0;
 
 		bzero(may_teleport, sizeof(may_teleport));
+		bzero(otext, sizeof(otext));
 
 		amod_areachange();
 		minimap_clear();
@@ -600,4 +604,10 @@ DLL_EXPORT map_index_t mapmn(unsigned int x, unsigned int y)
 		return MAXMN;
 	}
 	return x + y * MAPDX;
+}
+
+void set_v35_inventory(void)
+{
+	_inventorysize = V35_INVENTORYSIZE;
+	_containersize = V35_CONTAINERSIZE;
 }

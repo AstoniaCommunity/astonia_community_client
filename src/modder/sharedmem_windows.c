@@ -108,15 +108,15 @@ void sharedmem_update(void)
 {
 	int endup;
 
-	if (value[0][V_ENDURANCE]) {
-		endup = 100 * endurance / value[0][V_ENDURANCE];
+	if (value[0][sv_val(V_ENDURANCE)]) {
+		endup = 100 * endurance / value[0][sv_val(V_ENDURANCE)];
 	} else {
 		endup = 100;
 	}
 
 	sm->hp = map[plrmn].health;
 	sm->shield = map[plrmn].shield;
-	if (value[0][V_MANA]) {
+	if (value[0][sv_val(V_MANA)]) {
 		sm->mana = (signed char)map[plrmn].mana;
 	} else {
 		sm->mana = -1;

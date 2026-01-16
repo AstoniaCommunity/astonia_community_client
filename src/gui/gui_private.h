@@ -311,7 +311,7 @@ DLL_EXPORT extern SKLTAB *skltab;
 extern int skltab_max;
 DLL_EXPORT extern int skltab_cnt;
 
-extern KEYTAB keytab[];
+extern KEYTAB *keytab;
 extern int max_keytab;
 
 extern int clan_offset;
@@ -337,7 +337,7 @@ extern int control_override;
 extern int vk_rbut, vk_lbut;
 extern int vk_special;
 extern Uint64 vk_special_time;
-extern struct special_tab special_tab[];
+extern struct special_tab *special_tab;
 extern int max_special;
 extern int plrmn;
 extern map_index_t mapsel;
@@ -477,6 +477,7 @@ int context_key_click(void);
 
 DLL_EXPORT extern char hover_bless_text[];
 DLL_EXPORT extern char hover_freeze_text[];
+DLL_EXPORT extern char hover_heal_text[];
 DLL_EXPORT extern char hover_potion_text[];
 DLL_EXPORT extern char hover_rage_text[];
 DLL_EXPORT extern char hover_level_text[];

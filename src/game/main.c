@@ -43,6 +43,7 @@ void init_logging(void);
 void determine_resolution(void);
 
 int quit = 0;
+int sv_ver = 30;
 
 char *localdata;
 
@@ -417,6 +418,19 @@ int parse_args(int argc, char *argv[])
 				}
 			}
 			break;
+		case 'v':
+			if (!val && i + 1 < argc) {
+				val = argv[++i];
+			}
+			if (val) {
+				long v = strtol(val, &end, 10);
+				if (v < INT_MIN || v > INT_MAX) {
+					sv_ver = 30;
+				} else {
+					sv_ver = (int)v;
+				}
+			}
+			break;
 		default:
 			// Unknown option, ignore or warn?
 			break;
@@ -442,7 +456,8 @@ void save_options(void)
 	}
 
 	fwrite(&user_keys, sizeof(user_keys), 1, fp);
-	fwrite(&action_row, sizeof(action_row), 1, fp);
+	fwrite(&v3_action_row, sizeof(v3_action_row), 1, fp);
+	fwrite(&v35_action_row, sizeof(v35_action_row), 1, fp);
 	fwrite(&action_enabled, sizeof(action_enabled), 1, fp);
 	fwrite(&gear_lock, sizeof(gear_lock), 1, fp);
 	fclose(fp);
@@ -465,7 +480,8 @@ void load_options(void)
 	}
 
 	fread(&user_keys, sizeof(user_keys), 1, fp);
-	fread(&action_row, sizeof(action_row), 1, fp);
+	fread(&v3_action_row, sizeof(v3_action_row), 1, fp);
+	fread(&v35_action_row, sizeof(v35_action_row), 1, fp);
 	fread(&action_enabled, sizeof(action_enabled), 1, fp);
 	fread(&gear_lock, sizeof(gear_lock), 1, fp);
 	fclose(fp);
@@ -529,6 +545,15 @@ void determine_resolution(void)
 	}
 }
 
+static void set_v35_values(void)
+{
+	target_port = 27584;
+	set_v35_inventory();
+	set_v35_keytab();
+	set_v35_actions();
+	set_v35_skilltab();
+}
+
 // main
 int main(int argc, char *argv[])
 {
@@ -546,6 +571,10 @@ int main(int argc, char *argv[])
 
 	if ((ret = parse_args(argc, argv)) != 0) {
 		return -1;
+	}
+
+	if (sv_ver == 35) {
+		set_v35_values();
 	}
 
 	init_logging();

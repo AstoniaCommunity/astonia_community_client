@@ -1143,6 +1143,32 @@ static void render_draw_bless_pix(int x, int y, int nr, int color, int front)
 	sdl_pixel(x, y, (unsigned short)color, x_offset, y_offset);
 }
 
+static void render_draw_heal_pix(int x, int y, int nr, int color, int front)
+{
+	int sy, val;
+	double off;
+
+	val = (nr / 36) % 5;
+	off = 0.6 + val * 0.10;
+	sy = (int)(bless_sin[nr % 36] * off);
+	if (front && sy < 0) {
+		return;
+	}
+	if (!front && sy >= 0) {
+		return;
+	}
+
+	x += (int)(bless_cos[nr % 36] * off);
+
+	y = y + sy + bless_hight[nr % 200] / 10 - 45;
+
+	if (x < clipsx || x >= clipex || y < clipsy || y >= clipey) {
+		return;
+	}
+
+	sdl_pixel(x, y, (unsigned short)color, x_offset, y_offset);
+}
+
 static void render_draw_rain_pix(int x, int y, int nr, int color, int front)
 {
 	int sy;
@@ -1165,11 +1191,9 @@ static void render_draw_rain_pix(int x, int y, int nr, int color, int front)
 	sdl_pixel(x, y, (unsigned short)color, x_offset, y_offset);
 }
 
-void render_draw_bless(int x, int y, int ticker, int strength, int front)
+static void init_bless(void)
 {
-	int step, nr;
-	double light;
-
+	int nr;
 	if (!bless_init) {
 		for (nr = 0; nr < 36; nr++) {
 			bless_sin[nr] = (int)(sin((nr % 36) / 36.0 * M_PI * 2) * 8);
@@ -1180,6 +1204,14 @@ void render_draw_bless(int x, int y, int ticker, int strength, int front)
 		}
 		bless_init = 1;
 	}
+}
+
+void render_draw_bless(int x, int y, int ticker, int strength, int front)
+{
+	int step;
+	double light;
+
+	init_bless();
 
 	if (ticker > 62) {
 		light = 1.0;
@@ -1198,6 +1230,34 @@ void render_draw_bless(int x, int y, int ticker, int strength, int front)
 		    x, y, ticker + step + 3, IRGB((int)(12 * light), (int)(12 * light), (int)(20 * light)), front);
 		render_draw_bless_pix(
 		    x, y, ticker + step + 4, IRGB((int)(8 * light), (int)(8 * light), (int)(16 * light)), front);
+	}
+}
+
+void render_draw_heal(int x, int y, int start, int front)
+{
+	int step, ticker;
+	double light;
+
+	init_bless();
+
+	ticker = start + (int)tick;
+	if (ticker > 62) {
+		light = 1.0;
+	} else {
+		light = (ticker) / 62.0;
+	}
+
+	for (step = 0; step < 12 * 17; step += 17) {
+		render_draw_heal_pix(
+		    x, y, ticker + step + 0, IRGB((int)(24 * light), (int)(31 * light), (int)(24 * light)), front);
+		render_draw_heal_pix(
+		    x, y, ticker + step + 1, IRGB((int)(20 * light), (int)(28 * light), (int)(20 * light)), front);
+		render_draw_heal_pix(
+		    x, y, ticker + step + 2, IRGB((int)(16 * light), (int)(24 * light), (int)(16 * light)), front);
+		render_draw_heal_pix(
+		    x, y, ticker + step + 3, IRGB((int)(12 * light), (int)(20 * light), (int)(12 * light)), front);
+		render_draw_heal_pix(
+		    x, y, ticker + step + 4, IRGB((int)(8 * light), (int)(16 * light), (int)(8 * light)), front);
 	}
 }
 
