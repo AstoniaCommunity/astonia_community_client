@@ -433,6 +433,8 @@ static void display_hover_skill_v3(void)
 	if (skltab && sklsel2 != -1 && tick - last_tick > HOVER_DELAY) {
 		int height = 0, width = 200;
 		int base = 0, cap = 0, raisecost = 0, unused = -1;
+		int equip_bonus = 0, next_raise_cost = 0;
+		float exp_percentage = 0.0f;
 		uint16_t offense = 0, defense = 0, speed = 0, armor = 0, weapon = 0;
 		uint16_t immune = 0, spells = 0, tactics = 0, athlete = 0;
 
@@ -445,20 +447,38 @@ static void display_hover_skill_v3(void)
 		int v2 = game_skill[v].base2;
 		int v3 = game_skill[v].base3;
 
+		// First calculate base attribute modifier
+		if (v1 != -1 && v2 != -1 && v3 != -3 && v != V3_DEMON) {
+			base = (value[0][v1] + value[0][v2] + value[0][v3]) / 5;
+			if (base > max(15, value[1][v] * 2)) {
+				cap = max(15, value[1][v] * 2);
+			}
+			height += 10;
+		}
+
+		// Calculate equipment bonus (current - base - attribute modifier)
+		// If base is capped, use the capped value
+		if (cap) {
+			equip_bonus = value[0][v] - value[1][v] - cap;
+		} else {
+			equip_bonus = value[0][v] - value[1][v] - base;
+		}
+		if (equip_bonus != 0) {
+			height += 10; // Add line for equipment bonus
+		}
+
 		if (game_skill[v].cost && v != V3_DEMON) {
 			raisecost = raise_cost(v, value[1][v]);
+			next_raise_cost = raise_cost(v, value[1][v] + 1);
 			height += 10;
 			if (experience >= experience_used) {
 				unused = (int)(experience - experience_used);
 				height += 10;
-			}
-		}
-
-		if (v1 != -1 && v2 != -1 && v3 != -3 && v != V3_DEMON) {
-			base = (value[0][v1] + value[0][v2] + value[0][v3]) / 5;
-			height += 10;
-			if (base > max(15, value[1][v] * 2)) {
-				cap = max(15, value[1][v] * 2);
+				// Calculate percentage to next raise
+				if (next_raise_cost > 0 && unused < next_raise_cost) {
+					exp_percentage = (float)unused / (float)next_raise_cost * 100.0f;
+					height += 10; // Add line for percentage
+				}
 			}
 		}
 
@@ -546,6 +566,18 @@ static void display_hover_skill_v3(void)
 
 		sy = render_text_break(sx + 4, sy + 4, sx + width - 8, 0xffff, 0, game_skilldesc[v]) + 10;
 
+		// Show base and current values with equipment bonus
+		if (equip_bonus != 0) {
+			if (equip_bonus > 0) {
+				render_text_fmt(sx + 4, sy, 0xffff, 0, "Base: %d, Current: %d (+%d from equipment)", value[1][v],
+				    value[0][v], equip_bonus);
+			} else {
+				render_text_fmt(sx + 4, sy, 0xffff, 0, "Base: %d, Current: %d (%d from equipment)", value[1][v],
+				    value[0][v], equip_bonus);
+			}
+			sy += 10;
+		}
+
 		if (base) {
 			if (cap && v != V3_SPEED) {
 				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s) (capped at %d)", base, v3_basename(v1),
@@ -601,6 +633,12 @@ static void display_hover_skill_v3(void)
 			sy += 10;
 			if (unused >= 0) {
 				render_text_fmt(sx + 4, sy, 0xffff, 0, "You have %s unused exp", nicenumber(unused));
+				sy += 10;
+				// Show percentage progress to next raise
+				if (exp_percentage > 0.0f) {
+					render_text_fmt(sx + 4, sy, 0xffff, 0, "Progress to next raise: %.1f%%", (double)exp_percentage);
+					sy += 10;
+				}
 			}
 		}
 	}
