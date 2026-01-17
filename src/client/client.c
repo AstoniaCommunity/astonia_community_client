@@ -52,6 +52,8 @@ DLL_EXPORT int protocol_version = 0;
 uint32_t newmirror = 0;
 int lasttick; // ticks in inbuf
 static size_t lastticksize; // size inbuf must reach to get the last tick complete in the queue
+uint64_t last_tick_received_time = 0; // SDL_GetTicks() when last server tick batch was received
+uint64_t tick_receive_interval = 0; // Time between server tick batch arrivals (ms)
 
 static struct queue queue[Q_SIZE];
 int q_in, q_out, q_size;
@@ -438,6 +440,7 @@ int poll_network(void)
 	rec_bytes += n;
 
 	// count ticks
+	int ticks_this_poll = 0;
 	while (1) {
 		if (inused >= lastticksize + 1 && *(inbuf + lastticksize) & 0x40) {
 			lastticksize += 1 + (*(inbuf + lastticksize) & 0x3F);
@@ -448,6 +451,16 @@ int poll_network(void)
 		}
 
 		lasttick++;
+		ticks_this_poll++;
+	}
+
+	// Update tick timing once per poll that received ticks (not per individual tick)
+	if (ticks_this_poll > 0) {
+		uint64_t now = SDL_GetTicks();
+		if (last_tick_received_time > 0) {
+			tick_receive_interval = now - last_tick_received_time;
+		}
+		last_tick_received_time = now;
 	}
 
 	return 0;
