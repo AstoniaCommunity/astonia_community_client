@@ -477,6 +477,8 @@ DLL_EXPORT extern uint32_t gold;
 DLL_EXPORT extern tick_t tick;
 extern int lasttick; // ticks in inbuf
 extern int q_size;
+extern uint64_t last_tick_received_time; // SDL_GetTicks() when last server tick batch was received
+extern uint64_t tick_receive_interval; // Time between server tick batch arrivals (ms)
 
 DLL_EXPORT extern unsigned int cflags; // current item (item under mouse cursor) flags
 DLL_EXPORT extern unsigned int csprite; // and sprite

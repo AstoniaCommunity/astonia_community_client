@@ -220,6 +220,16 @@ void display(void)
 	context_display(mousex, mousey);
 	display_helpandquest(); // display last because it is on top
 
+	// Display lag warning when no server data received for > 500ms
+	if (sockstate == 4 && last_tick_received_time > 0) {
+		uint64_t lag_ms = SDL_GetTicks() - last_tick_received_time;
+		if (lag_ms > 500) {
+			render_text_fmt(XRES / 2, doty(DOT_TOP) + 35, IRGB(31, 0, 0),
+			    RENDER_TEXT_LARGE | RENDER_ALIGN_CENTER | RENDER_TEXT_FRAMED | RENDER_TEXT_NOCACHE,
+			    "LAG: %" PRIu64 "ms", lag_ms);
+		}
+	}
+
 display_graphs:;
 
 	int64_t duration = (int64_t)(SDL_GetTicks() - start);
@@ -323,12 +333,25 @@ display_graphs:;
 		render_text_fmt(px, py += 10, IRGB(8, 31, 8), RENDER_TEXT_FRAMED | RENDER_TEXT_LEFT, "Queue %d", size / 2);
 		sdl_bargraph_add(sizeof(pre2_graph), size3_graph, size < 42 ? size : 42);
 		sdl_bargraph(px, py += 40, sizeof(pre2_graph), size3_graph, x_offset, y_offset);
-#if 0
-	    size=sdl_time_alloc;
-	    render_text(px,py+=10,IRGB(8,31,8),RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED,"Alloc");
-	    sdl_bargraph_add(sizeof(size1_graph),load_graph,size<42?size:42);
-	    sdl_bargraph(px,py+=40,sizeof(size1_graph),load_graph,x_offset,y_offset);
-#endif
+
+		// Tick interval indicator - time between server tick batch arrivals
+		{
+			static unsigned char lag_graph[100];
+			static int was_lagging = 0;
+			// Normal tick interval is ~40ms, show warning color if consistently high
+			int lag_size = tick_receive_interval > 200 ? 42 : (int)(tick_receive_interval * 42 / 200);
+			// Hysteresis to prevent color flicker: red at 120ms, green at 80ms
+			if (tick_receive_interval > 120) {
+				was_lagging = 1;
+			} else if (tick_receive_interval < 80) {
+				was_lagging = 0;
+			}
+			unsigned short lag_color = was_lagging ? IRGB(31, 8, 8) : IRGB(8, 31, 8);
+			render_text_fmt(px, py += 10, lag_color, RENDER_TEXT_FRAMED | RENDER_TEXT_LEFT | RENDER_TEXT_NOCACHE,
+			    "Tick %" PRIu64 "ms", tick_receive_interval);
+			sdl_bargraph_add(sizeof(lag_graph), lag_graph, lag_size);
+			sdl_bargraph(px, py += 40, sizeof(lag_graph), lag_graph, x_offset, y_offset);
+		}
 
 		{
 			uint64_t sum = sdl_time_pre1 + sdl_time_pre3;
