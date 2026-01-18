@@ -2409,6 +2409,77 @@
       "comment": "queen fiona"
     },
     {
+      "id": 569,
+      "base_sprite": 66,
+      "c1": 17392,
+      "c2": 6790,
+      "c3": 29200,
+      "comment": "bridge guard 1"
+    },
+    {
+      "id": 570,
+      "base_sprite": 81,
+      "c1": 17392,
+      "c2": 6790,
+      "c3": 29200,
+      "comment": "bridge guard 2"
+    },
+    {
+      "id": 571,
+      "base_sprite": 46,
+      "c1": 32272,
+      "c2": 20678,
+      "c3": 29200,
+      "comment": "student"
+    },
+    {
+      "id": 572,
+      "base_sprite": 46,
+      "c1": 32404,
+      "c2": 16582,
+      "c3": 23056,
+      "comment": "gladiator"
+    },
+    {
+      "id": 573,
+      "base_sprite": 111,
+      "c1": 16648,
+      "c2": 14534,
+      "c3": 25288,
+      "comment": "teacher"
+    },
+    {
+      "id": 574,
+      "base_sprite": 101,
+      "c1": 16648,
+      "c2": 14534,
+      "c3": 8456,
+      "comment": "teacher"
+    },
+    {
+      "id": 575,
+      "base_sprite": 102,
+      "c1": 16648,
+      "c2": 14534,
+      "c3": 12552,
+      "comment": "teacher"
+    },
+    {
+      "id": 576,
+      "base_sprite": 110,
+      "c1": 8464,
+      "c2": 6350,
+      "c3": 25288,
+      "comment": "teacher"
+    },
+    {
+      "id": 577,
+      "base_sprite": 89,
+      "c1": 32404,
+      "c2": 16582,
+      "c3": 23056
+    },
+    {
       "id": 800,
       "base_sprite": 120
     },
