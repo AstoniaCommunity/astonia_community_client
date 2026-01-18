@@ -1,0 +1,46 @@
+#!/bin/bash
+#
+# Pre-commit hook: Auto-format code and re-stage changes
+#
+# Install with: scripts/install-hooks.sh
+#
+
+# Get list of staged files (excluding deleted files)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=d)
+
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+# Check if any C or Rust files are staged
+C_FILES=$(echo "$STAGED_FILES" | grep -E '\.(c|h)$' || true)
+RUST_FILES=$(echo "$STAGED_FILES" | grep -E '\.rs$' || true)
+
+if [ -z "$C_FILES" ] && [ -z "$RUST_FILES" ]; then
+    exit 0
+fi
+
+echo "Running auto-formatter..."
+
+# Run the linter/formatter
+make lint > /dev/null 2>&1
+
+# Re-stage any files that were modified by the formatter
+if [ -n "$C_FILES" ]; then
+    for file in $C_FILES; do
+        if [ -f "$file" ]; then
+            git add "$file"
+        fi
+    done
+fi
+
+if [ -n "$RUST_FILES" ]; then
+    for file in $RUST_FILES; do
+        if [ -f "$file" ]; then
+            git add "$file"
+        fi
+    done
+fi
+
+echo "Auto-format complete."
+exit 0
