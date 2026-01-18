@@ -78,6 +78,16 @@ void gui_sdl_keyproc(SDL_Keycode wparam)
 		cmd_speed(2);
 		return;
 
+	case SDLK_SPACE:
+		// Space bar acts as stop key (like ESC but doesn't close UI)
+		// Only when not typing in command line (let text input handle it)
+		if (!context_key_isset()) {
+			cmd_stop();
+			context_stop();
+			cmd_reset();
+		}
+		return;
+
 	case SDLK_F8:
 		nocut ^= 1;
 		return;
