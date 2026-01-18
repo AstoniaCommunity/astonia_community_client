@@ -165,6 +165,15 @@ int hover_capture_text(char *line)
 	}
 
 	if (line[0] == RENDER_TEXT_TERMINATOR && line[1] == 'c' && line[2] == '5' && line[3] == '.') {
+		// If capture was active but no lines were captured, show default message
+		if (capture && last_line == 0 && last_invsel >= 0 && last_invsel < INVENTORYSIZE + CONTAINERSIZE) {
+			char default_desc[32];
+			snprintf(default_desc, sizeof(default_desc), "%cc1(no description)", RENDER_TEXT_TERMINATOR);
+			hi[last_invsel].valid_till = tick + MAXVALID;
+			hi[last_invsel].desc[0] = xstrdup(default_desc, MEM_TEMP11);
+			hi[last_invsel].cnt = 1;
+			hi[last_invsel].width = textlength(default_desc);
+		}
 		capture = last_look = 0;
 		last_right_click_invsel = -1;
 		return 1;
