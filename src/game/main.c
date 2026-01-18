@@ -445,9 +445,17 @@ void save_options(void)
 	char filename[MAX_PATH];
 
 	if (localdata) {
-		sprintf(filename, "%s%s", localdata, "moac.dat");
+		if (sv_ver == 35) {
+			sprintf(filename, "%s%s", localdata, "moac35.dat");
+		} else {
+			sprintf(filename, "%s%s", localdata, "moac.dat");
+		}
 	} else {
-		sprintf(filename, "%s", "bin/data/moac.dat");
+		if (sv_ver == 35) {
+			sprintf(filename, "%s", "bin/data/moac35.dat");
+		} else {
+			sprintf(filename, "%s", "bin/data/moac.dat");
+		}
 	}
 
 	fp = fopen(filename, "wb");
@@ -456,8 +464,11 @@ void save_options(void)
 	}
 
 	fwrite(&user_keys, sizeof(user_keys), 1, fp);
-	fwrite(&v3_action_row, sizeof(v3_action_row), 1, fp);
-	fwrite(&v35_action_row, sizeof(v35_action_row), 1, fp);
+	if (sv_ver == 35) {
+		fwrite(&v35_action_row, sizeof(v35_action_row), 1, fp);
+	} else {
+		fwrite(&v3_action_row, sizeof(v3_action_row), 1, fp);
+	}
 	fwrite(&action_enabled, sizeof(action_enabled), 1, fp);
 	fwrite(&gear_lock, sizeof(gear_lock), 1, fp);
 	fclose(fp);
@@ -469,9 +480,17 @@ void load_options(void)
 	char filename[MAX_PATH];
 
 	if (localdata) {
-		sprintf(filename, "%s%s", localdata, "moac.dat");
+		if (sv_ver == 35) {
+			sprintf(filename, "%s%s", localdata, "moac35.dat");
+		} else {
+			sprintf(filename, "%s%s", localdata, "moac.dat");
+		}
 	} else {
-		sprintf(filename, "%s", "bin/data/moac.dat");
+		if (sv_ver == 35) {
+			sprintf(filename, "%s", "bin/data/moac35.dat");
+		} else {
+			sprintf(filename, "%s", "bin/data/moac.dat");
+		}
 	}
 
 	fp = fopen(filename, "rb");
@@ -480,8 +499,11 @@ void load_options(void)
 	}
 
 	fread(&user_keys, sizeof(user_keys), 1, fp);
-	fread(&v3_action_row, sizeof(v3_action_row), 1, fp);
-	fread(&v35_action_row, sizeof(v35_action_row), 1, fp);
+	if (sv_ver == 35) {
+		fread(&v35_action_row, sizeof(v35_action_row), 1, fp);
+	} else {
+		fread(&v3_action_row, sizeof(v3_action_row), 1, fp);
+	}
 	fread(&action_enabled, sizeof(action_enabled), 1, fp);
 	fread(&gear_lock, sizeof(gear_lock), 1, fp);
 	fclose(fp);
