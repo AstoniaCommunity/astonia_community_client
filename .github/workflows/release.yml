@@ -349,6 +349,20 @@ jobs:
           path: distrib/windows_client/
           retention-days: 7
 
+      - name: Upload Mod SDK (Windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod-sdk-windows
+          path: |
+            lib/moac.a
+            lib/moac.lib
+            src/amod/amod.h
+            src/amod/amod_structs.h
+            src/dll.h
+            src/astonia.h
+          retention-days: 7
+          if-no-files-found: error
+
   build-macos-release:
     needs: build-sdl3-macos
     name: Build MacOS Release
@@ -552,10 +566,17 @@ jobs:
         with:
           name: appimage-release
 
+      - name: Download Mod SDK (Windows)
+        uses: actions/download-artifact@v4
+        with:
+          name: mod-sdk-windows
+          path: mod-sdk
+
       - name: Create distribution archives
         run: |
           tar czf linux_client.tar.gz linux_client
           zip -q -r windows_client.zip windows_client
+          zip -q -r mod-sdk.zip mod-sdk
 
       - name: Generate checksums
         run: |
@@ -563,6 +584,7 @@ jobs:
           sha256sum windows_client.zip >> checksums.txt
           sha256sum astonia-client.AppImage >> checksums.txt
           sha256sum Astonia-macOS.dmg >> checksums.txt
+          sha256sum mod-sdk.zip >> checksums.txt
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
@@ -572,6 +594,7 @@ jobs:
             windows_client.zip
             astonia-client.AppImage
             Astonia-macOS.dmg
+            mod-sdk.zip
             checksums.txt
           draft: false
           prerelease: false
