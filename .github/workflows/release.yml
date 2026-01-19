@@ -219,6 +219,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          lfs: true
 
       - name: Get week of year
         id: week
@@ -358,6 +360,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          lfs: true
 
       - name: Install dependencies
         run: |
@@ -504,6 +508,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          lfs: true
 
       - name: Build AppImage
         run: make appimage
