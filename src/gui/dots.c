@@ -8,6 +8,7 @@
  * array.
  */
 
+#include <assert.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -28,7 +29,7 @@ static void set_but(int bidx, int x, int y, int hitrad, int flags);
 
 static void set_dot(int didx, int x, int y, int flags)
 {
-	PARANOIA(if (didx < 0 || didx >= MAX_DOT) paranoia("set_dot: ill didx=%d", didx);)
+	assert(didx >= 0 && didx < MAX_DOT && "set_dot: ill didx");
 
 	dot[didx].flags = flags;
 	dot[didx].x = x;
@@ -50,7 +51,7 @@ DLL_EXPORT int doty(int didx)
 
 static void set_but(int bidx, int x, int y, int hitrad, int flags)
 {
-	PARANOIA(if (bidx < 0 || bidx >= MAX_BUT) paranoia("set_but: ill bidx=%d", bidx);)
+	assert(bidx >= 0 && bidx < MAX_BUT && "set_but: ill bidx");
 
 	but[bidx].flags = flags;
 
@@ -114,7 +115,7 @@ void init_dots(void)
 
 	// scroll bars
 	set_dot(DOT_SCL, 160 + 5, 0, 0);
-	set_dot(DOT_SCR, 640 - 5, 0, 0);
+	set_dot(DOT_SCR, XRES - 160 - 5, 0, 0);
 	set_dot(DOT_SCU, 0, doty(DOT_BOT) + 15, 0);
 	if (!sbot) {
 		set_dot(DOT_SCD, 0, doty(DOT_BOT) + 160, 0);
@@ -159,7 +160,7 @@ void init_dots(void)
 
 	// map top left, bottom right, center
 	set_dot(DOT_MTL, 0, 40, !stop ? 0 : DOTF_TOPOFF);
-	set_dot(DOT_MBR, 800, min(doty(DOT_MTL) + 450 - (!stop ? 0 : 40), doty(DOT_BOT) + 4), 0);
+	set_dot(DOT_MBR, XRES, min(doty(DOT_MTL) + 450 - (!stop ? 0 : 40), doty(DOT_BOT) + 4), 0);
 	x = dotx(DOT_MBR) - dotx(DOT_MTL);
 	y = doty(DOT_MBR) - doty(DOT_MTL) + (!stop ? 0 : 40);
 	xc = x / 2;

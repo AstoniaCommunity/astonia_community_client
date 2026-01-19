@@ -7,12 +7,14 @@
  *
  */
 
+#include <assert.h>
+#include <ctype.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
 #include <stdio.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "dll.h"
 #include "astonia.h"
@@ -49,7 +51,6 @@ static int clipstore[32][4], clippos = 0;
  * Dump rendering system state to file for debugging.
  * Used by the crash handler to report rendering state when errors occur.
  *
- * @param fp File pointer to write debug information to
  */
 void render_dump(FILE *fp)
 {
@@ -109,10 +110,6 @@ DLL_EXPORT void render_pop_clip(void)
  * Restrict the clipping rectangle further by intersecting with new bounds.
  * The resulting clip rect is the intersection of the current rect and the new rect.
  *
- * @param sx Start X coordinate for new clipping bounds
- * @param sy Start Y coordinate for new clipping bounds
- * @param ex End X coordinate for new clipping bounds
- * @param ey End Y coordinate for new clipping bounds
  */
 DLL_EXPORT void render_more_clip(int sx, int sy, int ex, int ey)
 {
@@ -134,17 +131,44 @@ DLL_EXPORT void render_more_clip(int sx, int sy, int ex, int ey)
  * Set the clipping rectangle to specific bounds.
  * All rendering operations will be clipped to this rectangle.
  *
- * @param sx Start X coordinate for clipping bounds
- * @param sy Start Y coordinate for clipping bounds
- * @param ex End X coordinate for clipping bounds
- * @param ey End Y coordinate for clipping bounds
  */
-void render_set_clip(int sx, int sy, int ex, int ey)
+DLL_EXPORT void render_set_clip(int sx, int sy, int ex, int ey)
 {
 	clipsx = sx;
 	clipsy = sy;
 	clipex = ex;
 	clipey = ey;
+}
+
+/**
+ * Clear the clipping rectangle, resetting to full screen.
+ * After calling this, rendering will not be clipped.
+ */
+DLL_EXPORT void render_clear_clip(void)
+{
+	clipsx = 0;
+	clipsy = 0;
+	clipex = XRES;
+	clipey = YRES;
+}
+
+/**
+ * Get the current clipping rectangle bounds.
+ */
+DLL_EXPORT void render_get_clip(int *out_start_x, int *out_start_y, int *out_end_x, int *out_end_y)
+{
+	if (out_start_x) {
+		*out_start_x = clipsx;
+	}
+	if (out_start_y) {
+		*out_start_y = clipsy;
+	}
+	if (out_end_x) {
+		*out_end_x = clipex;
+	}
+	if (out_end_y) {
+		*out_end_y = clipey;
+	}
 }
 
 /**
@@ -185,25 +209,18 @@ int render_exit(void)
  * This is the primary sprite rendering function supporting lighting, scaling,
  * color manipulation, alpha blending, animation freeze frames, and custom clipping.
  *
- * @param fx Pointer to RenderFX structure containing all rendering parameters
- * @param scrx Screen X coordinate for sprite position
- * @param scry Screen Y coordinate for sprite position
  * @return 1 on success, 0 if sprite could not be loaded
  */
 DLL_EXPORT int render_sprite_fx(RenderFX *fx, int scrx, int scry)
 {
 	int stx;
 
-	// cppcheck-suppress nullPointerRedundantCheck
-	PARANOIA(if (!fx) paranoia("render_sprite_fx: fx=NULL");)
-	// cppcheck-suppress nullPointerRedundantCheck
-	PARANOIA(if (fx->light < 0 || fx->light > 16) paranoia("render_sprite_fx: fx->light=%d", fx->light);)
-	// cppcheck-suppress nullPointerRedundantCheck
-	PARANOIA(if (fx->freeze < 0 || fx->freeze >= RENDERFX_MAX_FREEZE)
-	        paranoia("render_sprite_fx: fx->freeze=%d", fx->freeze);)
+	assert(fx != NULL && "render_sprite_fx: fx=NULL");
+	assert(fx->light >= 0 && fx->light <= 16 && "render_sprite_fx: fx->light out of range");
+	assert(fx->freeze >= 0 && fx->freeze < RENDERFX_MAX_FREEZE && "render_sprite_fx: fx->freeze out of range");
 
 	stx = sdl_tx_load(fx->sprite, fx->sink, fx->freeze, fx->scale, fx->cr, fx->cg, fx->cb, fx->clight, fx->sat, fx->c1,
-	    fx->c2, fx->c3, fx->shine, fx->ml, fx->ll, fx->rl, fx->ul, fx->dl, NULL, 0, 0, NULL, 0, 0, 0);
+	    fx->c2, fx->c3, fx->shine, fx->ml, fx->ll, fx->rl, fx->ul, fx->dl, NULL, 0, 0, NULL, 0, 0);
 
 	if (stx == -1) {
 		return 0;
@@ -250,12 +267,6 @@ DLL_EXPORT int render_sprite_fx(RenderFX *fx, int scrx, int scry)
  * Render a sprite with basic effects (internal helper function).
  * Simplified version of render_sprite_fx() for internal use with minimal parameters.
  *
- * @param sprite Sprite number to render
- * @param scrx Screen X coordinate
- * @param scry Screen Y coordinate
- * @param light Lighting level (unused if >= 1000)
- * @param ml Multi-directional lighting value
- * @param align Alignment mode (RENDER_ALIGN_OFFSET, RENDER_ALIGN_CENTER, RENDER_ALIGN_NORMAL)
  */
 void render_sprite_callfx(unsigned int sprite, int scrx, int scry, char light, char ml, char align)
 {
@@ -281,11 +292,6 @@ void render_sprite_callfx(unsigned int sprite, int scrx, int scry, char light, c
  * Simplified sprite rendering with basic lighting support.
  * This is the most commonly used sprite rendering function in the codebase.
  *
- * @param sprite Sprite number to render
- * @param scrx Screen X coordinate
- * @param scry Screen Y coordinate
- * @param light Lighting value (applied to all directions)
- * @param align Alignment mode (RENDER_ALIGN_OFFSET, RENDER_ALIGN_CENTER, RENDER_ALIGN_NORMAL)
  */
 DLL_EXPORT void render_sprite(unsigned int sprite, int scrx, int scry, char light, char align)
 {
@@ -307,11 +313,6 @@ DLL_EXPORT void render_sprite(unsigned int sprite, int scrx, int scry, char ligh
  * Draw a filled rectangle.
  * Renders a solid colored rectangle with clipping support.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param color RGB color value (16-bit IRGB format)
  */
 DLL_EXPORT void render_rect(int sx, int sy, int ex, int ey, unsigned short int color)
 {
@@ -322,12 +323,6 @@ DLL_EXPORT void render_rect(int sx, int sy, int ex, int ey, unsigned short int c
  * Draw a filled rectangle with alpha blending.
  * Renders a semi-transparent colored rectangle.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param ex End X coordinate
- * @param ey End Y coordinate
- * @param color RGB color value (16-bit IRGB format)
- * @param alpha Alpha transparency value (0-255)
  */
 void render_shaded_rect(int sx, int sy, int ex, int ey, unsigned short color, unsigned short alpha)
 {
@@ -338,11 +333,6 @@ void render_shaded_rect(int sx, int sy, int ex, int ey, unsigned short color, un
  * Draw a line between two points.
  * Renders a 1-pixel wide line with clipping support.
  *
- * @param fx From X coordinate
- * @param fy From Y coordinate
- * @param tx To X coordinate
- * @param ty To Y coordinate
- * @param col Line color (16-bit IRGB format)
  */
 DLL_EXPORT void render_line(int fx, int fy, int tx, int ty, unsigned short col)
 {
@@ -353,10 +343,6 @@ DLL_EXPORT void render_line(int fx, int fy, int tx, int ty, unsigned short col)
  * Render a lightning strike effect between two points.
  * Used for spell effects and combat visuals.
  *
- * @param fx From X coordinate
- * @param fy From Y coordinate
- * @param tx To X coordinate
- * @param ty To Y coordinate
  */
 void render_display_strike(int fx, int fy, int tx, int ty)
 {
@@ -419,10 +405,6 @@ void render_draw_curve(int cx, int cy, int nr, int size, int col)
  * Render a green pulseback lightning effect between two points.
  * Used for healing/buff spell effects.
  *
- * @param fx From X coordinate
- * @param fy From Y coordinate
- * @param tx To X coordinate
- * @param ty To Y coordinate
  */
 void render_display_pulseback(int fx, int fy, int tx, int ty)
 {
@@ -459,8 +441,6 @@ void render_display_pulseback(int fx, int fy, int tx, int ty)
  * Calculate the pixel width of text.
  * Stops at text terminator character.
  *
- * @param flags Font and style flags (RENDER_TEXT_SMALL, RENDER_TEXT_BIG, etc.)
- * @param text Text string to measure
  * @return Width in pixels
  */
 DLL_EXPORT int render_text_length(int flags, const char *text)
@@ -513,11 +493,6 @@ int render_text_len(int flags, const char *text, int n)
  * Render text at specified position.
  * Supports multiple fonts, alignment, shadows, and outlines.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param color Text color (16-bit IRGB format)
- * @param flags Font and style flags (combine with bitwise OR)
- * @param text Text string to render
  * @return Final X coordinate after rendering
  */
 DLL_EXPORT int render_text(int sx, int sy, unsigned short int color, int flags, const char *text)
@@ -587,12 +562,6 @@ DLL_EXPORT int render_text(int sx, int sy, unsigned short int color, int flags, 
  * Render text with word wrapping.
  * Automatically wraps text at word boundaries when reaching breakx.
  *
- * @param x Start X coordinate
- * @param y Start Y coordinate
- * @param breakx X coordinate to wrap at
- * @param color Text color (16-bit IRGB format)
- * @param flags Font and style flags
- * @param ptr Text string to render
  * @return Final Y coordinate after rendering
  */
 DLL_EXPORT int render_text_break(int x, int y, int breakx, unsigned short color, int flags, const char *ptr)
@@ -676,26 +645,450 @@ DLL_EXPORT int render_text_break_length(int x, int y, int breakx, unsigned short
 
 /**
  * Draw a single pixel.
- *
- * @param x X coordinate
- * @param y Y coordinate
- * @param col Pixel color (16-bit IRGB format)
  */
-DLL_EXPORT void render_pixel(int x, int y, unsigned short col)
+DLL_EXPORT void render_pixel(int x, int y, unsigned short color)
 {
-	sdl_pixel(x, y, col, x_offset, y_offset);
+	sdl_pixel(x, y, color, x_offset, y_offset);
+}
+
+/**
+ * Draw a single pixel with alpha blending.
+ *
+ */
+DLL_EXPORT void render_pixel_alpha(int x, int y, unsigned short col, unsigned char alpha)
+{
+	sdl_pixel_alpha(x, y, col, alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw a filled rectangle with alpha blending.
+ * Exported version of render_shaded_rect for modders.
+ *
+ */
+DLL_EXPORT void render_rect_alpha(int sx, int sy, int ex, int ey, unsigned short color, unsigned char alpha)
+{
+	sdl_shaded_rect(sx, sy, ex, ey, color, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Draw a line with alpha blending.
+ *
+ */
+DLL_EXPORT void render_line_alpha(int fx, int fy, int tx, int ty, unsigned short col, unsigned char alpha)
+{
+	sdl_line_alpha(fx, fy, tx, ty, col, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+// ============================================================================
+// Extended Rendering Primitives for Modders
+// ============================================================================
+
+/**
+ * Draw a circle outline with alpha blending.
+ *
+ */
+DLL_EXPORT void render_circle_alpha(int cx, int cy, int radius, unsigned short color, unsigned char alpha)
+{
+	sdl_circle_alpha(cx, cy, radius, color, alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw a filled circle with alpha blending.
+ *
+ */
+DLL_EXPORT void render_circle_filled_alpha(int cx, int cy, int radius, unsigned short color, unsigned char alpha)
+{
+	sdl_circle_filled_alpha(cx, cy, radius, color, alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw an ellipse outline with alpha blending.
+ *
+ */
+DLL_EXPORT void render_ellipse_alpha(int cx, int cy, int rx, int ry, unsigned short color, unsigned char alpha)
+{
+	sdl_ellipse_alpha(cx, cy, rx, ry, color, alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw a filled ellipse with alpha blending.
+ *
+ */
+DLL_EXPORT void render_ellipse_filled_alpha(int cx, int cy, int rx, int ry, unsigned short color, unsigned char alpha)
+{
+	sdl_ellipse_filled_alpha(cx, cy, rx, ry, color, alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw a rectangle outline (hollow) with alpha blending.
+ *
+ */
+DLL_EXPORT void render_rect_outline_alpha(int sx, int sy, int ex, int ey, unsigned short color, unsigned char alpha)
+{
+	sdl_rect_outline_alpha(sx, sy, ex, ey, color, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Draw a rounded rectangle outline with alpha blending.
+ *
+ */
+DLL_EXPORT void render_rounded_rect_alpha(
+    int sx, int sy, int ex, int ey, int radius, unsigned short color, unsigned char alpha)
+{
+	sdl_rounded_rect_alpha(sx, sy, ex, ey, radius, color, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Draw a filled rounded rectangle with alpha blending.
+ *
+ */
+DLL_EXPORT void render_rounded_rect_filled_alpha(
+    int sx, int sy, int ex, int ey, int radius, unsigned short color, unsigned char alpha)
+{
+	sdl_rounded_rect_filled_alpha(
+	    sx, sy, ex, ey, radius, color, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Draw a triangle outline with alpha blending.
+ *
+ */
+DLL_EXPORT void render_triangle_alpha(
+    int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha)
+{
+	sdl_triangle_alpha(x1, y1, x2, y2, x3, y3, color, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Draw a filled triangle with alpha blending.
+ *
+ */
+DLL_EXPORT void render_triangle_filled_alpha(
+    int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha)
+{
+	sdl_triangle_filled_alpha(x1, y1, x2, y2, x3, y3, color, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Draw a thick line with alpha blending.
+ * Unlike render_line_alpha which is 1 pixel wide, this allows configurable thickness.
+ *
+ */
+DLL_EXPORT void render_thick_line_alpha(
+    int fx, int fy, int tx, int ty, int thickness, unsigned short color, unsigned char alpha)
+{
+	sdl_thick_line_alpha(fx, fy, tx, ty, thickness, color, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Draw an arc (partial circle outline) with alpha blending.
+ * Angles are in degrees, 0 = right (3 o'clock), increasing clockwise.
+ *
+ */
+DLL_EXPORT void render_arc_alpha(
+    int cx, int cy, int radius, int start_angle, int end_angle, unsigned short color, unsigned char alpha)
+{
+	sdl_arc_alpha(cx, cy, radius, start_angle, end_angle, color, alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw a horizontal gradient rectangle with alpha blending.
+ * Colors interpolate from color1 (left) to color2 (right).
+ *
+ */
+DLL_EXPORT void render_gradient_rect_h(
+    int sx, int sy, int ex, int ey, unsigned short color1, unsigned short color2, unsigned char alpha)
+{
+	sdl_gradient_rect_h(sx, sy, ex, ey, color1, color2, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Draw a vertical gradient rectangle with alpha blending.
+ * Colors interpolate from color1 (top) to color2 (bottom).
+ *
+ */
+DLL_EXPORT void render_gradient_rect_v(
+    int sx, int sy, int ex, int ey, unsigned short color1, unsigned short color2, unsigned char alpha)
+{
+	sdl_gradient_rect_v(sx, sy, ex, ey, color1, color2, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Draw a quadratic Bezier curve with alpha blending.
+ * The curve passes through (x0,y0) and (x2,y2), with (x1,y1) as the control point.
+ *
+ */
+DLL_EXPORT void render_bezier_quadratic_alpha(
+    int x0, int y0, int x1, int y1, int x2, int y2, unsigned short color, unsigned char alpha)
+{
+	sdl_bezier_quadratic_alpha(x0, y0, x1, y1, x2, y2, color, alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw a cubic Bezier curve with alpha blending.
+ * The curve passes through (x0,y0) and (x3,y3), with (x1,y1) and (x2,y2) as control points.
+ *
+ */
+DLL_EXPORT void render_bezier_cubic_alpha(
+    int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha)
+{
+	sdl_bezier_cubic_alpha(x0, y0, x1, y1, x2, y2, x3, y3, color, alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw a radial gradient circle (glow effect) with alpha blending.
+ * Creates a soft glowing effect with bright center fading to transparent edge.
+ * Perfect for particles, auras, and light sources.
+ *
+ */
+DLL_EXPORT void render_gradient_circle(
+    int cx, int cy, int radius, unsigned short color, unsigned char center_alpha, unsigned char edge_alpha)
+{
+	sdl_gradient_circle(cx, cy, radius, color, center_alpha, edge_alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw an anti-aliased line with alpha blending.
+ * Uses Xiaolin Wu's algorithm for smooth lines without jaggies.
+ * Ideal for lightning effects, beams, and trails.
+ *
+ */
+DLL_EXPORT void render_line_aa(int x0, int y0, int x1, int y1, unsigned short color, unsigned char alpha)
+{
+	sdl_line_aa(x0, y0, x1, y1, color, alpha, x_offset, y_offset);
+}
+
+/**
+ * Draw a filled ring (arc with inner and outer radius) with alpha blending.
+ * Perfect for shockwaves, expanding rings, circular sweeps.
+ * Angles are in degrees, 0 = right (3 o'clock), increasing clockwise.
+ *
+ */
+DLL_EXPORT void render_ring_alpha(int cx, int cy, int inner_radius, int outer_radius, int start_angle, int end_angle,
+    unsigned short color, unsigned char alpha)
+{
+	sdl_ring_alpha(cx, cy, inner_radius, outer_radius, start_angle, end_angle, color, alpha, x_offset, y_offset);
+}
+
+/**
+ * Set the blend mode for subsequent rendering operations.
+ * Affects how colors are blended when drawing with alpha.
+ *
+ */
+DLL_EXPORT void render_set_blend_mode(int mode)
+{
+	sdl_set_blend_mode(mode);
+}
+
+/**
+ * Get the current blend mode.
+ *
+ * @return Current blend mode: BLEND_NORMAL (0), BLEND_ADDITIVE (1), BLEND_MULTIPLY (2)
+ */
+DLL_EXPORT int render_get_blend_mode(void)
+{
+	return sdl_get_blend_mode();
+}
+
+// ============================================================================
+// Custom Texture Loading API for Modders
+// ============================================================================
+
+/**
+ * Load a texture from a PNG file.
+ * The texture can be rendered using render_texture() or render_texture_scaled().
+ *
+ * @return Texture ID (>= 0) on success, -1 on failure
+ */
+DLL_EXPORT int render_load_texture(const char *path)
+{
+	return sdl_load_mod_texture(path);
+}
+
+/**
+ * Unload a previously loaded texture.
+ * Frees the GPU memory associated with the texture.
+ *
+ */
+DLL_EXPORT void render_unload_texture(int tex_id)
+{
+	sdl_unload_mod_texture(tex_id);
+}
+
+/**
+ * Render a custom texture at the specified position.
+ *
+ */
+DLL_EXPORT void render_texture(int tex_id, int x, int y, unsigned char alpha)
+{
+	sdl_render_mod_texture(tex_id, x, y, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Render a custom texture with scaling.
+ *
+ */
+DLL_EXPORT void render_texture_scaled(int tex_id, int x, int y, float scale, unsigned char alpha)
+{
+	sdl_render_mod_texture_scaled(tex_id, x, y, scale, alpha, clipsx, clipsy, clipex, clipey, x_offset, y_offset);
+}
+
+/**
+ * Get the width of a loaded texture.
+ *
+ * @return Width in pixels, or 0 if invalid texture ID
+ */
+DLL_EXPORT int render_texture_width(int tex_id)
+{
+	return sdl_get_mod_texture_width(tex_id);
+}
+
+/**
+ * Get the height of a loaded texture.
+ *
+ * @return Height in pixels, or 0 if invalid texture ID
+ */
+DLL_EXPORT int render_texture_height(int tex_id)
+{
+	return sdl_get_mod_texture_height(tex_id);
+}
+
+// ============================================================================
+// Screen Effects for Modders
+// ============================================================================
+
+/**
+ * Apply a color tint to the entire screen.
+ * Draws a semi-transparent colored overlay over the current frame.
+ * Should be called after all other rendering, typically at the end of on_frame.
+ *
+ */
+DLL_EXPORT void render_screen_tint(unsigned short color, unsigned char intensity)
+{
+	if (intensity == 0) {
+		return;
+	}
+	sdl_shaded_rect(0, 0, XRES, YRES, color, intensity, 0, 0, XRES, YRES, x_offset, y_offset);
+}
+
+/**
+ * Apply a vignette effect (darken the edges of the screen).
+ * Creates a cinematic fade-to-black effect at the screen borders.
+ * Should be called after all other rendering, typically at the end of on_frame.
+ *
+ */
+DLL_EXPORT void render_vignette(unsigned char intensity)
+{
+	int border_size, i, band_start, band_end, band_count;
+	unsigned char alpha;
+
+	if (intensity == 0) {
+		return;
+	}
+
+	// Calculate border size based on intensity (max ~15% of screen)
+	// 1700 = 255 / 0.15 (roughly), where 255 is max intensity and 0.15 is max border ratio
+	// This gives: at intensity=255, border_size = min_dimension * 0.15 (15% of screen)
+	border_size = (XRES < YRES ? XRES : YRES) * intensity / 1700;
+	if (border_size < 1) {
+		border_size = 1;
+	}
+
+	// Optimization: Use 16 bands maximum instead of per-pixel strips
+	// This reduces draw calls from 4*border_size to 4*16 = 64 maximum
+	band_count = border_size < 16 ? border_size : 16;
+
+	// Draw gradient borders using larger bands with averaged alpha
+	for (i = 0; i < band_count; i++) {
+		band_start = (border_size * i) / band_count;
+		band_end = (border_size * (i + 1)) / band_count;
+		if (band_end <= band_start) {
+			band_end = band_start + 1;
+		}
+
+		// Use alpha from the center of this band
+		alpha = (unsigned char)((intensity * (border_size - (band_start + band_end) / 2)) / border_size);
+
+		// Left edge
+		sdl_shaded_rect(band_start, 0, band_end, YRES, 0, alpha, 0, 0, XRES, YRES, x_offset, y_offset);
+		// Right edge
+		sdl_shaded_rect(XRES - band_end, 0, XRES - band_start, YRES, 0, alpha, 0, 0, XRES, YRES, x_offset, y_offset);
+		// Top edge
+		sdl_shaded_rect(0, band_start, XRES, band_end, 0, alpha, 0, 0, XRES, YRES, x_offset, y_offset);
+		// Bottom edge
+		sdl_shaded_rect(0, YRES - band_end, XRES, YRES - band_start, 0, alpha, 0, 0, XRES, YRES, x_offset, y_offset);
+	}
+}
+
+/**
+ * Flash the screen with a color effect.
+ * Useful for damage feedback, healing effects, or other visual cues.
+ *
+ */
+DLL_EXPORT void render_screen_flash(unsigned short color, unsigned char intensity)
+{
+	render_screen_tint(color, intensity);
+}
+
+// ============================================================================
+// Render Targets for Modders
+// ============================================================================
+
+/**
+ * Create a render target (offscreen buffer) for rendering.
+ * Useful for post-processing effects, motion blur, bloom, etc.
+ *
+ * @return Target ID (>= 0) on success, -1 on failure
+ */
+DLL_EXPORT int render_create_target(int width, int height)
+{
+	return sdl_create_render_target(width, height);
+}
+
+/**
+ * Destroy a previously created render target.
+ * Frees the GPU memory associated with the target.
+ *
+ */
+DLL_EXPORT void render_destroy_target(int target_id)
+{
+	sdl_destroy_render_target(target_id);
+}
+
+/**
+ * Set the current render target.
+ * All subsequent rendering will go to this target instead of the screen.
+ * Pass -1 or RENDER_TARGET_SCREEN to render to the screen again.
+ *
+ * @return 0 on success, -1 on failure
+ */
+DLL_EXPORT int render_set_target(int target_id)
+{
+	return sdl_set_render_target(target_id);
+}
+
+/**
+ * Render a target to the screen at the specified position.
+ *
+ */
+DLL_EXPORT void render_target_to_screen(int target_id, int x, int y, unsigned char alpha)
+{
+	sdl_render_target_to_screen(target_id, x, y, alpha);
+}
+
+/**
+ * Clear a render target to transparent black.
+ *
+ */
+DLL_EXPORT void render_clear_target(int target_id)
+{
+	sdl_clear_render_target(target_id);
 }
 
 /**
  * Render formatted text (printf-style) at specified position.
  * Supports all render_text() features with printf-style formatting.
  *
- * @param sx Start X coordinate
- * @param sy Start Y coordinate
- * @param color Text color (16-bit IRGB format)
- * @param flags Font and style flags
- * @param format Printf-style format string
- * @param ... Format arguments
  * @return Final X coordinate after rendering
  */
 DLL_EXPORT int render_text_fmt(int64_t sx, int64_t sy, unsigned short int color, int flags, const char *format, ...)
@@ -750,6 +1143,32 @@ static void render_draw_bless_pix(int x, int y, int nr, int color, int front)
 	sdl_pixel(x, y, (unsigned short)color, x_offset, y_offset);
 }
 
+static void render_draw_heal_pix(int x, int y, int nr, int color, int front)
+{
+	int sy, val;
+	double off;
+
+	val = (nr / 36) % 5;
+	off = 0.6 + val * 0.10;
+	sy = (int)(bless_sin[nr % 36] * off);
+	if (front && sy < 0) {
+		return;
+	}
+	if (!front && sy >= 0) {
+		return;
+	}
+
+	x += (int)(bless_cos[nr % 36] * off);
+
+	y = y + sy + bless_hight[nr % 200] / 10 - 45;
+
+	if (x < clipsx || x >= clipex || y < clipsy || y >= clipey) {
+		return;
+	}
+
+	sdl_pixel(x, y, (unsigned short)color, x_offset, y_offset);
+}
+
 static void render_draw_rain_pix(int x, int y, int nr, int color, int front)
 {
 	int sy;
@@ -772,11 +1191,9 @@ static void render_draw_rain_pix(int x, int y, int nr, int color, int front)
 	sdl_pixel(x, y, (unsigned short)color, x_offset, y_offset);
 }
 
-void render_draw_bless(int x, int y, int ticker, int strength, int front)
+static void init_bless(void)
 {
-	int step, nr;
-	double light;
-
+	int nr;
 	if (!bless_init) {
 		for (nr = 0; nr < 36; nr++) {
 			bless_sin[nr] = (int)(sin((nr % 36) / 36.0 * M_PI * 2) * 8);
@@ -787,6 +1204,14 @@ void render_draw_bless(int x, int y, int ticker, int strength, int front)
 		}
 		bless_init = 1;
 	}
+}
+
+void render_draw_bless(int x, int y, int ticker, int strength, int front)
+{
+	int step;
+	double light;
+
+	init_bless();
 
 	if (ticker > 62) {
 		light = 1.0;
@@ -805,6 +1230,34 @@ void render_draw_bless(int x, int y, int ticker, int strength, int front)
 		    x, y, ticker + step + 3, IRGB((int)(12 * light), (int)(12 * light), (int)(20 * light)), front);
 		render_draw_bless_pix(
 		    x, y, ticker + step + 4, IRGB((int)(8 * light), (int)(8 * light), (int)(16 * light)), front);
+	}
+}
+
+void render_draw_heal(int x, int y, int start, int front)
+{
+	int step, ticker;
+	double light;
+
+	init_bless();
+
+	ticker = start + (int)tick;
+	if (ticker > 62) {
+		light = 1.0;
+	} else {
+		light = (ticker) / 62.0;
+	}
+
+	for (step = 0; step < 12 * 17; step += 17) {
+		render_draw_heal_pix(
+		    x, y, ticker + step + 0, IRGB((int)(24 * light), (int)(31 * light), (int)(24 * light)), front);
+		render_draw_heal_pix(
+		    x, y, ticker + step + 1, IRGB((int)(20 * light), (int)(28 * light), (int)(20 * light)), front);
+		render_draw_heal_pix(
+		    x, y, ticker + step + 2, IRGB((int)(16 * light), (int)(24 * light), (int)(16 * light)), front);
+		render_draw_heal_pix(
+		    x, y, ticker + step + 3, IRGB((int)(12 * light), (int)(20 * light), (int)(12 * light)), front);
+		render_draw_heal_pix(
+		    x, y, ticker + step + 4, IRGB((int)(8 * light), (int)(16 * light), (int)(8 * light)), front);
 	}
 }
 
@@ -904,12 +1357,19 @@ static unsigned char *render_create_rawrun(char letter[64][64])
 static void create_shade_font(RenderFont *src, RenderFont *dst)
 {
 	char letter[64][64];
-	int c;
+	int c, x, y;
 
 	for (c = 0; c < 128; c++) {
 		bzero(letter, sizeof(letter));
-		render_create_letter(src[c].raw, sdl_scale * 4, sdl_scale * 5, 2, letter);
-		render_create_letter(src[c].raw, sdl_scale * 5, sdl_scale * 4, 2, letter);
+		// Create shadow in a diagonal pattern without gaps
+		for (y = 0; y <= sdl_scale; y++) {
+			for (x = 0; x <= sdl_scale; x++) {
+				if (x > 0 || y > 0) { // Don't draw at (0,0)
+					render_create_letter(src[c].raw, sdl_scale * 4 + x, sdl_scale * 4 + y, 2, letter);
+				}
+			}
+		}
+		// Draw the actual character on top
 		render_create_letter(src[c].raw, sdl_scale * 4, sdl_scale * 4, 1, letter);
 		dst[c].raw = render_create_rawrun(letter);
 		dst[c].dim = src[c].dim;
@@ -1174,7 +1634,6 @@ void render_display_text(void)
  * Add a line of text to the chat window.
  * Handles word wrapping, color codes, and clickable links.
  *
- * @param ptr Text string (may contain color codes)
  */
 void render_add_text(char *ptr)
 {
@@ -1285,9 +1744,6 @@ int render_text_init_done(void)
  * Check if mouse is over clickable text in chat window.
  * Extracts the clicked text link if found.
  *
- * @param x Mouse X coordinate
- * @param y Mouse Y coordinate
- * @param hit Buffer to store clicked text (output parameter)
  * @return Link type (1 or 2) if over link, 0 otherwise
  */
 int render_scantext(int x, int y, char *hit)
@@ -1363,39 +1819,51 @@ void render_list_text(void)
 
 void render_text_lineup(void)
 {
-	int tmp;
+	int oldest_line;
 
-	// printf("up: textlines=%d,displaylines=%d\n",textlines,textdisplayline); fflush(stdout);
-
+	// Can't scroll up if all lines fit on screen
 	if (textlines <= TEXTDISPLAYLINES) {
 		return;
 	}
 
-	tmp = (textdisplayline + MAXTEXTLINES - 1) % MAXTEXTLINES;
-	// printf("up: tmp=%d\n",tmp); fflush(stdout);
-	// if (textlines<MAXTEXTLINES-1 && tmp>textlines) return; // TODO: test if this line causes the "chat will not
-	// scroll" bug
-	if (tmp != textnextline) {
-		textdisplayline = tmp;
+	// Calculate the oldest valid line in the circular buffer
+	if (textlines >= MAXTEXTLINES) {
+		// Buffer is full - oldest line is right after textnextline
+		oldest_line = textnextline;
+	} else {
+		// Buffer not full - oldest line is at index 0
+		oldest_line = 0;
 	}
+
+	// Don't scroll past the oldest line
+	if (textdisplayline == oldest_line) {
+		return;
+	}
+
+	// Move display one line up (toward older text)
+	textdisplayline = (textdisplayline + MAXTEXTLINES - 1) % MAXTEXTLINES;
 }
 
 void render_text_linedown(void)
 {
-	int tmp;
+	int bottom_edge_line;
 
-	// printf("down: textlines=%d,displaylines=%d, textnextline=%d\n",textlines,textdisplayline,textnextline);
-	// fflush(stdout);
-
+	// Can't scroll down if all lines fit on screen
 	if (textlines <= TEXTDISPLAYLINES) {
 		return;
 	}
 
-	tmp = (textdisplayline + 1) % MAXTEXTLINES;
-	if (tmp != (textnextline + MAXTEXTLINES - TEXTDISPLAYLINES + 1) % MAXTEXTLINES) {
-		textdisplayline = tmp;
+	// Calculate where the bottom edge of the display window would be
+	bottom_edge_line = (textdisplayline + TEXTDISPLAYLINES) % MAXTEXTLINES;
+
+	// Don't scroll past the newest line (textnextline)
+	// The bottom of our window should stop at textnextline
+	if (bottom_edge_line == textnextline) {
+		return;
 	}
-	// printf("down: tmp=%d (%d)\n",tmp,(textnextline+MAXTEXTLINES-TEXTDISPLAYLINES+1)%MAXTEXTLINES); fflush(stdout);
+
+	// Move display one line down (toward newer text)
+	textdisplayline = (textdisplayline + 1) % MAXTEXTLINES;
 }
 
 void render_text_pageup(void)
@@ -1420,8 +1888,6 @@ void render_text_pagedown(void)
  * Set global rendering offset.
  * Used for window scaling and positioning.
  *
- * @param x X offset in pixels
- * @param y Y offset in pixels
  */
 void render_set_offset(int x, int y)
 {

@@ -6,9 +6,10 @@
  *
  */
 
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -131,7 +132,7 @@ void minimap_update(void)
 			}
 		}
 	}
-	if (rewrite_cnt > 4) {
+	if (rewrite_cnt > 8) {
 		memset(_mmap, 0, sizeof(_mmap));
 		update1 = update2 = 1;
 		note("MAP CHANGED: %d", rewrite_cnt);
@@ -190,7 +191,7 @@ void display_minimap(void)
 {
 	int x, y, ix, iy, i;
 	float dist;
-	SDL_Rect dr, sr;
+	SDL_FRect dr, sr;
 
 	if (game_options & GO_NOMAP) {
 		return;
@@ -207,16 +208,16 @@ void display_minimap(void)
 			update1 = 0;
 		}
 
-		dr.x = (sx + x_offset) * sdl_scale;
-		dr.w = MAXMAP * sdl_scale;
-		dr.y = (sy + y_offset) * sdl_scale;
-		dr.h = MAXMAP * sdl_scale;
+		dr.x = (float)((sx + x_offset) * sdl_scale);
+		dr.w = (float)(MAXMAP * sdl_scale);
+		dr.y = (float)((sy + y_offset) * sdl_scale);
+		dr.h = (float)(MAXMAP * sdl_scale);
 
 		if (visible & 1) {
-			sr.x = 0;
-			sr.w = MAXMAP;
-			sr.y = 0;
-			sr.h = MAXMAP;
+			sr.x = 0.0f;
+			sr.w = (float)MAXMAP;
+			sr.y = 0.0f;
+			sr.h = (float)MAXMAP;
 			sdl_render_copy(maptex1, &sr, &dr);
 			draw_center(sx + originx, sy + originy);
 		} else {
@@ -235,10 +236,10 @@ void display_minimap(void)
 				y = MAXMAP - MAXMAP / 3;
 			}
 
-			sr.x = x;
-			sr.w = MAXMAP / 3;
-			sr.y = y;
-			sr.h = MAXMAP / 3;
+			sr.x = (float)x;
+			sr.w = (float)(MAXMAP / 3);
+			sr.y = (float)y;
+			sr.h = (float)(MAXMAP / 3);
 
 			sdl_render_copy(maptex1, &sr, &dr);
 			draw_center2(sx + (originx - x) * 3 + 2, sy + (originy - y) * 3 + 2);
@@ -282,15 +283,15 @@ void display_minimap(void)
 			update2 = 0;
 		}
 
-		dr.x = (mx + x_offset) * sdl_scale;
-		dr.w = MINIMAP * 2 * sdl_scale;
-		dr.y = (my + y_offset) * sdl_scale;
-		dr.h = MINIMAP * 2 * sdl_scale;
+		dr.x = (float)((mx + x_offset) * sdl_scale);
+		dr.w = (float)(MINIMAP * 2 * sdl_scale);
+		dr.y = (float)((my + y_offset) * sdl_scale);
+		dr.h = (float)(MINIMAP * 2 * sdl_scale);
 
-		sr.x = 0;
-		sr.w = MINIMAP * 2;
-		sr.y = 0;
-		sr.h = MINIMAP * 2;
+		sr.x = 0.0f;
+		sr.w = (float)(MINIMAP * 2);
+		sr.y = 0.0f;
+		sr.h = (float)(MINIMAP * 2);
 
 		sdl_render_copy_ex(maptex2, &sr, &dr, 45.0);
 		draw_center(mx + MINIMAP, my + MINIMAP);
@@ -506,7 +507,7 @@ void minimap_compact(void)
 			if (map_compare(tmap, xmap)) {
 				map_merge(tmap, xmap);
 				filename = mapname(i);
-				fp = fopen(filename, "rb");
+				fp = fopen(filename, "wb");
 				if (!fp) {
 					continue;
 				}

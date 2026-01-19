@@ -511,38 +511,68 @@ void display_skill(void)
 			render_rect(bsx, bsy, bex + barsize, bsy + 1, redcolor);
 		}
 
-		switch (skltab[i].v) {
-		case V_WEAPON:
-		case V_SPEED:
-		case V_LIGHT:
-		case V_COLD:
-			sprintf(buf, "%d", skltab[i].curr);
-			break;
-		case V_ARMOR:
-			sprintf(buf, "%.2f", skltab[i].curr / 20.0);
-			break;
-		case V_MANA:
-			sprintf(buf, "%d/%2d/%2d", mana, skltab[i].base, skltab[i].curr);
-			break;
-		case V_HP:
-			if (lifeshield) {
-				sprintf(buf, "%d+%d/%2d/%2d", hp, lifeshield, skltab[i].base, skltab[i].curr);
-			} else {
-				sprintf(buf, "%d/%2d/%2d", hp, skltab[i].base, skltab[i].curr);
+		int done = 0;
+		if (sv_ver == 35) {
+			switch (skltab[i].v) {
+			case V35_OFFENSE:
+			case V35_DEFENSE:
+				sprintf(buf, "%d", skltab[i].curr + rage / 4);
+				done = 1;
+				break;
+
+			case V35_IMMUNITY:
+				sprintf(buf, "%2d/%2d", skltab[i].base, skltab[i].curr + rage / 4);
+				done = 1;
+				break;
+			case V35_WEAPON:
+				sprintf(buf, "%.2f", skltab[i].curr / 20.0);
+				done = 1;
+				break;
 			}
-			break;
-		case V_ENDURANCE:
-			sprintf(buf, "%d/%2d/%2d", endurance, skltab[i].base, skltab[i].curr);
-			break;
-		default:
-			if (!amod_display_skill_line(skltab[i].v, skltab[i].base, skltab[i].curr, cn, buf)) {
-				if (skltab[i].v >= V_PROFBASE) {
-					sprintf(buf, "%d", skltab[i].base);
+		} else {
+			switch (skltab[i].v) {
+			case V3_WEAPON:
+				sprintf(buf, "%d", skltab[i].curr);
+				done = 1;
+				break;
+			}
+		}
+
+		if (!done) {
+			switch (v_val(skltab[i].v)) {
+			case V_SPEED:
+			case V_LIGHT:
+			case V_COLD:
+				sprintf(buf, "%d", skltab[i].curr);
+				break;
+
+			case V_ARMOR:
+				sprintf(buf, "%.2f", skltab[i].curr / 20.0);
+				break;
+			case V_MANA:
+				sprintf(buf, "%d/%2d/%2d", mana, skltab[i].base, skltab[i].curr);
+				break;
+			case V_HP:
+				if (lifeshield) {
+					sprintf(buf, "%d+%d/%2d/%2d", hp, lifeshield, skltab[i].base, skltab[i].curr);
 				} else {
-					sprintf(buf, "%2d/%2d", skltab[i].base, skltab[i].curr);
+					sprintf(buf, "%d/%2d/%2d", hp, skltab[i].base, skltab[i].curr);
 				}
+				break;
+			case V_ENDURANCE:
+				sprintf(buf, "%d/%2d/%2d", endurance, skltab[i].base, skltab[i].curr);
+				break;
+			default:
+				if (!amod_display_skill_line(skltab[i].v, skltab[i].base, skltab[i].curr, cn, buf)) {
+					if (skltab[i].v >= V_PROFBASE) {
+						sprintf(buf, "%d", skltab[i].base);
+					} else {
+						sprintf(buf, "%2d/%2d", skltab[i].base, skltab[i].curr);
+					}
+				}
+				break;
+				;
 			}
-			break;
 		}
 
 		render_text(bsx, yt, textcolor, RENDER_TEXT_LARGE | RENDER_TEXT_LEFT, skltab[i].name);
@@ -573,7 +603,7 @@ void display_keys(void)
 			col = textcolor;
 		}
 
-		x = 10 + u++ * ((800 - 20) / 10);
+		x = 10 + u++ * ((XRES - 20) / 10);
 
 		if (keytab[i].skill == -1) {
 			continue;
@@ -775,6 +805,7 @@ void display_selfspells(void)
 
 	sprintf(hover_bless_text, "Bless: Not active");
 	sprintf(hover_freeze_text, "Freeze: Not active");
+	sprintf(hover_heal_text, "Heal: Not active");
 	sprintf(hover_potion_text, "Potion: Not active");
 
 	for (int n = 0; n < 4; n++) {
@@ -788,7 +819,7 @@ void display_selfspells(void)
 			int step = 50 - 50 * (int)(ceffect[nr].bless.stop - tick) /
 			                    (int)(ceffect[nr].bless.stop - ceffect[nr].bless.start);
 			render_push_clip();
-			render_more_clip(0, 0, 800, doty(DOT_SSP) + 119 - 68);
+			render_more_clip(0, 0, XRES, doty(DOT_SSP) + 119 - 68);
 			if (ceffect[nr].bless.stop - tick < 24 * 30 && (tick & 4)) {
 				render_sprite(997, dotx(DOT_SSP) + 2 * 10, doty(DOT_SSP) + step, RENDERFX_BRIGHT, RENDER_ALIGN_NORMAL);
 			} else {
@@ -799,22 +830,36 @@ void display_selfspells(void)
 			sprintf(hover_bless_text, "Bless: %us to go", (ceffect[nr].bless.stop - tick) / 24);
 			break;
 		}
-		case 11: {
-			int step = 50 - 50 * (int)(ceffect[nr].freeze.stop - tick) /
-			                    (int)(ceffect[nr].freeze.stop - ceffect[nr].freeze.start);
-			render_push_clip();
-			render_more_clip(0, 0, 800, doty(DOT_SSP) + 119 - 68);
-			render_sprite(
-			    997, dotx(DOT_SSP) + 1 * 10, doty(DOT_SSP) + step, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
-			render_pop_clip();
-			sprintf(hover_freeze_text, "Freeze: %us to go", (ceffect[nr].freeze.stop - tick) / 24);
+		case 10:
+#define HEALDURATION (TICKS * 8)
+			if (sv_ver == 35) {
+				int step = 50 * (tick - ceffect[nr].heal.start) / HEALDURATION;
+				render_push_clip();
+				render_more_clip(0, 0, XRES, doty(DOT_SSP) + 119 - 68);
+				render_sprite(
+				    997, dotx(DOT_SSP) + 1 * 10, doty(DOT_SSP) + step, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
+				render_pop_clip();
+				sprintf(hover_heal_text, "Heal: %.1fs to go", (ceffect[nr].heal.start + HEALDURATION - tick) / 24.0);
+			}
 			break;
-		}
+
+		case 11:
+			if (sv_ver == 30) {
+				int step = 50 - 50 * (int)(ceffect[nr].freeze.stop - tick) /
+				                    (int)(ceffect[nr].freeze.stop - ceffect[nr].freeze.start);
+				render_push_clip();
+				render_more_clip(0, 0, XRES, doty(DOT_SSP) + 119 - 68);
+				render_sprite(
+				    997, dotx(DOT_SSP) + 1 * 10, doty(DOT_SSP) + step, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
+				render_pop_clip();
+				sprintf(hover_freeze_text, "Freeze: %us to go", (ceffect[nr].freeze.stop - tick) / 24);
+				break;
+			}
 		case 14: {
 			int step = 50 - 50 * (int)(ceffect[nr].potion.stop - tick) /
 			                    (int)(ceffect[nr].potion.stop - ceffect[nr].potion.start);
 			render_push_clip();
-			render_more_clip(0, 0, 800, doty(DOT_SSP) + 119 - 68);
+			render_more_clip(0, 0, XRES, doty(DOT_SSP) + 119 - 68);
 			if (step >= 40 && (tick & 4)) {
 				render_sprite(997, dotx(DOT_SSP) + 0 * 10, doty(DOT_SSP) + step, RENDERFX_BRIGHT, RENDER_ALIGN_NORMAL);
 			} else {
@@ -950,17 +995,25 @@ void display_rage(void)
 
 	sprintf(hover_rage_text, "Rage: Not active");
 
-	if (!value[0][V_RAGE] || !rage) {
+	if (!value[0][sv_val(V_RAGE)] || !rage) {
 		return;
 	}
 
-	step = (int)(50 - 50 * rage / value[0][V_RAGE]);
+	if (sv_ver == 35) {
+		step = 50 - 50 * rage / (value[0][V35_RAGE] + (int)(value[0][V35_TACTICS] * 0.15 + 0.1));
+	} else {
+		step = (int)(50 - 50 * rage / value[0][V3_RAGE]);
+	}
 	render_push_clip();
 	render_more_clip(0, 0, 800, doty(DOT_SSP) + 119 - 68);
 	render_sprite(997, dotx(DOT_SSP) + 3 * 10, doty(DOT_SSP) + step, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
 	render_pop_clip();
 
-	sprintf(hover_rage_text, "Rage: %d%%", 100 * rage / value[0][V_RAGE]);
+	if (sv_ver == 35) {
+		sprintf(hover_rage_text, "Rage: +%d", rage / 4);
+	} else {
+		sprintf(hover_rage_text, "Rage: %d%%", 100 * rage / value[0][V3_RAGE]);
+	}
 }
 
 void display_game_special(void)
@@ -1056,15 +1109,17 @@ void display_game_special(void)
 	}
 }
 
-char action_row[2][MAXACTIONSLOT] = {
-    // 01234567890123
-    "asd  fg   h l", " qwertzuiop m"};
 int action_enabled = 1;
 
-static char *action_text[MAXACTIONSLOT] = {"Attack", "Fireball", "Lightning Ball", "Flash", "Freeze", "Magic Shield",
+char v3_action_row[2][MAXACTIONSLOT] = {
+    //  0   1   2   3   4   5   6   7   8   9   0   1   2   3
+    {'a', 's', 'd', ' ', ' ', ' ', 'f', 'g', ' ', ' ', ' ', 'h', ' ', 'l'},
+    {' ', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', ' ', 'm', ' '}};
+
+static char *v3_action_text[MAXACTIONSLOT] = {"Attack", "Fireball", "Lightning Ball", "Flash", "Freeze", "Magic Shield",
     "Bless", "Heal", "Warcry", "Pulse", "Firering", "Take/Use/Give/Drop", "Map", "Look"};
 
-static char *action_desc[MAXACTIONSLOT] = {"Attacks another character using your equipped weapon, or your hands.",
+static char *v3_action_desc[MAXACTIONSLOT] = {"Attacks another character using your equipped weapon, or your hands.",
     "Throws a fireball. Explodes for huge splash damage when it hits.",
     "Throws a slow moving ball of lightning. It will deal medium damage over time to enemies it passes.",
     "Summons a small ball of lightning to your side. It will deal medium damage over time to enemies near you.",
@@ -1080,8 +1135,44 @@ static char *action_desc[MAXACTIONSLOT] = {"Attacks another character using your
     "cursor.",
     "Cycles between the minimap, the big map and no map.", "Look at characters or items in the world."};
 
-static int action_skill[MAXACTIONSLOT] = {V_PERCEPT, V_FIREBALL, V_FLASH, V_FLASH, V_FREEZE, V_MAGICSHIELD, V_BLESS,
-    V_HEAL, V_WARCRY, V_PULSE, V_FIREBALL, V_PERCEPT, -1, -1};
+static int v3_action_skill[MAXACTIONSLOT] = {V3_PERCEPT, V3_FIREBALL, V3_FLASH, V3_FLASH, V3_FREEZE, V3_MAGICSHIELD,
+    V3_BLESS, V3_HEAL, V3_WARCRY, V3_PULSE, V3_FIREBALL, V3_PERCEPT, -1, -1};
+
+char v35_action_row[2][MAXACTIONSLOT] = {{'a', 's', 'd', ' ', ' ', ' ', ' ', 'b', ' ', ' ', ' ', 'g', ' ', 'l'},
+    {' ', 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', ' ', 'm', ' '}};
+
+static char *v35_action_text[MAXACTIONSLOT] = {"Attack", "Fireball", "Lightning Ball", "Flash", "Freeze",
+    "Magic Shield", "Bless", "Heal", "Warcry", "NOOP", "Firering", "Take/Use/Give/Drop", "Map", "Look"};
+
+static char *v35_action_desc[MAXACTIONSLOT] = {"Attacks another character using your equipped weapon, or your hands.",
+    "Throws a fireball. Explodes for huge splash damage when it hits.",
+    "Throws a slow moving ball of lightning. It will deal medium damage over time to enemies it passes.",
+    "Summons a small ball of lightning to your side. It will deal medium damage over time to enemies near you.",
+    "Slows down enemies close to you.",
+    "Summons a magic shield that will protect you from damage. Collapses when used up.",
+    "Increases the basic attributes (WIS/INT/AGI/STR) of yourself.", "Restores some of the target's hitpoints.",
+    "Gives you a temporary Life Shield, blocking some damage. Slows enemies and might interrupt spellcasting in a "
+    "fairly wide radius around you.",
+    "NOOP", "Deals high damage to adjacent enemies.",
+    "Interact with items. Can be used to take or use an item on the ground, or to drop or give an item on your mouse "
+    "cursor.",
+    "Cycles between the minimap, the big map and no map.", "Look at characters or items in the world."};
+
+static int v35_action_skill[MAXACTIONSLOT] = {V35_PERCEPT, V35_FIRE, V35_FLASH, V35_FLASH, V35_FREEZE, V35_MAGICSHIELD,
+    V35_BLESS, V35_HEAL, V35_WARCRY, -2, V35_FIRE, V35_PERCEPT, -1, -1};
+
+char (*action_row)[MAXACTIONSLOT] = v3_action_row;
+static char **action_text = v3_action_text;
+static char **action_desc = v3_action_desc;
+static int *action_skill = v3_action_skill;
+
+void set_v35_actions(void)
+{
+	action_row = v35_action_row;
+	action_text = v35_action_text;
+	action_desc = v35_action_desc;
+	action_skill = v35_action_skill;
+}
 
 void actions_loaded(void)
 {
@@ -1099,6 +1190,9 @@ void actions_loaded(void)
 	action_row[0][3] = ' ';
 	action_row[0][4] = ' ';
 	action_row[0][5] = ' ';
+	if (sv_ver == 35) {
+		action_row[0][6] = ' ';
+	}
 	action_row[0][8] = ' ';
 	action_row[0][9] = ' ';
 	action_row[0][10] = ' ';
@@ -1114,10 +1208,13 @@ uint16_t has_action_skill(int i)
 	if (action_skill[i] == -1) {
 		return 1;
 	}
+	if (action_skill[i] == -2) {
+		return 0;
+	}
 	return value[0][action_skill[i]];
 }
 
-int action_key2slot(int key)
+int action_key2slot(SDL_Keycode key)
 {
 	int i;
 
@@ -1125,29 +1222,29 @@ int action_key2slot(int key)
 		if (!has_action_skill(i)) {
 			continue;
 		}
-		if (action_row[0][i] == key) {
+		if ((SDL_Keycode)action_row[0][i] == key) {
 			return i;
 		}
-		if (action_row[1][i] == key) {
+		if ((SDL_Keycode)action_row[1][i] == key) {
 			return i + 100;
 		}
 	}
 	return -1;
 }
 
-int action_slot2key(int slot)
+SDL_Keycode action_slot2key(int slot)
 {
 	if (slot > 100) {
 		slot -= 100;
 		if (slot < 0 || slot >= MAXACTIONSLOT) {
-			return -1;
+			return SDLK_UNKNOWN;
 		}
-		return action_row[1][slot];
+		return (SDL_Keycode)action_row[1][slot];
 	}
 	if (slot < 0 || slot >= MAXACTIONSLOT) {
-		return -1;
+		return SDLK_UNKNOWN;
 	}
-	return action_row[0][slot];
+	return (SDL_Keycode)action_row[0][slot];
 }
 
 int act_lck = 1;
@@ -1165,7 +1262,7 @@ static int get_action_key_row(int slot)
 	return 0;
 }
 
-void action_set_key(int slot, int key)
+void action_set_key(int slot, SDL_Keycode key)
 {
 	int row, i;
 
@@ -1183,7 +1280,7 @@ void action_set_key(int slot, int key)
 	}
 
 	for (i = 0; i < MAXACTIONSLOT * 2; i++) {
-		if (*(action_row[0] + i) == key) {
+		if ((SDL_Keycode) * (action_row[0] + i) == key) {
 			*(action_row[0] + i) = '-';
 		}
 	}
@@ -1276,7 +1373,7 @@ void display_action(void)
 						if (row == 0) {
 							render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
 							    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at character version)");
-						} else if (action_skill[i] == V_BLESS || action_skill[i] == V_HEAL) {
+						} else if (action_skill[i] == sv_val(V_BLESS) || action_skill[i] == sv_val(V_HEAL)) {
 							render_text(butx(BUT_ACT_BEG + i), buty(BUT_ACT_BEG + i) - y, IRGB(31, 31, 31),
 							    RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER, "(Aimed at self version)");
 						} else {
@@ -1353,10 +1450,16 @@ static void display_bar(int sx, int sy, int perc, unsigned short color, int xs, 
 	}
 }
 
+#define WARCRYCOST (12)
+
 static int warcryperccost(void)
 {
-	if (value[0][V_ENDURANCE]) {
-		return 100 * value[0][V_WARCRY] / value[0][V_ENDURANCE] / 3 + 1;
+	if (sv_ver == 35) {
+		return 100 * WARCRYCOST / value[0][sv_val(V_ENDURANCE)];
+	}
+
+	if (value[0][sv_val(V_ENDURANCE)]) {
+		return 100 * value[0][sv_val(V_WARCRY)] / value[0][sv_val(V_ENDURANCE)] / 3 + 1;
 	} else {
 		return 911;
 	}
@@ -1381,8 +1484,8 @@ void display_selfbars(void)
 	lifep = map[plrmn].health;
 	shieldp = map[plrmn].shield;
 	manap = map[plrmn].mana;
-	if (value[0][V_ENDURANCE]) {
-		endup = (int)(100 * endurance / value[0][V_ENDURANCE]);
+	if (value[0][sv_val(V_ENDURANCE)]) {
+		endup = (int)(100 * endurance / value[0][sv_val(V_ENDURANCE)]);
 	} else {
 		endup = 100;
 	}
@@ -1394,9 +1497,9 @@ void display_selfbars(void)
 
 	display_bar(x, y, lifep, healthcolor, xs, ys);
 	display_bar(x + xs + xd, y, shieldp, shieldcolor, xs, ys);
-	if (!value[0][V_MANA]) {
+	if (!value[0][sv_val(V_MANA)]) {
 		display_bar(x + xs * 2 + xd * 2, y, endup, endurancecolor, xs, ys);
-		if (value[0][V_WARCRY]) {
+		if (value[0][sv_val(V_WARCRY)]) {
 			int wpc = warcryperccost();
 			for (int i = wpc; i < 100; i += wpc) {
 				int j;

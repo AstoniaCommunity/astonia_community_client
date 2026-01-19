@@ -10,34 +10,52 @@
 
 FROM archlinux:latest
 
+# Initialize pacman keyring and upgrade system
+# Use --needed to skip already-installed packages and avoid 404 errors on old versions
+RUN pacman-key --init && \
+    pacman-key --populate archlinux && \
+    pacman -Syyu --noconfirm --needed --ask=4 --overwrite="*"
+
 # Install basic dependencies and development tools
-RUN pacman -Syu --noconfirm \
+RUN pacman -S --noconfirm --needed --ask=4 --overwrite="*" \
     curl \
     wget \
     git \
     base-devel \
-    sdl3 \
-    sdl2-compat \
-    sdl2_mixer \
     libpng \
     libzip \
     zlib \
     zig \
+    unzip \
+    cmake \
+    ninja \
     && pacman -Scc --noconfirm
 
 # Install Rust
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Patch makepkg to allow running as root (safe in controlled Docker environment)
-RUN sed -i 's/if (( EUID == 0 )); then/if (( 0 )); then # Disabled root check for Docker/' /usr/bin/makepkg
+# Install paru AUR helper
+# Create a non-root user for building paru (AUR helpers shouldn't run as root)
+RUN useradd -m -G wheel -s /bin/bash builder && \
+    sed -i 's/^# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/%wheel ALL=(ALL:ALL) NOPASSWD: ALL/' /etc/sudoers
 
-# Install mimalloc-git from AUR (mimalloc 3.x)
-RUN git clone https://aur.archlinux.org/mimalloc-git.git /tmp/mimalloc-git && \
-    cd /tmp/mimalloc-git && \
+USER builder
+WORKDIR /home/builder
+RUN git clone https://aur.archlinux.org/paru.git && \
+    cd paru && \
     makepkg -si --noconfirm && \
-    cd / && \
-    rm -rf /tmp/mimalloc-git
+    cd .. && \
+    rm -rf paru
+
+# Sync AUR databases with paru
+RUN paru -Syu --noconfirm
+
+# Note: SDL3_mixer must be installed separately after sdl3-git to avoid conflicts
+USER root
+WORKDIR /
+RUN sudo -u builder paru -S --noconfirm --needed mimalloc-git sdl3-git && \
+    sudo -u builder paru -S --noconfirm --needed sdl3_mixer-git
 
 # Set default toolchain (needed even though we specified it above, to ensure it's configured)
 RUN rustup default stable
@@ -59,4 +77,3 @@ WORKDIR /app
 # Default command: build with Zig and fix ownership
 ENTRYPOINT ["/bin/bash", "/usr/local/bin/build.sh"]
 CMD ["--release=fast"]
-

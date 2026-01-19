@@ -1,0 +1,2499 @@
+{
+  "version": 1,
+  "character_variants": [
+    {
+      "id": 121,
+      "base_sprite": 8,
+      "scale": 105,
+      "comment": "skelly"
+    },
+    {
+      "id": 122,
+      "base_sprite": 8,
+      "scale": 110,
+      "comment": "skelly med"
+    },
+    {
+      "id": 123,
+      "base_sprite": 8,
+      "scale": 115,
+      "comment": "skelly high"
+    },
+    {
+      "id": 124,
+      "base_sprite": 8,
+      "scale": 120,
+      "comment": "skelly higher"
+    },
+    {
+      "id": 125,
+      "base_sprite": 16,
+      "scale": 100,
+      "cb": 50,
+      "comment": "ice creeper"
+    },
+    {
+      "id": 126,
+      "base_sprite": 16,
+      "scale": 100,
+      "cr": 50,
+      "comment": "fire creeper"
+    },
+    {
+      "id": 127,
+      "base_sprite": 16,
+      "scale": 120,
+      "comment": "huge creeper"
+    },
+    {
+      "id": 134,
+      "base_sprite": 21,
+      "scale": 60,
+      "cg": 80,
+      "light": -50,
+      "comment": "small spider"
+    },
+    {
+      "id": 135,
+      "base_sprite": 22,
+      "scale": 75,
+      "comment": "young moony"
+    },
+    {
+      "id": 136,
+      "base_sprite": 22,
+      "scale": 100,
+      "comment": "moony"
+    },
+    {
+      "id": 137,
+      "base_sprite": 22,
+      "scale": 100,
+      "comment": "moony warrior"
+    },
+    {
+      "id": 138,
+      "base_sprite": 22,
+      "scale": 110,
+      "comment": "moony guard"
+    },
+    {
+      "id": 139,
+      "base_sprite": 22,
+      "scale": 125,
+      "comment": "moony elite"
+    },
+    {
+      "id": 140,
+      "base_sprite": 13,
+      "scale": 90,
+      "c3": 31,
+      "comment": "bearded mage in blue"
+    },
+    {
+      "id": 141,
+      "base_sprite": 13,
+      "scale": 105,
+      "c3": 14080,
+      "comment": "bearded mage in green"
+    },
+    {
+      "id": 142,
+      "base_sprite": 13,
+      "scale": 95,
+      "c3": 31775,
+      "comment": "bearded mage in purple"
+    },
+    {
+      "id": 143,
+      "base_sprite": 4,
+      "scale": 90,
+      "c3": 31,
+      "comment": "merchant in blue"
+    },
+    {
+      "id": 144,
+      "base_sprite": 4,
+      "scale": 105,
+      "c3": 14080,
+      "comment": "merchant in green"
+    },
+    {
+      "id": 145,
+      "base_sprite": 4,
+      "scale": 95,
+      "c3": 31775,
+      "comment": "merchant in purple"
+    },
+    {
+      "id": 146,
+      "base_sprite": 2,
+      "c1": 16648,
+      "c2": 6276,
+      "c3": 10372,
+      "comment": "thief"
+    },
+    {
+      "id": 147,
+      "base_sprite": 4,
+      "c1": 4242,
+      "c2": 18888,
+      "c3": 4242,
+      "comment": "merchant"
+    },
+    {
+      "id": 148,
+      "base_sprite": 1,
+      "c1": 8456,
+      "c2": 25220,
+      "c3": 12684,
+      "comment": "sanoa"
+    },
+    {
+      "id": 149,
+      "base_sprite": 2,
+      "c1": 16648,
+      "c2": 6276,
+      "c3": 10372,
+      "comment": "asturin"
+    },
+    {
+      "id": 150,
+      "base_sprite": 3,
+      "c1": 16978,
+      "c2": 16582,
+      "c3": 10570,
+      "comment": "guiwynn"
+    },
+    {
+      "id": 151,
+      "base_sprite": 2,
+      "c1": 18531,
+      "c2": 23108,
+      "c3": 23108,
+      "comment": "logain"
+    },
+    {
+      "id": 152,
+      "base_sprite": 1,
+      "c1": 6342,
+      "c2": 12548,
+      "c3": 8456,
+      "comment": "kelly"
+    },
+    {
+      "id": 153,
+      "base_sprite": 2,
+      "c1": 4248,
+      "c2": 12548,
+      "c3": 4240,
+      "comment": "gatekeeper"
+    },
+    {
+      "id": 154,
+      "base_sprite": 29,
+      "scale": 95,
+      "cr": 50,
+      "saturation": 10,
+      "comment": "earth demon dark brown"
+    },
+    {
+      "id": 155,
+      "base_sprite": 29,
+      "cr": 70,
+      "saturation": 10,
+      "comment": "earth demon light brown"
+    },
+    {
+      "id": 156,
+      "base_sprite": 30,
+      "comment": "ratling"
+    },
+    {
+      "id": 157,
+      "base_sprite": 39,
+      "animation": {
+        "type": "pulse",
+        "period": 32,
+        "affects": "cr",
+        "base": 60,
+        "amplitude": 48
+      },
+      "cr": 60,
+      "light": -80,
+      "saturation": 5
+    },
+    {
+      "id": 158,
+      "base_sprite": 2,
+      "c1": 4236,
+      "c2": 15752,
+      "c3": 4236,
+      "comment": "bert, warrior"
+    },
+    {
+      "id": 159,
+      "base_sprite": 4,
+      "c1": 4236,
+      "c2": 15752,
+      "c3": 4236,
+      "comment": "bert, mage"
+    },
+    {
+      "id": 160,
+      "base_sprite": 2,
+      "c1": 4236,
+      "c2": 18624,
+      "c3": 14402,
+      "comment": "josh, warrior"
+    },
+    {
+      "id": 161,
+      "base_sprite": 4,
+      "c1": 4236,
+      "c2": 18624,
+      "c3": 14402,
+      "comment": "josh, mage"
+    },
+    {
+      "id": 162,
+      "base_sprite": 2,
+      "c1": 4236,
+      "c2": 18948,
+      "c3": 14402,
+      "comment": "will, warrior"
+    },
+    {
+      "id": 163,
+      "base_sprite": 4,
+      "c1": 4236,
+      "c2": 18948,
+      "c3": 14402,
+      "comment": "will, mage"
+    },
+    {
+      "id": 164,
+      "base_sprite": 2,
+      "c1": 8584,
+      "c2": 6342,
+      "c3": 4612,
+      "comment": "james, warrior"
+    },
+    {
+      "id": 165,
+      "base_sprite": 4,
+      "c1": 8584,
+      "c2": 6342,
+      "c3": 4612,
+      "comment": "james, mage"
+    },
+    {
+      "id": 166,
+      "base_sprite": 2,
+      "c1": 8584,
+      "c2": 18948,
+      "c3": 4612,
+      "comment": "carl, warrior"
+    },
+    {
+      "id": 167,
+      "base_sprite": 4,
+      "c1": 8584,
+      "c2": 18948,
+      "c3": 4612,
+      "comment": "carl, mage"
+    },
+    {
+      "id": 168,
+      "base_sprite": 2,
+      "c1": 8584,
+      "c2": 15752,
+      "c3": 14402,
+      "comment": "jim, warrior"
+    },
+    {
+      "id": 169,
+      "base_sprite": 4,
+      "c1": 8584,
+      "c2": 15752,
+      "c3": 14402,
+      "comment": "jim, mage"
+    },
+    {
+      "id": 170,
+      "base_sprite": 2,
+      "c1": 19026,
+      "c2": 6342,
+      "c3": 8456,
+      "comment": "brad, warrior"
+    },
+    {
+      "id": 171,
+      "base_sprite": 4,
+      "c1": 19026,
+      "c2": 6342,
+      "c3": 8456,
+      "comment": "brad, mage"
+    },
+    {
+      "id": 173,
+      "base_sprite": 8,
+      "scale": 110,
+      "cr": 50,
+      "comment": "fire skelly"
+    },
+    {
+      "id": 174,
+      "base_sprite": 8,
+      "scale": 110,
+      "cb": 50,
+      "comment": "ice skelly"
+    },
+    {
+      "id": 176,
+      "base_sprite": 1,
+      "c1": 6348,
+      "c2": 23144,
+      "c3": 23254,
+      "comment": "jenny, warrior"
+    },
+    {
+      "id": 177,
+      "base_sprite": 3,
+      "c1": 6348,
+      "c2": 23144,
+      "c3": 23254,
+      "comment": "jenny, mage"
+    },
+    {
+      "id": 178,
+      "base_sprite": 1,
+      "c1": 21140,
+      "c2": 5285,
+      "c3": 4236,
+      "comment": "sarah, warrior"
+    },
+    {
+      "id": 179,
+      "base_sprite": 3,
+      "c1": 21140,
+      "c2": 5285,
+      "c3": 4236,
+      "comment": "sarah, mage"
+    },
+    {
+      "id": 180,
+      "base_sprite": 1,
+      "c1": 18460,
+      "c2": 14666,
+      "c3": 12420,
+      "comment": "sue, warrior"
+    },
+    {
+      "id": 181,
+      "base_sprite": 3,
+      "c1": 18460,
+      "c2": 14666,
+      "c3": 12420,
+      "comment": "sue, mage"
+    },
+    {
+      "id": 182,
+      "base_sprite": 1,
+      "c1": 6348,
+      "c2": 14666,
+      "c3": 23254,
+      "comment": "peggy, warrior"
+    },
+    {
+      "id": 183,
+      "base_sprite": 3,
+      "c1": 6348,
+      "c2": 14666,
+      "c3": 23254,
+      "comment": "peggy, mage"
+    },
+    {
+      "id": 184,
+      "base_sprite": 1,
+      "c1": 21140,
+      "c2": 23144,
+      "c3": 4236,
+      "comment": "mary, warrior"
+    },
+    {
+      "id": 185,
+      "base_sprite": 3,
+      "c1": 21140,
+      "c2": 23144,
+      "c3": 4236,
+      "comment": "mary, mage"
+    },
+    {
+      "id": 186,
+      "base_sprite": 1,
+      "c1": 18460,
+      "c2": 5285,
+      "c3": 12420,
+      "comment": "clara, warrior"
+    },
+    {
+      "id": 187,
+      "base_sprite": 3,
+      "c1": 18460,
+      "c2": 5285,
+      "c3": 12420,
+      "comment": "clara, mage"
+    },
+    {
+      "id": 188,
+      "base_sprite": 1,
+      "c1": 12812,
+      "c2": 18756,
+      "c3": 16516,
+      "comment": "beth, warrior"
+    },
+    {
+      "id": 189,
+      "base_sprite": 3,
+      "c1": 12812,
+      "c2": 18756,
+      "c3": 16516,
+      "comment": "beth, mage"
+    },
+    {
+      "id": 190,
+      "base_sprite": 33,
+      "cr": 50,
+      "comment": "fire world, demon2"
+    },
+    {
+      "id": 200,
+      "base_sprite": 54,
+      "c1": 15855,
+      "c2": 768,
+      "c3": 16648,
+      "comment": "fred, misc merchant, area 1"
+    },
+    {
+      "id": 201,
+      "base_sprite": 59,
+      "c1": 16450,
+      "c2": 8472,
+      "c3": 16912,
+      "comment": "talaman, banker, area 1"
+    },
+    {
+      "id": 202,
+      "base_sprite": 47,
+      "c1": 4612,
+      "c2": 4484,
+      "c3": 7399,
+      "comment": "egbert, armor merchant, area 1"
+    },
+    {
+      "id": 203,
+      "base_sprite": 47,
+      "c1": 8968,
+      "c2": 17168,
+      "c3": 12552,
+      "comment": "dolf, weapon merchant, area 1"
+    },
+    {
+      "id": 204,
+      "base_sprite": 55,
+      "c1": 24656,
+      "c2": 2136,
+      "c3": 2136,
+      "comment": "nook, jester, area 1"
+    },
+    {
+      "id": 205,
+      "base_sprite": 49,
+      "c1": 15855,
+      "c2": 10570,
+      "c3": 21024,
+      "comment": "reskin, barkeep, area 1"
+    },
+    {
+      "id": 206,
+      "base_sprite": 52,
+      "c1": 18816,
+      "c2": 19008,
+      "c3": 0,
+      "comment": "logain, teach, area 1"
+    },
+    {
+      "id": 207,
+      "base_sprite": 54,
+      "c1": 15855,
+      "c2": 10570,
+      "c3": 21024,
+      "comment": "terion, chatter, area 1"
+    },
+    {
+      "id": 208,
+      "base_sprite": 49,
+      "c1": 28903,
+      "c2": 16516,
+      "c3": 29452,
+      "comment": "asturin, thief, area 1"
+    },
+    {
+      "id": 209,
+      "base_sprite": 49,
+      "c1": 10372,
+      "c2": 10372,
+      "c3": 7399,
+      "comment": "weak thief guard, thief, area 1"
+    },
+    {
+      "id": 210,
+      "base_sprite": 49,
+      "c1": 8648,
+      "c2": 16648,
+      "c3": 23015,
+      "comment": "guild thief, thief, area 1"
+    },
+    {
+      "id": 211,
+      "base_sprite": 49,
+      "c1": 8648,
+      "c2": 16648,
+      "c3": 18760,
+      "comment": "guild thief, thief, area 1"
+    },
+    {
+      "id": 212,
+      "base_sprite": 49,
+      "c1": 8648,
+      "c2": 16648,
+      "c3": 5285,
+      "comment": "guild thief, thief, area 1"
+    },
+    {
+      "id": 213,
+      "base_sprite": 57,
+      "c1": 29596,
+      "c2": 29596,
+      "c3": 7399,
+      "comment": "guild assassin, thief, area 1"
+    },
+    {
+      "id": 214,
+      "base_sprite": 57,
+      "c1": 21140,
+      "c2": 21140,
+      "c3": 15687,
+      "comment": "guild assassin, thief, area 1"
+    },
+    {
+      "id": 215,
+      "base_sprite": 49,
+      "c1": 21140,
+      "c2": 21140,
+      "c3": 15687,
+      "comment": "guild master, thief, area 1"
+    },
+    {
+      "id": 216,
+      "base_sprite": 43,
+      "light": 40,
+      "comment": "weak zombie, area 2"
+    },
+    {
+      "id": 217,
+      "base_sprite": 43,
+      "cr": 10,
+      "light": 40,
+      "comment": "zombie, area 2"
+    },
+    {
+      "id": 218,
+      "base_sprite": 43,
+      "cb": 10,
+      "light": 40,
+      "comment": "strong zombie, area 2"
+    },
+    {
+      "id": 219,
+      "base_sprite": 43,
+      "cg": 10,
+      "light": 40,
+      "comment": "superior zombie, area 2"
+    },
+    {
+      "id": 220,
+      "base_sprite": 36,
+      "scale": 90,
+      "cg": 20,
+      "light": -10,
+      "comment": "weak 'hunter' collector"
+    },
+    {
+      "id": 221,
+      "base_sprite": 36,
+      "scale": 100,
+      "cg": 20,
+      "light": -10,
+      "comment": "'hunter' collector"
+    },
+    {
+      "id": 222,
+      "base_sprite": 36,
+      "scale": 110,
+      "cg": 20,
+      "light": -10,
+      "comment": "strong 'hunter' collector"
+    },
+    {
+      "id": 223,
+      "base_sprite": 35,
+      "scale": 90,
+      "cg": 10,
+      "comment": "weak 'huntress' supervisor"
+    },
+    {
+      "id": 224,
+      "base_sprite": 35,
+      "scale": 100,
+      "cg": 10,
+      "comment": "weak 'huntress' supervisor"
+    },
+    {
+      "id": 225,
+      "base_sprite": 35,
+      "scale": 110,
+      "cg": 10,
+      "comment": "weak 'huntress' supervisor"
+    },
+    {
+      "id": 226,
+      "base_sprite": 42,
+      "scale": 110,
+      "cb": 60,
+      "light": 100,
+      "saturation": 15,
+      "comment": "ice golem"
+    },
+    {
+      "id": 227,
+      "base_sprite": 39,
+      "scale": 110,
+      "cb": 15,
+      "light": 30,
+      "saturation": 12,
+      "comment": "ice lord"
+    },
+    {
+      "id": 228,
+      "base_sprite": 44,
+      "cb": 60,
+      "light": 100,
+      "saturation": 15,
+      "comment": "ice eye"
+    },
+    {
+      "id": 229,
+      "base_sprite": 59,
+      "c1": 20480,
+      "c2": 15525,
+      "c3": 21140,
+      "comment": "wesley, banker, area 3"
+    },
+    {
+      "id": 230,
+      "base_sprite": 47,
+      "c1": 20480,
+      "c2": 15525,
+      "c3": 21140,
+      "comment": "karl, merchant, area 3"
+    },
+    {
+      "id": 231,
+      "base_sprite": 47,
+      "scale": 95,
+      "c1": 8680,
+      "c2": 4420,
+      "c3": 7399,
+      "comment": "ludwig, merchant, area 3"
+    },
+    {
+      "id": 232,
+      "base_sprite": 47,
+      "c1": 15365,
+      "c2": 24594,
+      "c3": 23254,
+      "comment": "norbert, merchant, area 3"
+    },
+    {
+      "id": 233,
+      "base_sprite": 47,
+      "c1": 28599,
+      "c2": 8464,
+      "c3": 23254,
+      "comment": "manfred, merchant, area 3"
+    },
+    {
+      "id": 234,
+      "base_sprite": 54,
+      "c1": 28599,
+      "c2": 8464,
+      "c3": 23254,
+      "comment": "jeremy, merchant, area 3"
+    },
+    {
+      "id": 235,
+      "base_sprite": 55,
+      "c1": 31744,
+      "c2": 31744,
+      "c3": 23254,
+      "comment": "clan clerks"
+    },
+    {
+      "id": 236,
+      "base_sprite": 55,
+      "c1": 992,
+      "c2": 992,
+      "c3": 23254
+    },
+    {
+      "id": 237,
+      "base_sprite": 55,
+      "c1": 31,
+      "c2": 31,
+      "c3": 23254
+    },
+    {
+      "id": 238,
+      "base_sprite": 55,
+      "c1": 32736,
+      "c2": 32736,
+      "c3": 23254
+    },
+    {
+      "id": 239,
+      "base_sprite": 55,
+      "c1": 31775,
+      "c2": 31775,
+      "c3": 23254
+    },
+    {
+      "id": 240,
+      "base_sprite": 55,
+      "c1": 1023,
+      "c2": 1023,
+      "c3": 23254
+    },
+    {
+      "id": 241,
+      "base_sprite": 55,
+      "c1": 32272,
+      "c2": 32272,
+      "c3": 23254
+    },
+    {
+      "id": 242,
+      "base_sprite": 55,
+      "c1": 16927,
+      "c2": 16927,
+      "c3": 23254
+    },
+    {
+      "id": 243,
+      "base_sprite": 33,
+      "scale": 80,
+      "light": 0,
+      "saturation": 20,
+      "shine": 0,
+      "comment": "mine, silver golems"
+    },
+    {
+      "id": 244,
+      "base_sprite": 33,
+      "scale": 85,
+      "light": 10,
+      "saturation": 20,
+      "shine": 10
+    },
+    {
+      "id": 245,
+      "base_sprite": 33,
+      "scale": 90,
+      "light": 20,
+      "saturation": 20,
+      "shine": 20
+    },
+    {
+      "id": 246,
+      "base_sprite": 33,
+      "scale": 95,
+      "light": 30,
+      "saturation": 20,
+      "shine": 30
+    },
+    {
+      "id": 247,
+      "base_sprite": 33,
+      "scale": 100,
+      "light": 40,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 248,
+      "base_sprite": 33,
+      "scale": 105,
+      "light": 50,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 249,
+      "base_sprite": 33,
+      "scale": 110,
+      "light": 60,
+      "saturation": 20,
+      "shine": 60
+    },
+    {
+      "id": 250,
+      "base_sprite": 33,
+      "scale": 115,
+      "light": 70,
+      "saturation": 20,
+      "shine": 70
+    },
+    {
+      "id": 251,
+      "base_sprite": 33,
+      "scale": 80,
+      "cr": 50,
+      "cg": 50,
+      "light": 35,
+      "saturation": 20,
+      "shine": 35,
+      "comment": "mine, gold golems"
+    },
+    {
+      "id": 252,
+      "base_sprite": 33,
+      "scale": 85,
+      "cr": 50,
+      "cg": 50,
+      "light": 40,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 253,
+      "base_sprite": 33,
+      "scale": 90,
+      "cr": 50,
+      "cg": 50,
+      "light": 45,
+      "saturation": 20,
+      "shine": 45
+    },
+    {
+      "id": 254,
+      "base_sprite": 33,
+      "scale": 95,
+      "cr": 50,
+      "cg": 50,
+      "light": 50,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 255,
+      "base_sprite": 33,
+      "scale": 100,
+      "cr": 50,
+      "cg": 50,
+      "light": 55,
+      "saturation": 20,
+      "shine": 55
+    },
+    {
+      "id": 256,
+      "base_sprite": 33,
+      "scale": 105,
+      "cr": 50,
+      "cg": 50,
+      "light": 60,
+      "saturation": 20,
+      "shine": 60
+    },
+    {
+      "id": 257,
+      "base_sprite": 33,
+      "scale": 110,
+      "cr": 50,
+      "cg": 50,
+      "light": 65,
+      "saturation": 20,
+      "shine": 65
+    },
+    {
+      "id": 258,
+      "base_sprite": 33,
+      "scale": 115,
+      "cr": 50,
+      "cg": 50,
+      "light": 70,
+      "saturation": 20,
+      "shine": 70
+    },
+    {
+      "id": 259,
+      "base_sprite": 55,
+      "c1": 24840,
+      "c2": 24840,
+      "c3": 23254,
+      "comment": "clan clerks cont."
+    },
+    {
+      "id": 260,
+      "base_sprite": 55,
+      "c1": 8968,
+      "c2": 8968,
+      "c3": 23254
+    },
+    {
+      "id": 261,
+      "base_sprite": 55,
+      "c1": 8472,
+      "c2": 8472,
+      "c3": 23254
+    },
+    {
+      "id": 262,
+      "base_sprite": 55,
+      "c1": 25352,
+      "c2": 25352,
+      "c3": 23254
+    },
+    {
+      "id": 263,
+      "base_sprite": 55,
+      "c1": 24856,
+      "c2": 24856,
+      "c3": 23254
+    },
+    {
+      "id": 264,
+      "base_sprite": 55,
+      "c1": 8984,
+      "c2": 8984,
+      "c3": 23254
+    },
+    {
+      "id": 265,
+      "base_sprite": 55,
+      "c1": 25368,
+      "c2": 25368,
+      "c3": 23254
+    },
+    {
+      "id": 266,
+      "base_sprite": 55,
+      "c1": 16912,
+      "c2": 16912,
+      "c3": 23254
+    },
+    {
+      "id": 267,
+      "base_sprite": 50,
+      "c1": 31744,
+      "c2": 31744,
+      "c3": 23254,
+      "comment": "clan guards 1"
+    },
+    {
+      "id": 268,
+      "base_sprite": 50,
+      "c1": 992,
+      "c2": 992,
+      "c3": 23254
+    },
+    {
+      "id": 269,
+      "base_sprite": 50,
+      "c1": 31,
+      "c2": 31,
+      "c3": 23254
+    },
+    {
+      "id": 270,
+      "base_sprite": 50,
+      "c1": 32736,
+      "c2": 32736,
+      "c3": 23254
+    },
+    {
+      "id": 271,
+      "base_sprite": 50,
+      "c1": 31775,
+      "c2": 31775,
+      "c3": 23254
+    },
+    {
+      "id": 272,
+      "base_sprite": 50,
+      "c1": 1023,
+      "c2": 1023,
+      "c3": 23254
+    },
+    {
+      "id": 273,
+      "base_sprite": 50,
+      "c1": 32272,
+      "c2": 32272,
+      "c3": 23254
+    },
+    {
+      "id": 274,
+      "base_sprite": 50,
+      "c1": 16927,
+      "c2": 16927,
+      "c3": 23254
+    },
+    {
+      "id": 275,
+      "base_sprite": 50,
+      "c1": 24840,
+      "c2": 24840,
+      "c3": 23254
+    },
+    {
+      "id": 276,
+      "base_sprite": 50,
+      "c1": 8968,
+      "c2": 8968,
+      "c3": 23254
+    },
+    {
+      "id": 277,
+      "base_sprite": 50,
+      "c1": 8472,
+      "c2": 8472,
+      "c3": 23254
+    },
+    {
+      "id": 278,
+      "base_sprite": 50,
+      "c1": 25352,
+      "c2": 25352,
+      "c3": 23254
+    },
+    {
+      "id": 279,
+      "base_sprite": 50,
+      "c1": 24856,
+      "c2": 24856,
+      "c3": 23254
+    },
+    {
+      "id": 280,
+      "base_sprite": 50,
+      "c1": 8984,
+      "c2": 8984,
+      "c3": 23254
+    },
+    {
+      "id": 281,
+      "base_sprite": 50,
+      "c1": 25368,
+      "c2": 25368,
+      "c3": 23254
+    },
+    {
+      "id": 282,
+      "base_sprite": 50,
+      "c1": 16912,
+      "c2": 16912,
+      "c3": 23254
+    },
+    {
+      "id": 283,
+      "base_sprite": 51,
+      "c1": 31744,
+      "c2": 31744,
+      "c3": 23254,
+      "comment": "clan guards 2"
+    },
+    {
+      "id": 284,
+      "base_sprite": 51,
+      "c1": 992,
+      "c2": 992,
+      "c3": 23254
+    },
+    {
+      "id": 285,
+      "base_sprite": 51,
+      "c1": 31,
+      "c2": 31,
+      "c3": 23254
+    },
+    {
+      "id": 286,
+      "base_sprite": 51,
+      "c1": 32736,
+      "c2": 32736,
+      "c3": 23254
+    },
+    {
+      "id": 287,
+      "base_sprite": 51,
+      "c1": 31775,
+      "c2": 31775,
+      "c3": 23254
+    },
+    {
+      "id": 288,
+      "base_sprite": 51,
+      "c1": 1023,
+      "c2": 1023,
+      "c3": 23254
+    },
+    {
+      "id": 289,
+      "base_sprite": 51,
+      "c1": 32272,
+      "c2": 32272,
+      "c3": 23254
+    },
+    {
+      "id": 290,
+      "base_sprite": 51,
+      "c1": 16927,
+      "c2": 16927,
+      "c3": 23254
+    },
+    {
+      "id": 291,
+      "base_sprite": 51,
+      "c1": 24840,
+      "c2": 24840,
+      "c3": 23254
+    },
+    {
+      "id": 292,
+      "base_sprite": 51,
+      "c1": 8968,
+      "c2": 8968,
+      "c3": 23254
+    },
+    {
+      "id": 293,
+      "base_sprite": 51,
+      "c1": 8472,
+      "c2": 8472,
+      "c3": 23254
+    },
+    {
+      "id": 294,
+      "base_sprite": 51,
+      "c1": 25352,
+      "c2": 25352,
+      "c3": 23254
+    },
+    {
+      "id": 295,
+      "base_sprite": 51,
+      "c1": 24856,
+      "c2": 24856,
+      "c3": 23254
+    },
+    {
+      "id": 296,
+      "base_sprite": 51,
+      "c1": 8984,
+      "c2": 8984,
+      "c3": 23254
+    },
+    {
+      "id": 297,
+      "base_sprite": 51,
+      "c1": 25368,
+      "c2": 25368,
+      "c3": 23254
+    },
+    {
+      "id": 298,
+      "base_sprite": 51,
+      "c1": 16912,
+      "c2": 16912,
+      "c3": 23254
+    },
+    {
+      "id": 299,
+      "base_sprite": 8,
+      "cg": 5,
+      "light": -80,
+      "shine": 70,
+      "comment": "dark skeleton, random dungeon"
+    },
+    {
+      "id": 300,
+      "base_sprite": 24,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10,
+      "comment": "swamp beasts"
+    },
+    {
+      "id": 301,
+      "base_sprite": 24,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 302,
+      "base_sprite": 24,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 303,
+      "base_sprite": 24,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 304,
+      "base_sprite": 24,
+      "scale": 150,
+      "cg": 10,
+      "light": -20,
+      "shine": 25
+    },
+    {
+      "id": 305,
+      "base_sprite": 58,
+      "c1": 16927,
+      "c2": 4236,
+      "c3": 29440,
+      "comment": "islena"
+    },
+    {
+      "id": 306,
+      "base_sprite": 12,
+      "light": 30,
+      "saturation": 10,
+      "comment": "forest: bear"
+    },
+    {
+      "id": 307,
+      "base_sprite": 19,
+      "scale": 120,
+      "cr": 15,
+      "light": 15,
+      "saturation": 8,
+      "comment": "forest: wolf"
+    },
+    {
+      "id": 308,
+      "base_sprite": 21,
+      "scale": 80,
+      "cg": 120,
+      "light": -125,
+      "comment": "forest: spider"
+    },
+    {
+      "id": 309,
+      "base_sprite": 21,
+      "scale": 120,
+      "cg": 120,
+      "light": -125,
+      "comment": "forest: spider queen"
+    },
+    {
+      "id": 310,
+      "base_sprite": 40,
+      "cg": 40,
+      "light": -10,
+      "comment": "forest: preying mantiss"
+    },
+    {
+      "id": 311,
+      "base_sprite": 46,
+      "scale": 80,
+      "shine": 25,
+      "c1": 16810,
+      "c2": 13834,
+      "c3": 32658,
+      "comment": "forest: imp"
+    },
+    {
+      "id": 312,
+      "base_sprite": 53,
+      "c1": 16810,
+      "c2": 13834,
+      "c3": 32658,
+      "comment": "forest: robber"
+    },
+    {
+      "id": 313,
+      "base_sprite": 58,
+      "c1": 19026,
+      "c2": 23254,
+      "c3": 12518,
+      "comment": "zoetje"
+    },
+    {
+      "id": 314,
+      "base_sprite": 13,
+      "c3": 15855,
+      "comment": "forest: hermit"
+    },
+    {
+      "id": 315,
+      "base_sprite": 54,
+      "c1": 29568,
+      "c2": 29596,
+      "comment": "exkordon: cook"
+    },
+    {
+      "id": 316,
+      "base_sprite": 59,
+      "c1": 29568,
+      "c2": 29596,
+      "c3": 29596,
+      "comment": "exkordon: governor double"
+    },
+    {
+      "id": 317,
+      "base_sprite": 113,
+      "c1": 18473,
+      "c2": 6383,
+      "c3": 26182,
+      "comment": "exkordon guard with torch"
+    },
+    {
+      "id": 318,
+      "base_sprite": 111,
+      "c1": 18473,
+      "c2": 6383,
+      "c3": 26182,
+      "comment": "exkordon guard"
+    },
+    {
+      "id": 319,
+      "base_sprite": 30,
+      "cg": 40,
+      "light": -50,
+      "comment": "exkordon ratling"
+    },
+    {
+      "id": 320,
+      "base_sprite": 49,
+      "c1": 9249,
+      "c2": 15394,
+      "c3": 26182,
+      "comment": "exkordon thief guard"
+    },
+    {
+      "id": 321,
+      "base_sprite": 49,
+      "c1": 12337,
+      "c2": 10295,
+      "c3": 7234,
+      "comment": "exkordon thief guard"
+    },
+    {
+      "id": 322,
+      "base_sprite": 41,
+      "scale": 110,
+      "cr": 10,
+      "comment": "exkordon statue"
+    },
+    {
+      "id": 323,
+      "base_sprite": 41,
+      "scale": 120,
+      "cr": 10,
+      "comment": "exkordon statue boss"
+    },
+    {
+      "id": 324,
+      "base_sprite": 13,
+      "cg": 70,
+      "light": -10,
+      "c3": 28290,
+      "comment": "random: wizard of yendor"
+    },
+    {
+      "id": 325,
+      "base_sprite": 9,
+      "scale": 110,
+      "cg": 20,
+      "light": -10,
+      "comment": "exkordon: green light skelly"
+    },
+    {
+      "id": 326,
+      "base_sprite": 9,
+      "scale": 110,
+      "cr": 20,
+      "light": -10,
+      "comment": "exkordon: red light skelly"
+    },
+    {
+      "id": 327,
+      "base_sprite": 9,
+      "scale": 110,
+      "light": -10,
+      "comment": "exkordon: no light skelly"
+    },
+    {
+      "id": 328,
+      "base_sprite": 21,
+      "cr": 120,
+      "cg": 60,
+      "light": -125,
+      "comment": "exkordon: spider"
+    },
+    {
+      "id": 329,
+      "base_sprite": 21,
+      "cr": 100,
+      "cg": 80,
+      "light": -125,
+      "comment": "exkordon: spider"
+    },
+    {
+      "id": 330,
+      "base_sprite": 21,
+      "cr": 120,
+      "cg": 30,
+      "light": -125,
+      "comment": "exkordon: spider"
+    },
+    {
+      "id": 331,
+      "base_sprite": 36,
+      "scale": 100,
+      "cr": 20,
+      "light": -10,
+      "comment": "exkordon: collector"
+    },
+    {
+      "id": 332,
+      "base_sprite": 43,
+      "cr": 10,
+      "light": 50,
+      "shine": 20,
+      "comment": "exkordon: zombie"
+    },
+    {
+      "id": 333,
+      "base_sprite": 8,
+      "light": -20,
+      "shine": 20,
+      "comment": "bones: skeleton"
+    },
+    {
+      "id": 334,
+      "base_sprite": 43,
+      "light": 30,
+      "saturation": 20,
+      "comment": "bones: zombie"
+    },
+    {
+      "id": 335,
+      "base_sprite": 19,
+      "scale": 95,
+      "cr": 40,
+      "cg": 30,
+      "light": 40,
+      "saturation": 20,
+      "comment": "nomad: wolf1"
+    },
+    {
+      "id": 336,
+      "base_sprite": 19,
+      "cr": 40,
+      "cg": 35,
+      "light": 45,
+      "saturation": 20,
+      "comment": "nomad: wolf2"
+    },
+    {
+      "id": 337,
+      "base_sprite": 19,
+      "scale": 105,
+      "cr": 45,
+      "cg": 30,
+      "light": 20,
+      "saturation": 20,
+      "comment": "nomad: wolf3"
+    },
+    {
+      "id": 338,
+      "base_sprite": 19,
+      "scale": 110,
+      "light": 125,
+      "saturation": 20,
+      "comment": "nomad: white wolf"
+    },
+    {
+      "id": 339,
+      "base_sprite": 14,
+      "c1": 10597,
+      "c2": 12685,
+      "c3": 19905,
+      "comment": "nomad: nomad1"
+    },
+    {
+      "id": 340,
+      "base_sprite": 14,
+      "c1": 10597,
+      "c2": 12685,
+      "c3": 7233,
+      "comment": "nomad: nomad2"
+    },
+    {
+      "id": 341,
+      "base_sprite": 11,
+      "c1": 8549,
+      "c2": 12453,
+      "c3": 7233,
+      "comment": "nomad: harpy1"
+    },
+    {
+      "id": 342,
+      "base_sprite": 11,
+      "c1": 8562,
+      "c2": 7214,
+      "c3": 7246,
+      "comment": "nomad: harpy2"
+    },
+    {
+      "id": 343,
+      "base_sprite": 11,
+      "c1": 8562,
+      "c2": 6538,
+      "c3": 7246,
+      "comment": "nomad: harpy3"
+    },
+    {
+      "id": 344,
+      "base_sprite": 48,
+      "c1": 10847,
+      "c2": 19029,
+      "c3": 13345,
+      "comment": "nomad: valkyrie1"
+    },
+    {
+      "id": 345,
+      "base_sprite": 48,
+      "c1": 21215,
+      "c2": 19029,
+      "c3": 13345,
+      "comment": "nomad: valkyrie2"
+    },
+    {
+      "id": 346,
+      "base_sprite": 34,
+      "c1": 32767,
+      "c2": 22197,
+      "c3": 32735,
+      "comment": "nomad: evil monk"
+    },
+    {
+      "id": 347,
+      "base_sprite": 34,
+      "c1": 23604,
+      "c2": 15444,
+      "c3": 32735,
+      "comment": "nomad: sarkilar (monk)"
+    },
+    {
+      "id": 348,
+      "base_sprite": 34,
+      "c1": 29481,
+      "c2": 26241,
+      "c3": 32735,
+      "comment": "nomad: good monk 1"
+    },
+    {
+      "id": 349,
+      "base_sprite": 34,
+      "c1": 11321,
+      "c2": 7407,
+      "c3": 32735,
+      "comment": "nomad: good monk 2"
+    },
+    {
+      "id": 350,
+      "base_sprite": 35,
+      "cr": 20,
+      "cb": 40,
+      "light": -20,
+      "comment": "light&dark lab, gnome 2"
+    },
+    {
+      "id": 351,
+      "base_sprite": 100,
+      "c1": 2073,
+      "c2": 8212,
+      "c3": 24064,
+      "comment": "imperial army seyan male"
+    },
+    {
+      "id": 352,
+      "base_sprite": 110,
+      "c1": 2073,
+      "c2": 8212,
+      "c3": 24064,
+      "comment": "imperial army seyan female"
+    },
+    {
+      "id": 353,
+      "base_sprite": 35,
+      "cr": 40,
+      "saturation": 20,
+      "comment": "strategy, slot1"
+    },
+    {
+      "id": 354,
+      "base_sprite": 35,
+      "cg": 40,
+      "saturation": 20,
+      "comment": "strategy, slot2"
+    },
+    {
+      "id": 355,
+      "base_sprite": 35,
+      "cb": 40,
+      "saturation": 20,
+      "comment": "strategy, slot3"
+    },
+    {
+      "id": 356,
+      "base_sprite": 35,
+      "cr": 40,
+      "cg": 40,
+      "saturation": 20,
+      "comment": "strategy, slot4"
+    },
+    {
+      "id": 357,
+      "base_sprite": 35,
+      "light": 40,
+      "saturation": 20,
+      "comment": "strategy, neutral worker"
+    },
+    {
+      "id": 360,
+      "base_sprite": 45,
+      "c1": 1073,
+      "c2": 8464,
+      "c3": 26146
+    },
+    {
+      "id": 361,
+      "base_sprite": 39,
+      "cr": 30,
+      "light": -50,
+      "saturation": 20,
+      "comment": "hell demon"
+    },
+    {
+      "id": 400,
+      "base_sprite": 16,
+      "scale": 180,
+      "comment": "lab3 large creeper"
+    },
+    {
+      "id": 401,
+      "base_sprite": 22,
+      "scale": 96,
+      "c1": 15752,
+      "c2": 15686,
+      "c3": 27276,
+      "comment": "lab4 gnalb guard"
+    },
+    {
+      "id": 402,
+      "base_sprite": 22,
+      "scale": 90,
+      "c1": 15752,
+      "c2": 11558,
+      "c3": 13542,
+      "comment": "lab4 gnalb"
+    },
+    {
+      "id": 403,
+      "base_sprite": 22,
+      "scale": 96,
+      "c1": 15752,
+      "c2": 11558,
+      "c3": 19792,
+      "comment": "lab4 gnalb mage"
+    },
+    {
+      "id": 404,
+      "base_sprite": 22,
+      "scale": 100,
+      "c1": 15752,
+      "c2": 11558,
+      "c3": 28431,
+      "comment": "lab4 gnalb king"
+    },
+    {
+      "id": 405,
+      "base_sprite": 22,
+      "scale": 95,
+      "c1": 21926,
+      "c2": 6201,
+      "c3": 21864,
+      "comment": "lab4 strong gnalb"
+    },
+    {
+      "id": 406,
+      "base_sprite": 32,
+      "scale": 110,
+      "comment": "lab5 daemon1"
+    },
+    {
+      "id": 407,
+      "base_sprite": 27,
+      "scale": 110,
+      "comment": "lab5 daemon2"
+    },
+    {
+      "id": 408,
+      "base_sprite": 29,
+      "scale": 110,
+      "comment": "lab5 daemon3"
+    },
+    {
+      "id": 409,
+      "base_sprite": 34,
+      "c1": 32049,
+      "c2": 12651,
+      "c3": 21864,
+      "comment": "nomad: saltmine gatama"
+    },
+    {
+      "id": 411,
+      "base_sprite": 34,
+      "c1": 28172,
+      "c2": 25269,
+      "c3": 21864,
+      "comment": "nomad: saltmine worker"
+    },
+    {
+      "id": 412,
+      "base_sprite": 42,
+      "cr": 40,
+      "cg": 70,
+      "cb": 60,
+      "comment": "nomad: saltmine golem made of stone"
+    },
+    {
+      "id": 410,
+      "base_sprite": 34,
+      "c1": 32033,
+      "c2": 31676,
+      "c3": 21864,
+      "comment": "north: govida        !!! take care of the nr."
+    },
+    {
+      "id": 413,
+      "base_sprite": 48,
+      "c1": 6522,
+      "c2": 19029,
+      "c3": 13345,
+      "comment": "north: valkyrie blue"
+    },
+    {
+      "id": 414,
+      "base_sprite": 48,
+      "c1": 28771,
+      "c2": 19029,
+      "c3": 13345,
+      "comment": "north: valkyrie red"
+    },
+    {
+      "id": 415,
+      "base_sprite": 48,
+      "c1": 32552,
+      "c2": 32552,
+      "c3": 32552,
+      "comment": "north: valkyrie gold"
+    },
+    {
+      "id": 416,
+      "base_sprite": 48,
+      "c1": 65535,
+      "c2": 65535,
+      "c3": 65535,
+      "comment": "north: valkyrie white"
+    },
+    {
+      "id": 417,
+      "base_sprite": 39,
+      "scale": 100,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 418,
+      "base_sprite": 39,
+      "scale": 103,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 419,
+      "base_sprite": 39,
+      "scale": 116,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 420,
+      "base_sprite": 39,
+      "scale": 119,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 421,
+      "base_sprite": 39,
+      "scale": 112,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 422,
+      "base_sprite": 39,
+      "scale": 115,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 423,
+      "base_sprite": 39,
+      "scale": 118,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 424,
+      "base_sprite": 39,
+      "scale": 121,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 425,
+      "base_sprite": 39,
+      "scale": 124,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 426,
+      "base_sprite": 39,
+      "scale": 127,
+      "comment": "north: ice deamon"
+    },
+    {
+      "id": 500,
+      "base_sprite": 55,
+      "c1": 32536,
+      "c2": 32536,
+      "c3": 23254,
+      "comment": "clan clerks 17 to 32"
+    },
+    {
+      "id": 501,
+      "base_sprite": 55,
+      "c1": 25592,
+      "c2": 25592,
+      "c3": 23254
+    },
+    {
+      "id": 502,
+      "base_sprite": 55,
+      "c1": 25375,
+      "c2": 25375,
+      "c3": 23254
+    },
+    {
+      "id": 503,
+      "base_sprite": 55,
+      "c1": 32760,
+      "c2": 32760,
+      "c3": 23254
+    },
+    {
+      "id": 504,
+      "base_sprite": 55,
+      "c1": 32543,
+      "c2": 32543,
+      "c3": 23254
+    },
+    {
+      "id": 505,
+      "base_sprite": 55,
+      "c1": 25599,
+      "c2": 25599,
+      "c3": 23254
+    },
+    {
+      "id": 506,
+      "base_sprite": 55,
+      "c1": 32008,
+      "c2": 32008,
+      "c3": 23254
+    },
+    {
+      "id": 507,
+      "base_sprite": 55,
+      "c1": 8479,
+      "c2": 8479,
+      "c3": 23254
+    },
+    {
+      "id": 508,
+      "base_sprite": 55,
+      "c1": 16648,
+      "c2": 16648,
+      "c3": 23254
+    },
+    {
+      "id": 509,
+      "base_sprite": 55,
+      "c1": 8712,
+      "c2": 8712,
+      "c3": 23254
+    },
+    {
+      "id": 510,
+      "base_sprite": 55,
+      "c1": 8464,
+      "c2": 8464,
+      "c3": 23254
+    },
+    {
+      "id": 511,
+      "base_sprite": 55,
+      "c1": 16904,
+      "c2": 16904,
+      "c3": 23254
+    },
+    {
+      "id": 512,
+      "base_sprite": 55,
+      "c1": 16656,
+      "c2": 16656,
+      "c3": 23254
+    },
+    {
+      "id": 513,
+      "base_sprite": 55,
+      "c1": 8720,
+      "c2": 8720,
+      "c3": 23254
+    },
+    {
+      "id": 514,
+      "base_sprite": 55,
+      "c1": 9192,
+      "c2": 9192,
+      "c3": 23254
+    },
+    {
+      "id": 515,
+      "base_sprite": 55,
+      "c1": 32031,
+      "c2": 32031,
+      "c3": 23254
+    },
+    {
+      "id": 516,
+      "base_sprite": 50,
+      "c1": 32536,
+      "c2": 32536,
+      "c3": 23254,
+      "comment": "clan guards 1 (17 to 32)"
+    },
+    {
+      "id": 517,
+      "base_sprite": 50,
+      "c1": 25592,
+      "c2": 25592,
+      "c3": 23254
+    },
+    {
+      "id": 518,
+      "base_sprite": 50,
+      "c1": 25375,
+      "c2": 25375,
+      "c3": 23254
+    },
+    {
+      "id": 519,
+      "base_sprite": 50,
+      "c1": 32760,
+      "c2": 32760,
+      "c3": 23254
+    },
+    {
+      "id": 520,
+      "base_sprite": 50,
+      "c1": 32543,
+      "c2": 32543,
+      "c3": 23254
+    },
+    {
+      "id": 521,
+      "base_sprite": 50,
+      "c1": 25599,
+      "c2": 25599,
+      "c3": 23254
+    },
+    {
+      "id": 522,
+      "base_sprite": 50,
+      "c1": 32008,
+      "c2": 32008,
+      "c3": 23254
+    },
+    {
+      "id": 523,
+      "base_sprite": 50,
+      "c1": 8479,
+      "c2": 8479,
+      "c3": 23254
+    },
+    {
+      "id": 524,
+      "base_sprite": 50,
+      "c1": 16648,
+      "c2": 16648,
+      "c3": 23254
+    },
+    {
+      "id": 525,
+      "base_sprite": 50,
+      "c1": 8712,
+      "c2": 8712,
+      "c3": 23254
+    },
+    {
+      "id": 526,
+      "base_sprite": 50,
+      "c1": 8464,
+      "c2": 8464,
+      "c3": 23254
+    },
+    {
+      "id": 527,
+      "base_sprite": 50,
+      "c1": 16904,
+      "c2": 16904,
+      "c3": 23254
+    },
+    {
+      "id": 528,
+      "base_sprite": 50,
+      "c1": 16656,
+      "c2": 16656,
+      "c3": 23254
+    },
+    {
+      "id": 529,
+      "base_sprite": 50,
+      "c1": 8720,
+      "c2": 8720,
+      "c3": 23254
+    },
+    {
+      "id": 530,
+      "base_sprite": 50,
+      "c1": 9192,
+      "c2": 9192,
+      "c3": 23254
+    },
+    {
+      "id": 531,
+      "base_sprite": 50,
+      "c1": 32031,
+      "c2": 32031,
+      "c3": 23254
+    },
+    {
+      "id": 532,
+      "base_sprite": 51,
+      "c1": 32536,
+      "c2": 32536,
+      "c3": 23254,
+      "comment": "clan guards 2 (17 to 32)"
+    },
+    {
+      "id": 533,
+      "base_sprite": 51,
+      "c1": 25592,
+      "c2": 25592,
+      "c3": 23254
+    },
+    {
+      "id": 534,
+      "base_sprite": 51,
+      "c1": 25375,
+      "c2": 25375,
+      "c3": 23254
+    },
+    {
+      "id": 535,
+      "base_sprite": 51,
+      "c1": 32760,
+      "c2": 32760,
+      "c3": 23254
+    },
+    {
+      "id": 536,
+      "base_sprite": 51,
+      "c1": 32543,
+      "c2": 32543,
+      "c3": 23254
+    },
+    {
+      "id": 537,
+      "base_sprite": 51,
+      "c1": 25599,
+      "c2": 25599,
+      "c3": 23254
+    },
+    {
+      "id": 538,
+      "base_sprite": 51,
+      "c1": 32008,
+      "c2": 32008,
+      "c3": 23254
+    },
+    {
+      "id": 539,
+      "base_sprite": 51,
+      "c1": 8479,
+      "c2": 8479,
+      "c3": 23254
+    },
+    {
+      "id": 540,
+      "base_sprite": 51,
+      "c1": 16648,
+      "c2": 16648,
+      "c3": 23254
+    },
+    {
+      "id": 541,
+      "base_sprite": 51,
+      "c1": 8712,
+      "c2": 8712,
+      "c3": 23254
+    },
+    {
+      "id": 542,
+      "base_sprite": 51,
+      "c1": 8464,
+      "c2": 8464,
+      "c3": 23254
+    },
+    {
+      "id": 543,
+      "base_sprite": 51,
+      "c1": 16904,
+      "c2": 16904,
+      "c3": 23254
+    },
+    {
+      "id": 544,
+      "base_sprite": 51,
+      "c1": 16656,
+      "c2": 16656,
+      "c3": 23254
+    },
+    {
+      "id": 545,
+      "base_sprite": 51,
+      "c1": 8720,
+      "c2": 8720,
+      "c3": 23254
+    },
+    {
+      "id": 546,
+      "base_sprite": 51,
+      "c1": 9192,
+      "c2": 9192,
+      "c3": 23254
+    },
+    {
+      "id": 547,
+      "base_sprite": 51,
+      "c1": 32031,
+      "c2": 32031,
+      "c3": 23254
+    },
+    {
+      "id": 550,
+      "base_sprite": 19,
+      "scale": 135,
+      "cr": 5,
+      "light": -5,
+      "saturation": 10,
+      "comment": "moors: wolf"
+    },
+    {
+      "id": 551,
+      "base_sprite": 37,
+      "cr": 5,
+      "light": -50,
+      "saturation": 10,
+      "comment": "moors: werewolf"
+    },
+    {
+      "id": 552,
+      "base_sprite": 30,
+      "scale": 80,
+      "cg": 30,
+      "light": -40,
+      "saturation": 10
+    },
+    {
+      "id": 553,
+      "base_sprite": 30,
+      "scale": 90,
+      "cg": 30,
+      "light": -40,
+      "saturation": 10
+    },
+    {
+      "id": 554,
+      "base_sprite": 30,
+      "scale": 100,
+      "cg": 30,
+      "light": -40,
+      "saturation": 10
+    },
+    {
+      "id": 555,
+      "base_sprite": 30,
+      "scale": 110,
+      "cg": 30,
+      "light": -40,
+      "saturation": 10
+    },
+    {
+      "id": 556,
+      "base_sprite": 30,
+      "scale": 60,
+      "cb": 20,
+      "light": 10,
+      "saturation": 15
+    },
+    {
+      "id": 557,
+      "base_sprite": 30,
+      "scale": 80,
+      "cb": 20,
+      "light": 10,
+      "saturation": 15
+    },
+    {
+      "id": 558,
+      "base_sprite": 30,
+      "scale": 100,
+      "cb": 20,
+      "light": 10,
+      "saturation": 15
+    },
+    {
+      "id": 559,
+      "base_sprite": 30,
+      "scale": 120,
+      "cb": 20,
+      "light": 10,
+      "saturation": 15
+    },
+    {
+      "id": 560,
+      "base_sprite": 30,
+      "scale": 140,
+      "cb": 20,
+      "light": 10,
+      "saturation": 15
+    },
+    {
+      "id": 561,
+      "base_sprite": 30,
+      "scale": 160,
+      "cb": 20,
+      "light": 10,
+      "saturation": 15
+    },
+    {
+      "id": 562,
+      "base_sprite": 30,
+      "scale": 60,
+      "cr": 60,
+      "light": -20,
+      "saturation": 15
+    },
+    {
+      "id": 563,
+      "base_sprite": 30,
+      "scale": 80,
+      "cr": 60,
+      "light": -20,
+      "saturation": 15
+    },
+    {
+      "id": 564,
+      "base_sprite": 30,
+      "scale": 100,
+      "cr": 60,
+      "light": -20,
+      "saturation": 15
+    },
+    {
+      "id": 565,
+      "base_sprite": 30,
+      "scale": 120,
+      "cr": 60,
+      "light": -20,
+      "saturation": 15
+    },
+    {
+      "id": 566,
+      "base_sprite": 30,
+      "scale": 140,
+      "cr": 60,
+      "light": -20,
+      "saturation": 15
+    },
+    {
+      "id": 567,
+      "base_sprite": 30,
+      "scale": 160,
+      "cr": 60,
+      "light": -20,
+      "saturation": 15
+    },
+    {
+      "id": 305,
+      "base_sprite": 58,
+      "c1": 16927,
+      "c2": 4236,
+      "c3": 29440,
+      "comment": "islena"
+    },
+    {
+      "id": 313,
+      "base_sprite": 58,
+      "c1": 19026,
+      "c2": 23254,
+      "c3": 12518,
+      "comment": "zoetje"
+    },
+    {
+      "id": 568,
+      "base_sprite": 58,
+      "c1": 17392,
+      "c2": 6790,
+      "c3": 29200,
+      "comment": "queen fiona"
+    },
+    {
+      "id": 569,
+      "base_sprite": 66,
+      "c1": 17392,
+      "c2": 6790,
+      "c3": 29200,
+      "comment": "bridge guard 1"
+    },
+    {
+      "id": 570,
+      "base_sprite": 81,
+      "c1": 17392,
+      "c2": 6790,
+      "c3": 29200,
+      "comment": "bridge guard 2"
+    },
+    {
+      "id": 571,
+      "base_sprite": 46,
+      "c1": 32272,
+      "c2": 20678,
+      "c3": 29200,
+      "comment": "student"
+    },
+    {
+      "id": 572,
+      "base_sprite": 46,
+      "c1": 32404,
+      "c2": 16582,
+      "c3": 23056,
+      "comment": "gladiator"
+    },
+    {
+      "id": 573,
+      "base_sprite": 111,
+      "c1": 16648,
+      "c2": 14534,
+      "c3": 25288,
+      "comment": "teacher"
+    },
+    {
+      "id": 574,
+      "base_sprite": 101,
+      "c1": 16648,
+      "c2": 14534,
+      "c3": 8456,
+      "comment": "teacher"
+    },
+    {
+      "id": 575,
+      "base_sprite": 102,
+      "c1": 16648,
+      "c2": 14534,
+      "c3": 12552,
+      "comment": "teacher"
+    },
+    {
+      "id": 576,
+      "base_sprite": 110,
+      "c1": 8464,
+      "c2": 6350,
+      "c3": 25288,
+      "comment": "teacher"
+    },
+    {
+      "id": 577,
+      "base_sprite": 89,
+      "c1": 32404,
+      "c2": 16582,
+      "c3": 23056
+    },
+    {
+      "id": 800,
+      "base_sprite": 120
+    },
+    {
+      "id": 801,
+      "base_sprite": 121
+    },
+    {
+      "id": 802,
+      "base_sprite": 122
+    },
+    {
+      "id": 803,
+      "base_sprite": 123
+    }
+  ]
+}

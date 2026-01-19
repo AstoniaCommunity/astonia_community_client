@@ -9,7 +9,8 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#include <SDL2/SDL_loadso.h>
+#include <SDL3/SDL_loadso.h>
+#include <SDL3/SDL_keycode.h>
 
 #include "astonia.h"
 #include "modder/modder.h"
@@ -24,14 +25,15 @@ struct mod {
 	void (*_amod_init)(void);
 	void (*_amod_exit)(void);
 	void (*_amod_gamestart)(void);
+	void (*_amod_sprite_config)(void);
 	void (*_amod_frame)(void);
 	void (*_amod_tick)(void);
 	void (*_amod_mouse_move)(int x, int y);
 	int (*_amod_mouse_click)(int x, int y, int what);
 	void (*_amod_mouse_capture)(int onoff);
 	void (*_amod_areachange)(void);
-	int (*_amod_keydown)(int);
-	int (*_amod_keyup)(int);
+	int (*_amod_keydown)(SDL_Keycode);
+	int (*_amod_keyup)(SDL_Keycode);
 	void (*_amod_update_hover_texts)(void);
 	int (*_amod_client_cmd)(const char *buf);
 	char *(*_amod_version)(void);
@@ -42,6 +44,7 @@ struct mod mod[MAXMOD] = {{
     NULL, // _amod_init
     NULL, // _amod_exit
     NULL, // _amod_gamestart
+    NULL, // _amod_sprite_config
     NULL, // _amod_frame
     NULL, // _amod_tick
     NULL, // _amod_mouse_move
@@ -74,7 +77,7 @@ int amod_init(void)
 	for (int i = 0; i < MAXMOD; i++) {
 #ifdef _WIN32
 		sprintf(fname, "bin\\%cmod.dll", i + 'a');
-#elif defined(__APPLE__)
+#elif defined(SDL_PLATFORM_APPLE)
 		sprintf(fname, "bin/%cmod.dylib", i + 'a');
 #else
 		sprintf(fname, "bin/%cmod.so", i + 'a');
@@ -96,6 +99,9 @@ int amod_init(void)
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_gamestart"))) {
 			mod[i]._amod_gamestart = (void (*)(void))tmp;
 		}
+		if ((tmp = SDL_LoadFunction(dll_instance, "amod_sprite_config"))) {
+			mod[i]._amod_sprite_config = (void (*)(void))tmp;
+		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_frame"))) {
 			mod[i]._amod_frame = (void (*)(void))tmp;
 		}
@@ -115,10 +121,10 @@ int amod_init(void)
 			mod[i]._amod_areachange = (void (*)(void))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_keydown"))) {
-			mod[i]._amod_keydown = (int (*)(int))tmp;
+			mod[i]._amod_keydown = (int (*)(SDL_Keycode))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_keyup"))) {
-			mod[i]._amod_keyup = (int (*)(int))tmp;
+			mod[i]._amod_keyup = (int (*)(SDL_Keycode))tmp;
 		}
 		if ((tmp = SDL_LoadFunction(dll_instance, "amod_update_hover_texts"))) {
 			mod[i]._amod_update_hover_texts = (void (*)(void))tmp;
@@ -267,6 +273,15 @@ void amod_gamestart(void)
 	}
 }
 
+void amod_sprite_config(void)
+{
+	for (int i = 0; i < MAXMOD; i++) {
+		if (mod[i]._amod_sprite_config) {
+			mod[i]._amod_sprite_config();
+		}
+	}
+}
+
 void amod_frame(void)
 {
 	for (int i = 0; i < MAXMOD; i++) {
@@ -327,7 +342,7 @@ void amod_areachange(void)
 	}
 }
 
-int amod_keydown(int key)
+int amod_keydown(SDL_Keycode key)
 {
 	int ret = 0, tmp;
 	for (int i = 0; i < MAXMOD; i++) {
@@ -343,7 +358,7 @@ int amod_keydown(int key)
 	return ret;
 }
 
-int amod_keyup(int key)
+int amod_keyup(SDL_Keycode key)
 {
 	int ret = 0, tmp;
 	for (int i = 0; i < MAXMOD; i++) {

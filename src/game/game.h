@@ -2,8 +2,10 @@
  * Part of Astonia Client (c) Daniel Brockhaus. Please read license.txt.
  */
 
-#include "astonia.h"
 #include <stdio.h>
+#include <SDL3/SDL_keycode.h>
+
+#include "astonia.h"
 
 // Sprite alignment constants
 #define RENDER_ALIGN_OFFSET 0 // Use sprite's built-in offset (must be zero for bzero default)
@@ -49,6 +51,13 @@
 #define RENDERFX_NORMAL_LIGHT 15 // Normal lighting level
 #define RENDERFX_BRIGHT       0 // Maximum brightness
 
+// Blend mode constants for render_set_blend_mode()
+#define BLEND_NORMAL   0 // Alpha blending: dstRGB = (srcRGB * srcA) + (dstRGB * (1-srcA))
+#define BLEND_ADDITIVE 1 // Additive blending: dstRGB = (srcRGB * srcA) + dstRGB (glow, fire)
+#define BLEND_MOD      2 // Color modulate: dstRGB = srcRGB * dstRGB (tinting)
+#define BLEND_MUL      3 // Color multiply: dstRGB = (srcRGB * dstRGB) + (dstRGB * (1-srcA))
+#define BLEND_NONE     4 // No blending: dstRGBA = srcRGBA (overwrite)
+
 #define MMF_SIGHTBLOCK (1 << 1) // indicates sight block (set_map_lights)
 #define MMF_DOOR       (1 << 2) // a door - helpful when cutting sprites - (set_map_sprites)
 #define MMF_CUT        (1 << 3) // indicates cut (set_map_cut)
@@ -93,7 +102,7 @@ struct renderfx {
 typedef struct renderfx RenderFX;
 
 extern float mouse_scale; // mouse input needs to be scaled by this factor because the display window is stretched
-extern char user_keys[10];
+extern SDL_Keycode user_keys[10];
 extern int namesize;
 extern int stom_off_x, stom_off_y;
 extern int __textdisplay_sy;
@@ -122,17 +131,87 @@ DLL_EXPORT int render_sprite_fx(RenderFX *fx, int scrx, int scry);
 DLL_EXPORT void render_sprite(unsigned int sprite, int scrx, int scry, char light, char align);
 void render_sprite_callfx(unsigned int sprite, int scrx, int scry, char light, char mli, char align);
 
-// Primitive drawing functions
-DLL_EXPORT void render_rect(int sx, int sy, int ex, int ey, unsigned short int color);
-void render_shaded_rect(int sx, int sy, int ex, int ey, unsigned short color, unsigned short alpha);
-DLL_EXPORT void render_line(int fx, int fy, int tx, int ty, unsigned short col);
+// Basic drawing primitives
 DLL_EXPORT void render_pixel(int x, int y, unsigned short col);
+DLL_EXPORT void render_pixel_alpha(int x, int y, unsigned short col, unsigned char alpha);
+DLL_EXPORT void render_line(int fx, int fy, int tx, int ty, unsigned short col);
+DLL_EXPORT void render_line_alpha(int fx, int fy, int tx, int ty, unsigned short col, unsigned char alpha);
+DLL_EXPORT void render_line_aa(int x0, int y0, int x1, int y1, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_thick_line_alpha(
+    int fx, int fy, int tx, int ty, int thickness, unsigned short color, unsigned char alpha);
+
+// Rectangle primitives
+DLL_EXPORT void render_rect(int sx, int sy, int ex, int ey, unsigned short int color);
+DLL_EXPORT void render_rect_alpha(int sx, int sy, int ex, int ey, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_rect_outline_alpha(int sx, int sy, int ex, int ey, unsigned short color, unsigned char alpha);
+void render_shaded_rect(int sx, int sy, int ex, int ey, unsigned short color, unsigned short alpha);
+DLL_EXPORT void render_rounded_rect_alpha(
+    int sx, int sy, int ex, int ey, int radius, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_rounded_rect_filled_alpha(
+    int sx, int sy, int ex, int ey, int radius, unsigned short color, unsigned char alpha);
+
+// Circle and ellipse primitives
+DLL_EXPORT void render_circle_alpha(int cx, int cy, int radius, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_circle_filled_alpha(int cx, int cy, int radius, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_ellipse_alpha(int cx, int cy, int rx, int ry, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_ellipse_filled_alpha(int cx, int cy, int rx, int ry, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_ring_alpha(int cx, int cy, int inner_radius, int outer_radius, int start_angle, int end_angle,
+    unsigned short color, unsigned char alpha);
+
+// Triangle primitives
+DLL_EXPORT void render_triangle_alpha(
+    int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_triangle_filled_alpha(
+    int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha);
+
+// Arc and curve primitives
+DLL_EXPORT void render_arc_alpha(
+    int cx, int cy, int radius, int start_angle, int end_angle, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_bezier_quadratic_alpha(
+    int x0, int y0, int x1, int y1, int x2, int y2, unsigned short color, unsigned char alpha);
+DLL_EXPORT void render_bezier_cubic_alpha(
+    int x0, int y0, int x1, int y1, int x2, int y2, int x3, int y3, unsigned short color, unsigned char alpha);
+
+// Gradient primitives
+DLL_EXPORT void render_gradient_rect_h(
+    int sx, int sy, int ex, int ey, unsigned short color1, unsigned short color2, unsigned char alpha);
+DLL_EXPORT void render_gradient_rect_v(
+    int sx, int sy, int ex, int ey, unsigned short color1, unsigned short color2, unsigned char alpha);
+DLL_EXPORT void render_gradient_circle(
+    int cx, int cy, int radius, unsigned short color, unsigned char center_alpha, unsigned char edge_alpha);
+
+// Blend mode control
+DLL_EXPORT void render_set_blend_mode(int mode);
+DLL_EXPORT int render_get_blend_mode(void);
+
+// Custom texture loading for modders
+DLL_EXPORT int render_load_texture(const char *path);
+DLL_EXPORT void render_unload_texture(int tex_id);
+DLL_EXPORT void render_texture(int tex_id, int x, int y, unsigned char alpha);
+DLL_EXPORT void render_texture_scaled(int tex_id, int x, int y, float scale, unsigned char alpha);
+DLL_EXPORT int render_texture_width(int tex_id);
+DLL_EXPORT int render_texture_height(int tex_id);
 
 // Clipping functions
 DLL_EXPORT void render_push_clip(void);
 DLL_EXPORT void render_pop_clip(void);
 DLL_EXPORT void render_more_clip(int sx, int sy, int ex, int ey);
-void render_set_clip(int sx, int sy, int ex, int ey);
+DLL_EXPORT void render_set_clip(int sx, int sy, int ex, int ey);
+DLL_EXPORT void render_clear_clip(void);
+DLL_EXPORT void render_get_clip(int *out_start_x, int *out_start_y, int *out_end_x, int *out_end_y);
+
+// Screen effects for modders
+DLL_EXPORT void render_screen_tint(unsigned short color, unsigned char intensity);
+DLL_EXPORT void render_vignette(unsigned char intensity);
+DLL_EXPORT void render_screen_flash(unsigned short color, unsigned char intensity);
+
+// Render targets for modders (offscreen rendering)
+#define RENDER_TARGET_SCREEN (-1)
+DLL_EXPORT int render_create_target(int width, int height);
+DLL_EXPORT void render_destroy_target(int target_id);
+DLL_EXPORT int render_set_target(int target_id);
+DLL_EXPORT void render_target_to_screen(int target_id, int x, int y, unsigned char alpha);
+DLL_EXPORT void render_clear_target(int target_id);
 
 // Chat window text functions
 void render_display_text(void);
@@ -177,3 +256,4 @@ void set_map_values(struct map *cmap, tick_t attick);
 void quest_select(int nr);
 void init_game(int mcx, int mcy);
 void exit_game(void);
+void set_v35_skilltab(void);

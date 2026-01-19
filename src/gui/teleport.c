@@ -20,7 +20,7 @@ int teleporter = 0;
 // Forward declaration
 DLL_EXPORT void set_teleport(int idx, int x, int y);
 
-static int tele[64 * 2] = {
+static int v3_tele[64 * 2] = {
     133,
     229, // 0	Cameron
     -1,
@@ -77,6 +77,63 @@ static int tele[64 * 2] = {
     0,
 };
 
+static int v35_tele[64 * 2] = {
+    133,
+    229, // 0	Cameron
+    -1,
+    -1, // 1
+    143,
+    204, // 2	Aston
+    370,
+    191, // 3	Tribe of the Isara
+    370,
+    179, // 4	Tribe of the Cerasa
+    370,
+    167, // 5	Cerasa Maze
+    370,
+    155, // 6	Cerasa Tunnels
+    370,
+    143, // 7	Zalina Entrance
+    370,
+    131, // 8	Tribe of the Zalina
+    -1,
+    -1, // 9
+    143,
+    213, // 10	Aston 2
+    -1,
+    -1, // 11
+    458,
+    108, // 12	Ice 8
+    458,
+    96, // 13	Ice 7
+    458,
+    84, // 14	Ice 6
+    458,
+    72, // 15	Ice 5
+    458,
+    60, // 16	Ice 4
+    225,
+    123, // 17	Nomad Plains
+    -1,
+    -1, // 18
+    -1,
+    -1, // 19
+    162,
+    180, // 20 forest
+    164,
+    167, // 21 exkordon
+    194,
+    146, // 22 brannington
+    174,
+    115, // 23 grimroot
+    139,
+    149, // 24 caligar
+    205,
+    132, // 25 arkhata
+    0,
+    0,
+};
+
 static int mirror_pos[26 * 2] = {346, 210, 346, 222, 346, 234, 346, 246, 346, 258, 346, 270, 346, 282, 346, 294,
 
     384, 210, 384, 222, 384, 234, 384, 246, 384, 258, 384, 270, 384, 282, 384, 294,
@@ -93,16 +150,28 @@ DLL_EXPORT void set_teleport(int idx, int x, int y)
 		return;
 	}
 
-	tele[idx * 2] = x;
-	tele[idx * 2 + 1] = y;
+	if (sv_ver == 35) {
+		v35_tele[idx * 2] = x;
+		v35_tele[idx * 2 + 1] = y;
+	} else {
+		v3_tele[idx * 2] = x;
+		v3_tele[idx * 2 + 1] = y;
+	}
 }
 
 int get_teleport(int x, int y)
 {
 	int n;
+	int *tele;
 
 	if (!teleporter) {
 		return -1;
+	}
+
+	if (sv_ver == 35) {
+		tele = v35_tele;
+	} else {
+		tele = v3_tele;
 	}
 
 	// map teleports
@@ -124,7 +193,7 @@ int get_teleport(int x, int y)
 
 	// clan teleports
 	for (n = 0; n < 8; n++) {
-		if (!may_teleport[n + 64 + clan_offset]) {
+		if (sv_ver == 30 && !may_teleport[n + 64 + clan_offset]) {
 			continue;
 		}
 
@@ -133,7 +202,14 @@ int get_teleport(int x, int y)
 		}
 	}
 	for (n = 0; n < 8; n++) {
-		if (!may_teleport[n + 64 + 8 + clan_offset]) {
+		if (sv_ver == 30 && 8 + clan_offset + n == 31) {
+			continue;
+		}
+		if (sv_ver == 35 && 8 + clan_offset + n >= 60) {
+			continue;
+		}
+
+		if (sv_ver == 30 && !may_teleport[n + 64 + 8 + clan_offset]) {
 			continue;
 		}
 
@@ -145,7 +221,11 @@ int get_teleport(int x, int y)
 	// mirror selector
 	for (n = 0; n < 26; n++) {
 		if (abs(mirror_pos[n * 2] + dotx(DOT_TEL) - x) < 8 && abs(mirror_pos[n * 2 + 1] + doty(DOT_TEL) - y) < 8) {
-			return n + 101;
+			if (sv_ver == 35) {
+				return n + 201;
+			} else {
+				return n + 101;
+			}
 		}
 	}
 
@@ -159,15 +239,35 @@ int get_teleport(int x, int y)
 void display_teleport(void)
 {
 	int n;
+	int *tele;
 
 	if (!teleporter) {
 		return;
 	}
 
-	if (!clan_offset) {
-		render_sprite(53519, dotx(DOT_TEL) + 520 / 2, doty(DOT_TEL) + 320 / 2, 14, 0);
+	if (sv_ver == 35) {
+		tele = v35_tele;
 	} else {
-		render_sprite(53520, dotx(DOT_TEL) + 520 / 2, doty(DOT_TEL) + 320 / 2, 14, 0);
+		tele = v3_tele;
+	}
+
+	if (sv_ver == 35) {
+		render_sprite(53539, dotx(DOT_TEL) + 520 / 2, doty(DOT_TEL) + 320 / 2, 14, 0);
+		if (clan_offset < 16)
+			;
+		else if (clan_offset < 32) {
+			render_sprite(53521, dotx(DOT_TEL) + 102 / 2 + 341, doty(DOT_TEL) + 95 / 2 + 17, 14, 0);
+		} else if (clan_offset < 48) {
+			render_sprite(53522, dotx(DOT_TEL) + 102 / 2 + 341, doty(DOT_TEL) + 95 / 2 + 17, 14, 0);
+		} else {
+			render_sprite(53523, dotx(DOT_TEL) + 102 / 2 + 341, doty(DOT_TEL) + 95 / 2 + 17, 14, 0);
+		}
+	} else {
+		if (!clan_offset) {
+			render_sprite(53519, dotx(DOT_TEL) + 520 / 2, doty(DOT_TEL) + 320 / 2, 14, 0);
+		} else {
+			render_sprite(53520, dotx(DOT_TEL) + 520 / 2, doty(DOT_TEL) + 320 / 2, 14, 0);
+		}
 	}
 
 	for (n = 0; n < 64; n++) {
@@ -188,21 +288,25 @@ void display_teleport(void)
 	}
 
 	for (n = 0; n < 8; n++) {
-		if (!may_teleport[n + 64 + clan_offset]) {
+		if (sv_ver == 30 && !may_teleport[n + 64 + clan_offset]) {
 			dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 0);
-		} else if (telsel == n + 64 + clan_offset) {
+		} else if (telsel == n + 64) {
 			dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
 		} else {
 			dx_copysprite_emerald(337 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);
 		}
 	}
+
 	for (n = 0; n < 8; n++) {
-		if (8 + clan_offset + n == 31) {
+		if (sv_ver == 30 && 8 + clan_offset + n == 31) {
 			continue;
 		}
-		if (!may_teleport[n + 64 + 8 + clan_offset]) {
+		if (sv_ver == 35 && 8 + clan_offset + n >= 60) {
+			continue;
+		}
+		if (sv_ver == 30 && !may_teleport[n + 64 + 8 + clan_offset]) {
 			dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 0);
-		} else if (telsel == n + 64 + 8 + clan_offset) {
+		} else if (telsel == n + 64 + 8) {
 			dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 2);
 		} else {
 			dx_copysprite_emerald(389 + dotx(DOT_TEL), 24 + n * 12 + doty(DOT_TEL), 3, 1);
@@ -210,7 +314,7 @@ void display_teleport(void)
 	}
 
 	for (n = 0; n < 26; n++) {
-		if (telsel == n + 101) {
+		if ((sv_ver == 30 && telsel == n + 101) || (sv_ver == 35 && telsel == n + 201)) {
 			dx_copysprite_emerald(mirror_pos[n * 2] + dotx(DOT_TEL), mirror_pos[n * 2 + 1] + doty(DOT_TEL), 1, 2);
 		} else if (newmirror == (unsigned int)(n + 1)) {
 			dx_copysprite_emerald(mirror_pos[n * 2] + dotx(DOT_TEL), mirror_pos[n * 2 + 1] + doty(DOT_TEL), 1, 1);

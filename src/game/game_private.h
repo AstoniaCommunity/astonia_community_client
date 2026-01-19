@@ -45,6 +45,7 @@ typedef struct quicks QUICK;
 #define DLC_RAIN      7
 #define DLC_PULSE     8
 #define DLC_PULSEBACK 9
+#define DLC_HEAL      10 // v35 only
 
 struct xxximage {
 	unsigned short int xres;
@@ -137,6 +138,7 @@ void render_add_text(char *ptr);
 
 // Special effects rendering
 void render_draw_bless(int x, int y, int ticker, int strength, int front);
+void render_draw_heal(int x, int y, int start, int front);
 void render_draw_potion(int x, int y, int ticker, int strength, int front);
 void render_draw_rain(int x, int y, int ticker, int strength, int front);
 void render_draw_curve(int cx, int cy, int nr, int size, int col);
@@ -156,7 +158,7 @@ DL *dl_next(void);
 DL *dl_next_set(int layer, unsigned int sprite, int scrx, int scry, unsigned char light);
 int dl_qcmp(const void *ca, const void *cb);
 void dl_play(void);
-void dl_prefetch(tick_t attick);
+void dl_prefetch(void);
 void add_bubble(int x, int y, int h);
 void show_bubbles(void);
 void make_quick(int game, int mcx, int mcy);
@@ -165,6 +167,7 @@ void make_quick(int game, int mcx, int mcy);
 DL *dl_call_strike(int layer, int x1, int y1, int h1, int x2, int y2, int h2);
 DL *dl_call_pulseback(int layer, int x1, int y1, int h1, int x2, int y2, int h2);
 DL *dl_call_bless(int layer, int x, int y, int ticker, int strength, int front);
+DL *dl_call_heal(int layer, int x, int y, int start, int front);
 DL *dl_call_pulse(int layer, int x, int y, int nr, int size, int color);
 DL *dl_call_potion(int layer, int x, int y, int ticker, int strength, int front);
 DL *dl_call_rain(int layer, int x, int y, int nr, int color);

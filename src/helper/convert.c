@@ -36,7 +36,7 @@
 #endif
 
 #ifndef STANDALONE
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include "../sdl/sdl_private.h"
 #endif
 

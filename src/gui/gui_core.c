@@ -7,7 +7,8 @@
 
 #include <inttypes.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -51,7 +52,7 @@ DLL_EXPORT unsigned short int lightbluecolor, bluecolor, darkbluecolor;
 DLL_EXPORT unsigned short int textcolor;
 DLL_EXPORT unsigned short int lightorangecolor, orangecolor, darkorangecolor;
 
-unsigned int now;
+Uint64 now;
 
 int cur_cursor = 0;
 int mousex = 300, mousey = 300, vk_rbut, vk_lbut, shift_override = 0, control_override = 0;
@@ -60,60 +61,113 @@ int mousedx, mousedy;
 int vk_item, vk_char, vk_spell;
 
 int vk_special = 0;
-unsigned int vk_special_time = 0;
+Uint64 vk_special_time = 0;
 
 // globals wea
 
 DLL_EXPORT int weatab[12] = {9, 6, 8, 11, 0, 1, 2, 4, 5, 3, 7, 10};
 char weaname[12][32] = {"RING", "HAND", "HAND", "RING", "NECK", "HEAD", "BACK", "BODY", "BELT", "ARMS", "LEGS", "FEET"};
 
-KEYTAB keytab[] = {
-    {'1', 0, 0, 1, 0, "FIREBALL", TGT_CHR, CL_FIREBALL, V_FIREBALL, 0},
-    {'2', 0, 0, 1, 0, "LIGHTNINGBALL", TGT_CHR, CL_BALL, V_FLASH, 0},
-    {'3', 0, 0, 1, 0, "FLASH", TGT_SLF, CL_FLASH, V_FLASH, 0},
-    {'4', 0, 0, 1, 0, "FREEZE", TGT_SLF, CL_FREEZE, V_FREEZE, 0},
-    {'5', 0, 0, 1, 0, "SHIELD", TGT_SLF, CL_MAGICSHIELD, V_MAGICSHIELD, 0},
-    {'6', 0, 0, 1, 0, "BLESS", TGT_CHR, CL_BLESS, V_BLESS, 0},
-    {'7', 0, 0, 1, 0, "HEAL", TGT_CHR, CL_HEAL, V_HEAL, 0},
-    {'8', 0, 0, 1, 0, "WARCRY", TGT_SLF, CL_WARCRY, V_WARCRY, 0},
-    {'9', 0, 0, 1, 0, "PULSE", TGT_SLF, CL_PULSE, V_PULSE, 0},
-    {'0', 0, 0, 1, 0, "FIRERING", TGT_SLF, CL_FIREBALL, V_FIREBALL, 0},
+KEYTAB v3_keytab[] = {
+    {'1', 0, 0, 1, 0, "FIREBALL", TGT_CHR, CL_FIREBALL, V3_FIREBALL, 0},
+    {'2', 0, 0, 1, 0, "LIGHTNINGBALL", TGT_CHR, CL_BALL, V3_FLASH, 0},
+    {'3', 0, 0, 1, 0, "FLASH", TGT_SLF, CL_FLASH, V3_FLASH, 0},
+    {'4', 0, 0, 1, 0, "FREEZE", TGT_SLF, CL_FREEZE, V3_FREEZE, 0},
+    {'5', 0, 0, 1, 0, "SHIELD", TGT_SLF, CL_MAGICSHIELD, V3_MAGICSHIELD, 0},
+    {'6', 0, 0, 1, 0, "BLESS", TGT_CHR, CL_BLESS, V3_BLESS, 0},
+    {'7', 0, 0, 1, 0, "HEAL", TGT_CHR, CL_HEAL, V3_HEAL, 0},
+    {'8', 0, 0, 1, 0, "WARCRY", TGT_SLF, CL_WARCRY, V3_WARCRY, 0},
+    {'9', 0, 0, 1, 0, "PULSE", TGT_SLF, CL_PULSE, V3_PULSE, 0},
+    {'0', 0, 0, 1, 0, "FIRERING", TGT_SLF, CL_FIREBALL, V3_FIREBALL, 0},
 
-    {'1', 0, 0, 1, 1, "FIREBALL", TGT_CHR, CL_FIREBALL, V_FIREBALL, 0},
-    {'2', 0, 0, 1, 1, "LIGHTNINGBALL", TGT_CHR, CL_BALL, V_FLASH, 0},
-    {'3', 0, 0, 1, 1, "FLASH", TGT_SLF, CL_FLASH, V_FLASH, 0},
-    {'4', 0, 0, 1, 1, "FREEZE", TGT_SLF, CL_FREEZE, V_FREEZE, 0},
-    {'5', 0, 0, 1, 1, "SHIELD", TGT_SLF, CL_MAGICSHIELD, V_MAGICSHIELD, 0},
-    {'6', 0, 0, 1, 1, "BLESS", TGT_CHR, CL_BLESS, V_BLESS, 0},
-    {'7', 0, 0, 1, 1, "HEAL", TGT_CHR, CL_HEAL, V_HEAL, 0},
-    {'8', 0, 0, 1, 1, "WARCRY", TGT_SLF, CL_WARCRY, V_WARCRY, 0},
-    {'9', 0, 0, 1, 1, "PULSE", TGT_SLF, CL_PULSE, V_PULSE, 0},
-    {'0', 0, 0, 1, 1, "FIRERING", TGT_SLF, CL_FIREBALL, V_FIREBALL, 0},
+    {'1', 0, 0, 1, 1, "FIREBALL", TGT_CHR, CL_FIREBALL, V3_FIREBALL, 0},
+    {'2', 0, 0, 1, 1, "LIGHTNINGBALL", TGT_CHR, CL_BALL, V3_FLASH, 0},
+    {'3', 0, 0, 1, 1, "FLASH", TGT_SLF, CL_FLASH, V3_FLASH, 0},
+    {'4', 0, 0, 1, 1, "FREEZE", TGT_SLF, CL_FREEZE, V3_FREEZE, 0},
+    {'5', 0, 0, 1, 1, "SHIELD", TGT_SLF, CL_MAGICSHIELD, V3_MAGICSHIELD, 0},
+    {'6', 0, 0, 1, 1, "BLESS", TGT_CHR, CL_BLESS, V3_BLESS, 0},
+    {'7', 0, 0, 1, 1, "HEAL", TGT_CHR, CL_HEAL, V3_HEAL, 0},
+    {'8', 0, 0, 1, 1, "WARCRY", TGT_SLF, CL_WARCRY, V3_WARCRY, 0},
+    {'9', 0, 0, 1, 1, "PULSE", TGT_SLF, CL_PULSE, V3_PULSE, 0},
+    {'0', 0, 0, 1, 1, "FIRERING", TGT_SLF, CL_FIREBALL, V3_FIREBALL, 0},
 
-    {'1', 0, 0, 0, 1, "FIREBALL", TGT_MAP, CL_FIREBALL, V_FIREBALL, 0},
-    {'2', 0, 0, 0, 1, "LIGHTNINGBALL", TGT_MAP, CL_BALL, V_FLASH, 0},
-    {'3', 0, 0, 0, 1, "FLASH", TGT_SLF, CL_FLASH, V_FLASH, 0},
-    {'4', 0, 0, 0, 1, "FREEZE", TGT_SLF, CL_FREEZE, V_FREEZE, 0},
-    {'5', 0, 0, 0, 1, "SHIELD", TGT_SLF, CL_MAGICSHIELD, V_MAGICSHIELD, 0},
-    {'6', 0, 0, 0, 1, "BLESS SELF", TGT_SLF, CL_BLESS, V_BLESS, 0},
-    {'7', 0, 0, 0, 1, "HEAL SELF", TGT_SLF, CL_HEAL, V_HEAL, 0},
-    {'8', 0, 0, 0, 1, "WARCRY", TGT_SLF, CL_WARCRY, V_WARCRY, 0},
-    {'9', 0, 0, 0, 1, "PULSE", TGT_SLF, CL_PULSE, V_PULSE, 0},
-    {'0', 0, 0, 0, 1, "FIRERING", TGT_SLF, CL_FIREBALL, V_FIREBALL, 0},
+    {'1', 0, 0, 0, 1, "FIREBALL", TGT_MAP, CL_FIREBALL, V3_FIREBALL, 0},
+    {'2', 0, 0, 0, 1, "LIGHTNINGBALL", TGT_MAP, CL_BALL, V3_FLASH, 0},
+    {'3', 0, 0, 0, 1, "FLASH", TGT_SLF, CL_FLASH, V3_FLASH, 0},
+    {'4', 0, 0, 0, 1, "FREEZE", TGT_SLF, CL_FREEZE, V3_FREEZE, 0},
+    {'5', 0, 0, 0, 1, "SHIELD", TGT_SLF, CL_MAGICSHIELD, V3_MAGICSHIELD, 0},
+    {'6', 0, 0, 0, 1, "BLESS SELF", TGT_SLF, CL_BLESS, V3_BLESS, 0},
+    {'7', 0, 0, 0, 1, "HEAL SELF", TGT_SLF, CL_HEAL, V3_HEAL, 0},
+    {'8', 0, 0, 0, 1, "WARCRY", TGT_SLF, CL_WARCRY, V3_WARCRY, 0},
+    {'9', 0, 0, 0, 1, "PULSE", TGT_SLF, CL_PULSE, V3_PULSE, 0},
+    {'0', 0, 0, 0, 1, "FIRERING", TGT_SLF, CL_FIREBALL, V3_FIREBALL, 0},
 };
 
-int max_keytab = sizeof(keytab) / sizeof(KEYTAB);
+int v3_max_keytab = sizeof(v3_keytab) / sizeof(KEYTAB);
 
-struct special_tab special_tab[] = {{"Walk", 0, 0, 0, 0, 0}, {"Use/Take", 1, 0, 0, 0, 0},
-    {"Attack/Give", 0, 1, 0, 0, 0}, {"Warcry", 0, 0, CL_WARCRY, TGT_SLF, V_WARCRY},
-    {"Pulse", 0, 0, CL_PULSE, TGT_SLF, V_PULSE}, {"Fireball-CHAR", 0, 1, CL_FIREBALL, TGT_CHR, V_FIREBALL},
-    {"Fireball-MAP", 0, 0, CL_FIREBALL, TGT_MAP, V_FIREBALL}, {"Firering", 0, 0, CL_FIREBALL, TGT_SLF, V_FIREBALL},
-    {"LBall-CHAR", 0, 1, CL_BALL, TGT_CHR, V_FLASH}, {"LBall-MAP", 0, 0, CL_BALL, TGT_MAP, V_FLASH},
-    {"Flash", 0, 0, CL_FLASH, TGT_SLF, V_FLASH}, {"Freeze", 0, 0, CL_FREEZE, TGT_SLF, V_FREEZE},
-    {"Shield", 0, 0, CL_MAGICSHIELD, TGT_SLF, V_MAGICSHIELD}, {"Bless-SELF", 0, 0, CL_BLESS, TGT_SLF, V_BLESS},
-    {"Bless-CHAR", 0, 1, CL_BLESS, TGT_CHR, V_BLESS}, {"Heal-SELF", 0, 0, CL_HEAL, TGT_SLF, V_HEAL},
-    {"Heal-CHAR", 0, 1, CL_HEAL, TGT_CHR, V_HEAL}};
-int max_special = sizeof(special_tab) / sizeof(special_tab[0]);
+KEYTAB v35_keytab[] = {
+    {'1', 0, 0, 1, 0, "FIREBALL", TGT_CHR, CL_FIREBALL, V35_FIRE, 0},
+    {'2', 0, 0, 1, 0, "LIGHTNINGBALL", TGT_CHR, CL_BALL, V35_FLASH, 0},
+    {'3', 0, 0, 1, 0, "FLASH", TGT_SLF, CL_FLASH, V35_FLASH, 0},
+    {'4', 0, 0, 1, 0, "FREEZE", TGT_SLF, CL_FREEZE, V35_FREEZE, 0},
+    {'5', 0, 0, 1, 0, "SHIELD", TGT_SLF, CL_MAGICSHIELD, V35_MAGICSHIELD, 0},
+    {'6', 0, 0, 1, 0, "BLESS SELF", TGT_SLF, CL_BLESS, V35_BLESS, 0},
+    {'7', 0, 0, 1, 0, "HEAL", TGT_CHR, CL_HEAL, V35_HEAL, 0},
+    {'8', 0, 0, 1, 0, "WARCRY", TGT_SLF, CL_WARCRY, V35_WARCRY, 0},
+    {'9', 0, 0, 1, 0, "FIRERING", TGT_SLF, CL_FIREBALL, V35_FIRE, 0},
+    {'0', 0, 0, 1, 0, "empty", -1, -1, -1, 0},
+
+    {'1', 0, 0, 1, 1, "FIREBALL", TGT_CHR, CL_FIREBALL, V35_FIRE, 0},
+    {'2', 0, 0, 1, 1, "LIGHTNINGBALL", TGT_CHR, CL_BALL, V35_FLASH, 0},
+    {'3', 0, 0, 1, 1, "FLASH", TGT_SLF, CL_FLASH, V35_FLASH, 0},
+    {'4', 0, 0, 1, 1, "FREEZE", TGT_SLF, CL_FREEZE, V35_FREEZE, 0},
+    {'5', 0, 0, 1, 1, "SHIELD", TGT_SLF, CL_MAGICSHIELD, V35_MAGICSHIELD, 0},
+    {'6', 0, 0, 1, 1, "BLESS SELF", TGT_SLF, CL_BLESS, V35_BLESS, 0},
+    {'7', 0, 0, 1, 1, "HEAL", TGT_CHR, CL_HEAL, V35_HEAL, 0},
+    {'8', 0, 0, 1, 1, "WARCRY", TGT_SLF, CL_WARCRY, V35_WARCRY, 0},
+    {'9', 0, 0, 1, 1, "FIRERING", TGT_SLF, CL_FIREBALL, V35_FIRE, 0},
+    {'0', 0, 0, 1, 0, "empty", -1, -1, -1, 0},
+
+    {'1', 0, 0, 0, 1, "FIREBALL", TGT_MAP, CL_FIREBALL, V35_FIRE, 0},
+    {'2', 0, 0, 0, 1, "LIGHTNINGBALL", TGT_MAP, CL_BALL, V35_FLASH, 0},
+    {'3', 0, 0, 0, 1, "FLASH", TGT_SLF, CL_FLASH, V35_FLASH, 0},
+    {'4', 0, 0, 0, 1, "FREEZE", TGT_SLF, CL_FREEZE, V35_FREEZE, 0},
+    {'5', 0, 0, 0, 1, "SHIELD", TGT_SLF, CL_MAGICSHIELD, V35_MAGICSHIELD, 0},
+    {'6', 0, 0, 0, 1, "BLESS SELF", TGT_SLF, CL_BLESS, V35_BLESS, 0},
+    {'7', 0, 0, 0, 1, "HEAL SELF", TGT_SLF, CL_HEAL, V35_HEAL, 0},
+    {'8', 0, 0, 0, 1, "WARCRY", TGT_SLF, CL_WARCRY, V35_WARCRY, 0},
+    {'9', 0, 0, 0, 1, "FIRERING", TGT_SLF, CL_FIREBALL, V35_FIRE, 0},
+    {'0', 0, 0, 1, 0, "empty", -1, -1, -1, 0},
+};
+
+int max_v35_keytab = sizeof(v35_keytab) / sizeof(KEYTAB);
+
+KEYTAB *keytab = v3_keytab;
+int max_keytab = sizeof(v3_keytab) / sizeof(KEYTAB);
+
+struct special_tab v3_special_tab[] = {{"Walk", 0, 0, 0, 0, 0}, {"Use/Take", 1, 0, 0, 0, 0},
+    {"Attack/Give", 0, 1, 0, 0, 0}, {"Warcry", 0, 0, CL_WARCRY, TGT_SLF, V3_WARCRY},
+    {"Pulse", 0, 0, CL_PULSE, TGT_SLF, V3_PULSE}, {"Fireball-CHAR", 0, 1, CL_FIREBALL, TGT_CHR, V3_FIREBALL},
+    {"Fireball-MAP", 0, 0, CL_FIREBALL, TGT_MAP, V3_FIREBALL}, {"Firering", 0, 0, CL_FIREBALL, TGT_SLF, V3_FIREBALL},
+    {"LBall-CHAR", 0, 1, CL_BALL, TGT_CHR, V3_FLASH}, {"LBall-MAP", 0, 0, CL_BALL, TGT_MAP, V3_FLASH},
+    {"Flash", 0, 0, CL_FLASH, TGT_SLF, V3_FLASH}, {"Freeze", 0, 0, CL_FREEZE, TGT_SLF, V3_FREEZE},
+    {"Shield", 0, 0, CL_MAGICSHIELD, TGT_SLF, V3_MAGICSHIELD}, {"Bless-SELF", 0, 0, CL_BLESS, TGT_SLF, V3_BLESS},
+    {"Bless-CHAR", 0, 1, CL_BLESS, TGT_CHR, V3_BLESS}, {"Heal-SELF", 0, 0, CL_HEAL, TGT_SLF, V3_HEAL},
+    {"Heal-CHAR", 0, 1, CL_HEAL, TGT_CHR, V3_HEAL}};
+int max_v3_special = sizeof(v3_special_tab) / sizeof(v3_special_tab[0]);
+
+struct special_tab v35_special_tab[] = {{"Walk", 0, 0, 0, 0, 0}, {"Use/Take", 1, 0, 0, 0, 0},
+    {"Attack/Give", 0, 1, 0, 0, 0}, {"Warcry", 0, 0, CL_WARCRY, TGT_SLF, V35_WARCRY},
+    {"Fireball-CHAR", 0, 1, CL_FIREBALL, TGT_CHR, V35_FIRE}, {"Fireball-MAP", 0, 0, CL_FIREBALL, TGT_MAP, V35_FIRE},
+    {"Firering", 0, 0, CL_FIREBALL, TGT_SLF, V35_FIRE}, {"LBall-CHAR", 0, 1, CL_BALL, TGT_CHR, V35_FLASH},
+    {"LBall-MAP", 0, 0, CL_BALL, TGT_MAP, V35_FLASH}, {"Flash", 0, 0, CL_FLASH, TGT_SLF, V35_FLASH},
+    {"Freeze", 0, 0, CL_FREEZE, TGT_SLF, V35_FREEZE}, {"Shield", 0, 0, CL_MAGICSHIELD, TGT_SLF, V35_MAGICSHIELD},
+    {"Bless-SELF", 0, 0, CL_BLESS, TGT_SLF, V35_BLESS}, {"Heal-SELF", 0, 0, CL_HEAL, TGT_SLF, V35_HEAL},
+    {"Heal-CHAR", 0, 1, CL_HEAL, TGT_CHR, V35_HEAL}};
+int max_v35_special = sizeof(v35_special_tab) / sizeof(v35_special_tab[0]);
+
+struct special_tab *special_tab = v3_special_tab;
+int max_special = sizeof(v3_special_tab) / sizeof(v3_special_tab[0]);
 
 int fkeyitem[4];
 
@@ -244,14 +298,22 @@ void main_exit(void)
 	exit_game();
 }
 
+void set_v35_keytab(void)
+{
+	keytab = v35_keytab;
+	max_keytab = max_v35_keytab;
+	special_tab = v35_special_tab;
+	max_special = max_v35_special;
+}
+
 static void flip_at(unsigned int t)
 {
-	unsigned int tnow;
-	int sdl_pre_do(tick_t curtick);
+	Uint64 tnow;
+	int sdl_pre_do(void);
 
 	do {
 		sdl_loop();
-		if (!sdl_is_shown() || !sdl_pre_do(tick)) {
+		if (!sdl_is_shown() || !sdl_pre_do()) {
 			SDL_Delay(1);
 		}
 		tnow = SDL_GetTicks();
@@ -280,7 +342,7 @@ int main_loop(void)
 	while (!quit) {
 		now = SDL_GetTicks();
 
-		start = (long long)SDL_GetTicks64();
+		start = (long long)SDL_GetTicks();
 		poll_network();
 
 		// synchronise frames and ticks if at the same speed
@@ -303,8 +365,8 @@ int main_loop(void)
 			if (timediff < 0 ||
 			    nexttick <= nextframe) { // do ticks when they are due, or before the corresponding frame is shown
 				do_one_tick = 1;
-				gui_ticktime = SDL_GetTicks64() - gui_last_tick;
-				gui_last_tick = SDL_GetTicks64();
+				gui_ticktime = SDL_GetTicks() - gui_last_tick;
+				gui_last_tick = SDL_GetTicks();
 				do_tick();
 				ltick++;
 
@@ -323,14 +385,14 @@ int main_loop(void)
 		} else {
 			timediff = 1;
 		}
-		gui_time_network += (uint64_t)(SDL_GetTicks64() - (Uint64)start);
+		gui_time_network += (uint64_t)(SDL_GetTicks() - (Uint64)start);
 
 		if (timediff > -MPF / 2) {
 #ifdef TICKPRINT
-			printf("Display tick %d\n", tick);
+			printf("Display tick %u\n", tick);
 #endif
-			gui_frametime = SDL_GetTicks64() - gui_last_frame;
-			gui_last_frame = SDL_GetTicks64();
+			gui_frametime = SDL_GetTicks() - gui_last_frame;
+			gui_last_frame = SDL_GetTicks();
 
 			if (sdl_is_shown() && (!(tick & 3) || !game_slowdown || sockstate != 4)) {
 				sdl_clear();
@@ -352,7 +414,7 @@ int main_loop(void)
 			flip_at((unsigned int)nextframe);
 		} else {
 #ifdef TICKPRINT
-			printf("Skip tick %d\n", tick);
+			printf("Skip tick %u\n", tick);
 #endif
 			skip -= timediff;
 
@@ -525,13 +587,13 @@ int gui_keymode(void)
 	int ret = 0;
 
 	km = SDL_GetModState();
-	if (km & KMOD_SHIFT) {
+	if (km & SDL_KMOD_SHIFT) {
 		ret |= SDL_KEYM_SHIFT;
 	}
-	if (km & KMOD_CTRL) {
+	if (km & SDL_KMOD_CTRL) {
 		ret |= SDL_KEYM_CTRL;
 	}
-	if (km & KMOD_ALT) {
+	if (km & SDL_KMOD_ALT) {
 		ret |= SDL_KEYM_ALT;
 	}
 

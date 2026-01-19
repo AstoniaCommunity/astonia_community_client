@@ -7,7 +7,7 @@
 
 #include <inttypes.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -83,7 +83,7 @@ void set_conoff(int bymouse, int ny)
 
 DLL_EXPORT int _get_skltab_index(int n)
 {
-	static int itab[V_MAX + 1] = {
+	static int v3_itab[V_MAX + 1] = {
 	    -1, 0, 1, 2, // powers
 	    3, 4, 5, 6, // bases
 	    7, 8, 9, 10, 38, 41, // armor etc
@@ -97,17 +97,42 @@ DLL_EXPORT int _get_skltab_index(int n)
 	    -2 // end marker
 	};
 
-	return itab[n];
+	static int v35_itab[V_MAX + 1] = {-1, 0, 1, 2, // powers
+	    3, 4, 5, 6, // bases
+	    7, 8, 9, 10, 11, 12, 36, 39, // armor etc
+	    13, 14, 15, 16, 17, 38, // fight skills
+	    18, 19, 21, // 2ndary fight skills
+	    20, 22, 23, 35, // 3rd fight skills
+	    27, 28, 29, 30, 31, 32, 37, // spells
+	    24, 25, 26, 33, 34, // misc skills
+	    40, // professions...
+	    50, 51, 52, 53, 54, 55, 56, 57, 58, 59, -2};
+
+	if (sv_ver == 35) {
+		return v35_itab[n];
+	} else {
+		return v3_itab[n];
+	}
 }
 
 DLL_EXPORT int _get_skltab_sep(int i)
 {
-	return (i == 0 || i == 3 || i == 7 || i == 12 || i == 17 || i == 25 || i == 28 || i == 42 || i == 43);
+	if (sv_ver == 35) {
+		return (
+		    i == 0 || i == 3 || i == 7 || i == 13 || i == 18 || i == 20 || i == 27 || i == 24 || i == 40 || i == 50);
+	} else {
+		return (i == 0 || i == 3 || i == 7 || i == 12 || i == 17 || i == 25 || i == 28 || i == 42 || i == 43);
+	}
 }
 
 DLL_EXPORT int _get_skltab_show(int i)
 {
-	return (i == V_WEAPON || i == V_ARMOR || i == V_SPEED || i == V_LIGHT);
+	if (sv_ver == 35) {
+		return (i == V35_WEAPON || i == V35_ARMOR || i == V35_SPEED || i == V35_LIGHT || i == V35_OFFENSE ||
+		        i == V35_DEFENSE);
+	} else {
+		return (i == V3_WEAPON || i == V3_ARMOR || i == V3_SPEED || i == V3_LIGHT);
+	}
 }
 
 void set_skltab(void)
@@ -163,7 +188,8 @@ void set_skltab(void)
 				skltab = xrealloc(skltab, (size_t)skltab_max * sizeof(SKLTAB), MEM_GUI);
 			}
 
-			if (value[1][i] && i != V_DEMON && i != V_COLD && i < V_PROFBASE) {
+
+			if (value[1][i] && i != sv_val(V_DEMON) && i != sv_val(V_COLD) && i < V_PROFBASE) {
 				skltab[use].button = 1;
 			} else {
 				skltab[use].button = 0;

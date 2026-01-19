@@ -14,7 +14,10 @@
 #include <stdlib.h>
 #include <limits.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <ctype.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
+#include <SDL3/SDL_keycode.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -22,6 +25,7 @@
 #include "astonia.h"
 #include "game/game.h"
 #include "game/game_private.h"
+#include "game/sprite_config.h"
 #include "sdl/sdl.h"
 #include "gui/gui.h"
 #include "client/client.h"
@@ -40,12 +44,13 @@ void init_logging(void);
 void determine_resolution(void);
 
 int quit = 0;
+int sv_ver = 30;
 
 char *localdata;
 
 static int panic_reached = 0;
 int xmemcheck_failed = 0;
-char user_keys[10] = {'Q', 'W', 'E', 'A', 'S', 'D', 'Z', 'X', 'C', 'V'};
+SDL_Keycode user_keys[10] = {'Q', 'W', 'E', 'A', 'S', 'D', 'Z', 'X', 'C', 'V'};
 
 DLL_EXPORT uint64_t game_options = GO_NOTSET;
 
@@ -251,18 +256,10 @@ void display_messagebox(char *title, char *text)
 
 void display_usage(void)
 {
-	char *buf;
-	int size = 4096;
-
-	buf = xmalloc((size_t)size, MEM_TEMP);
-	if (!buf) {
-		return;
-	}
-
-	snprintf(buf, (size_t)size,
+	const char *help =
 	    "The Astonia Client can only be started from the command line or with a specially created shortcut.\n\n"
 	    "Usage: moac -u playername -p password -d url\n ... [-w width] [-h height]\n"
-	    " ... [-m threads] [-o options] [-c cachesize]\n ... [-k framespersecond]\n\n"
+	    " ... [-m threads] [-o options]\n ... [-k framespersecond]\n\n"
 	    "url being, for example, \"server.astonia.com\" or \"192.168.77.132\" (without the quotes).\n\n"
 	    "width and height are the desired window size. If this matches the desktop size the client "
 	    "will start in windowed borderless pseudo-fullscreen mode.\n\n"
@@ -274,26 +271,24 @@ void display_usage(void)
 	    "legacy mouse wheel logic.\n"
 	    "Bit 10 enables out-of-order execution (read: faster) of inventory access and command feedback.\n"
 	    "Bit 11 reduces the animation buffer for faster reactions and more stutter.\n"
-	    "Bit 12 writes application files to %%appdata%% instead of the current folder.\n"
+	    "Bit 12 writes application files to %appdata% instead of the current folder.\n"
 	    "Bit 13 enables the loading and saving of minimaps.\n"
 	    "Bit 14 and 15 increase gamma.\n"
 	    "Bit 16 makes the sliding top bar less sensitive.\n"
 	    "Bit 17 reduces lighting effects (more performance, less pretty).\n"
 	    "Bit 18 disables the minimap.\n"
 	    "Default depends on screen height.\n\n"
-	    "cachesize is the size of the texture cache. Default is 8000. Lower numbers might crash!\n\n"
-	    "framespersecond will set the display rate in frames per second.\n\n");
+	    "framespersecond will set the display rate in frames per second.\n\n";
 
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Usage", buf, NULL);
-	printf("%s", buf);
-
-	xfree(buf);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Usage", help, NULL);
+	printf("%s", help);
 }
 
 DLL_EXPORT char server_url[256];
 DLL_EXPORT int server_port = 0;
 DLL_EXPORT int want_width = 0;
 DLL_EXPORT int want_height = 0;
+DLL_EXPORT int want_monitor = 0; // Monitor number for multi-monitor support (0=default)
 
 int parse_args(int argc, char *argv[])
 {
@@ -392,17 +387,12 @@ int parse_args(int argc, char *argv[])
 			}
 			break;
 		case 'c':
+			// Legacy flag: cache size is now statically allocated (MAX_TEXCACHE = 8000).
+			// Accept but ignore this flag for backward compatibility.
 			if (!val && i + 1 < argc) {
 				val = argv[++i];
 			}
-			if (val) {
-				long c = strtol(val, &end, 10);
-				if (c < INT_MIN || c > INT_MAX) {
-					sdl_cache_size = 0;
-				} else {
-					sdl_cache_size = (int)c;
-				}
-			}
+			// Silently ignored - cache is compile-time fixed
 			break;
 		case 'k':
 			if (!val && i + 1 < argc) {
@@ -430,6 +420,32 @@ int parse_args(int argc, char *argv[])
 				}
 			}
 			break;
+		case 'v':
+			if (!val && i + 1 < argc) {
+				val = argv[++i];
+			}
+			if (val) {
+				long v = strtol(val, &end, 10);
+				if (v < INT_MIN || v > INT_MAX) {
+					sv_ver = 30;
+				} else {
+					sv_ver = (int)v;
+				}
+			}
+			break;
+		case 'n': // -n monitor number for multi-monitor support
+			if (!val && i + 1 < argc) {
+				val = argv[++i];
+			}
+			if (val) {
+				long n = strtol(val, &end, 10);
+				if (n < INT_MIN || n > INT_MAX) {
+					want_monitor = 0;
+				} else {
+					want_monitor = (int)n;
+				}
+			}
+			break;
 		default:
 			// Unknown option, ignore or warn?
 			break;
@@ -444,9 +460,17 @@ void save_options(void)
 	char filename[MAX_PATH];
 
 	if (localdata) {
-		sprintf(filename, "%s%s", localdata, "moac.dat");
+		if (sv_ver == 35) {
+			sprintf(filename, "%s%s", localdata, "moac35.dat");
+		} else {
+			sprintf(filename, "%s%s", localdata, "moac.dat");
+		}
 	} else {
-		sprintf(filename, "%s", "bin/data/moac.dat");
+		if (sv_ver == 35) {
+			sprintf(filename, "%s", "bin/data/moac35.dat");
+		} else {
+			sprintf(filename, "%s", "bin/data/moac.dat");
+		}
 	}
 
 	fp = fopen(filename, "wb");
@@ -455,7 +479,11 @@ void save_options(void)
 	}
 
 	fwrite(&user_keys, sizeof(user_keys), 1, fp);
-	fwrite(&action_row, sizeof(action_row), 1, fp);
+	if (sv_ver == 35) {
+		fwrite(&v35_action_row, sizeof(v35_action_row), 1, fp);
+	} else {
+		fwrite(&v3_action_row, sizeof(v3_action_row), 1, fp);
+	}
 	fwrite(&action_enabled, sizeof(action_enabled), 1, fp);
 	fwrite(&gear_lock, sizeof(gear_lock), 1, fp);
 	fclose(fp);
@@ -467,9 +495,17 @@ void load_options(void)
 	char filename[MAX_PATH];
 
 	if (localdata) {
-		sprintf(filename, "%s%s", localdata, "moac.dat");
+		if (sv_ver == 35) {
+			sprintf(filename, "%s%s", localdata, "moac35.dat");
+		} else {
+			sprintf(filename, "%s%s", localdata, "moac.dat");
+		}
 	} else {
-		sprintf(filename, "%s", "bin/data/moac.dat");
+		if (sv_ver == 35) {
+			sprintf(filename, "%s", "bin/data/moac35.dat");
+		} else {
+			sprintf(filename, "%s", "bin/data/moac.dat");
+		}
 	}
 
 	fp = fopen(filename, "rb");
@@ -478,7 +514,11 @@ void load_options(void)
 	}
 
 	fread(&user_keys, sizeof(user_keys), 1, fp);
-	fread(&action_row, sizeof(action_row), 1, fp);
+	if (sv_ver == 35) {
+		fread(&v35_action_row, sizeof(v35_action_row), 1, fp);
+	} else {
+		fread(&v3_action_row, sizeof(v3_action_row), 1, fp);
+	}
 	fread(&action_enabled, sizeof(action_enabled), 1, fp);
 	fread(&gear_lock, sizeof(gear_lock), 1, fp);
 	fclose(fp);
@@ -542,13 +582,25 @@ void determine_resolution(void)
 	}
 }
 
+static void set_v35_values(void)
+{
+	target_port = 27584;
+	set_v35_inventory();
+	set_v35_keytab();
+	set_v35_actions();
+	set_v35_skilltab();
+}
+
 // main
 int main(int argc, char *argv[])
 {
 #if USE_MIMALLOC
 	// Configure SDL to use mimalloc for all its internal allocations
 	// This MUST be called before any SDL function, including SDL_GetPrefPath()
-	SDL_SetMemoryFunctions(MALLOC, CALLOC, REALLOC, FREE);
+	if (!SDL_SetMemoryFunctions(MALLOC, CALLOC, REALLOC, FREE)) {
+		// If this fails we should still carry on and just use malloc, but log error.
+		SDL_Log("Failed to set memory functions for mimalloc: %s", SDL_GetError());
+	}
 #endif
 
 	int ret;
@@ -558,6 +610,10 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
+	if (sv_ver == 35) {
+		set_v35_values();
+	}
+
 	init_logging();
 
 #ifdef ENABLE_CRASH_HANDLER
@@ -565,6 +621,8 @@ int main(int argc, char *argv[])
 #endif
 
 	amod_init();
+	sprite_config_init();
+	amod_sprite_config();
 #ifdef ENABLE_SHAREDMEM
 	sharedmem_init();
 #endif
@@ -599,7 +657,7 @@ int main(int argc, char *argv[])
 	determine_resolution();
 
 	sprintf(buf, "Astonia 3 v%d.%d.%d", (VERSION >> 16) & 255, (VERSION >> 8) & 255, (VERSION) & 255);
-	if (!sdl_init(want_width, want_height, buf)) {
+	if (!sdl_init(want_width, want_height, buf, want_monitor)) {
 		render_exit();
 		return -1;
 	}

@@ -9,7 +9,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <inttypes.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
 
 #include "astonia.h"
 #include "game/game.h"
@@ -163,7 +164,7 @@ void draw_pixel(int64_t x, int64_t y, int64_t color)
 void dl_play(void)
 {
 	int d;
-	Uint32 start;
+	Uint64 start;
 	void helper_cmp_dl(int attick, DL **dl, int dlused);
 
 	// helper_cmp_dl(tick,dlsort,dlused);
@@ -195,6 +196,9 @@ void dl_play(void)
 				render_draw_bless(
 				    dlsort[d]->call_x1, dlsort[d]->call_y1, dlsort[d]->call_x2, dlsort[d]->call_y2, dlsort[d]->call_x3);
 				break;
+			case DLC_HEAL:
+				render_draw_heal(dlsort[d]->call_x1, dlsort[d]->call_y1, dlsort[d]->call_x2, dlsort[d]->call_x3);
+				break;
 			case DLC_POTION:
 				render_draw_potion(
 				    dlsort[d]->call_x1, dlsort[d]->call_y1, dlsort[d]->call_x2, dlsort[d]->call_y2, dlsort[d]->call_x3);
@@ -218,11 +222,10 @@ void dl_play(void)
 	dlused = 0;
 }
 
-void sdl_pre_add(tick_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
-    char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl,
-    char ul, char dl);
+void sdl_pre_add(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
+    char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl);
 
-void dl_prefetch(tick_t attick)
+void dl_prefetch(void)
 {
 	void helper_add_dl(int attick, DL **dl, int dlused);
 	int d;
@@ -231,7 +234,7 @@ void dl_prefetch(tick_t attick)
 
 	for (d = 0; d < dlused && !quit; d++) {
 		if (dlsort[d]->call == 0) {
-			sdl_pre_add(attick, dlsort[d]->renderfx.sprite, dlsort[d]->renderfx.sink, dlsort[d]->renderfx.freeze,
+			sdl_pre_add(dlsort[d]->renderfx.sprite, dlsort[d]->renderfx.sink, dlsort[d]->renderfx.freeze,
 			    dlsort[d]->renderfx.scale, dlsort[d]->renderfx.cr, dlsort[d]->renderfx.cg, dlsort[d]->renderfx.cb,
 			    dlsort[d]->renderfx.clight, dlsort[d]->renderfx.sat, dlsort[d]->renderfx.c1, dlsort[d]->renderfx.c2,
 			    dlsort[d]->renderfx.c3, dlsort[d]->renderfx.shine, dlsort[d]->renderfx.ml, dlsort[d]->renderfx.ll,

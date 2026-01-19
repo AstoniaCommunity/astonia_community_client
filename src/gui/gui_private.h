@@ -1,13 +1,16 @@
 /*
  * Part of Astonia Client (c) Daniel Brockhaus. Please read license.txt.
  */
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_stdinc.h>
+
 #include "../dll.h"
 #include "../astonia.h"
 
 #define INVDX      4
 #define INVDY      (__invdy)
 #define CONDX      4
-#define CONDY      4
+#define CONDY      (__invdy)
 #define SKLDY      (__skldy)
 #define SKLWIDTH   145
 #define LINEHEIGHT 10
@@ -228,14 +231,14 @@ struct skltab {
 typedef struct skltab SKLTAB;
 
 struct keytab {
-	int keycode;
-	int userdef;
+	SDL_Keycode keycode;
+	SDL_Keycode userdef;
 	int vk_item, vk_char, vk_spell;
 	char name[40];
 	int tgt;
 	int cl_spell;
 	int skill;
-	unsigned int usetime;
+	Uint64 usetime;
 };
 
 typedef struct keytab KEYTAB;
@@ -308,7 +311,7 @@ DLL_EXPORT extern SKLTAB *skltab;
 extern int skltab_max;
 DLL_EXPORT extern int skltab_cnt;
 
-extern KEYTAB keytab[];
+extern KEYTAB *keytab;
 extern int max_keytab;
 
 extern int clan_offset;
@@ -333,8 +336,8 @@ extern int show_look;
 extern int control_override;
 extern int vk_rbut, vk_lbut;
 extern int vk_special;
-extern unsigned int vk_special_time;
-extern struct special_tab special_tab[];
+extern Uint64 vk_special_time;
+extern struct special_tab *special_tab;
 extern int max_special;
 extern int plrmn;
 extern map_index_t mapsel;
@@ -462,8 +465,8 @@ void context_display(int mx, int my);
 void context_stop(void);
 int context_click(int mx, int my);
 int context_key(int key);
-void context_keydown(int key);
-void context_keyup(int key);
+void context_keydown(SDL_Keycode key);
+void context_keyup(SDL_Keycode key);
 int context_key_set(int onoff);
 int context_key_isset(void);
 int context_key_isset(void);
@@ -474,16 +477,17 @@ int context_key_click(void);
 
 DLL_EXPORT extern char hover_bless_text[];
 DLL_EXPORT extern char hover_freeze_text[];
+DLL_EXPORT extern char hover_heal_text[];
 DLL_EXPORT extern char hover_potion_text[];
 DLL_EXPORT extern char hover_rage_text[];
 DLL_EXPORT extern char hover_level_text[];
 DLL_EXPORT extern char hover_rank_text[];
 DLL_EXPORT extern char hover_time_text[];
 
-int action_key2slot(int key);
-int action_slot2key(int slot);
+int action_key2slot(SDL_Keycode key);
+SDL_Keycode action_slot2key(int slot);
 uint16_t has_action_skill(int i);
-void action_set_key(int slot, int key);
+void action_set_key(int slot, SDL_Keycode key);
 void context_action_enable(int onoff);
 
 void minimap_init(void);

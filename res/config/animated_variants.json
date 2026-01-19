@@ -1,0 +1,7827 @@
+{
+  "version": 1,
+  "animated_variants": [
+    {
+      "id": 60042,
+      "base_sprite": 1012,
+      "animation": {
+        "type": "cycle",
+        "frames": 8,
+        "divisor": 8
+      }
+    },
+    {
+      "id": 60043,
+      "base_sprite": 1012,
+      "animation": {
+        "type": "cycle",
+        "frames": 8,
+        "divisor": 4
+      }
+    },
+    {
+      "id": 60044,
+      "base_sprite": 1012,
+      "animation": {
+        "type": "cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 60045,
+      "base_sprite": 1012,
+      "animation": {
+        "type": "cycle",
+        "frames": 8,
+        "divisor": 1
+      }
+    },
+    {
+      "id": 11204,
+      "base_sprite": 11204,
+      "animation": {
+        "type": "cycle",
+        "frames": 3,
+        "divisor": 4
+      }
+    },
+    {
+      "id": 11127,
+      "comment": "lab5_regen",
+      "base_sprite": 11127
+    },
+    {
+      "id": 11139,
+      "base_sprite": 11139,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      }
+    },
+    {
+      "id": 13063,
+      "base_sprite": 13063,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      }
+    },
+    {
+      "id": 13071,
+      "base_sprite": 13071,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      }
+    },
+    {
+      "id": 13079,
+      "base_sprite": 13079,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      }
+    },
+    {
+      "id": 13087,
+      "base_sprite": 13087,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      }
+    },
+    {
+      "id": 13095,
+      "base_sprite": 13095,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      }
+    },
+    {
+      "id": 13214,
+      "base_sprite": 13214,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      }
+    },
+    {
+      "id": 13223,
+      "base_sprite": 13223,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      }
+    },
+    {
+      "id": 13232,
+      "base_sprite": 13232,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 16,
+        "divisor": 5
+      }
+    },
+    {
+      "id": 12163,
+      "comment": "lava_ground_circle",
+      "base_sprite": 14353,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 31
+      },
+      "c3": 16384
+    },
+    {
+      "id": 14353,
+      "comment": "lava_ground_circle",
+      "base_sprite": 14353,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 31
+      },
+      "c3": 16384
+    },
+    {
+      "id": 12164,
+      "comment": "lava_ground_noise",
+      "base_sprite": 14361,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      },
+      "c3": 16384
+    },
+    {
+      "id": 12165,
+      "comment": "lava_ground_noise",
+      "base_sprite": 14361,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      },
+      "c3": 16384
+    },
+    {
+      "id": 12166,
+      "comment": "lava_ground_noise",
+      "base_sprite": 14361,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      },
+      "c3": 16384
+    },
+    {
+      "id": 14361,
+      "comment": "lava_ground_noise",
+      "base_sprite": 14361,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 5
+      },
+      "c3": 16384
+    },
+    {
+      "id": 1024,
+      "comment": "lava_fire - spell misuse",
+      "base_sprite": 1024,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 10,
+        "divisor": 3
+      }
+    },
+    {
+      "id": 1034,
+      "comment": "lava_zish - spell misuse",
+      "base_sprite": 1034,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 24,
+        "divisor": 3
+      }
+    },
+    {
+      "id": 1060,
+      "comment": "labyrinth gate",
+      "base_sprite": 1060,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1061,
+      "base_sprite": 1061,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1062,
+      "base_sprite": 1062,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1063,
+      "base_sprite": 1063,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1064,
+      "base_sprite": 1064,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1065,
+      "base_sprite": 1065,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1066,
+      "base_sprite": 1066,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1067,
+      "base_sprite": 1067,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1068,
+      "base_sprite": 1068,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1069,
+      "base_sprite": 1069,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1070,
+      "base_sprite": 1070,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1071,
+      "base_sprite": 1071,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1072,
+      "base_sprite": 1072,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1073,
+      "base_sprite": 1073,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1074,
+      "base_sprite": 1074,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1075,
+      "base_sprite": 1075,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1076,
+      "base_sprite": 1076,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1077,
+      "base_sprite": 1077,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1078,
+      "base_sprite": 1078,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1079,
+      "base_sprite": 1079,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1080,
+      "base_sprite": 1080,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1081,
+      "base_sprite": 1081,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1082,
+      "base_sprite": 1082,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1083,
+      "base_sprite": 1083,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1084,
+      "base_sprite": 1084,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1085,
+      "base_sprite": 1085,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1086,
+      "base_sprite": 1086,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1087,
+      "base_sprite": 1087,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1088,
+      "base_sprite": 1088,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1089,
+      "base_sprite": 1089,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1090,
+      "base_sprite": 1090,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1091,
+      "base_sprite": 1091,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1092,
+      "base_sprite": 1092,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1093,
+      "base_sprite": 1093,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1094,
+      "base_sprite": 1094,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1095,
+      "base_sprite": 1095,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1096,
+      "base_sprite": 1096,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1097,
+      "base_sprite": 1097,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1098,
+      "base_sprite": 1098,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1099,
+      "base_sprite": 1099,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1100,
+      "base_sprite": 1100,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1101,
+      "base_sprite": 1101,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1102,
+      "base_sprite": 1102,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1103,
+      "base_sprite": 1103,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1104,
+      "base_sprite": 1104,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1105,
+      "base_sprite": 1105,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1106,
+      "base_sprite": 1106,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1107,
+      "base_sprite": 1107,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1108,
+      "base_sprite": 1108,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1109,
+      "base_sprite": 1109,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1110,
+      "base_sprite": 1110,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1111,
+      "base_sprite": 1111,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1112,
+      "base_sprite": 1112,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1113,
+      "base_sprite": 1113,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1114,
+      "base_sprite": 1114,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1115,
+      "base_sprite": 1115,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1116,
+      "base_sprite": 1116,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1117,
+      "base_sprite": 1117,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1118,
+      "base_sprite": 1118,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1119,
+      "base_sprite": 1119,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1120,
+      "base_sprite": 1120,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1121,
+      "base_sprite": 1121,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1122,
+      "base_sprite": 1122,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1123,
+      "base_sprite": 1123,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1124,
+      "base_sprite": 1124,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1125,
+      "base_sprite": 1125,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1126,
+      "base_sprite": 1126,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1127,
+      "base_sprite": 1127,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1128,
+      "base_sprite": 1128,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1129,
+      "base_sprite": 1129,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1130,
+      "base_sprite": 1130,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 1131,
+      "base_sprite": 1131,
+      "c1": 21150,
+      "c2": 21150,
+      "c3": 21150
+    },
+    {
+      "id": 14363,
+      "comment": "special lava",
+      "base_sprite": 14361,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 8
+      },
+      "cr": -10,
+      "light": -30
+    },
+    {
+      "id": 14364,
+      "comment": "special lava",
+      "base_sprite": 14361,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 16
+      },
+      "cr": -20,
+      "light": -60
+    },
+    {
+      "id": 14365,
+      "comment": "special lava",
+      "base_sprite": 14361,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 32
+      },
+      "cr": -30,
+      "light": -90
+    },
+    {
+      "id": 14366,
+      "comment": "special lava",
+      "base_sprite": 14361,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 64
+      },
+      "cr": -40,
+      "light": -120
+    },
+    {
+      "id": 14205,
+      "comment": "green book",
+      "base_sprite": 14205,
+      "c2": 512
+    },
+    {
+      "id": 14207,
+      "base_sprite": 14207,
+      "c2": 512
+    },
+    {
+      "id": 14224,
+      "comment": "switch green",
+      "base_sprite": 14224,
+      "c2": 512
+    },
+    {
+      "id": 14228,
+      "comment": "defense station destroyed grey",
+      "base_sprite": 14228,
+      "c2": 4228
+    },
+    {
+      "id": 14136,
+      "comment": "green edemon tube on",
+      "base_sprite": 14136,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 512
+    },
+    {
+      "id": 14137,
+      "comment": "edemon tube off",
+      "base_sprite": 14136,
+      "c2": 4228
+    },
+    {
+      "id": 14138,
+      "comment": "orange edemon tube on",
+      "base_sprite": 14136,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16768
+    },
+    {
+      "id": 14139,
+      "comment": "red edemon tube on",
+      "base_sprite": 14136,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 14140,
+      "comment": "blue edemon tube on",
+      "base_sprite": 14136,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16
+    },
+    {
+      "id": 14141,
+      "comment": "white edemon tube on",
+      "base_sprite": 14136,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16920
+    },
+    {
+      "id": 14159,
+      "comment": "green edemon cannon on",
+      "base_sprite": 14159,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 512
+    },
+    {
+      "id": 14160,
+      "comment": "edemon cannon off",
+      "base_sprite": 14160,
+      "c2": 4228
+    },
+    {
+      "id": 14161,
+      "comment": "orange edemon cannon on",
+      "base_sprite": 14159,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16768
+    },
+    {
+      "id": 14162,
+      "comment": "red edemon cannon on",
+      "base_sprite": 14159,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 14163,
+      "comment": "blue edemon cannon on",
+      "base_sprite": 14159,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16
+    },
+    {
+      "id": 14164,
+      "comment": "white edemon cannon on",
+      "base_sprite": 14159,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16920
+    },
+    {
+      "id": 14190,
+      "comment": "green edemon light",
+      "base_sprite": 14190,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 512
+    },
+    {
+      "id": 14191,
+      "comment": "orange edemon light",
+      "base_sprite": 14190,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16768
+    },
+    {
+      "id": 14192,
+      "comment": "red edemon light",
+      "base_sprite": 14190,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 14193,
+      "comment": "blue edemon light",
+      "base_sprite": 14190,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16
+    },
+    {
+      "id": 14194,
+      "comment": "white edemon light",
+      "base_sprite": 14190,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16920
+    },
+    {
+      "id": 14200,
+      "comment": "edemon suspensor green",
+      "base_sprite": 14200,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 4,
+        "divisor": 3
+      },
+      "c2": 512
+    },
+    {
+      "id": 14201,
+      "comment": "edemon suspensor orange",
+      "base_sprite": 14200,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 4,
+        "divisor": 3
+      },
+      "c2": 16768
+    },
+    {
+      "id": 14202,
+      "comment": "edemon suspensor red",
+      "base_sprite": 14200,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 4,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 14203,
+      "comment": "edemon suspensor blue",
+      "base_sprite": 14200,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 4,
+        "divisor": 3
+      },
+      "c2": 16
+    },
+    {
+      "id": 14275,
+      "comment": "edemon gate green",
+      "base_sprite": 14275,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 512
+    },
+    {
+      "id": 14276,
+      "comment": "edemon gate orange",
+      "base_sprite": 14275,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16768
+    },
+    {
+      "id": 14277,
+      "comment": "edemon gate red",
+      "base_sprite": 14275,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 14256,
+      "comment": "edemon crystal orange",
+      "base_sprite": 14256,
+      "c2": 16768
+    },
+    {
+      "id": 14241,
+      "comment": "edemon loader ground growing orange",
+      "base_sprite": 14241,
+      "c2": 16768
+    },
+    {
+      "id": 14242,
+      "base_sprite": 14242,
+      "c2": 16768
+    },
+    {
+      "id": 14243,
+      "base_sprite": 14243,
+      "c2": 16768
+    },
+    {
+      "id": 14244,
+      "base_sprite": 14244,
+      "c2": 16768
+    },
+    {
+      "id": 14245,
+      "base_sprite": 14245,
+      "c2": 16768
+    },
+    {
+      "id": 14246,
+      "base_sprite": 14246,
+      "c2": 16768
+    },
+    {
+      "id": 14247,
+      "base_sprite": 14247,
+      "c2": 16768
+    },
+    {
+      "id": 14248,
+      "comment": "edemon loader ground orange",
+      "base_sprite": 14248,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16768
+    },
+    {
+      "id": 14257,
+      "comment": "edemon loader platform orange",
+      "base_sprite": 14257,
+      "c2": 16768
+    },
+    {
+      "id": 14258,
+      "base_sprite": 14258,
+      "c2": 16768
+    },
+    {
+      "id": 14259,
+      "base_sprite": 14259,
+      "c2": 16768
+    },
+    {
+      "id": 14260,
+      "base_sprite": 14260,
+      "c2": 16768
+    },
+    {
+      "id": 14261,
+      "base_sprite": 14261,
+      "c2": 16768
+    },
+    {
+      "id": 14262,
+      "base_sprite": 14262,
+      "c2": 16768
+    },
+    {
+      "id": 14378,
+      "comment": "edemon cannon off",
+      "base_sprite": 14378,
+      "c2": 4228
+    },
+    {
+      "id": 14379,
+      "comment": "red edemon cannon on",
+      "base_sprite": 14378,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 14380,
+      "comment": "edemon cannon off",
+      "base_sprite": 14389,
+      "c2": 4228
+    },
+    {
+      "id": 14381,
+      "comment": "red edemon cannon on",
+      "base_sprite": 14386,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 14382,
+      "comment": "edemon cannon off",
+      "base_sprite": 14394,
+      "c2": 4228
+    },
+    {
+      "id": 14383,
+      "comment": "red edemon cannon on",
+      "base_sprite": 14394,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 14384,
+      "comment": "edemon cannon off",
+      "base_sprite": 14402,
+      "c2": 4228
+    },
+    {
+      "id": 14385,
+      "comment": "red edemon cannon on",
+      "base_sprite": 14402,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 14411,
+      "base_sprite": 14411,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      }
+    },
+    {
+      "id": 16035,
+      "base_sprite": 16039
+    },
+    {
+      "id": 16036,
+      "base_sprite": 16043
+    },
+    {
+      "id": 16037,
+      "base_sprite": 16043
+    },
+    {
+      "id": 16038,
+      "base_sprite": 16039
+    },
+    {
+      "id": 16051,
+      "base_sprite": 16055
+    },
+    {
+      "id": 16052,
+      "base_sprite": 16059
+    },
+    {
+      "id": 16053,
+      "base_sprite": 16059
+    },
+    {
+      "id": 16054,
+      "base_sprite": 16055
+    },
+    {
+      "id": 16055,
+      "base_sprite": 16087
+    },
+    {
+      "id": 16056,
+      "base_sprite": 16091
+    },
+    {
+      "id": 16057,
+      "base_sprite": 16091
+    },
+    {
+      "id": 16058,
+      "base_sprite": 16087
+    },
+    {
+      "id": 21340,
+      "base_sprite": 21340,
+      "color_pulse": {
+        "target": "c2",
+        "r": 0,
+        "g": 0,
+        "max_blue": 31,
+        "period": 63,
+        "divisor": 1,
+        "offset": 0
+      }
+    },
+    {
+      "id": 21681,
+      "base_sprite": 21689
+    },
+    {
+      "id": 21682,
+      "base_sprite": 21693
+    },
+    {
+      "id": 21683,
+      "base_sprite": 21693
+    },
+    {
+      "id": 21684,
+      "base_sprite": 21689
+    },
+    {
+      "id": 21685,
+      "base_sprite": 21705
+    },
+    {
+      "id": 21686,
+      "base_sprite": 21709
+    },
+    {
+      "id": 21687,
+      "base_sprite": 21709
+    },
+    {
+      "id": 21688,
+      "base_sprite": 21705
+    },
+    {
+      "id": 20026,
+      "comment": "standinglight",
+      "base_sprite": 20026,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      }
+    },
+    {
+      "id": 50022,
+      "comment": "torch",
+      "base_sprite": 10004,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 10004,
+      "comment": "mr_torch",
+      "base_sprite": 10004,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 20044,
+      "comment": "mr_wall_torch_ds",
+      "base_sprite": 20044,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      }
+    },
+    {
+      "id": 20054,
+      "comment": "mr_wall_torch_ls",
+      "base_sprite": 20054,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      }
+    },
+    {
+      "id": 20064,
+      "comment": "mr_wall_torch_lh",
+      "base_sprite": 20064,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      }
+    },
+    {
+      "id": 20074,
+      "comment": "mr_wall_torch_dh",
+      "base_sprite": 20074,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      }
+    },
+    {
+      "id": 20283,
+      "comment": "transport red",
+      "base_sprite": 20283,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      }
+    },
+    {
+      "id": 20284,
+      "comment": "transport green",
+      "base_sprite": 20283,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
+      "c3": 388
+    },
+    {
+      "id": 20926,
+      "base_sprite": 20926,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      }
+    },
+    {
+      "id": 20934,
+      "base_sprite": 20934,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 16,
+        "divisor": 3
+      }
+    },
+    {
+      "id": 21086,
+      "comment": "mr_redcandela_on",
+      "base_sprite": 21086,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 3,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 21090,
+      "comment": "mr_redcandelb_on",
+      "base_sprite": 21090,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 3,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 21094,
+      "comment": "mr_redcandelc_on",
+      "base_sprite": 21094,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 3,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 11113,
+      "comment": "gnalb_fireplace_key_on",
+      "base_sprite": 11113,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 20111,
+      "comment": "lr_ruinlight",
+      "base_sprite": 20111,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 20521,
+      "comment": "moonie_standlight_on",
+      "base_sprite": 20521,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 20530,
+      "comment": "moonie_fireplace_on",
+      "base_sprite": 20530,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 20704,
+      "base_sprite": 20704,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 20713,
+      "base_sprite": 20713,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 20722,
+      "base_sprite": 20722,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 20731,
+      "base_sprite": 20731,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 20754,
+      "comment": "grave_firecan_on                                             // _FRED_",
+      "base_sprite": 20754,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 3,
+        "divisor": 4
+      }
+    },
+    {
+      "id": 20388,
+      "comment": "dungeon_walllight_se_on",
+      "base_sprite": 20388
+    },
+    {
+      "id": 20397,
+      "comment": "dungeon_walllight_sw_on",
+      "base_sprite": 20397
+    },
+    {
+      "id": 20406,
+      "comment": "dungeon_walllight_nw_on",
+      "base_sprite": 20406
+    },
+    {
+      "id": 20415,
+      "comment": "dungeon_walllight_ne_on",
+      "base_sprite": 20415
+    },
+    {
+      "id": 20797,
+      "base_sprite": 20797,
+      "light": 10
+    },
+    {
+      "id": 20798,
+      "base_sprite": 20798,
+      "light": 10
+    },
+    {
+      "id": 20799,
+      "base_sprite": 20799,
+      "light": 10
+    },
+    {
+      "id": 20800,
+      "base_sprite": 20800,
+      "light": 10
+    },
+    {
+      "id": 20801,
+      "base_sprite": 20801,
+      "light": 10
+    },
+    {
+      "id": 20802,
+      "base_sprite": 20802,
+      "light": 10
+    },
+    {
+      "id": 20803,
+      "base_sprite": 20803,
+      "light": 10
+    },
+    {
+      "id": 20804,
+      "base_sprite": 20804,
+      "light": 10
+    },
+    {
+      "id": 20805,
+      "base_sprite": 20805,
+      "light": 10
+    },
+    {
+      "id": 22500,
+      "comment": "sewer outlet",
+      "base_sprite": 22500,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 22508,
+      "comment": "sewer ground",
+      "base_sprite": 22508,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 26040,
+      "base_sprite": 26040,
+      "cr": 20,
+      "cb": -10,
+      "light": -60
+    },
+    {
+      "id": 26041,
+      "base_sprite": 26041,
+      "cr": 20,
+      "cb": -10,
+      "light": -60
+    },
+    {
+      "id": 26042,
+      "base_sprite": 26042,
+      "cr": 20,
+      "cb": -10,
+      "light": -60
+    },
+    {
+      "id": 26043,
+      "base_sprite": 26043,
+      "cr": 20,
+      "cb": -10,
+      "light": -60
+    },
+    {
+      "id": 26044,
+      "base_sprite": 26044,
+      "cr": 20,
+      "cb": -10,
+      "light": -60
+    },
+    {
+      "id": 26045,
+      "base_sprite": 26045,
+      "cr": 20,
+      "cb": -10,
+      "light": -60
+    },
+    {
+      "id": 26046,
+      "base_sprite": 26046,
+      "cr": 20,
+      "cb": -10,
+      "light": -60
+    },
+    {
+      "id": 26047,
+      "base_sprite": 26047,
+      "cr": 20,
+      "cb": -10,
+      "light": -60
+    },
+    {
+      "id": 26070,
+      "base_sprite": 26070,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 64,
+        "divisor": 1
+      }
+    },
+    {
+      "id": 26170,
+      "base_sprite": 26170,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 64,
+        "divisor": 1
+      }
+    },
+    {
+      "id": 26270,
+      "base_sprite": 26270,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 64,
+        "divisor": 1
+      }
+    },
+    {
+      "id": 26050,
+      "base_sprite": 26050,
+      "cr": 24,
+      "light": -60
+    },
+    {
+      "id": 26051,
+      "base_sprite": 26051,
+      "cr": 24,
+      "light": -60
+    },
+    {
+      "id": 26052,
+      "base_sprite": 26052,
+      "cr": 24,
+      "light": -60
+    },
+    {
+      "id": 26053,
+      "base_sprite": 26053,
+      "cr": 24,
+      "light": -60
+    },
+    {
+      "id": 26054,
+      "base_sprite": 26054,
+      "cr": 24,
+      "light": -60
+    },
+    {
+      "id": 26055,
+      "base_sprite": 26055,
+      "cr": 24,
+      "light": -60
+    },
+    {
+      "id": 26056,
+      "base_sprite": 26056,
+      "cr": 24,
+      "light": -60
+    },
+    {
+      "id": 26057,
+      "base_sprite": 26057,
+      "cr": 24,
+      "light": -60
+    },
+    {
+      "id": 26058,
+      "base_sprite": 26058,
+      "cr": 24,
+      "light": -60
+    },
+    {
+      "id": 26530,
+      "base_sprite": 26530,
+      "cr": 18,
+      "light": -40,
+      "saturation": -10
+    },
+    {
+      "id": 26531,
+      "base_sprite": 26531,
+      "cr": 18,
+      "light": -40,
+      "saturation": -10
+    },
+    {
+      "id": 26532,
+      "base_sprite": 26532,
+      "cr": 18,
+      "light": -40,
+      "saturation": -10
+    },
+    {
+      "id": 26533,
+      "base_sprite": 26533,
+      "cr": 18,
+      "light": -40,
+      "saturation": -10
+    },
+    {
+      "id": 26534,
+      "base_sprite": 26534,
+      "cr": 18,
+      "light": -40,
+      "saturation": -10
+    },
+    {
+      "id": 26535,
+      "base_sprite": 26535,
+      "cr": 18,
+      "light": -40,
+      "saturation": -10
+    },
+    {
+      "id": 26536,
+      "base_sprite": 26536,
+      "cr": 18,
+      "light": -40,
+      "saturation": -10
+    },
+    {
+      "id": 26537,
+      "base_sprite": 26537,
+      "cr": 18,
+      "light": -40,
+      "saturation": -10
+    },
+    {
+      "id": 26538,
+      "base_sprite": 26538,
+      "cr": 18,
+      "light": -40,
+      "saturation": -10
+    },
+    {
+      "id": 26560,
+      "base_sprite": 26560,
+      "cr": 14,
+      "light": -30,
+      "saturation": -10
+    },
+    {
+      "id": 26561,
+      "base_sprite": 26561,
+      "cr": 14,
+      "light": -30,
+      "saturation": -10
+    },
+    {
+      "id": 26562,
+      "base_sprite": 26562,
+      "cr": 14,
+      "light": -30,
+      "saturation": -10
+    },
+    {
+      "id": 26563,
+      "base_sprite": 26563,
+      "cr": 14,
+      "light": -30,
+      "saturation": -10
+    },
+    {
+      "id": 26564,
+      "base_sprite": 26564,
+      "cr": 14,
+      "light": -30,
+      "saturation": -10
+    },
+    {
+      "id": 26565,
+      "base_sprite": 26565,
+      "cr": 14,
+      "light": -30,
+      "saturation": -10
+    },
+    {
+      "id": 26566,
+      "base_sprite": 26566,
+      "cr": 14,
+      "light": -30,
+      "saturation": -10
+    },
+    {
+      "id": 26567,
+      "base_sprite": 26567,
+      "cr": 14,
+      "light": -30,
+      "saturation": -10
+    },
+    {
+      "id": 26568,
+      "base_sprite": 26568,
+      "cr": 14,
+      "light": -30,
+      "saturation": -10
+    },
+    {
+      "id": 50132,
+      "comment": "green creeper lights",
+      "base_sprite": 50132,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 4,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 50136,
+      "base_sprite": 50136,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 4,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 50265,
+      "base_sprite": 50265,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 16,
+        "divisor": 2
+      }
+    },
+    {
+      "id": 50289,
+      "base_sprite": 50289
+    },
+    {
+      "id": 50297,
+      "base_sprite": 50297
+    },
+    {
+      "id": 51085,
+      "base_sprite": 51085,
+      "cg": 10,
+      "shine": 5,
+      "color_pulse": {
+        "target": "c2",
+        "r": 0,
+        "g": 0,
+        "max_blue": 30,
+        "period": 61,
+        "divisor": 2,
+        "offset": 10
+      },
+      "light_pulse": {
+        "max": 30,
+        "period": 61,
+        "divisor": 2,
+        "offset": 0
+      }
+    },
+    {
+      "id": 51086,
+      "base_sprite": 51086,
+      "cg": 10,
+      "shine": 5,
+      "color_pulse": {
+        "target": "c2",
+        "r": 0,
+        "g": 0,
+        "max_blue": 30,
+        "period": 61,
+        "divisor": 2,
+        "offset": 10
+      },
+      "light_pulse": {
+        "max": 30,
+        "period": 61,
+        "divisor": 2,
+        "offset": 0
+      }
+    },
+    {
+      "id": 51098,
+      "base_sprite": 51098,
+      "color_pulse": {
+        "target": "c2",
+        "r": 0,
+        "g": 0,
+        "max_blue": 30,
+        "period": 61,
+        "divisor": 2,
+        "offset": 10
+      }
+    },
+    {
+      "id": 51600,
+      "base_sprite": 51600,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 1
+      }
+    },
+    {
+      "id": 51601,
+      "base_sprite": 51601,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 1
+      }
+    },
+    {
+      "id": 51617,
+      "base_sprite": 51617,
+      "cr": -30
+    },
+    {
+      "id": 51625,
+      "comment": "glowing steel door",
+      "base_sprite": 51625
+    },
+    {
+      "id": 51632,
+      "base_sprite": 51632,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 56002,
+      "base_sprite": 56002
+    },
+    {
+      "id": 59000,
+      "base_sprite": 14205,
+      "c2": 16768
+    },
+    {
+      "id": 59001,
+      "base_sprite": 14207,
+      "c2": 16768
+    },
+    {
+      "id": 59002,
+      "comment": "lava ground dark",
+      "base_sprite": 14330,
+      "light": -20
+    },
+    {
+      "id": 59003,
+      "base_sprite": 14331,
+      "light": -20
+    },
+    {
+      "id": 59004,
+      "base_sprite": 14332,
+      "light": -20
+    },
+    {
+      "id": 59005,
+      "base_sprite": 14333,
+      "light": -20
+    },
+    {
+      "id": 59006,
+      "base_sprite": 14334,
+      "light": -20
+    },
+    {
+      "id": 59007,
+      "base_sprite": 14335,
+      "light": -20
+    },
+    {
+      "id": 59008,
+      "base_sprite": 14336,
+      "light": -20
+    },
+    {
+      "id": 59009,
+      "base_sprite": 14337,
+      "light": -20
+    },
+    {
+      "id": 59010,
+      "base_sprite": 14338,
+      "light": -20
+    },
+    {
+      "id": 59011,
+      "comment": "lava ground not that dark",
+      "base_sprite": 14330,
+      "light": -10
+    },
+    {
+      "id": 59012,
+      "base_sprite": 14331,
+      "light": -10
+    },
+    {
+      "id": 59013,
+      "base_sprite": 14332,
+      "light": -10
+    },
+    {
+      "id": 59014,
+      "base_sprite": 14333,
+      "light": -10
+    },
+    {
+      "id": 59015,
+      "base_sprite": 14334,
+      "light": -10
+    },
+    {
+      "id": 59016,
+      "base_sprite": 14335,
+      "light": -10
+    },
+    {
+      "id": 59017,
+      "base_sprite": 14336,
+      "light": -10
+    },
+    {
+      "id": 59018,
+      "base_sprite": 14337,
+      "light": -10
+    },
+    {
+      "id": 59019,
+      "base_sprite": 14338,
+      "light": -10
+    },
+    {
+      "id": 59020,
+      "base_sprite": 14256,
+      "scale": 75,
+      "c2": 12288
+    },
+    {
+      "id": 59021,
+      "comment": "edemon loader ground growing red",
+      "base_sprite": 14241,
+      "c2": 16384
+    },
+    {
+      "id": 59022,
+      "base_sprite": 14242,
+      "c2": 16384
+    },
+    {
+      "id": 59023,
+      "base_sprite": 14243,
+      "c2": 16384
+    },
+    {
+      "id": 59024,
+      "base_sprite": 14244,
+      "c2": 16384
+    },
+    {
+      "id": 59025,
+      "base_sprite": 14245,
+      "c2": 16384
+    },
+    {
+      "id": 59026,
+      "base_sprite": 14246,
+      "c2": 16384
+    },
+    {
+      "id": 59027,
+      "base_sprite": 14247,
+      "c2": 16384
+    },
+    {
+      "id": 59028,
+      "base_sprite": 14248,
+      "c2": 16384
+    },
+    {
+      "id": 59029,
+      "comment": "edemon loader ground red",
+      "base_sprite": 14248,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 59030,
+      "base_sprite": 14257,
+      "c2": 20480
+    },
+    {
+      "id": 59031,
+      "base_sprite": 14257,
+      "c2": 18432
+    },
+    {
+      "id": 59032,
+      "base_sprite": 14257,
+      "c2": 16384
+    },
+    {
+      "id": 59033,
+      "base_sprite": 14257,
+      "c2": 14336
+    },
+    {
+      "id": 59034,
+      "comment": "edemon loader platform red",
+      "base_sprite": 14257,
+      "c2": 12288
+    },
+    {
+      "id": 59035,
+      "base_sprite": 14258,
+      "c2": 12288
+    },
+    {
+      "id": 59036,
+      "base_sprite": 14259,
+      "c2": 12288
+    },
+    {
+      "id": 59037,
+      "base_sprite": 14260,
+      "c2": 12288
+    },
+    {
+      "id": 59038,
+      "base_sprite": 14261,
+      "c2": 12288
+    },
+    {
+      "id": 59039,
+      "base_sprite": 14262,
+      "c2": 12288
+    },
+    {
+      "id": 59040,
+      "base_sprite": 14256,
+      "scale": 80,
+      "c2": 14336
+    },
+    {
+      "id": 59041,
+      "base_sprite": 14256,
+      "scale": 90,
+      "c2": 16384
+    },
+    {
+      "id": 59042,
+      "base_sprite": 14256,
+      "scale": 100,
+      "c2": 18432
+    },
+    {
+      "id": 59043,
+      "base_sprite": 14256,
+      "scale": 110,
+      "c2": 20480
+    },
+    {
+      "id": 59044,
+      "base_sprite": 20909,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59045,
+      "base_sprite": 20910,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59046,
+      "base_sprite": 20911,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59047,
+      "base_sprite": 20912,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59048,
+      "base_sprite": 20913,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59049,
+      "base_sprite": 20914,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59050,
+      "base_sprite": 20915,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59051,
+      "base_sprite": 20916,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59052,
+      "base_sprite": 20917,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59053,
+      "base_sprite": 20918,
+      "cr": 20,
+      "cg": 10,
+      "light": 30
+    },
+    {
+      "id": 59054,
+      "base_sprite": 21302,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59055,
+      "base_sprite": 21303,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59056,
+      "base_sprite": 21304,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59057,
+      "base_sprite": 21305,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59058,
+      "base_sprite": 21306,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59059,
+      "base_sprite": 21307,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59060,
+      "base_sprite": 21308,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59061,
+      "base_sprite": 21309,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59062,
+      "base_sprite": 21310,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59063,
+      "base_sprite": 21311,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59064,
+      "base_sprite": 21312,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59065,
+      "base_sprite": 21313,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59066,
+      "base_sprite": 21314,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59067,
+      "base_sprite": 21315,
+      "cr": 10,
+      "light": -20
+    },
+    {
+      "id": 59068,
+      "base_sprite": 21302,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59069,
+      "base_sprite": 21303,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59070,
+      "base_sprite": 21304,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59071,
+      "base_sprite": 21305,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59072,
+      "base_sprite": 21306,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59073,
+      "base_sprite": 21307,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59074,
+      "base_sprite": 21308,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59075,
+      "base_sprite": 21309,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59076,
+      "base_sprite": 21310,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59077,
+      "base_sprite": 21311,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59078,
+      "base_sprite": 21312,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59079,
+      "base_sprite": 21313,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59080,
+      "base_sprite": 21314,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59081,
+      "base_sprite": 21315,
+      "cr": 15,
+      "light": -30
+    },
+    {
+      "id": 59082,
+      "base_sprite": 21252,
+      "scale": 80
+    },
+    {
+      "id": 59083,
+      "base_sprite": 21253,
+      "scale": 80
+    },
+    {
+      "id": 59084,
+      "base_sprite": 21254,
+      "scale": 80
+    },
+    {
+      "id": 59085,
+      "base_sprite": 21255,
+      "scale": 80
+    },
+    {
+      "id": 59086,
+      "base_sprite": 21256,
+      "cr": 40,
+      "cg": 40,
+      "light": -10
+    },
+    {
+      "id": 59087,
+      "base_sprite": 21257,
+      "cr": 40,
+      "cg": 40,
+      "light": -10
+    },
+    {
+      "id": 59088,
+      "base_sprite": 21258,
+      "cr": 40,
+      "cg": 40,
+      "light": -10
+    },
+    {
+      "id": 59089,
+      "base_sprite": 21259,
+      "cr": 40,
+      "cg": 40,
+      "light": -10
+    },
+    {
+      "id": 59090,
+      "base_sprite": 21260,
+      "cr": 40,
+      "cg": 40,
+      "light": -10
+    },
+    {
+      "id": 59091,
+      "base_sprite": 21261,
+      "cr": 40,
+      "cg": 40,
+      "light": -10
+    },
+    {
+      "id": 59092,
+      "base_sprite": 21262,
+      "cr": 40,
+      "cg": 40,
+      "light": -10
+    },
+    {
+      "id": 59093,
+      "base_sprite": 21263,
+      "cr": 40,
+      "cg": 40,
+      "light": -10
+    },
+    {
+      "id": 59094,
+      "base_sprite": 21209,
+      "cr": -10,
+      "cg": -10,
+      "cb": 5,
+      "light": 10,
+      "saturation": 10
+    },
+    {
+      "id": 59095,
+      "base_sprite": 21210,
+      "cr": -10,
+      "cg": -10,
+      "cb": 5,
+      "light": 10,
+      "saturation": 10
+    },
+    {
+      "id": 59096,
+      "base_sprite": 21211,
+      "cr": -10,
+      "cg": -10,
+      "cb": 5,
+      "light": 10,
+      "saturation": 10
+    },
+    {
+      "id": 59097,
+      "base_sprite": 21212,
+      "cr": -10,
+      "cg": -10,
+      "cb": 5,
+      "light": 10,
+      "saturation": 10
+    },
+    {
+      "id": 59098,
+      "base_sprite": 21213,
+      "cr": -10,
+      "cg": -10,
+      "cb": 5,
+      "light": 10,
+      "saturation": 10
+    },
+    {
+      "id": 59099,
+      "base_sprite": 21214,
+      "cr": -10,
+      "cg": -10,
+      "cb": 5,
+      "light": 10,
+      "saturation": 10
+    },
+    {
+      "id": 59100,
+      "base_sprite": 21209,
+      "cr": -30,
+      "cg": -30,
+      "cb": -5,
+      "light": 15,
+      "saturation": 15
+    },
+    {
+      "id": 59101,
+      "base_sprite": 21210,
+      "cr": -30,
+      "cg": -30,
+      "cb": -5,
+      "light": 15,
+      "saturation": 15
+    },
+    {
+      "id": 59102,
+      "base_sprite": 21211,
+      "cr": -30,
+      "cg": -30,
+      "cb": -5,
+      "light": 15,
+      "saturation": 15
+    },
+    {
+      "id": 59103,
+      "base_sprite": 21212,
+      "cr": -30,
+      "cg": -30,
+      "cb": -5,
+      "light": 15,
+      "saturation": 15
+    },
+    {
+      "id": 59104,
+      "base_sprite": 21213,
+      "cr": -30,
+      "cg": -30,
+      "cb": -5,
+      "light": 15,
+      "saturation": 15
+    },
+    {
+      "id": 59105,
+      "base_sprite": 21214,
+      "cr": -30,
+      "cg": -30,
+      "cb": -5,
+      "light": 15,
+      "saturation": 15
+    },
+    {
+      "id": 59106,
+      "base_sprite": 21209,
+      "c3": 24
+    },
+    {
+      "id": 59107,
+      "base_sprite": 21210,
+      "c3": 24
+    },
+    {
+      "id": 59108,
+      "base_sprite": 12090,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59109,
+      "base_sprite": 12091,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59110,
+      "base_sprite": 12092,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59111,
+      "base_sprite": 12093,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59112,
+      "base_sprite": 12094,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59113,
+      "base_sprite": 12095,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59114,
+      "base_sprite": 12096,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59115,
+      "base_sprite": 12097,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59116,
+      "base_sprite": 12098,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59117,
+      "base_sprite": 12110,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59118,
+      "base_sprite": 12111,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59119,
+      "base_sprite": 12112,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59120,
+      "base_sprite": 12113,
+      "cr": 30,
+      "cg": 10,
+      "cb": -20,
+      "light": 20,
+      "saturation": 5
+    },
+    {
+      "id": 59121,
+      "base_sprite": 20318,
+      "cr": -10,
+      "cg": -10,
+      "light": -60,
+      "saturation": 5
+    },
+    {
+      "id": 59122,
+      "base_sprite": 20319,
+      "cr": -10,
+      "cg": -10,
+      "light": -60,
+      "saturation": 5
+    },
+    {
+      "id": 59123,
+      "base_sprite": 20320,
+      "cr": -10,
+      "cg": -10,
+      "light": -60,
+      "saturation": 5
+    },
+    {
+      "id": 59124,
+      "base_sprite": 20321,
+      "cr": -10,
+      "cg": -10,
+      "light": -60,
+      "saturation": 5
+    },
+    {
+      "id": 59125,
+      "base_sprite": 20322,
+      "cr": -10,
+      "cg": -10,
+      "light": -60,
+      "saturation": 5
+    },
+    {
+      "id": 59126,
+      "base_sprite": 20323,
+      "cr": -10,
+      "cg": -10,
+      "light": -60,
+      "saturation": 5
+    },
+    {
+      "id": 59127,
+      "base_sprite": 20324,
+      "cr": -10,
+      "cg": -10,
+      "light": -60,
+      "saturation": 5
+    },
+    {
+      "id": 59128,
+      "base_sprite": 20325,
+      "cr": -10,
+      "cg": -10,
+      "light": -60,
+      "saturation": 5
+    },
+    {
+      "id": 59129,
+      "base_sprite": 20326,
+      "cr": -10,
+      "cg": -10,
+      "light": -60,
+      "saturation": 5
+    },
+    {
+      "id": 59130,
+      "base_sprite": 20309,
+      "light": -90,
+      "saturation": 10
+    },
+    {
+      "id": 59131,
+      "base_sprite": 20310,
+      "light": -90,
+      "saturation": 10
+    },
+    {
+      "id": 59132,
+      "base_sprite": 20311,
+      "light": -90,
+      "saturation": 10
+    },
+    {
+      "id": 59133,
+      "base_sprite": 20312,
+      "light": -90,
+      "saturation": 10
+    },
+    {
+      "id": 59134,
+      "base_sprite": 20313,
+      "light": -90,
+      "saturation": 10
+    },
+    {
+      "id": 59135,
+      "base_sprite": 20314,
+      "light": -90,
+      "saturation": 10
+    },
+    {
+      "id": 59136,
+      "base_sprite": 20315,
+      "light": -90,
+      "saturation": 10
+    },
+    {
+      "id": 59137,
+      "base_sprite": 20316,
+      "light": -90,
+      "saturation": 10
+    },
+    {
+      "id": 59138,
+      "base_sprite": 20317,
+      "light": -90,
+      "saturation": 10
+    },
+    {
+      "id": 59139,
+      "base_sprite": 21269,
+      "cg": 30,
+      "light": -30,
+      "saturation": 5
+    },
+    {
+      "id": 59140,
+      "base_sprite": 21270,
+      "cg": 30,
+      "light": -30,
+      "saturation": 5
+    },
+    {
+      "id": 59141,
+      "base_sprite": 21309,
+      "cr": 10,
+      "cg": 45,
+      "light": -80
+    },
+    {
+      "id": 59142,
+      "base_sprite": 21310,
+      "cr": 10,
+      "cg": 45,
+      "light": -80
+    },
+    {
+      "id": 59143,
+      "base_sprite": 21240,
+      "cg": 30,
+      "cb": -30,
+      "light": -120
+    },
+    {
+      "id": 59144,
+      "base_sprite": 21241,
+      "cg": 30,
+      "cb": -30,
+      "light": -120
+    },
+    {
+      "id": 59145,
+      "base_sprite": 21209,
+      "cg": 30,
+      "light": -70,
+      "saturation": 10
+    },
+    {
+      "id": 59146,
+      "base_sprite": 21210,
+      "cg": 30,
+      "light": -70,
+      "saturation": 10
+    },
+    {
+      "id": 59147,
+      "base_sprite": 21211,
+      "cg": 30,
+      "light": -70,
+      "saturation": 10
+    },
+    {
+      "id": 59148,
+      "base_sprite": 21212,
+      "cg": 30,
+      "light": -70,
+      "saturation": 10
+    },
+    {
+      "id": 59149,
+      "base_sprite": 21213,
+      "cg": 30,
+      "light": -70,
+      "saturation": 10
+    },
+    {
+      "id": 59150,
+      "base_sprite": 21214,
+      "cg": 30,
+      "light": -70,
+      "saturation": 10
+    },
+    {
+      "id": 59151,
+      "base_sprite": 21252,
+      "scale": 80,
+      "cg": 30,
+      "light": -20
+    },
+    {
+      "id": 59152,
+      "base_sprite": 21253,
+      "scale": 80,
+      "cg": 30,
+      "light": -20
+    },
+    {
+      "id": 59153,
+      "base_sprite": 21254,
+      "scale": 80,
+      "cg": 30,
+      "light": -20
+    },
+    {
+      "id": 59154,
+      "base_sprite": 21255,
+      "scale": 80,
+      "cg": 30,
+      "light": -20
+    },
+    {
+      "id": 59155,
+      "base_sprite": 14030,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59156,
+      "base_sprite": 14031,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59157,
+      "base_sprite": 14032,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59158,
+      "base_sprite": 14033,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59159,
+      "base_sprite": 14034,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59160,
+      "base_sprite": 14035,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59161,
+      "base_sprite": 14036,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59162,
+      "base_sprite": 14037,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59163,
+      "base_sprite": 14060,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59164,
+      "base_sprite": 14061,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59165,
+      "base_sprite": 14062,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59166,
+      "base_sprite": 14063,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59167,
+      "base_sprite": 14064,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59168,
+      "base_sprite": 14065,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59169,
+      "base_sprite": 14066,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59170,
+      "base_sprite": 14067,
+      "cr": 10,
+      "light": -30
+    },
+    {
+      "id": 59171,
+      "base_sprite": 14090,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59172,
+      "base_sprite": 14091,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59173,
+      "base_sprite": 14092,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59174,
+      "base_sprite": 14093,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59175,
+      "base_sprite": 14094,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59176,
+      "base_sprite": 14095,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59177,
+      "base_sprite": 14096,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59178,
+      "base_sprite": 14097,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59179,
+      "base_sprite": 14098,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59180,
+      "base_sprite": 14099,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59181,
+      "base_sprite": 14100,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59182,
+      "base_sprite": 14101,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59183,
+      "base_sprite": 14102,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59184,
+      "base_sprite": 14103,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59185,
+      "base_sprite": 14104,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59186,
+      "base_sprite": 14105,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59187,
+      "base_sprite": 14106,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59188,
+      "base_sprite": 14107,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59189,
+      "base_sprite": 14108,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59190,
+      "base_sprite": 14109,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59191,
+      "base_sprite": 14110,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59192,
+      "base_sprite": 14111,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59193,
+      "base_sprite": 14092,
+      "light": -5
+    },
+    {
+      "id": 59194,
+      "base_sprite": 0
+    },
+    {
+      "id": 59195,
+      "base_sprite": 51085,
+      "shine": 5,
+      "light_pulse": {
+        "max": 30,
+        "period": 61,
+        "divisor": 3,
+        "offset": 0
+      }
+    },
+    {
+      "id": 59196,
+      "base_sprite": 51110,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 512
+    },
+    {
+      "id": 59197,
+      "base_sprite": 51110,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16768
+    },
+    {
+      "id": 59198,
+      "base_sprite": 51110,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16384
+    },
+    {
+      "id": 59199,
+      "base_sprite": 51110,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16
+    },
+    {
+      "id": 59200,
+      "base_sprite": 10120,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59201,
+      "base_sprite": 10121,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59202,
+      "base_sprite": 10122,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59203,
+      "base_sprite": 10123,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59204,
+      "base_sprite": 10124,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59205,
+      "base_sprite": 10125,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59206,
+      "base_sprite": 10126,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59207,
+      "base_sprite": 10127,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59208,
+      "base_sprite": 10128,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59209,
+      "base_sprite": 10129,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59210,
+      "base_sprite": 10130,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59211,
+      "base_sprite": 10131,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59212,
+      "base_sprite": 10132,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59213,
+      "base_sprite": 10133,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59214,
+      "base_sprite": 10134,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59215,
+      "base_sprite": 10135,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59216,
+      "base_sprite": 10136,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59217,
+      "base_sprite": 10137,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59218,
+      "base_sprite": 10138,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59219,
+      "base_sprite": 10139,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59220,
+      "base_sprite": 10140,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59221,
+      "base_sprite": 10141,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59222,
+      "base_sprite": 10142,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59223,
+      "base_sprite": 10143,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59224,
+      "base_sprite": 10144,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59225,
+      "base_sprite": 10145,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59226,
+      "base_sprite": 10146,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59227,
+      "base_sprite": 10147,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59228,
+      "base_sprite": 10148,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59229,
+      "base_sprite": 10149,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59230,
+      "base_sprite": 10150,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59231,
+      "base_sprite": 10151,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59232,
+      "base_sprite": 10152,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59233,
+      "base_sprite": 10153,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59234,
+      "base_sprite": 10154,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59235,
+      "base_sprite": 10155,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59236,
+      "base_sprite": 10156,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59237,
+      "base_sprite": 10157,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59238,
+      "base_sprite": 10158,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59239,
+      "base_sprite": 10159,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59240,
+      "base_sprite": 10190,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59241,
+      "base_sprite": 10191,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59242,
+      "base_sprite": 10192,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59243,
+      "base_sprite": 10193,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59244,
+      "base_sprite": 10194,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59245,
+      "base_sprite": 10195,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59246,
+      "base_sprite": 10196,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59247,
+      "base_sprite": 10197,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59248,
+      "base_sprite": 10198,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59249,
+      "base_sprite": 10199,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59250,
+      "base_sprite": 10220,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59251,
+      "base_sprite": 10221,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59252,
+      "base_sprite": 10222,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59253,
+      "base_sprite": 10223,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59254,
+      "base_sprite": 10224,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59255,
+      "base_sprite": 10225,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59256,
+      "base_sprite": 10226,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59257,
+      "base_sprite": 10227,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59258,
+      "base_sprite": 10228,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59259,
+      "base_sprite": 10229,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59260,
+      "base_sprite": 10250,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59261,
+      "base_sprite": 10251,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59262,
+      "base_sprite": 10252,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59263,
+      "base_sprite": 10253,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59264,
+      "base_sprite": 10254,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59265,
+      "base_sprite": 10255,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59266,
+      "base_sprite": 10256,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59267,
+      "base_sprite": 10257,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59268,
+      "base_sprite": 10258,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59269,
+      "base_sprite": 10259,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59270,
+      "base_sprite": 10280,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59271,
+      "base_sprite": 10281,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59272,
+      "base_sprite": 10282,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59273,
+      "base_sprite": 10283,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59274,
+      "base_sprite": 10284,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59275,
+      "base_sprite": 10285,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59276,
+      "base_sprite": 10286,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59277,
+      "base_sprite": 10287,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59278,
+      "base_sprite": 10288,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59279,
+      "base_sprite": 10289,
+      "cr": 50,
+      "cg": 50,
+      "light": -30,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59288,
+      "base_sprite": 50510,
+      "cr": 80,
+      "cg": 80,
+      "light": 50,
+      "saturation": 20,
+      "shine": 95
+    },
+    {
+      "id": 59280,
+      "base_sprite": 50025,
+      "cr": 50,
+      "cg": 50,
+      "light": 0,
+      "saturation": 20,
+      "shine": 60
+    },
+    {
+      "id": 59281,
+      "base_sprite": 50026,
+      "cr": 50,
+      "cg": 50,
+      "light": 0,
+      "saturation": 20,
+      "shine": 60
+    },
+    {
+      "id": 59282,
+      "base_sprite": 50122,
+      "cr": 80,
+      "cg": 80,
+      "light": 60,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59283,
+      "base_sprite": 50123,
+      "cr": 80,
+      "cg": 80,
+      "light": 60,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59284,
+      "base_sprite": 50124,
+      "cr": 80,
+      "cg": 80,
+      "light": 60,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59285,
+      "base_sprite": 50125,
+      "cr": 80,
+      "cg": 80,
+      "light": 60,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59286,
+      "base_sprite": 50126,
+      "cr": 80,
+      "cg": 80,
+      "light": 60,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59287,
+      "base_sprite": 50141,
+      "cr": 50,
+      "cg": 50,
+      "light": 0,
+      "saturation": 20,
+      "shine": 60
+    },
+    {
+      "id": 59289,
+      "base_sprite": 50512,
+      "cr": 80,
+      "cg": 80,
+      "light": 40,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59290,
+      "base_sprite": 50513,
+      "cr": 80,
+      "cg": 80,
+      "light": 60,
+      "saturation": 20,
+      "shine": 95
+    },
+    {
+      "id": 59291,
+      "base_sprite": 51617,
+      "cr": 65,
+      "cg": 80,
+      "light": 20,
+      "saturation": 20,
+      "shine": 95
+    },
+    {
+      "id": 59299,
+      "base_sprite": 51617,
+      "light": 40,
+      "saturation": 20,
+      "shine": 100
+    },
+    {
+      "id": 59300,
+      "base_sprite": 10120,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59301,
+      "base_sprite": 10121,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59302,
+      "base_sprite": 10122,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59303,
+      "base_sprite": 10123,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59304,
+      "base_sprite": 10124,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59305,
+      "base_sprite": 10125,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59306,
+      "base_sprite": 10126,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59307,
+      "base_sprite": 10127,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59308,
+      "base_sprite": 10128,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59309,
+      "base_sprite": 10129,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59310,
+      "base_sprite": 10130,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59311,
+      "base_sprite": 10131,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59312,
+      "base_sprite": 10132,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59313,
+      "base_sprite": 10133,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59314,
+      "base_sprite": 10134,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59315,
+      "base_sprite": 10135,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59316,
+      "base_sprite": 10136,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59317,
+      "base_sprite": 10137,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59318,
+      "base_sprite": 10138,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59319,
+      "base_sprite": 10139,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59320,
+      "base_sprite": 10140,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59321,
+      "base_sprite": 10141,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59322,
+      "base_sprite": 10142,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59323,
+      "base_sprite": 10143,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59324,
+      "base_sprite": 10144,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59325,
+      "base_sprite": 10145,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59326,
+      "base_sprite": 10146,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59327,
+      "base_sprite": 10147,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59328,
+      "base_sprite": 10148,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59329,
+      "base_sprite": 10149,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59330,
+      "base_sprite": 10150,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59331,
+      "base_sprite": 10151,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59332,
+      "base_sprite": 10152,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59333,
+      "base_sprite": 10153,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59334,
+      "base_sprite": 10154,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59335,
+      "base_sprite": 10155,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59336,
+      "base_sprite": 10156,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59337,
+      "base_sprite": 10157,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59338,
+      "base_sprite": 10158,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59339,
+      "base_sprite": 10159,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59340,
+      "base_sprite": 10190,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59341,
+      "base_sprite": 10191,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59342,
+      "base_sprite": 10192,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59343,
+      "base_sprite": 10193,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59344,
+      "base_sprite": 10194,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59345,
+      "base_sprite": 10195,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59346,
+      "base_sprite": 10196,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59347,
+      "base_sprite": 10197,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59348,
+      "base_sprite": 10198,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59349,
+      "base_sprite": 10199,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59350,
+      "base_sprite": 10220,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59351,
+      "base_sprite": 10221,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59352,
+      "base_sprite": 10222,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59353,
+      "base_sprite": 10223,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59354,
+      "base_sprite": 10224,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59355,
+      "base_sprite": 10225,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59356,
+      "base_sprite": 10226,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59357,
+      "base_sprite": 10227,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59358,
+      "base_sprite": 10228,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59359,
+      "base_sprite": 10229,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59360,
+      "base_sprite": 10250,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59361,
+      "base_sprite": 10251,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59362,
+      "base_sprite": 10252,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59363,
+      "base_sprite": 10253,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59364,
+      "base_sprite": 10254,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59365,
+      "base_sprite": 10255,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59366,
+      "base_sprite": 10256,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59367,
+      "base_sprite": 10257,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59368,
+      "base_sprite": 10258,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59369,
+      "base_sprite": 10259,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59370,
+      "base_sprite": 10280,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59371,
+      "base_sprite": 10281,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59372,
+      "base_sprite": 10282,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59373,
+      "base_sprite": 10283,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59374,
+      "base_sprite": 10284,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59375,
+      "base_sprite": 10285,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59376,
+      "base_sprite": 10286,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59377,
+      "base_sprite": 10287,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59378,
+      "base_sprite": 10288,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59379,
+      "base_sprite": 10289,
+      "light": -10,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59388,
+      "base_sprite": 50510,
+      "light": 80,
+      "saturation": 20,
+      "shine": 95
+    },
+    {
+      "id": 59380,
+      "base_sprite": 50025,
+      "light": 0,
+      "saturation": 20,
+      "shine": 60
+    },
+    {
+      "id": 59381,
+      "base_sprite": 50026,
+      "light": 0,
+      "saturation": 20,
+      "shine": 60
+    },
+    {
+      "id": 59382,
+      "base_sprite": 50122,
+      "light": 90,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59383,
+      "base_sprite": 50123,
+      "light": 90,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59384,
+      "base_sprite": 50124,
+      "light": 90,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59385,
+      "base_sprite": 50125,
+      "light": 90,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59386,
+      "base_sprite": 50126,
+      "light": 90,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59387,
+      "base_sprite": 50141,
+      "light": 0,
+      "saturation": 20,
+      "shine": 60
+    },
+    {
+      "id": 59389,
+      "base_sprite": 50512,
+      "light": 40,
+      "saturation": 20,
+      "shine": 85
+    },
+    {
+      "id": 59390,
+      "base_sprite": 50513,
+      "light": 90,
+      "saturation": 20,
+      "shine": 95
+    },
+    {
+      "id": 59391,
+      "base_sprite": 51055,
+      "c1": 16450,
+      "c2": 10306
+    },
+    {
+      "id": 59392,
+      "base_sprite": 51055,
+      "c1": 2562,
+      "c2": 10306
+    },
+    {
+      "id": 59393,
+      "base_sprite": 51055,
+      "c1": 2128,
+      "c2": 10306
+    },
+    {
+      "id": 59394,
+      "base_sprite": 51055,
+      "c1": 16898,
+      "c2": 10306
+    },
+    {
+      "id": 59395,
+      "base_sprite": 51055,
+      "c1": 16450,
+      "c2": 2370
+    },
+    {
+      "id": 59396,
+      "base_sprite": 51055,
+      "c1": 2562,
+      "c2": 2370
+    },
+    {
+      "id": 59397,
+      "base_sprite": 51055,
+      "c1": 2128,
+      "c2": 2370
+    },
+    {
+      "id": 59398,
+      "base_sprite": 51055,
+      "c1": 16898,
+      "c2": 2370
+    },
+    {
+      "id": 59399,
+      "base_sprite": 51055,
+      "c1": 16450,
+      "c2": 2122
+    },
+    {
+      "id": 59400,
+      "base_sprite": 51055,
+      "c1": 2562,
+      "c2": 2122
+    },
+    {
+      "id": 59401,
+      "base_sprite": 51055,
+      "c1": 2128,
+      "c2": 2122
+    },
+    {
+      "id": 59402,
+      "base_sprite": 51055,
+      "c1": 16898,
+      "c2": 2122
+    },
+    {
+      "id": 59403,
+      "base_sprite": 51055,
+      "c1": 16450,
+      "c2": 4228
+    },
+    {
+      "id": 59404,
+      "base_sprite": 51055,
+      "c1": 2562,
+      "c2": 4228
+    },
+    {
+      "id": 59405,
+      "base_sprite": 20815,
+      "light": 60
+    },
+    {
+      "id": 59406,
+      "base_sprite": 20816,
+      "light": 60
+    },
+    {
+      "id": 59407,
+      "base_sprite": 20817,
+      "light": 60
+    },
+    {
+      "id": 59408,
+      "base_sprite": 20818,
+      "light": 60
+    },
+    {
+      "id": 59409,
+      "base_sprite": 20819,
+      "light": 60
+    },
+    {
+      "id": 59410,
+      "base_sprite": 20820,
+      "light": 60
+    },
+    {
+      "id": 59411,
+      "base_sprite": 20821,
+      "light": 60
+    },
+    {
+      "id": 59412,
+      "base_sprite": 20822,
+      "light": 60
+    },
+    {
+      "id": 59413,
+      "base_sprite": 20823,
+      "light": 60
+    },
+    {
+      "id": 59414,
+      "base_sprite": 20815,
+      "light": 40
+    },
+    {
+      "id": 59415,
+      "base_sprite": 20816,
+      "light": 40
+    },
+    {
+      "id": 59416,
+      "base_sprite": 20817,
+      "light": 40
+    },
+    {
+      "id": 59417,
+      "base_sprite": 20818,
+      "light": 40
+    },
+    {
+      "id": 59418,
+      "base_sprite": 20819,
+      "light": 40
+    },
+    {
+      "id": 59419,
+      "base_sprite": 20820,
+      "light": 40
+    },
+    {
+      "id": 59420,
+      "base_sprite": 20821,
+      "light": 40
+    },
+    {
+      "id": 59421,
+      "base_sprite": 20822,
+      "light": 40
+    },
+    {
+      "id": 59422,
+      "base_sprite": 20823,
+      "light": 40
+    },
+    {
+      "id": 59423,
+      "base_sprite": 20815,
+      "light": 20
+    },
+    {
+      "id": 59424,
+      "base_sprite": 20816,
+      "light": 20
+    },
+    {
+      "id": 59425,
+      "base_sprite": 20817,
+      "light": 20
+    },
+    {
+      "id": 59426,
+      "base_sprite": 20818,
+      "light": 20
+    },
+    {
+      "id": 59427,
+      "base_sprite": 20819,
+      "light": 20
+    },
+    {
+      "id": 59428,
+      "base_sprite": 20820,
+      "light": 20
+    },
+    {
+      "id": 59429,
+      "base_sprite": 20821,
+      "light": 20
+    },
+    {
+      "id": 59430,
+      "base_sprite": 20822,
+      "light": 20
+    },
+    {
+      "id": 59431,
+      "base_sprite": 20823,
+      "light": 20
+    },
+    {
+      "id": 59432,
+      "base_sprite": 51057,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59433,
+      "base_sprite": 51058,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59434,
+      "base_sprite": 51059,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59435,
+      "base_sprite": 51060,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59436,
+      "base_sprite": 51061,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59437,
+      "base_sprite": 51062,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59438,
+      "base_sprite": 51063,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59439,
+      "base_sprite": 51064,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59440,
+      "base_sprite": 51065,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59441,
+      "base_sprite": 51057,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59442,
+      "base_sprite": 51058,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59443,
+      "base_sprite": 51059,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59444,
+      "base_sprite": 51060,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59445,
+      "base_sprite": 51061,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59446,
+      "base_sprite": 51062,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59447,
+      "base_sprite": 51063,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59448,
+      "base_sprite": 51064,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59449,
+      "base_sprite": 51065,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59450,
+      "base_sprite": 51057,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59451,
+      "base_sprite": 51058,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59452,
+      "base_sprite": 51059,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59453,
+      "base_sprite": 51060,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59454,
+      "base_sprite": 51061,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59455,
+      "base_sprite": 51062,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59456,
+      "base_sprite": 51063,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59457,
+      "base_sprite": 51064,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59458,
+      "base_sprite": 51065,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59459,
+      "base_sprite": 51057,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59460,
+      "base_sprite": 51058,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59461,
+      "base_sprite": 51059,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59462,
+      "base_sprite": 51060,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59463,
+      "base_sprite": 51061,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59464,
+      "base_sprite": 51062,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59465,
+      "base_sprite": 51063,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59466,
+      "base_sprite": 51064,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59467,
+      "base_sprite": 51065,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59468,
+      "base_sprite": 51068,
+      "scale": 80,
+      "cr": 20,
+      "cg": 20,
+      "light": 10
+    },
+    {
+      "id": 59469,
+      "base_sprite": 51068,
+      "cr": 25,
+      "light": -40,
+      "shine": 0
+    },
+    {
+      "id": 59470,
+      "base_sprite": 51068,
+      "scale": 105,
+      "light": 20,
+      "saturation": 8
+    },
+    {
+      "id": 59471,
+      "base_sprite": 51068,
+      "scale": 110,
+      "cg": 10,
+      "light": -20,
+      "shine": 10
+    },
+    {
+      "id": 59472,
+      "base_sprite": 51068,
+      "scale": 150,
+      "cg": 10,
+      "light": -20,
+      "shine": 25
+    },
+    {
+      "id": 59473,
+      "base_sprite": 51084,
+      "light": 25,
+      "saturation": 20,
+      "shine": 40
+    },
+    {
+      "id": 59474,
+      "base_sprite": 51084,
+      "cr": 50,
+      "cg": 50,
+      "light": 25,
+      "saturation": 20,
+      "shine": 50
+    },
+    {
+      "id": 59475,
+      "base_sprite": 22462,
+      "cr": -10,
+      "cg": 5,
+      "light": 10,
+      "shine": 15
+    },
+    {
+      "id": 59476,
+      "base_sprite": 22463,
+      "cr": -10,
+      "cg": 5,
+      "light": 10,
+      "shine": 15
+    },
+    {
+      "id": 59477,
+      "base_sprite": 22464,
+      "cr": -10,
+      "cg": 5,
+      "light": 10,
+      "shine": 15
+    },
+    {
+      "id": 59478,
+      "base_sprite": 22465,
+      "cr": -10,
+      "cg": 5,
+      "light": 10,
+      "shine": 15
+    },
+    {
+      "id": 59479,
+      "base_sprite": 22466,
+      "cr": -10,
+      "cg": 5,
+      "light": 10,
+      "shine": 15
+    },
+    {
+      "id": 59480,
+      "base_sprite": 22467,
+      "cr": -10,
+      "cg": 5,
+      "light": 10,
+      "shine": 15
+    },
+    {
+      "id": 59481,
+      "base_sprite": 22468,
+      "cr": -10,
+      "cg": 5,
+      "light": 10,
+      "shine": 15
+    },
+    {
+      "id": 59482,
+      "base_sprite": 22469,
+      "cr": -10,
+      "cg": 5,
+      "light": 10,
+      "shine": 15
+    },
+    {
+      "id": 59483,
+      "base_sprite": 22470,
+      "cr": -10,
+      "cg": 5,
+      "light": 10,
+      "shine": 15
+    },
+    {
+      "id": 59484,
+      "base_sprite": 15447
+    },
+    {
+      "id": 59485,
+      "base_sprite": 15486
+    },
+    {
+      "id": 59486,
+      "base_sprite": 15457
+    },
+    {
+      "id": 59487,
+      "base_sprite": 15488
+    },
+    {
+      "id": 59488,
+      "base_sprite": 20640,
+      "cr": 50
+    },
+    {
+      "id": 59489,
+      "base_sprite": 20640,
+      "cg": 50
+    },
+    {
+      "id": 59490,
+      "base_sprite": 20640,
+      "cb": 50
+    },
+    {
+      "id": 59491,
+      "base_sprite": 20640,
+      "cr": 40,
+      "cg": 40,
+      "light": 20
+    },
+    {
+      "id": 59492,
+      "base_sprite": 20640,
+      "light": -50,
+      "saturation": 20
+    },
+    {
+      "id": 59493,
+      "base_sprite": 20640,
+      "light": 50,
+      "saturation": 20
+    },
+    {
+      "id": 59494,
+      "comment": "green mr_wall_torch_ds",
+      "base_sprite": 59494,
+      "cr": -100,
+      "cg": 50,
+      "light": -20
+    },
+    {
+      "id": 59495,
+      "comment": "green mr_wall_torch_ls",
+      "base_sprite": 59495,
+      "cr": -100,
+      "cg": 50,
+      "light": -20
+    },
+    {
+      "id": 59496,
+      "comment": "green mr_wall_torch_lh",
+      "base_sprite": 59496,
+      "cr": -100,
+      "cg": 50,
+      "light": -20
+    },
+    {
+      "id": 59497,
+      "comment": "green mr_wall_torch_dh",
+      "base_sprite": 59497,
+      "cr": -100,
+      "cg": 50,
+      "light": -20
+    },
+    {
+      "id": 59498,
+      "base_sprite": 20636,
+      "cg": 15,
+      "light": -40
+    },
+    {
+      "id": 59499,
+      "base_sprite": 20637,
+      "cg": 15,
+      "light": -40
+    },
+    {
+      "id": 59500,
+      "base_sprite": 20638,
+      "cg": 15,
+      "light": -40
+    },
+    {
+      "id": 59501,
+      "base_sprite": 20639,
+      "cg": 15,
+      "light": -40
+    },
+    {
+      "id": 59502,
+      "base_sprite": 20640,
+      "cg": 15,
+      "light": -40
+    },
+    {
+      "id": 59503,
+      "base_sprite": 20641,
+      "cg": 15,
+      "light": -40
+    },
+    {
+      "id": 59504,
+      "base_sprite": 20642,
+      "cg": 15,
+      "light": -40
+    },
+    {
+      "id": 59505,
+      "base_sprite": 20643,
+      "cg": 15,
+      "light": -40
+    },
+    {
+      "id": 59506,
+      "base_sprite": 20644,
+      "cg": 15,
+      "light": -40
+    },
+    {
+      "id": 59507,
+      "base_sprite": 15279,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59508,
+      "base_sprite": 15280,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59509,
+      "base_sprite": 15281,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59510,
+      "base_sprite": 15282,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59511,
+      "base_sprite": 15283,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59512,
+      "base_sprite": 15284,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59513,
+      "base_sprite": 15432,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59514,
+      "base_sprite": 15439,
+      "cg": 20,
+      "light": -20
+    },
+    {
+      "id": 59515,
+      "comment": "red mr_wall_torch_ds",
+      "base_sprite": 59515,
+      "cr": 50,
+      "cg": -50,
+      "light": -20
+    },
+    {
+      "id": 59516,
+      "comment": "red mr_wall_torch_ls",
+      "base_sprite": 59516,
+      "cr": 50,
+      "cg": -50,
+      "light": -20
+    },
+    {
+      "id": 59517,
+      "comment": "red mr_wall_torch_lh",
+      "base_sprite": 59517,
+      "cr": 50,
+      "cg": -50,
+      "light": -20
+    },
+    {
+      "id": 59518,
+      "comment": "red mr_wall_torch_dh",
+      "base_sprite": 59518,
+      "cr": 50,
+      "cg": -50,
+      "light": -20
+    },
+    {
+      "id": 59519,
+      "base_sprite": 20636,
+      "cr": 15,
+      "light": -40
+    },
+    {
+      "id": 59520,
+      "base_sprite": 20637,
+      "cr": 15,
+      "light": -40
+    },
+    {
+      "id": 59521,
+      "base_sprite": 20638,
+      "cr": 15,
+      "light": -40
+    },
+    {
+      "id": 59522,
+      "base_sprite": 20639,
+      "cr": 15,
+      "light": -40
+    },
+    {
+      "id": 59523,
+      "base_sprite": 20640,
+      "cr": 15,
+      "light": -40
+    },
+    {
+      "id": 59524,
+      "base_sprite": 20641,
+      "cr": 15,
+      "light": -40
+    },
+    {
+      "id": 59525,
+      "base_sprite": 20642,
+      "cr": 15,
+      "light": -40
+    },
+    {
+      "id": 59526,
+      "base_sprite": 20643,
+      "cr": 15,
+      "light": -40
+    },
+    {
+      "id": 59527,
+      "base_sprite": 20644,
+      "cr": 15,
+      "light": -40
+    },
+    {
+      "id": 59528,
+      "base_sprite": 15279,
+      "cr": 20,
+      "light": -20
+    },
+    {
+      "id": 59529,
+      "base_sprite": 15280,
+      "cr": 20,
+      "light": -20
+    },
+    {
+      "id": 59530,
+      "base_sprite": 15281,
+      "cr": 20,
+      "light": -20
+    },
+    {
+      "id": 59531,
+      "base_sprite": 15282,
+      "cr": 20,
+      "light": -20
+    },
+    {
+      "id": 59532,
+      "base_sprite": 15283,
+      "cr": 20,
+      "light": -20
+    },
+    {
+      "id": 59533,
+      "base_sprite": 15284,
+      "cr": 20,
+      "light": -20
+    },
+    {
+      "id": 59534,
+      "base_sprite": 15432,
+      "cr": 20,
+      "light": -20
+    },
+    {
+      "id": 59535,
+      "base_sprite": 15439,
+      "cr": 20,
+      "light": -20
+    },
+    {
+      "id": 59536,
+      "base_sprite": 20636,
+      "light": -40
+    },
+    {
+      "id": 59537,
+      "base_sprite": 20637,
+      "light": -40
+    },
+    {
+      "id": 59538,
+      "base_sprite": 20638,
+      "light": -40
+    },
+    {
+      "id": 59539,
+      "base_sprite": 20639,
+      "light": -40
+    },
+    {
+      "id": 59540,
+      "base_sprite": 20640,
+      "light": -40
+    },
+    {
+      "id": 59541,
+      "base_sprite": 20641,
+      "light": -40
+    },
+    {
+      "id": 59542,
+      "base_sprite": 20642,
+      "light": -40
+    },
+    {
+      "id": 59543,
+      "base_sprite": 20643,
+      "light": -40
+    },
+    {
+      "id": 59544,
+      "base_sprite": 20644,
+      "light": -40
+    },
+    {
+      "id": 59545,
+      "base_sprite": 20122,
+      "cg": 60,
+      "light": 20,
+      "saturation": 20,
+      "shine": 30
+    },
+    {
+      "id": 59546,
+      "base_sprite": 20123,
+      "cg": 60,
+      "light": 20,
+      "saturation": 20,
+      "shine": 30
+    },
+    {
+      "id": 59547,
+      "base_sprite": 20122,
+      "cr": 60,
+      "light": 20,
+      "saturation": 20,
+      "shine": 30
+    },
+    {
+      "id": 59548,
+      "base_sprite": 20123,
+      "cr": 60,
+      "light": 20,
+      "saturation": 20,
+      "shine": 30
+    },
+    {
+      "id": 59549,
+      "base_sprite": 50004,
+      "cg": 60,
+      "light": 20,
+      "saturation": 20,
+      "shine": 30
+    },
+    {
+      "id": 59550,
+      "base_sprite": 50004,
+      "cr": 60,
+      "light": 20,
+      "saturation": 20,
+      "shine": 30
+    },
+    {
+      "id": 59551,
+      "base_sprite": 15432
+    },
+    {
+      "id": 59552,
+      "base_sprite": 15439
+    },
+    {
+      "id": 59553,
+      "base_sprite": 20779,
+      "cr": 75,
+      "cg": 75,
+      "light": 70,
+      "shine": 70
+    },
+    {
+      "id": 59554,
+      "base_sprite": 20300,
+      "cr": 15,
+      "light": -50
+    },
+    {
+      "id": 59555,
+      "base_sprite": 20301,
+      "cr": 15,
+      "light": -50
+    },
+    {
+      "id": 59556,
+      "base_sprite": 20302,
+      "cr": 15,
+      "light": -50
+    },
+    {
+      "id": 59557,
+      "base_sprite": 20303,
+      "cr": 15,
+      "light": -50
+    },
+    {
+      "id": 59558,
+      "base_sprite": 20304,
+      "cr": 15,
+      "light": -50
+    },
+    {
+      "id": 59559,
+      "base_sprite": 20305,
+      "cr": 15,
+      "light": -50
+    },
+    {
+      "id": 59560,
+      "base_sprite": 20306,
+      "cr": 15,
+      "light": -50
+    },
+    {
+      "id": 59561,
+      "base_sprite": 20307,
+      "cr": 15,
+      "light": -50
+    },
+    {
+      "id": 59562,
+      "base_sprite": 20308,
+      "cr": 15,
+      "light": -50
+    },
+    {
+      "id": 59563,
+      "base_sprite": 14030,
+      "cr": 30,
+      "cg": 10,
+      "light": -50
+    },
+    {
+      "id": 59564,
+      "base_sprite": 14031,
+      "cr": 30,
+      "cg": 10,
+      "light": -50
+    },
+    {
+      "id": 59565,
+      "base_sprite": 14032,
+      "cr": 30,
+      "cg": 10,
+      "light": -50
+    },
+    {
+      "id": 59566,
+      "base_sprite": 14033,
+      "cr": 30,
+      "cg": 10,
+      "light": -50
+    },
+    {
+      "id": 59567,
+      "base_sprite": 14034,
+      "cr": 30,
+      "cg": 10,
+      "light": -50
+    },
+    {
+      "id": 59568,
+      "base_sprite": 14035,
+      "cr": 30,
+      "cg": 10,
+      "light": -50
+    },
+    {
+      "id": 59569,
+      "base_sprite": 14036,
+      "cr": 30,
+      "cg": 10,
+      "light": -50
+    },
+    {
+      "id": 59570,
+      "base_sprite": 14037,
+      "cr": 30,
+      "cg": 10,
+      "light": -50
+    },
+    {
+      "id": 59571,
+      "base_sprite": 20272,
+      "c1": 20736
+    },
+    {
+      "id": 59572,
+      "base_sprite": 20273,
+      "c1": 20736
+    },
+    {
+      "id": 59573,
+      "base_sprite": 20274,
+      "c1": 20736
+    },
+    {
+      "id": 59574,
+      "base_sprite": 20275,
+      "c1": 20736
+    },
+    {
+      "id": 59575,
+      "base_sprite": 20327,
+      "cr": 5,
+      "light": -100,
+      "saturation": 10
+    },
+    {
+      "id": 59576,
+      "base_sprite": 20328,
+      "cr": 5,
+      "light": -100,
+      "saturation": 10
+    },
+    {
+      "id": 59577,
+      "base_sprite": 20329,
+      "cr": 5,
+      "light": -100,
+      "saturation": 10
+    },
+    {
+      "id": 59578,
+      "base_sprite": 20330,
+      "cr": 5,
+      "light": -100,
+      "saturation": 10
+    },
+    {
+      "id": 59579,
+      "base_sprite": 20331,
+      "cr": 5,
+      "light": -100,
+      "saturation": 10
+    },
+    {
+      "id": 59580,
+      "base_sprite": 20332,
+      "cr": 5,
+      "light": -100,
+      "saturation": 10
+    },
+    {
+      "id": 59581,
+      "base_sprite": 20333,
+      "cr": 5,
+      "light": -100,
+      "saturation": 10
+    },
+    {
+      "id": 59582,
+      "base_sprite": 20334,
+      "cr": 5,
+      "light": -100,
+      "saturation": 10
+    },
+    {
+      "id": 59583,
+      "base_sprite": 20335,
+      "cr": 5,
+      "light": -100,
+      "saturation": 10
+    },
+    {
+      "id": 59584,
+      "base_sprite": 20327,
+      "cr": 5,
+      "light": -50,
+      "saturation": 7
+    },
+    {
+      "id": 59585,
+      "base_sprite": 20328,
+      "cr": 5,
+      "light": -50,
+      "saturation": 7
+    },
+    {
+      "id": 59586,
+      "base_sprite": 20329,
+      "cr": 5,
+      "light": -50,
+      "saturation": 7
+    },
+    {
+      "id": 59587,
+      "base_sprite": 20330,
+      "cr": 5,
+      "light": -50,
+      "saturation": 7
+    },
+    {
+      "id": 59588,
+      "base_sprite": 20331,
+      "cr": 5,
+      "light": -50,
+      "saturation": 7
+    },
+    {
+      "id": 59589,
+      "base_sprite": 20332,
+      "cr": 5,
+      "light": -50,
+      "saturation": 7
+    },
+    {
+      "id": 59590,
+      "base_sprite": 20333,
+      "cr": 5,
+      "light": -50,
+      "saturation": 7
+    },
+    {
+      "id": 59591,
+      "base_sprite": 20334,
+      "cr": 5,
+      "light": -50,
+      "saturation": 7
+    },
+    {
+      "id": 59592,
+      "base_sprite": 20335,
+      "cr": 5,
+      "light": -50,
+      "saturation": 7
+    },
+    {
+      "id": 59593,
+      "base_sprite": 14060,
+      "cr": -10,
+      "cg": -15,
+      "cb": 5,
+      "light": 15
+    },
+    {
+      "id": 59594,
+      "base_sprite": 14061,
+      "cr": -10,
+      "cg": -15,
+      "cb": 5,
+      "light": 15
+    },
+    {
+      "id": 59595,
+      "base_sprite": 14062,
+      "cr": -10,
+      "cg": -15,
+      "cb": 5,
+      "light": 15
+    },
+    {
+      "id": 59596,
+      "base_sprite": 14063,
+      "cr": -10,
+      "cg": -15,
+      "cb": 5,
+      "light": 15
+    },
+    {
+      "id": 59597,
+      "base_sprite": 14064,
+      "cr": -10,
+      "cg": -15,
+      "cb": 5,
+      "light": 15
+    },
+    {
+      "id": 59598,
+      "base_sprite": 14065,
+      "cr": -10,
+      "cg": -15,
+      "cb": 5,
+      "light": 15
+    },
+    {
+      "id": 59599,
+      "base_sprite": 14066,
+      "cr": -10,
+      "cg": -15,
+      "cb": 5,
+      "light": 15
+    },
+    {
+      "id": 59600,
+      "base_sprite": 14067,
+      "cr": -10,
+      "cg": -15,
+      "cb": 5,
+      "light": 15
+    },
+    {
+      "id": 59601,
+      "base_sprite": 23900
+    },
+    {
+      "id": 59602,
+      "base_sprite": 23901
+    },
+    {
+      "id": 59603,
+      "base_sprite": 23902
+    },
+    {
+      "id": 59604,
+      "base_sprite": 23903
+    },
+    {
+      "id": 59605,
+      "base_sprite": 23904
+    },
+    {
+      "id": 59606,
+      "base_sprite": 23905
+    },
+    {
+      "id": 59607,
+      "base_sprite": 23906
+    },
+    {
+      "id": 59608,
+      "base_sprite": 23907
+    },
+    {
+      "id": 59609,
+      "base_sprite": 23908
+    },
+    {
+      "id": 59610,
+      "base_sprite": 23909
+    },
+    {
+      "id": 59611,
+      "base_sprite": 23910
+    },
+    {
+      "id": 59612,
+      "base_sprite": 23911
+    },
+    {
+      "id": 59613,
+      "base_sprite": 23912
+    },
+    {
+      "id": 59614,
+      "base_sprite": 23913
+    },
+    {
+      "id": 59615,
+      "base_sprite": 23914
+    },
+    {
+      "id": 59616,
+      "base_sprite": 23915
+    },
+    {
+      "id": 59617,
+      "base_sprite": 23916
+    },
+    {
+      "id": 59618,
+      "base_sprite": 23917
+    },
+    {
+      "id": 59619,
+      "base_sprite": 23036
+    },
+    {
+      "id": 59620,
+      "base_sprite": 23037
+    },
+    {
+      "id": 59621,
+      "base_sprite": 23038
+    },
+    {
+      "id": 59622,
+      "base_sprite": 23039
+    },
+    {
+      "id": 59623,
+      "base_sprite": 23040
+    },
+    {
+      "id": 59624,
+      "base_sprite": 23041
+    },
+    {
+      "id": 59625,
+      "base_sprite": 23042
+    },
+    {
+      "id": 59626,
+      "base_sprite": 23043
+    },
+    {
+      "id": 59627,
+      "base_sprite": 23044
+    },
+    {
+      "id": 59628,
+      "base_sprite": 23927
+    },
+    {
+      "id": 59629,
+      "base_sprite": 23928
+    },
+    {
+      "id": 59630,
+      "base_sprite": 23929
+    },
+    {
+      "id": 59631,
+      "base_sprite": 23930
+    },
+    {
+      "id": 59632,
+      "base_sprite": 23931
+    },
+    {
+      "id": 59633,
+      "base_sprite": 23932
+    },
+    {
+      "id": 59634,
+      "base_sprite": 23933
+    },
+    {
+      "id": 59635,
+      "base_sprite": 23934
+    },
+    {
+      "id": 59636,
+      "base_sprite": 23935
+    },
+    {
+      "id": 59637,
+      "base_sprite": 21789,
+      "cr": 25,
+      "cg": 10,
+      "light": 15
+    },
+    {
+      "id": 59638,
+      "base_sprite": 21790,
+      "cr": 25,
+      "cg": 10,
+      "light": 15
+    },
+    {
+      "id": 59639,
+      "base_sprite": 21791,
+      "cr": 25,
+      "cg": 10,
+      "light": 15
+    },
+    {
+      "id": 59640,
+      "base_sprite": 21792,
+      "cr": 25,
+      "cg": 10,
+      "light": 15
+    },
+    {
+      "id": 59641,
+      "base_sprite": 21793,
+      "cr": 25,
+      "cg": 10,
+      "light": 15
+    },
+    {
+      "id": 59642,
+      "base_sprite": 21794,
+      "cr": 25,
+      "cg": 10,
+      "light": 15
+    },
+    {
+      "id": 59643,
+      "base_sprite": 21795,
+      "cr": 25,
+      "cg": 10,
+      "light": 15
+    },
+    {
+      "id": 59644,
+      "base_sprite": 21796,
+      "cr": 25,
+      "cg": 10,
+      "light": 15
+    },
+    {
+      "id": 59645,
+      "base_sprite": 21797,
+      "cr": 25,
+      "cg": 10,
+      "light": 15
+    },
+    {
+      "id": 59646,
+      "base_sprite": 12050,
+      "cr": 20,
+      "cg": 15,
+      "light": 25,
+      "saturation": 12
+    },
+    {
+      "id": 59647,
+      "base_sprite": 12051,
+      "cr": 20,
+      "cg": 15,
+      "light": 25,
+      "saturation": 12
+    },
+    {
+      "id": 59648,
+      "base_sprite": 12052,
+      "cr": 20,
+      "cg": 15,
+      "light": 25,
+      "saturation": 12
+    },
+    {
+      "id": 59649,
+      "base_sprite": 12053,
+      "cr": 20,
+      "cg": 15,
+      "light": 25,
+      "saturation": 12
+    },
+    {
+      "id": 59650,
+      "base_sprite": 12054,
+      "cr": 20,
+      "cg": 15,
+      "light": 25,
+      "saturation": 12
+    },
+    {
+      "id": 59651,
+      "base_sprite": 12055,
+      "cr": 20,
+      "cg": 15,
+      "light": 25,
+      "saturation": 12
+    },
+    {
+      "id": 59652,
+      "base_sprite": 12056,
+      "cr": 20,
+      "cg": 15,
+      "light": 25,
+      "saturation": 12
+    },
+    {
+      "id": 59653,
+      "base_sprite": 12057,
+      "cr": 20,
+      "cg": 15,
+      "light": 25,
+      "saturation": 12
+    },
+    {
+      "id": 59654,
+      "base_sprite": 12058,
+      "cr": 20,
+      "cg": 15,
+      "light": 25,
+      "saturation": 12
+    },
+    {
+      "id": 59655,
+      "base_sprite": 51099,
+      "scale": 95,
+      "cr": 40,
+      "cg": 30,
+      "light": 40,
+      "saturation": 20
+    },
+    {
+      "id": 59656,
+      "base_sprite": 51100,
+      "scale": 95,
+      "cr": 40,
+      "cg": 30,
+      "light": 40,
+      "saturation": 20
+    },
+    {
+      "id": 59657,
+      "base_sprite": 51101,
+      "scale": 95,
+      "cr": 40,
+      "cg": 30,
+      "light": 40,
+      "saturation": 20
+    },
+    {
+      "id": 59658,
+      "base_sprite": 51102,
+      "scale": 95,
+      "cr": 40,
+      "cg": 30,
+      "light": 40,
+      "saturation": 20
+    },
+    {
+      "id": 59659,
+      "base_sprite": 51103,
+      "scale": 95,
+      "cr": 40,
+      "cg": 30,
+      "light": 40,
+      "saturation": 20
+    },
+    {
+      "id": 59660,
+      "base_sprite": 51099,
+      "scale": 110,
+      "light": 125,
+      "saturation": 20
+    },
+    {
+      "id": 59661,
+      "base_sprite": 51100,
+      "scale": 110,
+      "light": 125,
+      "saturation": 20
+    },
+    {
+      "id": 59662,
+      "base_sprite": 51101,
+      "scale": 110,
+      "light": 125,
+      "saturation": 20
+    },
+    {
+      "id": 59663,
+      "base_sprite": 51102,
+      "scale": 110,
+      "light": 125,
+      "saturation": 20
+    },
+    {
+      "id": 59664,
+      "base_sprite": 51103,
+      "scale": 110,
+      "light": 125,
+      "saturation": 20
+    },
+    {
+      "id": 59665,
+      "base_sprite": 51110,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 3
+      },
+      "c2": 16920
+    },
+    {
+      "id": 59666,
+      "base_sprite": 51104,
+      "cg": 40,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59667,
+      "base_sprite": 51105,
+      "cg": 40,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59668,
+      "base_sprite": 51106,
+      "cg": 40,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59669,
+      "base_sprite": 51107,
+      "cg": 40,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59670,
+      "base_sprite": 17000,
+      "cg": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59671,
+      "base_sprite": 17001,
+      "cg": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59672,
+      "base_sprite": 17002,
+      "cg": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59673,
+      "base_sprite": 17003,
+      "cg": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59674,
+      "base_sprite": 17032,
+      "cg": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59675,
+      "base_sprite": 17033,
+      "cg": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59676,
+      "base_sprite": 17034,
+      "cg": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59677,
+      "base_sprite": 17035,
+      "cg": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59678,
+      "base_sprite": 17048,
+      "cr": 40,
+      "light": 30,
+      "shine": 10
+    },
+    {
+      "id": 59679,
+      "base_sprite": 17049,
+      "cr": 40,
+      "light": 30,
+      "shine": 10
+    },
+    {
+      "id": 59680,
+      "base_sprite": 17050,
+      "cr": 40,
+      "light": 30,
+      "shine": 10
+    },
+    {
+      "id": 59681,
+      "base_sprite": 17051,
+      "cr": 40,
+      "light": 30,
+      "shine": 10
+    },
+    {
+      "id": 59682,
+      "base_sprite": 51104,
+      "cr": 30,
+      "cg": 30,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59683,
+      "base_sprite": 51105,
+      "cr": 30,
+      "cg": 30,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59684,
+      "base_sprite": 51106,
+      "cr": 30,
+      "cg": 30,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59685,
+      "base_sprite": 51107,
+      "cr": 30,
+      "cg": 30,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59686,
+      "base_sprite": 17000,
+      "cr": 30,
+      "cg": 30,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59687,
+      "base_sprite": 17001,
+      "cr": 30,
+      "cg": 30,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59688,
+      "base_sprite": 17002,
+      "cr": 30,
+      "cg": 30,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59689,
+      "base_sprite": 17003,
+      "cr": 30,
+      "cg": 30,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59690,
+      "base_sprite": 17032,
+      "cr": 30,
+      "cg": 30,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59691,
+      "base_sprite": 17033,
+      "cr": 30,
+      "cg": 30,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59692,
+      "base_sprite": 17034,
+      "cr": 30,
+      "cg": 30,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59693,
+      "base_sprite": 17035,
+      "cr": 30,
+      "cg": 30,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59694,
+      "base_sprite": 51104,
+      "cr": 40,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59695,
+      "base_sprite": 51105,
+      "cr": 40,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59696,
+      "base_sprite": 51106,
+      "cr": 40,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59697,
+      "base_sprite": 51107,
+      "cr": 40,
+      "light": -90,
+      "shine": 0
+    },
+    {
+      "id": 59698,
+      "base_sprite": 17000,
+      "cr": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59699,
+      "base_sprite": 17001,
+      "cr": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59700,
+      "base_sprite": 17002,
+      "cr": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59701,
+      "base_sprite": 17003,
+      "cr": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59702,
+      "base_sprite": 17032,
+      "cr": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59703,
+      "base_sprite": 17033,
+      "cr": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59704,
+      "base_sprite": 17034,
+      "cr": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59705,
+      "base_sprite": 17035,
+      "cr": 40,
+      "light": -50,
+      "shine": 0
+    },
+    {
+      "id": 59706,
+      "base_sprite": 51104,
+      "cr": -10,
+      "cb": 50,
+      "light": -100,
+      "shine": 0
+    },
+    {
+      "id": 59707,
+      "base_sprite": 51105,
+      "cr": -10,
+      "cb": 50,
+      "light": -100,
+      "shine": 0
+    },
+    {
+      "id": 59708,
+      "base_sprite": 51106,
+      "cr": -10,
+      "cb": 50,
+      "light": -100,
+      "shine": 0
+    },
+    {
+      "id": 59709,
+      "base_sprite": 51107,
+      "cr": -10,
+      "cb": 50,
+      "light": -100,
+      "shine": 0
+    },
+    {
+      "id": 59710,
+      "base_sprite": 17000,
+      "cr": -10,
+      "cb": 50,
+      "light": -60,
+      "shine": 0
+    },
+    {
+      "id": 59711,
+      "base_sprite": 17001,
+      "cr": -10,
+      "cb": 50,
+      "light": -60,
+      "shine": 0
+    },
+    {
+      "id": 59712,
+      "base_sprite": 17002,
+      "cr": -10,
+      "cb": 50,
+      "light": -60,
+      "shine": 0
+    },
+    {
+      "id": 59713,
+      "base_sprite": 17003,
+      "cr": -10,
+      "cb": 50,
+      "light": -60,
+      "shine": 0
+    },
+    {
+      "id": 59714,
+      "base_sprite": 17032,
+      "cr": -10,
+      "cb": 50,
+      "light": -60,
+      "shine": 0
+    },
+    {
+      "id": 59715,
+      "base_sprite": 17033,
+      "cr": -10,
+      "cb": 50,
+      "light": -60,
+      "shine": 0
+    },
+    {
+      "id": 59716,
+      "base_sprite": 17034,
+      "cr": -10,
+      "cb": 50,
+      "light": -60,
+      "shine": 0
+    },
+    {
+      "id": 59717,
+      "base_sprite": 17035,
+      "cr": -10,
+      "cb": 50,
+      "light": -60,
+      "shine": 0
+    },
+    {
+      "id": 59718,
+      "base_sprite": 51104,
+      "cr": -10,
+      "cb": 40,
+      "light": -40,
+      "shine": 5
+    },
+    {
+      "id": 59719,
+      "base_sprite": 51105,
+      "cr": -10,
+      "cb": 40,
+      "light": -40,
+      "shine": 5
+    },
+    {
+      "id": 59720,
+      "base_sprite": 51106,
+      "cr": -10,
+      "cb": 40,
+      "light": -40,
+      "shine": 5
+    },
+    {
+      "id": 59721,
+      "base_sprite": 51107,
+      "cr": -10,
+      "cb": 40,
+      "light": -40,
+      "shine": 5
+    },
+    {
+      "id": 59722,
+      "base_sprite": 17000,
+      "cr": -10,
+      "cb": 40,
+      "light": -10,
+      "shine": 5
+    },
+    {
+      "id": 59723,
+      "base_sprite": 17001,
+      "cr": -10,
+      "cb": 40,
+      "light": -10,
+      "shine": 5
+    },
+    {
+      "id": 59724,
+      "base_sprite": 17002,
+      "cr": -10,
+      "cb": 40,
+      "light": -10,
+      "shine": 5
+    },
+    {
+      "id": 59725,
+      "base_sprite": 17003,
+      "cr": -10,
+      "cb": 40,
+      "light": -10,
+      "shine": 5
+    },
+    {
+      "id": 59726,
+      "base_sprite": 17032,
+      "cr": -10,
+      "cb": 40,
+      "light": -10,
+      "shine": 5
+    },
+    {
+      "id": 59727,
+      "base_sprite": 17033,
+      "cr": -10,
+      "cb": 40,
+      "light": -10,
+      "shine": 5
+    },
+    {
+      "id": 59728,
+      "base_sprite": 17034,
+      "cr": -10,
+      "cb": 40,
+      "light": -10,
+      "shine": 5
+    },
+    {
+      "id": 59729,
+      "base_sprite": 17035,
+      "cr": -10,
+      "cb": 40,
+      "light": -10,
+      "shine": 5
+    },
+    {
+      "id": 59730,
+      "comment": "blue mr_wall_torch_ds",
+      "base_sprite": 20044,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
+      "cb": 50,
+      "light": -20,
+      "saturation": 20
+    },
+    {
+      "id": 59731,
+      "comment": "blue mr_wall_torch_ls",
+      "base_sprite": 20054,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
+      "cb": 50,
+      "light": -20,
+      "saturation": 20
+    },
+    {
+      "id": 59732,
+      "comment": "blue mr_wall_torch_lh",
+      "base_sprite": 20064,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
+      "cb": 50,
+      "light": -20,
+      "saturation": 20
+    },
+    {
+      "id": 59733,
+      "comment": "blue mr_wall_torch_dh",
+      "base_sprite": 20074,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
+      "cb": 50,
+      "light": -20,
+      "saturation": 20
+    },
+    {
+      "id": 59734,
+      "comment": "blue mr_wall_torch_ds",
+      "base_sprite": 20044,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
+      "cb": 30,
+      "light": 20,
+      "saturation": 20
+    },
+    {
+      "id": 59735,
+      "comment": "blue mr_wall_torch_ls",
+      "base_sprite": 20054,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
+      "cb": 30,
+      "light": 20,
+      "saturation": 20
+    },
+    {
+      "id": 59736,
+      "comment": "blue mr_wall_torch_lh",
+      "base_sprite": 20064,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
+      "cb": 30,
+      "light": 20,
+      "saturation": 20
+    },
+    {
+      "id": 59737,
+      "comment": "blue mr_wall_torch_dh",
+      "base_sprite": 20074,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
+      "cb": 30,
+      "light": 20,
+      "saturation": 20
+    },
+    {
+      "id": 59738,
+      "base_sprite": 51118,
+      "c2": 512
+    },
+    {
+      "id": 59739,
+      "base_sprite": 17048,
+      "cg": 50,
+      "light": 30,
+      "saturation": 20,
+      "shine": 10
+    },
+    {
+      "id": 59740,
+      "base_sprite": 17049,
+      "cg": 50,
+      "light": 30,
+      "saturation": 20,
+      "shine": 10
+    },
+    {
+      "id": 59741,
+      "base_sprite": 17050,
+      "cg": 50,
+      "light": 30,
+      "saturation": 20,
+      "shine": 10
+    },
+    {
+      "id": 59742,
+      "base_sprite": 17051,
+      "cg": 50,
+      "light": 30,
+      "saturation": 20,
+      "shine": 10
+    },
+    {
+      "id": 59743,
+      "comment": "edemon suspensor white",
+      "base_sprite": 14200,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 4,
+        "divisor": 3
+      },
+      "c2": 16920
+    },
+    {
+      "id": 59744,
+      "comment": "moors ground tiles",
+      "base_sprite": 20797,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59745,
+      "base_sprite": 20798,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59746,
+      "base_sprite": 20799,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59747,
+      "base_sprite": 20800,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59748,
+      "base_sprite": 20801,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59749,
+      "base_sprite": 20802,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59750,
+      "base_sprite": 20803,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59751,
+      "base_sprite": 20804,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59752,
+      "base_sprite": 20805,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59753,
+      "base_sprite": 20806,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59754,
+      "base_sprite": 20807,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59755,
+      "base_sprite": 20808,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59756,
+      "base_sprite": 20809,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59757,
+      "base_sprite": 20810,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59758,
+      "base_sprite": 20811,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59759,
+      "base_sprite": 20812,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59760,
+      "base_sprite": 20813,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59761,
+      "base_sprite": 20814,
+      "cb": 5,
+      "light": 65,
+      "saturation": 12,
+      "shine": 18
+    },
+    {
+      "id": 59762,
+      "base_sprite": 21780,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 59763,
+      "base_sprite": 21781,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 59764,
+      "base_sprite": 21782,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 59765,
+      "base_sprite": 21783,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 59766,
+      "base_sprite": 21784,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 59767,
+      "base_sprite": 21785,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 59768,
+      "base_sprite": 21786,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 59769,
+      "base_sprite": 21787,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 59770,
+      "base_sprite": 21788,
+      "cr": 10,
+      "light": -20,
+      "shine": 5
+    },
+    {
+      "id": 59771,
+      "base_sprite": 10318,
+      "cg": 70,
+      "light": -40,
+      "saturation": 15
+    },
+    {
+      "id": 59772,
+      "base_sprite": 50337,
+      "scale": 150,
+      "cr": 80,
+      "light": -10,
+      "saturation": 20,
+      "shine": 10
+    },
+    {
+      "id": 59780,
+      "base_sprite": 30060,
+      "cr": 20,
+      "cg": 50,
+      "light": -55,
+      "shine": 10
+    },
+    {
+      "id": 59781,
+      "base_sprite": 30061,
+      "cr": 20,
+      "cg": 50,
+      "light": -55,
+      "shine": 10
+    },
+    {
+      "id": 59782,
+      "base_sprite": 30062,
+      "cr": 20,
+      "cg": 50,
+      "light": -55,
+      "shine": 10
+    },
+    {
+      "id": 59783,
+      "base_sprite": 30063,
+      "cr": 20,
+      "cg": 50,
+      "light": -55,
+      "shine": 10
+    },
+    {
+      "id": 59784,
+      "base_sprite": 30064,
+      "cr": 20,
+      "cg": 50,
+      "light": -55,
+      "shine": 10
+    },
+    {
+      "id": 59785,
+      "base_sprite": 30065,
+      "cr": 20,
+      "cg": 50,
+      "light": -55,
+      "shine": 10
+    },
+    {
+      "id": 59786,
+      "base_sprite": 30066,
+      "cr": 20,
+      "cg": 50,
+      "light": -55,
+      "shine": 10
+    },
+    {
+      "id": 59787,
+      "base_sprite": 30067,
+      "cr": 20,
+      "cg": 50,
+      "light": -55,
+      "shine": 10
+    },
+    {
+      "id": 59788,
+      "base_sprite": 30068,
+      "cr": 20,
+      "cg": 50,
+      "light": -55,
+      "shine": 10
+    },
+    {
+      "id": 59790,
+      "base_sprite": 14030,
+      "cg": 50,
+      "light": -55
+    },
+    {
+      "id": 59791,
+      "base_sprite": 14031,
+      "cg": 50,
+      "light": -55
+    },
+    {
+      "id": 59792,
+      "base_sprite": 14032,
+      "cg": 50,
+      "light": -55
+    },
+    {
+      "id": 59793,
+      "base_sprite": 14033,
+      "cg": 50,
+      "light": -55
+    },
+    {
+      "id": 59794,
+      "base_sprite": 14034,
+      "cg": 50,
+      "light": -55
+    },
+    {
+      "id": 59795,
+      "base_sprite": 14035,
+      "cg": 50,
+      "light": -55
+    },
+    {
+      "id": 59796,
+      "base_sprite": 14036,
+      "cg": 50,
+      "light": -55
+    },
+    {
+      "id": 59797,
+      "base_sprite": 14037,
+      "cg": 50,
+      "light": -55
+    },
+    {
+      "id": 59798,
+      "base_sprite": 10004,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      },
+      "cr": -100,
+      "cg": 100,
+      "light": -20
+    },
+    {
+      "id": 59799,
+      "base_sprite": 50023,
+      "cr": -100,
+      "cg": 100,
+      "light": -20
+    },
+    {
+      "id": 59800,
+      "base_sprite": 10004,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      },
+      "cr": -100,
+      "cb": 100,
+      "light": -20
+    },
+    {
+      "id": 59801,
+      "base_sprite": 50023,
+      "cr": -100,
+      "cb": 100,
+      "light": -20
+    },
+    {
+      "id": 59802,
+      "comment": "sewer outlet",
+      "base_sprite": 22500,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      },
+      "c3": 4288
+    },
+    {
+      "id": 59803,
+      "comment": "sewer ground",
+      "base_sprite": 22508,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 2
+      },
+      "c3": 4288
+    },
+    {
+      "id": 59804,
+      "base_sprite": 50075,
+      "scale": 35
+    },
+    {
+      "id": 60000,
+      "comment": "white berries",
+      "base_sprite": 11020,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60001,
+      "comment": "white berries",
+      "base_sprite": 11021,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60002,
+      "comment": "white berries",
+      "base_sprite": 11022,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60003,
+      "comment": "white berries",
+      "base_sprite": 11023,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60004,
+      "comment": "white berries",
+      "base_sprite": 11024,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60005,
+      "comment": "white berries",
+      "base_sprite": 11025,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60006,
+      "comment": "white berries",
+      "base_sprite": 11026,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60007,
+      "comment": "white berries",
+      "base_sprite": 11027,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60008,
+      "comment": "white berries",
+      "base_sprite": 11028,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60009,
+      "comment": "white berries",
+      "base_sprite": 11029,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60010,
+      "comment": "white berries",
+      "base_sprite": 11030,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60011,
+      "comment": "white berries",
+      "base_sprite": 11031,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60012,
+      "comment": "white berries",
+      "base_sprite": 11032,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60013,
+      "comment": "white berries",
+      "base_sprite": 11033,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60014,
+      "comment": "white berries",
+      "base_sprite": 11034,
+      "scale": 70,
+      "light": 125,
+      "saturation": 10
+    },
+    {
+      "id": 60015,
+      "comment": "norther land wallset",
+      "base_sprite": 14433,
+      "saturation": 10
+    },
+    {
+      "id": 60016,
+      "comment": "norther land wallset",
+      "base_sprite": 14434,
+      "saturation": 10
+    },
+    {
+      "id": 60017,
+      "comment": "norther land wallset",
+      "base_sprite": 14435,
+      "saturation": 10
+    },
+    {
+      "id": 60018,
+      "comment": "norther land wallset",
+      "base_sprite": 14436,
+      "saturation": 10
+    },
+    {
+      "id": 60019,
+      "comment": "norther land wallset",
+      "base_sprite": 14437,
+      "saturation": 10
+    },
+    {
+      "id": 60020,
+      "base_sprite": 14438,
+      "saturation": 10
+    },
+    {
+      "id": 60021,
+      "base_sprite": 14439,
+      "saturation": 10
+    },
+    {
+      "id": 60022,
+      "base_sprite": 14440,
+      "saturation": 10
+    },
+    {
+      "id": 60023,
+      "base_sprite": 14441,
+      "saturation": 10
+    },
+    {
+      "id": 60024,
+      "base_sprite": 14442,
+      "saturation": 10
+    },
+    {
+      "id": 60025,
+      "base_sprite": 14443,
+      "saturation": 10
+    },
+    {
+      "id": 60026,
+      "base_sprite": 14444,
+      "saturation": 10
+    },
+    {
+      "id": 60027,
+      "base_sprite": 14445,
+      "saturation": 10
+    },
+    {
+      "id": 60028,
+      "base_sprite": 14446,
+      "saturation": 10
+    },
+    {
+      "id": 60029,
+      "base_sprite": 14447,
+      "saturation": 10
+    },
+    {
+      "id": 60030,
+      "base_sprite": 14448,
+      "saturation": 10
+    },
+    {
+      "id": 60031,
+      "base_sprite": 14449,
+      "saturation": 10
+    },
+    {
+      "id": 60032,
+      "base_sprite": 14450,
+      "saturation": 10
+    },
+    {
+      "id": 60033,
+      "base_sprite": 14451,
+      "saturation": 10
+    },
+    {
+      "id": 60034,
+      "base_sprite": 14452,
+      "saturation": 10
+    },
+    {
+      "id": 60035,
+      "base_sprite": 14453,
+      "saturation": 10
+    },
+    {
+      "id": 60036,
+      "base_sprite": 14454,
+      "saturation": 10
+    },
+    {
+      "id": 60037,
+      "base_sprite": 14455,
+      "saturation": 10
+    },
+    {
+      "id": 60038,
+      "base_sprite": 14456,
+      "saturation": 10
+    },
+    {
+      "id": 60039,
+      "base_sprite": 14457,
+      "saturation": 10
+    },
+    {
+      "id": 60040,
+      "base_sprite": 14458,
+      "saturation": 10
+    },
+    {
+      "id": 60041,
+      "base_sprite": 14459,
+      "saturation": 10
+    }
+  ]
+}

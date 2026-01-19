@@ -14,6 +14,7 @@ typedef uint16_t stat_t; // Character stats: hp, mana, rage, endurance, lifeshie
 typedef uint16_t char_id_t; // Character network ID (cn)
 typedef uint16_t sprite_id_t; // Sprite/texture ID
 typedef size_t map_index_t; // Map tile index, selection indices
+typedef int32_t svval_t; // skill index, server side (V3_HP, V3_BLESS *or* V35_HP, V35_BLESS)
 
 // DEVELOPER mode: Enables extra debugging output and developer features
 // Can be enabled via compiler flag: -DDEVELOPER
@@ -54,8 +55,6 @@ typedef size_t map_index_t; // Map tile index, selection indices
 #define YRES1 650
 #define YRES2 500
 
-#define PARANOIA(a) a
-
 #ifndef bzero
 #define bzero(ptr, size) memset(ptr, 0, size)
 #endif
@@ -93,10 +92,6 @@ typedef size_t map_index_t; // Map tile index, selection indices
 
 #ifndef max
 #define max(a, b) (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef abs
-#define abs(a) ((a) < 0 ? (-(a)) : (a))
 #endif
 
 #ifndef ARRAYSIZE
@@ -146,25 +141,26 @@ extern int quit;
 DLL_EXPORT extern int frames_per_second;
 extern char *localdata;
 
-#define GO_DARK     (1ull << 0) // Dark GUI by Tegra
-#define GO_CONTEXT  (1ull << 1) // Right-Click Context Menu
-#define GO_ACTION   (1ull << 2) // Action Bar and Key Bindings
-#define GO_SMALLBOT (1ull << 3) // Smaller Bottom Window
-#define GO_SMALLTOP (1ull << 4) // Smaller Top Window
-#define GO_BIGBAR   (1ull << 5) // Show big health bar etc.
-#define GO_SOUND    (1ull << 6) // Enable sound
-#define GO_LARGE    (1ull << 7) // Use large font
-#define GO_FULL     (1ull << 8) // Use true full screen mode
-#define GO_WHEEL    (1ull << 9) // Use old mouse wheel logic
-#define GO_PREDICT  (1ull << 10) // Process some commands early for faster responses (prefetch() instead of process())
-#define GO_SHORT    (1ull << 11) // Less command delay, more stutter in animations
-#define GO_APPDATA  (1ull << 12) // Use Windows %appdata% to store configuration and logs
-#define GO_MAPSAVE  (1ull << 13) // Load/Save minimap data
-#define GO_LIGHTER  (1ull << 14) // Gamma increase, sort of
-#define GO_LIGHTER2 (1ull << 15) // More gamma increase
-#define GO_TINYTOP  (1ull << 16) // Slide out top only when mouse cursor is over window border
-#define GO_LOWLIGHT (1ull << 17) // Simplify Light calculations for slow CPUs
-#define GO_NOMAP    (1ull << 18) // Disable minimap completely
+#define GO_DARK       (1ull << 0) // Dark GUI by Tegra
+#define GO_CONTEXT    (1ull << 1) // Right-Click Context Menu
+#define GO_ACTION     (1ull << 2) // Action Bar and Key Bindings
+#define GO_SMALLBOT   (1ull << 3) // Smaller Bottom Window
+#define GO_SMALLTOP   (1ull << 4) // Smaller Top Window
+#define GO_BIGBAR     (1ull << 5) // Show big health bar etc.
+#define GO_SOUND      (1ull << 6) // Enable sound
+#define GO_LARGE      (1ull << 7) // Use large font
+#define GO_FULL       (1ull << 8) // Use true full screen mode
+#define GO_WHEEL      (1ull << 9) // Use old mouse wheel logic
+#define GO_PREDICT    (1ull << 10) // Process some commands early for faster responses (prefetch() instead of process())
+#define GO_SHORT      (1ull << 11) // Less command delay, more stutter in animations
+#define GO_APPDATA    (1ull << 12) // Use Windows %appdata% to store configuration and logs
+#define GO_MAPSAVE    (1ull << 13) // Load/Save minimap data
+#define GO_LIGHTER    (1ull << 14) // Gamma increase, sort of
+#define GO_LIGHTER2   (1ull << 15) // More gamma increase
+#define GO_TINYTOP    (1ull << 16) // Slide out top only when mouse cursor is over window border
+#define GO_LOWLIGHT   (1ull << 17) // Simplify Light calculations for slow CPUs
+#define GO_NOMAP      (1ull << 18) // Disable minimap completely
+#define GO_WHEELSPEED (1ull << 19) // Mouse wheel toggles movement speed (fast/normal/stealth)
 
 #define GO_NOTSET (1ull << 63) // No -o given on command line
 
@@ -200,3 +196,5 @@ char *client_version(void);
 
 // Crash handler (platform-specific, Windows only)
 void register_crash_handler(void);
+
+extern int sv_ver;

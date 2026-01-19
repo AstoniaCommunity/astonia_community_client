@@ -7,7 +7,7 @@
 
 #include <inttypes.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -483,6 +483,8 @@ static void detect_hover_target(void)
 
 void exec_cmd(int cmd, int a)
 {
+	int offset = 100, clan_bound = 16;
+
 	action_ovr = -1;
 	context_key_reset();
 
@@ -591,7 +593,7 @@ void exec_cmd(int cmd, int a)
 		return;
 	case CMD_CON_LOOK:
 		cmd_look_con(consel);
-		last_right_click_invsel = INVENTORYSIZE + consel;
+		last_right_click_invsel = _inventorysize + consel;
 		return;
 
 	case CMD_MAP_CAST_L:
@@ -698,10 +700,18 @@ void exec_cmd(int cmd, int a)
 		return;
 
 	case CMD_TELEPORT:
+		if (sv_ver == 35) {
+			offset = 200;
+			clan_bound = 48;
+		}
+
 		if (telsel == 1042) {
-			clan_offset = 16 - clan_offset;
+			clan_offset += 16;
+			if (clan_offset > clan_bound) {
+				clan_offset = 0;
+			}
 		} else {
-			if (telsel >= 64 && telsel <= 100) {
+			if (telsel >= 64 && telsel <= offset) {
 				cmd_teleport(telsel + clan_offset);
 			} else {
 				cmd_teleport(telsel);
@@ -928,7 +938,7 @@ static void update_fkeyitems(void)
 {
 	int i, c;
 	fkeyitem[0] = fkeyitem[1] = fkeyitem[2] = fkeyitem[3] = 0;
-	for (i = 30; i < INVENTORYSIZE; i++) {
+	for (i = 30; i < _inventorysize; i++) {
 		c = (i - 2) % 4;
 		if (fkeyitem[c] == 0 && (is_fkey_use_item(i))) {
 			fkeyitem[c] = i;

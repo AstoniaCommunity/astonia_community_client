@@ -9,8 +9,10 @@
  *
  */
 
+#include <ctype.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_mouse.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -23,6 +25,7 @@
 
 DLL_EXPORT char hover_bless_text[120];
 DLL_EXPORT char hover_freeze_text[120];
+DLL_EXPORT char hover_heal_text[120];
 DLL_EXPORT char hover_potion_text[120];
 DLL_EXPORT char hover_rage_text[120];
 DLL_EXPORT char hover_level_text[120];
@@ -31,7 +34,7 @@ DLL_EXPORT char hover_time_text[120];
 
 static int display_hover(void);
 static void display_hover_update(void);
-static int display_hover_skill(void);
+static void display_hover_skill(void);
 
 void display_mouseover(void)
 {
@@ -53,8 +56,13 @@ void display_mouseover(void)
 			    hover_bless_text);
 		}
 		if (mousex >= dotx(DOT_SSP) + 8 && mousex <= dotx(DOT_SSP) + 15) {
-			render_text_nl(mousex, mousey - 16, 0xffff, RENDER_TEXT_BIG | RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER,
-			    hover_freeze_text);
+			if (sv_ver == 35) {
+				render_text_nl(mousex, mousey - 16, 0xffff, RENDER_TEXT_BIG | RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER,
+				    hover_heal_text);
+			} else {
+				render_text_nl(mousex, mousey - 16, 0xffff, RENDER_TEXT_BIG | RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER,
+				    hover_freeze_text);
+			}
 		}
 		if (mousex >= dotx(DOT_SSP) - 2 && mousex <= dotx(DOT_SSP) + 5) {
 			render_text_nl(mousex, mousey - 16, 0xffff, RENDER_TEXT_BIG | RENDER_TEXT_FRAMED | RENDER_ALIGN_CENTER,
@@ -79,11 +87,11 @@ void display_mouseover(void)
 
 	display_hover_update();
 	hide = display_hover();
-	hide += display_hover_skill();
+	display_hover_skill();
 	if (hide) {
-		sdl_show_cursor(0);
+		SDL_HideCursor();
 	} else if (capbut == -1) {
-		sdl_show_cursor(1);
+		SDL_ShowCursor();
 	}
 }
 
@@ -97,7 +105,7 @@ struct hover_item {
 	char *desc[MAXDESC];
 };
 
-static struct hover_item hi[INVENTORYSIZE + CONTAINERSIZE] = {0};
+static struct hover_item hi[MAX_INVENTORYSIZE + MAX_CONTAINERSIZE] = {0};
 
 static int last_look = 0, last_invsel = -1, last_line = 0, capture = 0;
 static tick_t last_tick = 0;
@@ -140,9 +148,9 @@ int hover_capture_text(char *line)
 	    strncmp(line + 3, "ITEMDESC", 8) == 0) {
 		last_invsel = atoi(line + 11);
 		if (last_invsel >= 1000) {
-			last_invsel = last_invsel % 1000 + INVENTORYSIZE;
+			last_invsel = last_invsel % 1000 + _inventorysize;
 		}
-		if (last_invsel < 0 || last_invsel > INVENTORYSIZE * 2) {
+		if (last_invsel < 0 || last_invsel > _inventorysize * 2) {
 			last_invsel = capture = last_look = 0;
 			return 1;
 		}
@@ -197,7 +205,7 @@ void hover_capture_tick(void)
 
 void hover_invalidate_inv(int slot)
 {
-	if (slot < 0 || slot >= INVENTORYSIZE) {
+	if (slot < 0 || slot >= _inventorysize) {
 		return;
 	}
 	hi[slot].valid_till = 0;
@@ -205,7 +213,7 @@ void hover_invalidate_inv(int slot)
 
 void hover_invalidate_inv_delayed(int slot)
 {
-	if (slot < 0 || slot >= INVENTORYSIZE) {
+	if (slot < 0 || slot >= _inventorysize) {
 		return;
 	}
 	hi[slot].valid_till = tick + TICKS / 2;
@@ -213,10 +221,10 @@ void hover_invalidate_inv_delayed(int slot)
 
 void hover_invalidate_con(int slot)
 {
-	if (slot < 0 || slot >= INVENTORYSIZE) {
+	if (slot < 0 || slot >= _inventorysize) {
 		return;
 	}
-	hi[slot + INVENTORYSIZE].valid_till = 0;
+	hi[slot + _inventorysize].valid_till = 0;
 }
 
 static int display_hover(void)
@@ -229,7 +237,7 @@ static int display_hover(void)
 			if (consel == -1) {
 				return 0;
 			} else {
-				slot = consel + INVENTORYSIZE;
+				slot = consel + _inventorysize;
 			}
 		} else {
 			slot = weatab[weasel];
@@ -238,7 +246,7 @@ static int display_hover(void)
 		slot = invsel;
 	}
 
-	if ((slot < INVENTORYSIZE && !item[slot]) || (slot >= INVENTORYSIZE && !container[slot - INVENTORYSIZE])) {
+	if ((slot < _inventorysize && !item[slot]) || (slot >= _inventorysize && !container[slot - _inventorysize])) {
 		return 0;
 	}
 
@@ -303,10 +311,10 @@ static int display_hover(void)
 		return 0;
 	} else {
 		if (!last_look && hi[slot].valid_till < tick) {
-			if (slot < INVENTORYSIZE) {
+			if (slot < _inventorysize) {
 				cmd_look_inv(slot);
 			} else {
-				cmd_look_con(slot - INVENTORYSIZE);
+				cmd_look_con(slot - _inventorysize);
 			}
 			last_line = 0;
 			last_look = 20;
@@ -355,16 +363,16 @@ uint16_t tactics2spell(int val)
 	return (uint16_t)((float)val * 0.125f);
 }
 
-static char *vbasename(int v)
+static char *v3_basename(int v)
 {
 	switch (v) {
-	case V_WIS:
+	case V3_WIS:
 		return "WIS";
-	case V_INT:
+	case V3_INT:
 		return "INT";
-	case V_AGI:
+	case V3_AGI:
 		return "AGI";
-	case V_STR:
+	case V3_STR:
 		return "STR";
 	default:
 		return "err";
@@ -386,79 +394,129 @@ static char *nicenumber(int n)
 	return nicebuf;
 }
 
-static int display_hover_skill(void)
+static void display_hover_skill_v35(void)
 {
-	if (capbut != -1) {
-		return 0; // dont display hover when dragging scrollthumb
-	}
+	if (skltab && sklsel2 != -1 && tick - last_tick > HOVER_DELAY) {
+		int height = 0, width = 200;
 
+		int v = skltab[sklsel2 + skloff].v;
+		if (v < 0 || v >= *game_v_max) {
+			return;
+		}
+
+		height += render_text_break_length(0, 0, width - 12, 0xffff, 0, game_skilldesc[v]);
+
+		int sx = mousex + 8;
+		if (sx < dotx(DOT_TL)) {
+			sx = dotx(DOT_TL);
+		}
+		if (sx > dotx(DOT_BR) - width - 8) {
+			sx = dotx(DOT_BR) - width - 8;
+		}
+
+		int sy = mousey - height / 2 - 4;
+		if (sy < doty(DOT_TL)) {
+			sy = doty(DOT_TL);
+		}
+		if (sy > doty(DOT_BR) - height - 8) {
+			sy = doty(DOT_BR) - height - 8;
+		}
+
+		render_shaded_rect(sx, sy, sx + width + 8, sy + height + 8, 0x0000, 150);
+
+		sy = render_text_break(sx + 4, sy + 4, sx + width - 8, 0xffff, 0, game_skilldesc[v]) + 10;
+	}
+}
+
+static void display_hover_skill_v3(void)
+{
 	if (skltab && sklsel2 != -1 && tick - last_tick > HOVER_DELAY) {
 		int height = 0, width = 200;
 		int base = 0, cap = 0, raisecost = 0, unused = -1;
+		int equip_bonus = 0, next_raise_cost = 0;
+		float exp_percentage = 0.0f;
 		uint16_t offense = 0, defense = 0, speed = 0, armor = 0, weapon = 0;
 		uint16_t immune = 0, spells = 0, tactics = 0, athlete = 0;
 
 		int v = skltab[sklsel2 + skloff].v;
 		if (v < 0 || v >= *game_v_max) {
-			return 0;
+			return;
 		}
 
 		int v1 = game_skill[v].base1;
 		int v2 = game_skill[v].base2;
 		int v3 = game_skill[v].base3;
 
-		if (game_skill[v].cost && v != V_DEMON) {
+		// First calculate base attribute modifier
+		if (v1 != -1 && v2 != -1 && v3 != -3 && v != V3_DEMON) {
+			base = (value[0][v1] + value[0][v2] + value[0][v3]) / 5;
+			if (base > max(15, value[1][v] * 2)) {
+				cap = max(15, value[1][v] * 2);
+			}
+			height += 10;
+		}
+
+		// Calculate equipment bonus (current - base - attribute modifier)
+		// If base is capped, use the capped value
+		if (cap) {
+			equip_bonus = value[0][v] - value[1][v] - cap;
+		} else {
+			equip_bonus = value[0][v] - value[1][v] - base;
+		}
+		if (equip_bonus != 0) {
+			height += 10; // Add line for equipment bonus
+		}
+
+		if (game_skill[v].cost && v != V3_DEMON) {
 			raisecost = raise_cost(v, value[1][v]);
+			next_raise_cost = raise_cost(v, value[1][v] + 1);
 			height += 10;
 			if (experience >= experience_used) {
 				unused = (int)(experience - experience_used);
 				height += 10;
+				// Calculate percentage to next raise
+				if (next_raise_cost > 0 && unused < next_raise_cost) {
+					exp_percentage = (float)unused / (float)next_raise_cost * 100.0f;
+					height += 10; // Add line for percentage
+				}
 			}
 		}
 
-		if (v1 != -1 && v2 != -1 && v3 != -3 && v != V_DEMON) {
-			base = (value[0][v1] + value[0][v2] + value[0][v3]) / 5;
-			height += 10;
-			if (base > max(15, value[1][v] * 2)) {
-				cap = max(15, value[1][v] * 2);
-			}
-		}
-
-		if (v == V_DAGGER || v == V_SWORD || v == V_TWOHAND || v == V_STAFF || v == V_HAND) {
+		if (v == V3_DAGGER || v == V3_SWORD || v == V3_TWOHAND || v == V3_STAFF || v == V3_HAND) {
 			offense = value[0][v];
 			defense = value[0][v];
 			height += 20;
-		} else if (v == V_ATTACK) {
+		} else if (v == V3_ATTACK) {
 			offense = (uint16_t)(value[0][v] * 2);
 			height += 10;
-		} else if (v == V_PARRY) {
+		} else if (v == V3_PARRY) {
 			defense = (uint16_t)(value[0][v] * 2);
 			height += 10;
-		} else if (v == V_TACTICS) {
+		} else if (v == V3_TACTICS) {
 			offense = tactics2melee(value[0][v]);
 			defense = tactics2melee(value[0][v]);
 			immune = tactics2immune(value[0][v] + 14);
-			if (value[0][V_BLESS]) {
+			if (value[0][V3_BLESS]) {
 				spells = tactics2spell(value[0][v]);
 				height += 10;
 			}
 			height += 30;
-		} else if (v == V_SPEEDSKILL) {
+		} else if (v == V3_SPEEDSKILL) {
 			speed = (uint16_t)(value[0][v] / 2);
 			height += 10;
-		} else if (v == V_BODYCONTROL) {
+		} else if (v == V3_BODYCONTROL) {
 			armor = (uint16_t)(value[0][v] * 5);
 			weapon = (uint16_t)(value[0][v] / 4);
 			height += 20;
-		} else if (value[0][V_TACTICS] &&
-		           (v == V_PULSE || v == V_WARCRY || v == V_HEAL || v == V_FREEZE || v == V_FLASH || v == V_FIREBALL)) {
-			tactics = tactics2spell(value[0][V_TACTICS]);
+		} else if (value[0][V3_TACTICS] && (v == V3_PULSE || v == V3_WARCRY || v == V3_HEAL || v == V3_FREEZE ||
+		                                       v == V3_FLASH || v == V3_FIREBALL)) {
+			tactics = tactics2spell(value[0][V3_TACTICS]);
 			height += 10;
-		} else if (value[0][V_TACTICS] && v == V_IMMUNITY) {
-			tactics = tactics2immune(value[0][V_TACTICS] + 14);
+		} else if (value[0][V3_TACTICS] && v == V3_IMMUNITY) {
+			tactics = tactics2immune(value[0][V3_TACTICS] + 14);
 			height += 10;
-		} else if (v == V_SPEED) {
-			if (value[0][V_SPEEDSKILL]) {
+		} else if (v == V3_SPEED) {
+			if (value[0][V3_SPEEDSKILL]) {
 				height += 10;
 			}
 			if (value[1][V_PROFBASE]) {
@@ -467,15 +525,15 @@ static int display_hover_skill(void)
 			}
 		}
 
-		if (!value[0][V_BODYCONTROL]) {
+		if (!value[0][V3_BODYCONTROL]) {
 			switch (v) {
-			case V_BLESS:
-			case V_HEAL:
-			case V_FREEZE:
-			case V_MAGICSHIELD:
-			case V_FLASH:
-			case V_FIREBALL:
-			case V_PULSE:
+			case V3_BLESS:
+			case V3_HEAL:
+			case V3_FREEZE:
+			case V3_MAGICSHIELD:
+			case V3_FLASH:
+			case V3_FIREBALL:
+			case V3_PULSE:
 				armor = (uint16_t)((float)value[0][v] / 8.0f * 17.5f);
 				height += 10;
 				break;
@@ -508,18 +566,30 @@ static int display_hover_skill(void)
 
 		sy = render_text_break(sx + 4, sy + 4, sx + width - 8, 0xffff, 0, game_skilldesc[v]) + 10;
 
-		if (base) {
-			if (cap && v != V_SPEED) {
-				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s) (capped at %d)", base, vbasename(v1),
-				    vbasename(v2), vbasename(v3), cap);
+		// Show base and current values with equipment bonus
+		if (equip_bonus != 0) {
+			if (equip_bonus > 0) {
+				render_text_fmt(sx + 4, sy, 0xffff, 0, "Base: %d, Current: %d (+%d from equipment)", value[1][v],
+				    value[0][v], equip_bonus);
 			} else {
-				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s)", base, vbasename(v1), vbasename(v2),
-				    vbasename(v3));
+				render_text_fmt(sx + 4, sy, 0xffff, 0, "Base: %d, Current: %d (%d from equipment)", value[1][v],
+				    value[0][v], equip_bonus);
 			}
 			sy += 10;
 		}
-		if (v == V_SPEED && value[0][V_SPEEDSKILL]) {
-			render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from Speedskill", value[0][V_SPEEDSKILL] / 2);
+
+		if (base) {
+			if (cap && v != V3_SPEED) {
+				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s) (capped at %d)", base, v3_basename(v1),
+				    v3_basename(v2), v3_basename(v3), cap);
+			} else {
+				render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from (%s+%s+%s)", base, v3_basename(v1),
+				    v3_basename(v2), v3_basename(v3));
+			}
+			sy += 10;
+		}
+		if (v == V3_SPEED && value[0][V3_SPEEDSKILL]) {
+			render_text_fmt(sx + 4, sy, 0xffff, 0, "Gets +%d from Speedskill", value[0][V3_SPEEDSKILL] / 2);
 			sy += 10;
 		}
 		if (athlete) {
@@ -563,11 +633,26 @@ static int display_hover_skill(void)
 			sy += 10;
 			if (unused >= 0) {
 				render_text_fmt(sx + 4, sy, 0xffff, 0, "You have %s unused exp", nicenumber(unused));
+				sy += 10;
+				// Show percentage progress to next raise
+				if (exp_percentage > 0.0f) {
+					render_text_fmt(sx + 4, sy, 0xffff, 0, "Progress to next raise: %.1f%%", (double)exp_percentage);
+					sy += 10;
+				}
 			}
 		}
+	}
+}
 
-		return 0;
+static void display_hover_skill(void)
+{
+	if (capbut != -1) {
+		return; // dont display hover when dragging scrollthumb
 	}
 
-	return 0;
+	if (sv_ver == 35) {
+		display_hover_skill_v35();
+	} else {
+		display_hover_skill_v3();
+	}
 }

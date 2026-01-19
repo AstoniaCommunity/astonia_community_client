@@ -8,7 +8,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <SDL2/SDL.h>
+#include <math.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "game/game.h"
@@ -88,7 +89,7 @@ static void display_game_spells(void)
 {
 	int i, x, y, dx;
 	unsigned int sprite;
-	Uint32 start;
+	Uint64 start;
 	int nr, e;
 	unsigned int fn;
 	int mapx, mapy, mna, x1, y1, x2, y2, h1, h2, size, n;
@@ -282,8 +283,13 @@ static void display_game_spells(void)
 					break;
 
 				case 10: // heal
-					dl = dl_next_set(
-					    GME_LAY, 50114, scrx + map[mn].xadd, scry + map[mn].yadd + 1, RENDERFX_NORMAL_LIGHT);
+					if (sv_ver == 35) {
+						dl_call_heal(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd, (int)ceffect[nr].heal.start, 1);
+						dl_call_heal(GME_LAY, scrx + map[mn].xadd, scry + map[mn].yadd, (int)ceffect[nr].heal.start, 0);
+					} else {
+						dl = dl_next_set(
+						    GME_LAY, 50114, scrx + map[mn].xadd, scry + map[mn].yadd + 1, RENDERFX_NORMAL_LIGHT);
+					}
 					if (!dl) {
 						note("error in heal #1");
 						break;
@@ -671,7 +677,7 @@ static void display_game_names(void)
 		frame = RENDER_TEXT_FRAMED;
 
 		if (player[map[mn].cn].clan) {
-			col = clancolor[player[map[mn].cn].clan];
+			col = clancolor[((player[map[mn].cn].clan - 1) % 32) + 1];
 			if (player[map[mn].cn].clan == 3) {
 				frame = RENDER_TEXT_WFRAME;
 			}
@@ -884,11 +890,37 @@ int get_sink(map_index_t mn, struct map *cmap)
 	return (cmap[mn].sink * (tot - x - y) + cmap[mn2].sink * (x + y)) / tot;
 }
 
+// this fixes the error in the male mage player sprite pack
+// which makes the torch-holding, front faces animation jump
+// by one pixel. good for v3 and v3.5.
+static int dx_fix_mage_sprite(unsigned int sprite)
+{
+	switch (sprite) {
+	case 163818:
+	case 163819:
+
+	case 164818:
+	case 164819:
+
+	case 168818:
+	case 168819:
+
+	case 169818:
+	case 169819:
+	case 169844:
+	case 169845:
+	case 169846:
+	case 169847:
+		return -1;
+	}
+	return 0;
+}
+
 void display_game_map(struct map *cmap)
 {
 	int i, nr, scrx, scry, light, sprite, sink, xoff, yoff;
 	map_index_t mn, mna;
-	Uint32 start;
+	Uint64 start;
 	DL *dl;
 	int heightadd;
 
@@ -1223,8 +1255,8 @@ void display_game_map(struct map *cmap)
 
 		// blit chars
 		if (cmap[mn].csprite) {
-			dl = dl_next_set(GME_LAY, cmap[mn].rc.sprite, scrx + cmap[mn].xadd, scry + cmap[mn].yadd,
-			    (unsigned char)(chrsel == mn ? RENDERFX_BRIGHT : light));
+			dl = dl_next_set(GME_LAY, cmap[mn].rc.sprite, scrx + cmap[mn].xadd + dx_fix_mage_sprite(cmap[mn].rc.sprite),
+			    scry + cmap[mn].yadd, (unsigned char)(chrsel == mn ? RENDERFX_BRIGHT : light));
 			if (!dl) {
 				note("error in game #9");
 				continue;
@@ -1380,6 +1412,45 @@ void display_pents(void)
 	}
 }
 
+static void display_otext(void)
+{
+	int n, cnt, y;
+	unsigned short col;
+
+	for (n = cnt = 0; n < MAXOTEXT; n++) {
+		if (!otext[n].text) {
+			continue;
+		}
+		if (otext[n].type < 3 && tick - otext[n].time > TICKS * 5) {
+			continue;
+		}
+		if (tick - otext[n].time > TICKS * 65) {
+			continue;
+		}
+		if (otext[n].type > 1) {
+			if (n == 0) {
+				col = redcolor;
+			} else {
+				col = darkredcolor;
+			}
+		} else {
+			if (n == 0) {
+				col = greencolor;
+			} else {
+				col = darkgreencolor;
+			}
+		}
+		if (context_action_enabled()) {
+			y = doty(DOT_ACT) - 30;
+		} else {
+			y = doty(DOT_MBR) - 20;
+		}
+
+		render_text(400, y - cnt * 12, col, RENDER_TEXT_LARGE | RENDER_TEXT_FRAMED | RENDER_TEXT_CENTER, otext[n].text);
+		cnt++;
+	}
+}
+
 void display_game(void)
 {
 	display_game_spells();
@@ -1387,6 +1458,7 @@ void display_game(void)
 	display_game_map(map);
 	display_game_names();
 	display_pents();
+	display_otext();
 }
 
 void prefetch_game(tick_t attick)
@@ -1394,9 +1466,9 @@ void prefetch_game(tick_t attick)
 	set_map_values(map2, attick);
 	set_mapadd(-map2[mapmn(MAPDX / 2, MAPDY / 2)].xadd, -map2[mapmn(MAPDX / 2, MAPDY / 2)].yadd);
 	display_game_map(map2);
-	dl_prefetch(attick);
+	dl_prefetch();
 
 #ifdef TICKPRINT
-	printf("Prefetch %d\n", attick);
+	printf("Prefetch %u\n", attick);
 #endif
 }

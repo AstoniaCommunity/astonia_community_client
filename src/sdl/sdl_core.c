@@ -7,13 +7,15 @@
  * event loop, and background prefetching system.
  */
 
-#include <SDL2/SDL_timer.h>
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
 #include <zip.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_timer.h>
+#include <SDL3_mixer/SDL_mixer.h>
+#include <SDL3/SDL_keycode.h>
+#include <SDL3/SDL_render.h>
 
 #include "dll.h"
 #include "astonia.h"
@@ -37,8 +39,12 @@ zip_t *sdl_zip1m = NULL;
 zip_t *sdl_zip2m = NULL;
 
 // Prefetch threading (shared with sdl_texture.c)
-SDL_sem *prework = NULL;
-SDL_mutex *premutex = NULL;
+SDL_Semaphore *prework = NULL;
+SDL_Mutex *premutex = NULL;
+
+// SDL3_mixer globals
+MIX_Mixer *sdl_mixer = NULL;
+MIX_Track *sdl_tracks[MAX_SOUND_CHANNELS] = {NULL};
 
 // Scale and resolution settings
 DLL_EXPORT int sdl_scale = 1;
@@ -47,25 +53,12 @@ DLL_EXPORT int sdl_multi = 4;
 DLL_EXPORT int sdl_cache_size = 8000;
 DLL_EXPORT int __yres = YRES0;
 
-// Prefetch buffer
-#define MAXPRE (16384)
-
-struct prefetch {
-	tick_t attick;
-	int stx;
-};
-static struct prefetch pre[MAXPRE];
-int pre_in = 0, pre_ready = 0, pre_done = 0;
-
-// Job queue for background workers
-static int job_queue[MAXPRE];
-static int jq_head = 0, jq_tail = 0;
-
 // Worker thread management
+
 struct zip_handles;
-static struct zip_handles *worker_zips = NULL;
-static SDL_atomic_t pre_quit;
-static SDL_Thread **prethreads = NULL;
+struct zip_handles *worker_zips = NULL;
+SDL_AtomicInt worker_quit;
+SDL_Thread **worker_threads = NULL;
 
 // Image loading state machine (shared with sdl_image.c)
 static int sdli_state_storage[MAXSPRITE];
@@ -81,7 +74,7 @@ void sdl_dump(FILE *fp)
 	fprintf(fp, "sdl_scale: %d\n", sdl_scale);
 	fprintf(fp, "sdl_frames: %d\n", sdl_frames);
 	fprintf(fp, "sdl_multi: %d\n", sdl_multi);
-	fprintf(fp, "sdl_cache_size: %d\n", sdl_cache_size);
+	fprintf(fp, "sdl_cache_size: %d (max=%d)\n", sdl_cache_size, MAX_TEXCACHE);
 
 	fprintf(fp, "mem_png: %lld\n", (long long)__atomic_load_n(&mem_png, __ATOMIC_RELAXED));
 	fprintf(fp, "mem_tex: %lld\n", (long long)__atomic_load_n(&mem_tex, __ATOMIC_RELAXED));
@@ -96,61 +89,136 @@ void sdl_dump(FILE *fp)
 
 // #define GO_DEFAULTS (GO_CONTEXT|GO_ACTION|GO_BIGBAR|GO_PREDICT|GO_SHORT|GO_MAPSAVE|GO_NOMAP)
 
-int sdl_init(int width, int height, char *title)
+int sdl_init(int width, int height, char *title, int monitor)
 {
 	int i;
-	SDL_DisplayMode DM;
+	int num_displays;
+	SDL_DisplayID *displays;
+	SDL_DisplayID display_id;
 
-	if (SDL_Init(SDL_INIT_VIDEO | ((game_options & GO_SOUND) ? SDL_INIT_AUDIO : 0)) != 0) {
+	if (!SDL_Init(SDL_INIT_VIDEO | ((game_options & GO_SOUND) ? SDL_INIT_AUDIO : 0))) {
 		fail("SDL_Init Error: %s", SDL_GetError());
 		return 0;
 	}
 
 	SDL_SetHint(SDL_HINT_MOUSE_FOCUS_CLICKTHROUGH, "1");
-	SDL_SetHint(SDL_HINT_WINDOWS_NO_CLOSE_ON_ALT_F4, "1");
 
-	SDL_GetCurrentDisplayMode(0, &DM);
-
-	if (!width || !height) {
-		width = DM.w;
-		height = DM.h;
+	// Get all available displays
+	displays = SDL_GetDisplays(&num_displays);
+	if (!displays || num_displays == 0) {
+		fail("SDL_GetDisplays Error: %s", SDL_GetError());
+		SDL_Quit();
+		return 0;
 	}
 
-	sdlwnd = SDL_CreateWindow(title, DM.w / 2 - width / 2, DM.h / 2 - height / 2, width, height, SDL_WINDOW_SHOWN);
+	// Validate monitor number and select display
+	if (monitor < 0 || monitor >= num_displays) {
+		note("Invalid monitor %d, using default (0). Available monitors: %d", monitor, num_displays);
+		monitor = 0;
+	} else if (monitor > 0) {
+		note("Using monitor %d of %d available monitors", monitor, num_displays);
+	}
+	display_id = displays[monitor];
+	SDL_free(displays);
+
+	const SDL_DisplayMode *DM = SDL_GetCurrentDisplayMode(display_id);
+
+	if (!DM) {
+		fail("SDL_GetCurrentDisplayMode Error: %s", SDL_GetError());
+		SDL_Quit();
+		return 0;
+	}
+
+	if (!width || !height) {
+		width = DM->w;
+		height = DM->h;
+	}
+
+	// Create window and position on selected monitor
+	sdlwnd = SDL_CreateWindow(title, width, height, 0);
+	if (sdlwnd && monitor > 0) {
+		// Position window on the selected monitor
+		SDL_Rect display_bounds;
+		if (SDL_GetDisplayBounds(display_id, &display_bounds)) {
+			int x_pos = display_bounds.x + (DM->w - width) / 2;
+			int y_pos = display_bounds.y + (DM->h - height) / 2;
+			SDL_SetWindowPosition(sdlwnd, x_pos, y_pos);
+		}
+	}
 	if (!sdlwnd) {
 		fail("SDL_Init Error: %s", SDL_GetError());
 		SDL_Quit();
 		return 0;
 	}
 
-	if (game_options & GO_FULL) {
-		SDL_SetWindowFullscreen(sdlwnd, SDL_WINDOW_FULLSCREEN); // true full screen
-	} else if (DM.w == width && DM.h == height) {
-		SDL_SetWindowFullscreen(sdlwnd, SDL_WINDOW_FULLSCREEN_DESKTOP); // borderless windowed
+	// Use display mode's logical size for scaling calculations
+	// SDL3 automatically handles pixel_density scaling to physical pixels
+	// Fall back to supplied width and height if less than logical, as this is required for windowed.
+	if (width > DM->w || height > DM->h) {
+		width = DM->w;
+		height = DM->h;
 	}
 
-	sdlren = SDL_CreateRenderer(sdlwnd, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (game_options & GO_FULL) {
+		// Exclusive fullscreen mode
+		SDL_SetWindowFullscreen(sdlwnd, true);
+		// Wait for fullscreen transition to complete (prevents resize events on macOS)
+		SDL_SyncWindow(sdlwnd);
+	} else if (width == DM->w && height == DM->h) {
+		// Borderless fullscreen desktop
+		SDL_SetWindowFullscreenMode(sdlwnd, NULL);
+		SDL_SetWindowFullscreen(sdlwnd, true);
+		// Wait for fullscreen transition to complete (prevents resize events on macOS)
+		SDL_SyncWindow(sdlwnd);
+	}
+
+	// Prefer native GPU APIs for best performance and compatibility:
+	// - Windows: Direct3D avoids SDL3 OpenGL gamma issues
+	// - Linux: Vulkan for modern driver support
+	// - macOS: Metal required (OpenGL deprecated since 10.14)
+#ifdef _WIN32
+	const char *renderers_to_try[] = {"direct3d11", "direct3d12", NULL};
+#elif __linux__
+	const char *renderers_to_try[] = {"vulkan", NULL};
+#else
+	const char *renderers_to_try[] = {"metal", NULL};
+#endif
+
+	for (int i = 0; renderers_to_try[i] != NULL; i++) {
+		SDL_PropertiesID renderer_props_create = SDL_CreateProperties();
+		if (renderer_props_create != 0) {
+			SDL_SetPointerProperty(renderer_props_create, SDL_PROP_RENDERER_CREATE_WINDOW_POINTER, sdlwnd);
+			SDL_SetStringProperty(renderer_props_create, SDL_PROP_RENDERER_CREATE_NAME_STRING, renderers_to_try[i]);
+			SDL_SetNumberProperty(
+			    renderer_props_create, SDL_PROP_RENDERER_CREATE_OUTPUT_COLORSPACE_NUMBER, (Sint64)SDL_COLORSPACE_SRGB);
+			sdlren = SDL_CreateRendererWithProperties(renderer_props_create);
+			SDL_DestroyProperties(renderer_props_create);
+			if (sdlren) {
+				break; // Success, use this renderer
+			}
+		}
+	}
 	if (!sdlren) {
+		// Fallback to default if all options fail.
+		sdlren = SDL_CreateRenderer(sdlwnd, NULL);
+	}
+
+	if (!sdlren) {
+		// Even the fallback didn't work, so we need to exit.
 		SDL_DestroyWindow(sdlwnd);
 		fail("SDL_Init Error: %s", SDL_GetError());
 		SDL_Quit();
 		return 0;
 	}
 
-	sdlt_cache = xmalloc((size_t)MAX_TEXHASH * sizeof(int), MEM_SDL_BASE);
-	if (!sdlt_cache) {
-		return fail("Out of memory in sdl_init");
-	}
+	SDL_SetRenderVSync(sdlren, 1);
 
+	// Initialize hash table (statically allocated)
 	for (i = 0; i < MAX_TEXHASH; i++) {
 		sdlt_cache[i] = STX_NONE;
 	}
 
-	sdlt = xmalloc((size_t)MAX_TEXCACHE * sizeof(struct sdl_texture), MEM_SDL_BASE);
-	if (!sdlt) {
-		return fail("Out of memory in sdl_init");
-	}
-
+	// Initialize texture cache (statically allocated)
 	for (i = 0; i < MAX_TEXCACHE; i++) {
 		// Initialize flags atomically
 		uint16_t *flags_ptr = (uint16_t *)&sdlt[i].flags;
@@ -159,11 +227,18 @@ int sdl_init(int width, int height, char *title)
 		sdlt[i].next = i + 1;
 		sdlt[i].hnext = STX_NONE;
 		sdlt[i].hprev = STX_NONE;
+		// Initialize new fields:
+		// Generation starts at 1 (0 is reserved for "never valid for jobs")
+		sdlt[i].generation = 1;
+		sdlt[i].work_state = TX_WORK_IDLE;
 	}
 	sdlt[0].prev = STX_NONE;
 	sdlt[MAX_TEXCACHE - 1].next = STX_NONE;
 	sdlt_best = 0;
 	sdlt_last = MAX_TEXCACHE - 1;
+
+	// Initialize the new texture job queue
+	tex_jobs_init();
 
 	SDL_RaiseWindow(sdlwnd);
 
@@ -171,7 +246,25 @@ int sdl_init(int width, int height, char *title)
 	// but we don't really want the SDL line editing stuff.
 	// I hope just keeping it enabled all the time doesn't break
 	// anything.
-	SDL_StartTextInput();
+	SDL_StartTextInput(sdlwnd);
+
+#ifdef __APPLE__
+	// On macOS, use actual renderer output size for scaling calculations.
+	// SDL_GetCurrentDisplayMode() includes reserved space (menu bar, dock, notch),
+	// but the Metal renderer only renders to the usable area. Using display mode
+	// dimensions causes clipping at the bottom of the window.
+	// On Linux/Windows, SDL_GetRenderOutputSize() can return HiDPI-scaled dimensions
+	// (e.g., 2x physical pixels), which breaks scaling calculations.
+	int render_output_w = 0, render_output_h = 0;
+	if (SDL_GetRenderOutputSize(sdlren, &render_output_w, &render_output_h)) {
+		// Fallback to window pixel size if renderer output size fails
+		SDL_GetWindowSizeInPixels(sdlwnd, &render_output_w, &render_output_h);
+	}
+	if (render_output_w > 0 && render_output_h > 0) {
+		width = render_output_w;
+		height = render_output_h;
+	}
+#endif
 
 	// decide on screen format
 	if (width != XRES || height != YRES) {
@@ -224,6 +317,9 @@ int sdl_init(int width, int height, char *title)
 	}
 	note("SDL using %dx%d scale %d, options=%" PRIu64, XRES, YRES, sdl_scale, game_options);
 
+	// Let SDL3 use its default rendering behavior
+	// The game's sdl_scale and render_set_offset() handle all scaling and centering
+
 	sdl_create_cursors();
 
 	sdl_zip1 = zip_open("res/gx1.zip", ZIP_RDONLY, NULL);
@@ -250,14 +346,28 @@ int sdl_init(int width, int height, char *title)
 		break;
 	}
 
-	if ((game_options & GO_SOUND) && Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-		warn("initializing audio failed");
-		game_options &= ~GO_SOUND;
-	}
-
 	if (game_options & GO_SOUND) {
-		int number_of_sound_channels = Mix_AllocateChannels(MAX_SOUND_CHANNELS);
-		note("Allocated %d sound channels", number_of_sound_channels);
+		if (!MIX_Init()) {
+			warn("MIX_Init failed: %s", SDL_GetError());
+			game_options &= ~GO_SOUND;
+		} else {
+			// Create mixer device (NULL spec means use reasonable defaults)
+			sdl_mixer = MIX_CreateMixerDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+			if (!sdl_mixer) {
+				warn("MIX_CreateMixerDevice failed: %s", SDL_GetError());
+				game_options &= ~GO_SOUND;
+				MIX_Quit();
+			} else {
+				// Create tracks (SDL3_mixer doesn't auto-allocate channels like SDL2_mixer)
+				for (int i = 0; i < MAX_SOUND_CHANNELS; i++) {
+					sdl_tracks[i] = MIX_CreateTrack(sdl_mixer);
+					if (!sdl_tracks[i]) {
+						warn("MIX_CreateTrack failed for track %d: %s", i, SDL_GetError());
+					}
+				}
+				note("Created %d sound tracks", MAX_SOUND_CHANNELS);
+			}
+		}
 	}
 
 	// Initialize mutex unconditionally (needed for job queue even in single-threaded mode)
@@ -274,7 +384,7 @@ int sdl_init(int width, int height, char *title)
 		return 0;
 	}
 
-	SDL_AtomicSet(&pre_quit, 0);
+	SDL_SetAtomicInt(&worker_quit, 0);
 
 	if (sdl_multi) {
 		char buf[80];
@@ -344,8 +454,8 @@ int sdl_init(int width, int height, char *title)
 
 			// Only create threads if all zip handles succeeded
 			if (sdl_multi > 0) {
-				prethreads = xmalloc((size_t)sdl_multi * sizeof(SDL_Thread *), MEM_SDL_BASE);
-				if (!prethreads) {
+				worker_threads = xmalloc((size_t)sdl_multi * sizeof(SDL_Thread *), MEM_SDL_BASE);
+				if (!worker_threads) {
 					fail("Out of memory for thread handles");
 					// Clean up zip handles
 					for (n = 0; n < sdl_multi; n++) {
@@ -375,19 +485,19 @@ int sdl_init(int width, int height, char *title)
 					// Create all threads
 					for (n = 0; n < sdl_multi; n++) {
 						sprintf(buf, "moac background worker %d", n);
-						prethreads[n] = SDL_CreateThread(sdl_pre_backgnd, buf, (void *)(long long)n);
-						if (!prethreads[n]) {
+						worker_threads[n] = SDL_CreateThread(sdl_pre_backgnd, buf, (void *)(long long)n);
+						if (!worker_threads[n]) {
 							warn("Failed to create worker thread %d", n);
 							// Signal quit and join already created threads
-							SDL_AtomicSet(&pre_quit, 1);
+							SDL_SetAtomicInt(&worker_quit, 1);
 							for (int i = 0; i < n; i++) {
-								if (prethreads[i]) {
-									SDL_WaitThread(prethreads[i], NULL);
+								if (worker_threads[i]) {
+									SDL_WaitThread(worker_threads[i], NULL);
 								}
 							}
 							// Clean up
-							xfree(prethreads);
-							prethreads = NULL;
+							xfree(worker_threads);
+							worker_threads = NULL;
 							for (int i = 0; i < sdl_multi; i++) {
 								if (worker_zips[i].zip1) {
 									zip_close(worker_zips[i].zip1);
@@ -430,6 +540,11 @@ int sdl_clear(void)
 	// note("mem: %.2fM PNG, %.2fM Tex, Hit: %ld, Miss: %ld, Max:
 	// %d\n",mem_png/(1024.0*1024.0),mem_tex/(1024.0*1024.0),texc_hit,texc_miss,maxpanic);
 	maxpanic = 0;
+
+	// Reset blend mode to default at start of each frame to prevent mods from
+	// accidentally leaving non-default blend modes that affect subsequent rendering
+	sdl_reset_blend_mode();
+
 	return 1;
 }
 
@@ -443,24 +558,24 @@ int sdl_render(void)
 void sdl_exit(void)
 {
 	// Signal workers to quit and join them
-	if (sdl_multi && prethreads) {
-		SDL_AtomicSet(&pre_quit, 1);
+	if (sdl_multi && worker_threads) {
+		SDL_SetAtomicInt(&worker_quit, 1);
 
 		// Wake all workers so they can see the quit signal
-		// (they're blocked on SDL_SemWait)
+		// (they're blocked on SDL_WaitSemaphore)
 		if (prework) {
 			for (int n = 0; n < sdl_multi; n++) {
-				SDL_SemPost(prework);
+				SDL_SignalSemaphore(prework);
 			}
 		}
 
 		for (int n = 0; n < sdl_multi; n++) {
-			if (prethreads[n]) {
-				SDL_WaitThread(prethreads[n], NULL);
+			if (worker_threads[n]) {
+				SDL_WaitThread(worker_threads[n], NULL);
 			}
 		}
-		xfree(prethreads);
-		prethreads = NULL;
+		xfree(worker_threads);
+		worker_threads = NULL;
 	}
 
 	// Close worker zip handles
@@ -518,16 +633,23 @@ void sdl_exit(void)
 		premutex = NULL;
 	}
 
+	// Shutdown the new texture job queue
+	tex_jobs_shutdown();
+
 	if (game_options & GO_SOUND) {
-		Mix_Quit();
+		MIX_Quit();
 	}
+
+	// Clean up mod textures (gated behind DEVELOPER for address sanitizer)
+	sdl_cleanup_mod_textures();
+
 #ifdef DEVELOPER
 	sdl_dump_spritecache();
 #endif
 }
 
 void cmd_proc(int key);
-void context_keyup(int key);
+void context_keyup(SDL_Keycode key);
 
 void sdl_loop(void)
 {
@@ -535,54 +657,52 @@ void sdl_loop(void)
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
-		case SDL_QUIT:
+		case SDL_EVENT_QUIT:
 			quit = 1;
 			break;
-		case SDL_KEYDOWN:
-			gui_sdl_keyproc(event.key.keysym.sym);
+		case SDL_EVENT_KEY_DOWN:
+			gui_sdl_keyproc(event.key.key);
 			break;
-		case SDL_KEYUP:
-			context_keyup(event.key.keysym.sym);
+		case SDL_EVENT_KEY_UP:
+			context_keyup(event.key.key);
 			break;
-		case SDL_TEXTINPUT:
+		case SDL_EVENT_TEXT_INPUT:
 			cmd_proc(event.text.text[0]);
 			break;
-		case SDL_MOUSEMOTION:
+		case SDL_EVENT_MOUSE_MOTION:
 			gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_NONE);
 			break;
-		case SDL_MOUSEBUTTONDOWN:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 			if (event.button.button == SDL_BUTTON_LEFT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LDOWN);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_LDOWN);
 			}
 			if (event.button.button == SDL_BUTTON_MIDDLE) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_MDOWN);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_MDOWN);
 			}
 			if (event.button.button == SDL_BUTTON_RIGHT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RDOWN);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_RDOWN);
 			}
 			break;
-		case SDL_MOUSEBUTTONUP:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
 			if (event.button.button == SDL_BUTTON_LEFT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_LUP);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_LUP);
 			}
 			if (event.button.button == SDL_BUTTON_MIDDLE) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_MUP);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_MUP);
 			}
 			if (event.button.button == SDL_BUTTON_RIGHT) {
-				gui_sdl_mouseproc(event.motion.x, event.motion.y, SDL_MOUM_RUP);
+				gui_sdl_mouseproc(event.button.x, event.button.y, SDL_MOUM_RUP);
 			}
 			break;
-		case SDL_MOUSEWHEEL:
+		case SDL_EVENT_MOUSE_WHEEL:
 			gui_sdl_mouseproc(event.wheel.x, event.wheel.y, SDL_MOUM_WHEEL);
 			break;
-		case SDL_WINDOWEVENT:
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
 #ifdef ENABLE_DRAGHACK
-			if (event.window.event == SDL_WINDOWEVENT_FOCUS_GAINED) {
-				int x, y;
-				Uint32 mouseState = SDL_GetMouseState(&x, &y);
-				if (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-					gui_sdl_draghack();
-				}
+			float x, y;
+			Uint32 mouseState = SDL_GetMouseState(&x, &y);
+			if (mouseState & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
+				gui_sdl_draghack();
 			}
 #endif
 			break;
@@ -594,17 +714,12 @@ void sdl_loop(void)
 
 void sdl_set_cursor_pos(int x, int y)
 {
-	SDL_WarpMouseInWindow(sdlwnd, x, y);
-}
-
-void sdl_show_cursor(int flag)
-{
-	SDL_ShowCursor(flag ? SDL_ENABLE : SDL_DISABLE);
+	SDL_WarpMouseInWindow(sdlwnd, (float)x, (float)y);
 }
 
 void sdl_capture_mouse(int flag)
 {
-	SDL_CaptureMouse(flag ? SDL_TRUE : SDL_FALSE);
+	SDL_CaptureMouse(flag ? true : false);
 }
 
 /* This function is a hack. It can only load one specific type of
@@ -789,113 +904,55 @@ void sdl_set_cursor(int cursor)
 	SDL_SetCursor(curs[cursor]);
 }
 
-// Helper function to get next job from queue (returns -1 if queue is empty)
-int next_job_id(void)
-{
-	int idx = -1;
-	if (!premutex) {
-		fail("premutex is NULL in next_job_id");
-		abort();
-	}
-	SDL_LockMutex(premutex);
-	if (jq_head != jq_tail) {
-		idx = job_queue[jq_head];
-		jq_head = (jq_head + 1) % MAXPRE;
-	}
-	SDL_UnlockMutex(premutex);
-	return idx;
-}
-
-// Neutralize stale jobs in the queue for a given stx
-void neutralize_stale_jobs(int stx)
-{
-	if (!premutex) {
-		return;
-	}
-
-	SDL_LockMutex(premutex);
-	int qpos = jq_head;
-	while (qpos != jq_tail) {
-		int idx = job_queue[qpos];
-		if (idx >= 0 && idx < MAXPRE && pre[idx].stx == stx) {
-			pre[idx].stx = STX_NONE; // kill job
-		}
-		qpos = (qpos + 1) % MAXPRE;
-	}
-	SDL_UnlockMutex(premutex);
-}
-
 // Worker function to process jobs from the queue
-// Returns 1 if work was found and processed, 0 if queue was empty
-int sdl_pre_worker(struct zip_handles *zips)
+// Used in single-threaded mode (called from main thread)
+// Returns 1 if work was found and processed, 0 if queue was empty or no work
+// was done because it was called from a multi-threaded context.
+int if_single_thread_process_one_job(void)
 {
-	extern struct sdl_texture *sdlt;
-	extern struct sdl_image *sdli;
-	extern int sdl_ic_load(unsigned int sprite, struct zip_handles *zips);
-	extern void sdl_make(struct sdl_texture * st, struct sdl_image * si, int preload);
+	// This function is ONLY for single-threaded mode
+	// In multi-threaded mode, worker threads run their own loop
+	if (sdl_multi) {
+		return 0;
+	}
 
-	int idx = next_job_id();
-	if (idx == -1) {
+	// Pop a job from the queue (non-blocking)
+	texture_job_t job;
+	if (!tex_jobs_pop(&job, 0)) {
 		return 0; // Queue empty
 	}
 
-	int stx = pre[idx].stx;
-	if (stx == STX_NONE) {
-		// Job was neutralized
+	int cache_index = job.cache_index;
+	struct sdl_texture *tex = &sdlt[cache_index];
+
+	// Single-threaded: no races possible, generation check is sufficient
+	// If generation changed, the slot was evicted and reused - abandon this work
+	if (tex->generation != job.generation) {
 		return 0;
 	}
 
-	if (stx < 0 || stx >= MAX_TEXCACHE) {
-		// Invalid stx
+	// Mark in-worker (no lock needed in single-threaded mode)
+	tex->work_state = TX_WORK_IN_WORKER;
+
+	// Do the actual work: load image and do stages 1+2
+	unsigned int sprite = tex->sprite;
+
+	if (sdl_ic_load(sprite, NULL) < 0) {
+		// Failed: mark idle and leave DIDMAKE unset
+		// Generation can't change under us in single-threaded mode.
 		return 0;
 	}
 
-	// Check if already processed
-	uint16_t flags = flags_load(&sdlt[stx]);
-	if (flags & SF_DIDMAKE) {
-		// Already processed
-		return 0;
-	}
-
-	// Try to claim the job atomically
-	if (job_claimed(&sdlt[stx])) {
-		// Already claimed by another worker
-		return 0;
-	}
-
-	// Clear SF_INQUEUE now that we've claimed the job
-	uint16_t *flags_ptr = (uint16_t *)&sdlt[stx].flags;
-	__atomic_fetch_and(flags_ptr, (uint16_t)~SF_INQUEUE, __ATOMIC_RELEASE);
-
-	unsigned int sprite = sdlt[stx].sprite;
-
-	// Load image using worker's zip handles
-	if (sdl_ic_load(sprite, zips) < 0) {
-		// Loading failed; mark as done but with no texture
-		__atomic_fetch_or(flags_ptr, SF_DIDMAKE, __ATOMIC_RELEASE);
-		return 0;
-	}
-
-	// Stage 1: Allocate pixel buffer
-	sdl_make(sdlt + stx, sdli + sprite, 1);
-	if (!sdlt[stx].pixel) {
-		// Allocation failed
-		__atomic_fetch_or(flags_ptr, SF_DIDALLOC | SF_DIDMAKE, __ATOMIC_RELEASE);
-		return 0;
-	}
-
-	// Stage 2: Process pixels
-	sdl_make(sdlt + stx, sdli + sprite, 2);
-	__atomic_fetch_or(flags_ptr, SF_DIDMAKE, __ATOMIC_RELEASE);
+	// Stage 1 + 2
+	sdl_make(tex, &sdli[sprite], 1);
+	sdl_make(tex, &sdli[sprite], 2);
 
 	return 1;
 }
 
-void sdl_pre_add(tick_t attick, unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale,
-    char cr, char cg, char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl,
-    char ul, char dl)
+void sdl_pre_add(unsigned int sprite, signed char sink, unsigned char freeze, unsigned char scale, char cr, char cg,
+    char cb, char light, char sat, int c1, int c2, int c3, int shine, char ml, char ll, char rl, char ul, char dl)
 {
-	int n;
 	Uint64 start;
 
 	if (sprite >= MAXSPRITE) {
@@ -903,162 +960,125 @@ void sdl_pre_add(tick_t attick, unsigned int sprite, signed char sink, unsigned 
 		return;
 	}
 
-	// Find in texture cache (expensive operation done outside lock)
-	// Will allocate a new entry if not found, or return -1 if already in cache
-	start = SDL_GetTicks64();
-	n = sdl_tx_load(sprite, sink, freeze, scale, cr, cg, cb, light, sat, c1, c2, c3, shine, ml, ll, rl, ul, dl, NULL, 0,
-	    0, NULL, 0, 1, (int)attick);
+	// Ensure there is a cache slot (but don't force full make+tex)
+	start = SDL_GetTicks();
+	int cache_index = sdl_tx_load(sprite, sink, freeze, scale, cr, cg, cb, light, sat, c1, c2, c3, shine, ml, ll, rl,
+	    ul, dl, NULL, 0, 0, NULL, 0, 1);
 	extern long long sdl_time_alloc;
-	sdl_time_alloc += (long long)(SDL_GetTicks64() - start);
+	sdl_time_alloc += (long long)(SDL_GetTicks() - start);
 
-	if (n == -1) {
-		// Already in cache or failed
+	if (cache_index == -1) {
+		// Already in cache
 		return;
 	}
 
-	// Check if job is already queued or claimed
-	extern struct sdl_texture *sdlt;
-	uint16_t flags = flags_load(&sdlt[n]);
-	if (flags & (SF_CLAIMJOB | SF_INQUEUE)) {
-		// Already queued or being processed
+	if (cache_index == STX_NONE) {
+		// Failed to allocate
 		return;
 	}
 
-	// Lock mutex to add to queue
-	SDL_LockMutex(premutex);
+	struct sdl_texture *slot = &sdlt[cache_index];
 
-	// Double-check after acquiring lock
-	flags = flags_load(&sdlt[n]);
-	if (flags & (SF_CLAIMJOB | SF_INQUEUE)) {
-		SDL_UnlockMutex(premutex);
+	// Single-threaded: do the CPU work inline
+	if (!sdl_multi) {
+		if (!(flags_load(slot) & SF_DIDMAKE)) {
+			unsigned int sprite_id = slot->sprite;
+			if (sdl_ic_load(sprite_id, NULL) >= 0) {
+				sdl_make(slot, &sdli[sprite_id], 1);
+				sdl_make(slot, &sdli[sprite_id], 2);
+			}
+		}
 		return;
 	}
 
-	// Check if buffer is full
-	if ((pre_in + 1) % MAXPRE == pre_done) {
-		SDL_UnlockMutex(premutex);
+	// Multi-threaded: enqueue background job
+	SDL_LockMutex(g_tex_jobs.mutex);
+
+	// Check if already queued or in-progress
+	if (slot->work_state != TX_WORK_IDLE) {
+		SDL_UnlockMutex(g_tex_jobs.mutex);
 		return;
 	}
 
-	// Set SF_INQUEUE before adding to queue
-	uint16_t *flags_ptr = (uint16_t *)&sdlt[n].flags;
-	__atomic_fetch_or(flags_ptr, SF_INQUEUE, __ATOMIC_RELEASE);
+	// Check if queue is full
+	if (g_tex_jobs.count >= TEX_JOB_CAPACITY) {
+#ifdef DEVELOPER
+		static uint64_t last_log_time = 0;
+		uint64_t now = SDL_GetTicks();
+		if (now - last_log_time > 1000) {
+			warn("Texture job queue full: capacity=%d, dropping preload for sprite %u", TEX_JOB_CAPACITY, sprite);
+			last_log_time = now;
+		}
+#endif
+		SDL_UnlockMutex(g_tex_jobs.mutex);
+		return;
+	}
 
-	// Add to prefetch buffer
-	int idx = pre_in;
-	pre[idx].stx = n;
-	pre[idx].attick = attick;
-	pre_in = (pre_in + 1) % MAXPRE;
+	// Add job to queue
+	texture_job_t *job = &g_tex_jobs.jobs[g_tex_jobs.tail];
+	job->cache_index = cache_index;
+	job->generation = slot->generation;
+	job->kind = TEXTURE_JOB_MAKE_STAGES_1_2;
 
-	// Add to job queue
-	job_queue[jq_tail] = idx;
-	jq_tail = (jq_tail + 1) % MAXPRE;
+	g_tex_jobs.tail = (g_tex_jobs.tail + 1) % TEX_JOB_CAPACITY;
+	g_tex_jobs.count++;
 
-	SDL_UnlockMutex(premutex);
+	// Mark as queued
+	slot->work_state = TX_WORK_QUEUED;
 
-	SDL_SemPost(prework);
+	SDL_SignalCondition(g_tex_jobs.cond);
+	SDL_UnlockMutex(g_tex_jobs.mutex);
+
+	// Wake a worker
+	SDL_SignalSemaphore(prework);
 }
 
 long long sdl_time_mutex = 0;
 
 void sdl_lock(void *a)
 {
-	Uint64 start = SDL_GetTicks64();
+	Uint64 start = SDL_GetTicks();
 	SDL_LockMutex(a);
-	sdl_time_mutex += (long long)(SDL_GetTicks64() - start);
+	sdl_time_mutex += (long long)(SDL_GetTicks() - start);
 }
 
 #define SDL_LockMutex(a) sdl_lock(a)
 
-int sdl_pre_ready(void)
-{
-	extern struct sdl_texture *sdlt;
-	extern struct sdl_image *sdli;
-
-	if (pre_in == pre_ready) {
-		return 0; // prefetch buffer is empty
-	}
-
-	int stx = pre[pre_ready].stx;
-	if (stx == STX_NONE) {
-		// Slot is dead; skip it
-		pre_ready = (pre_ready + 1) % MAXPRE;
-		return 1;
-	}
-
-	uint16_t flags = flags_load(&sdlt[stx]);
-
-	if (flags & SF_DIDMAKE) {
-		pre_ready = (pre_ready + 1) % MAXPRE;
-		return 1;
-	}
-
-	return 1; // work still pending
-}
-
-int sdl_pre_done(void)
-{
-	extern struct sdl_texture *sdlt;
-	extern struct sdl_image *sdli;
-
-	if (pre_ready == pre_done) {
-		return 0; // prefetch buffer is empty
-	}
-
-	int stx = pre[pre_done].stx;
-	if (stx == STX_NONE) {
-		pre_done = (pre_done + 1) % MAXPRE;
-		return 1;
-	}
-
-	uint16_t flags = flags_load(&sdlt[stx]);
-	if (!(flags & SF_DIDTEX) && (flags & SF_DIDMAKE)) {
-		sdl_make(sdlt + stx, sdli + sdlt[stx].sprite, 3);
-	}
-
-	pre[pre_done].stx = STX_NONE; // Clear slot after processing
-	pre_done = (pre_done + 1) % MAXPRE;
-
-	return 1;
-}
-
-int sdl_pre_do(tick_t curtick __attribute__((unused)))
+int sdl_pre_do(void)
 {
 	Uint64 start;
-	int size;
+	int uploads = 0;
 
-	start = SDL_GetTicks64();
-	sdl_pre_ready();
-	extern long long sdl_time_pre1;
-	sdl_time_pre1 += (long long)(SDL_GetTicks64() - start);
+	start = SDL_GetTicks();
 
-	start = SDL_GetTicks64();
-	if (!sdl_multi) {
-		// In single-threaded mode, process jobs on main thread
-		sdl_pre_worker(NULL);
+	// Single-threaded: process jobs from queue (will no-op if called from multi)
+	if_single_thread_process_one_job();
+
+	// Main thread: upload any textures where CPU work is done (SF_DIDMAKE) but
+	// GPU upload hasn't happened (!SF_DIDTEX)
+	// This is stage 3: creating the actual SDL_Texture
+	const int max_uploads_per_call = 64; // Safety bound to avoid stalling frame
+
+	for (int i = 0; i < MAX_TEXCACHE && uploads < max_uploads_per_call; i++) {
+		struct sdl_texture *slot = &sdlt[i];
+
+		uint16_t flags = flags_load(slot);
+		if (!(flags & SF_SPRITE)) {
+			continue;
+		}
+
+		// Worker did stage 1+2, GPU upload hasn't happened yet
+		if ((flags & SF_DIDMAKE) && !(flags & SF_DIDTEX)) {
+			unsigned int sprite = slot->sprite;
+			sdl_make(slot, &sdli[sprite], 3);
+			uploads++;
+		}
 	}
+
 	extern long long sdl_time_pre2;
-	sdl_time_pre2 += (long long)(SDL_GetTicks64() - start);
+	sdl_time_pre2 += (long long)(SDL_GetTicks() - start);
 
-	start = SDL_GetTicks64();
-	sdl_pre_done();
-	extern long long sdl_time_pre3;
-	sdl_time_pre3 += (long long)(SDL_GetTicks64() - start);
-
-	// Calculate queue size
-	if (pre_in >= pre_ready) {
-		size = pre_in - pre_ready;
-	} else {
-		size = MAXPRE + pre_in - pre_ready;
-	}
-
-	if (pre_ready >= pre_done) {
-		size += pre_ready - pre_done;
-	} else {
-		size += MAXPRE + pre_ready - pre_done;
-	}
-
-	return size;
+	return uploads;
 }
 
 uint64_t sdl_backgnd_wait = 0, sdl_backgnd_work = 0, sdl_backgnd_jobs = 0;
@@ -1068,82 +1088,109 @@ int sdl_pre_backgnd(void *ptr)
 	int worker_id = (int)(long long)ptr;
 	struct zip_handles *zips = worker_zips ? &worker_zips[worker_id] : NULL;
 	uint64_t wait_start, work_start;
-	int sem_result;
 
-	// Validate semaphore and mutex
-	if (!prework) {
-		SDL_Log("sdl_pre_backgnd: prework semaphore is NULL, exiting thread");
-		return -1;
-	}
-	if (!premutex) {
-		SDL_Log("sdl_pre_backgnd: premutex is NULL, exiting thread");
-		return -1;
-	}
+	SDL_SetCurrentThreadPriority(SDL_THREAD_PRIORITY_LOW);
 
 	for (;;) {
 		// Wait for work to be available (blocks until signaled)
-		wait_start = SDL_GetTicks64();
-		sem_result = SDL_SemWait(prework);
-		sdl_backgnd_wait += SDL_GetTicks64() - wait_start;
+		wait_start = SDL_GetTicks();
+		SDL_WaitSemaphore(prework);
+		sdl_backgnd_wait += SDL_GetTicks() - wait_start;
 
-		// Check for semaphore wait errors
-		// SDL_SemWait returns -1 only on fatal errors:
-		// 1. Invalid semaphore (already validated above) - persistent error
-		// 2. Semaphore destroyed during wait (shutdown race) - unrecoverable
-		// 3. System-level failure (extremely rare) - persistent error
-		// In all cases, continuing would fail immediately again, so exit thread
-		// cleanly.
-		if (sem_result != 0) {
-			SDL_Log("sdl_pre_backgnd: SDL_SemWait failed: %s - exiting worker thread", SDL_GetError());
-			return -1; // Semaphore failure is fatal for this worker
+		if (!prework) {
+			SDL_Log("sdl_pre_backgnd: SDL_WaitSemaphore failed: %s - exiting worker thread", SDL_GetError());
+			return -1;
 		}
 
-		// Check for shutdown before each job attempt.
-		if (quit || SDL_AtomicGet(&pre_quit)) {
+		// Check for shutdown before each job attempt
+		if (quit || SDL_GetAtomicInt(&worker_quit)) {
 			return 0;
 		}
 
-		// Process one job from the queue
-		work_start = SDL_GetTicks64();
-		if (sdl_pre_worker(zips) == 0) {
-			// No work found, wait on semaphore.
+		work_start = SDL_GetTicks();
+
+		// Pop a job from the queue
+		texture_job_t job;
+		if (!tex_jobs_pop(&job, 0)) {
+			// No work found
 			continue;
 		}
 
-		sdl_backgnd_work += SDL_GetTicks64() - work_start;
+		int cache_index = job.cache_index;
+		struct sdl_texture *tex = &sdlt[cache_index];
+
+		// Check generation: if stale, skip
+		if (tex->generation != job.generation) {
+			continue;
+		}
+
+		// Mark in-worker
+		SDL_LockMutex(g_tex_jobs.mutex);
+		if (tex->generation != job.generation) {
+			SDL_UnlockMutex(g_tex_jobs.mutex);
+			continue;
+		}
+		tex->work_state = TX_WORK_IN_WORKER;
+		SDL_UnlockMutex(g_tex_jobs.mutex);
+
+		// Do the actual work: load image and do stages 1+2
+		unsigned int sprite = tex->sprite;
+
+		if (sdl_ic_load(sprite, zips) < 0) {
+			// Failed: leave DIDMAKE unset, allow main thread to handle fallback
+			SDL_LockMutex(g_tex_jobs.mutex);
+			if (tex->generation == job.generation) {
+				tex->work_state = TX_WORK_IDLE;
+			}
+			SDL_UnlockMutex(g_tex_jobs.mutex);
+			continue;
+		}
+
+		// Stage 1 + 2
+		sdl_make(tex, &sdli[sprite], 1);
+		sdl_make(tex, &sdli[sprite], 2);
+
+		SDL_LockMutex(g_tex_jobs.mutex);
+		if (tex->generation == job.generation) {
+			// CPU work done; GPU creation is main-thread
+			tex->work_state = TX_WORK_IDLE;
+		}
+		SDL_UnlockMutex(g_tex_jobs.mutex);
+
+		sdl_backgnd_work += SDL_GetTicks() - work_start;
 		sdl_backgnd_jobs++;
 	}
 
 	return 0;
 }
 
-int sdl_is_shown(void)
+bool sdl_is_shown(void)
 {
-	uint32_t flags;
+	SDL_WindowFlags flags;
 
 	flags = SDL_GetWindowFlags(sdlwnd);
 
 	if (flags & SDL_WINDOW_HIDDEN) {
-		return 0;
+		return false;
 	}
 	if (flags & SDL_WINDOW_MINIMIZED) {
-		return 0;
+		return false;
 	}
 
-	return 1;
+	return true;
 }
 
-int sdl_has_focus(void)
+bool sdl_has_focus(void)
 {
-	uint32_t flags;
+	SDL_WindowFlags flags;
 
 	flags = SDL_GetWindowFlags(sdlwnd);
 
 	if (flags & SDL_WINDOW_MOUSE_FOCUS) {
-		return 1;
+		return true;
 	}
 
-	return 0;
+	return false;
 }
 
 void sdl_set_title(char *title)
@@ -1158,23 +1205,28 @@ void *sdl_create_texture(int width, int height)
 
 void sdl_render_copy(void *tex, void *sr, void *dr)
 {
-	SDL_RenderCopy(sdlren, tex, sr, dr);
+	SDL_RenderTexture(sdlren, tex, sr, dr);
 }
 
 void sdl_render_copy_ex(void *tex, void *sr, void *dr, double angle)
 {
-	SDL_RenderCopyEx(sdlren, tex, sr, dr, angle, 0, SDL_FLIP_NONE);
+	SDL_RenderTextureRotated(sdlren, tex, sr, dr, angle, 0, SDL_FLIP_NONE);
 }
 
 void sdl_flush_textinput(void)
 {
-	SDL_FlushEvent(SDL_TEXTINPUT);
+	SDL_FlushEvent(SDL_EVENT_TEXT_INPUT);
 }
 
 int sdl_check_mouse(void)
 {
+	float fx, fy;
 	int x, y, x2, y2, x3, y3, top;
-	SDL_GetGlobalMouseState(&x, &y);
+	SDL_GetGlobalMouseState(&fx, &fy);
+
+	// Convert to int for discrete position comparisons
+	x = (int)fx;
+	y = (int)fy;
 
 	SDL_GetWindowPosition(sdlwnd, &x2, &y2);
 	SDL_GetWindowSize(sdlwnd, &x3, &y3);

@@ -8,7 +8,9 @@
 #include <inttypes.h>
 #include <time.h>
 #include <ctype.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_stdinc.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -18,7 +20,7 @@
 #include "sdl/sdl.h"
 #include "modder/modder.h"
 
-void gui_sdl_keyproc(int wparam)
+void gui_sdl_keyproc(SDL_Keycode wparam)
 {
 	int i;
 
@@ -219,7 +221,11 @@ void gui_sdl_keyproc(int wparam)
 			return;
 		}
 
-		wparam = toupper(wparam);
+		// This rules out numbers, we already got here so a-z garaunteed.
+		// toupper for unsigned (aka SDL_Keycode)
+		if (wparam >= 97) {
+			wparam -= 32;
+		}
 
 		for (i = 0; i < max_keytab; i++) {
 			if (keytab[i].keycode != wparam && keytab[i].userdef != wparam) {
@@ -282,15 +288,21 @@ void gui_sdl_keyproc(int wparam)
 	}
 }
 
-void gui_sdl_mouseproc(int x, int y, int what)
+void gui_sdl_mouseproc(float x, float y, int what)
 {
 	int delta, tmp;
 	static int mdown = 0;
 
+	// SDL3 provides sub-pixel mouse precision via floats, but we work with discrete UI elements
+	// and tile-based positioning, so we convert to int immediately. Precision loss is negligible
+	// for user interaction in this context.
+	int local_x = (int)x;
+	int local_y = (int)y;
+
 	switch (what) {
 	case SDL_MOUM_NONE:
-		mousex = x;
-		mousey = y;
+		mousex = local_x;
+		mousey = local_y;
 
 		if (capbut != -1) {
 			if (mousex != XRES / 2 || mousey != YRES / 2) {
@@ -321,7 +333,7 @@ void gui_sdl_mouseproc(int x, int y, int what)
 
 		if (butsel != -1 && capbut == -1 && (but[butsel].flags & BUTF_CAPTURE)) {
 			amod_mouse_capture(1);
-			sdl_show_cursor(0);
+			SDL_HideCursor();
 			sdl_capture_mouse(1);
 			mousedx = 0;
 			mousedy = 0;
@@ -360,7 +372,7 @@ void gui_sdl_mouseproc(int x, int y, int what)
 			sdl_set_cursor_pos(
 			    (but[capbut].x + render_offset_x()) * sdl_scale, (but[capbut].y + render_offset_y()) * sdl_scale);
 			sdl_capture_mouse(0);
-			sdl_show_cursor(1);
+			SDL_ShowCursor();
 			amod_mouse_capture(0);
 			if (!(but[capbut].flags & BUTF_MOVEEXEC)) {
 				exec_cmd(lcmd, 0);
@@ -396,7 +408,7 @@ void gui_sdl_mouseproc(int x, int y, int what)
 		break;
 
 	case SDL_MOUM_WHEEL:
-		delta = y;
+		delta = local_y;
 
 		if (amod_mouse_click(0, delta, what)) {
 			break;
@@ -448,6 +460,35 @@ void gui_sdl_mouseproc(int x, int y, int what)
 			}
 			while (delta < 0) {
 				set_invoff(0, invoff + 1);
+				delta++;
+			}
+			break;
+		}
+
+		if (game_options & GO_WHEELSPEED) {
+			// Mousewheel toggles movement speed mode
+			// pspeed: 0=normal, 1=fast, 2=stealth
+			// cmd_speed: 0=normal, 1=fast, 2=stealth
+			while (delta > 0) {
+				// Scroll up: cycle through normal->fast->stealth->normal
+				if (pspeed == 0) {
+					cmd_speed(1); // normal to fast
+				} else if (pspeed == 1) {
+					cmd_speed(2); // fast to stealth
+				} else if (pspeed == 2) {
+					cmd_speed(0); // stealth to normal
+				}
+				delta--;
+			}
+			while (delta < 0) {
+				// Scroll down: cycle through normal->stealth->fast->normal
+				if (pspeed == 0) {
+					cmd_speed(2); // normal to stealth
+				} else if (pspeed == 2) {
+					cmd_speed(1); // stealth to fast
+				} else if (pspeed == 1) {
+					cmd_speed(0); // fast to normal
+				}
 				delta++;
 			}
 			break;

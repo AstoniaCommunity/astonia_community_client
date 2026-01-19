@@ -7,7 +7,7 @@
 
 #include <inttypes.h>
 #include <time.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 #include "astonia.h"
 #include "gui/gui.h"
@@ -81,7 +81,7 @@ void display_wheel(void)
 	int i;
 
 	render_push_clip();
-	render_more_clip(0, 0, 800, 600);
+	render_more_clip(0, 0, XRES, YRES0);
 
 	if (now - vk_special_time < 2000) {
 		int n, panic = 99;
@@ -130,7 +130,7 @@ void display(void)
 	extern long long sdl_time_make, sdl_time_tex, sdl_time_tex_main, sdl_time_text, sdl_time_blit;
 	time_t t;
 	int tmp;
-	uint64_t start = SDL_GetTicks64();
+	uint64_t start = SDL_GetTicks();
 
 #if 0
 	// Performance for stuff happening during the actual tick only.
@@ -160,19 +160,20 @@ void display(void)
 	set_cmd_states();
 
 	if (sockstate < 4 && ((t = time(NULL) - (time_t)socktimeout) > 10 || !originx)) {
-		render_rect(0, 0, 800, 540, blackcolor);
+		render_rect(0, 0, XRES, YRES0 - 60, blackcolor);
 		display_screen();
 		display_text();
 		if ((now / 1000) & 1) {
-			render_text(800 / 2, 540 / 2 - 60, redcolor, RENDER_ALIGN_CENTER | RENDER_TEXT_LARGE, "not connected");
+			render_text(
+			    XRES / 2, (YRES0 - 60) / 2 - 60, redcolor, RENDER_ALIGN_CENTER | RENDER_TEXT_LARGE, "not connected");
 		}
-		render_sprite(60, 800 / 2, (540 - 240) / 2, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_CENTER);
+		render_sprite(60, XRES / 2, ((YRES0 - 60) - 240) / 2, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_CENTER);
 		if (!kicked_out) {
-			render_text_fmt(800 / 2, 540 / 2 - 40, textcolor,
+			render_text_fmt(XRES / 2, (YRES0 - 60) / 2 - 40, textcolor,
 			    RENDER_TEXT_SMALL | RENDER_ALIGN_CENTER | RENDER_TEXT_FRAMED,
 			    "Trying to establish connection. %ld seconds...", (long)t);
 			if (t > 15) {
-				render_text_fmt(800 / 2, 540 / 2 - 0, textcolor,
+				render_text_fmt(XRES / 2, (YRES0 - 60) / 2 - 0, textcolor,
 				    RENDER_TEXT_LARGE | RENDER_ALIGN_CENTER | RENDER_TEXT_FRAMED,
 				    "Please check %s for troubleshooting advice.", game_url);
 			}
@@ -220,9 +221,19 @@ void display(void)
 	context_display(mousex, mousey);
 	display_helpandquest(); // display last because it is on top
 
+	// Display lag warning when no server data received for > 500ms
+	if (sockstate == 4 && last_tick_received_time > 0) {
+		uint64_t lag_ms = SDL_GetTicks() - last_tick_received_time;
+		if (lag_ms > 500) {
+			render_text_fmt(XRES / 2, doty(DOT_MTL) + 35, IRGB(31, 0, 0),
+			    RENDER_TEXT_LARGE | RENDER_ALIGN_CENTER | RENDER_TEXT_FRAMED | RENDER_TEXT_NOCACHE,
+			    "LAG: %" PRIu64 "ms", lag_ms);
+		}
+	}
+
 display_graphs:;
 
-	int64_t duration = (int64_t)(SDL_GetTicks64() - start);
+	int64_t duration = (int64_t)(SDL_GetTicks() - start);
 
 	if (display_vc) {
 		extern long long texc_miss, texc_pre; // mem_tex,
@@ -237,7 +248,7 @@ display_graphs:;
 		static unsigned char pre1_graph[100], pre2_graph[100], pre3_graph[100];
 		// static int frame_min=99,frame_max=0,frame_step=0;
 		// static int tick_min=99,tick_max=0,tick_step=0;
-		int px = 800 - 110, py = 35 + (!(game_options & GO_SMALLTOP) ? 0 : gui_topoff);
+		int px = XRES - 110, py = 35 + (!(game_options & GO_SMALLTOP) ? 0 : gui_topoff);
 
 		// render_text_fmt(px,py+=10,0xffff,RENDER_TEXT_SMALL|RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED|RENDER_TEXT_NOCACHE,"skip
 		// %3.0f%%",100.0*skip/tota);
@@ -263,7 +274,7 @@ display_graphs:;
 	    render_text_fmt(px,py+=10,IRGB(8,31,8),RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED|RENDER_TEXT_NOCACHE,"Pre2 %d",pre_2);
 	    render_text_fmt(px,py+=10,IRGB(8,31,8),RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED|RENDER_TEXT_NOCACHE,"Pre3 %d",pre_3);
 	    render_text_fmt(px,py+=10,IRGB(8,31,8),RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED|RENDER_TEXT_NOCACHE,"Used %d",texc_used);
-	    render_text_fmt(px,py+=10,IRGB(8,31,8),RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED|RENDER_TEXT_NOCACHE,"Size %d",sdl_cache_size);
+	    render_text_fmt(px,py+=10,IRGB(8,31,8),RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED|RENDER_TEXT_NOCACHE,"Cache %d/%d",sdl_cache_size,MAX_TEXCACHE);
 #endif
 		// render_text_fmt(px,py+=10,0xffff,RENDER_TEXT_SMALL|RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED|RENDER_TEXT_NOCACHE,"Miss
 		// %lld",texc_miss);
@@ -323,12 +334,25 @@ display_graphs:;
 		render_text_fmt(px, py += 10, IRGB(8, 31, 8), RENDER_TEXT_FRAMED | RENDER_TEXT_LEFT, "Queue %d", size / 2);
 		sdl_bargraph_add(sizeof(pre2_graph), size3_graph, size < 42 ? size : 42);
 		sdl_bargraph(px, py += 40, sizeof(pre2_graph), size3_graph, x_offset, y_offset);
-#if 0
-	    size=sdl_time_alloc;
-	    render_text(px,py+=10,IRGB(8,31,8),RENDER_TEXT_LEFT|RENDER_TEXT_FRAMED,"Alloc");
-	    sdl_bargraph_add(sizeof(size1_graph),load_graph,size<42?size:42);
-	    sdl_bargraph(px,py+=40,sizeof(size1_graph),load_graph,x_offset,y_offset);
-#endif
+
+		// Tick interval indicator - time between server tick batch arrivals
+		{
+			static unsigned char lag_graph[100];
+			static int was_lagging = 0;
+			// Normal tick interval is ~40ms, show warning color if consistently high
+			int lag_size = tick_receive_interval > 200 ? 42 : (int)(tick_receive_interval * 42 / 200);
+			// Hysteresis to prevent color flicker: red at 120ms, green at 80ms
+			if (tick_receive_interval > 120) {
+				was_lagging = 1;
+			} else if (tick_receive_interval < 80) {
+				was_lagging = 0;
+			}
+			unsigned short lag_color = was_lagging ? IRGB(31, 8, 8) : IRGB(8, 31, 8);
+			render_text_fmt(px, py += 10, lag_color, RENDER_TEXT_FRAMED | RENDER_TEXT_LEFT | RENDER_TEXT_NOCACHE,
+			    "Tick %" PRIu64 "ms", tick_receive_interval);
+			sdl_bargraph_add(sizeof(lag_graph), lag_graph, lag_size);
+			sdl_bargraph(px, py += 40, sizeof(lag_graph), lag_graph, x_offset, y_offset);
+		}
 
 		{
 			uint64_t sum = sdl_time_pre1 + sdl_time_pre3;
@@ -452,13 +476,19 @@ void update_ui_layout(void)
 		set_conoff(0, conoff);
 		set_skloff(0, skloff);
 	}
-	max_invoff = ((INVENTORYSIZE - 30) / INVDX) - INVDY;
+	max_invoff = ((_inventorysize - 30) / INVDX) - INVDY;
 	set_button_flags();
 }
 
 DLL_EXPORT int _do_display_help(int nr)
 {
 	int x = dotx(DOT_HLP) + 10, y = doty(DOT_HLP) + 8, oldy;
+
+	if (sv_ver == 35) {
+		return render_text_break(
+		           x, y, x + 192, whitecolor, 0, "V3.5 Help not implemented, awaiting help system rework.") +
+		       15;
+	}
 
 	switch (nr) {
 	case 1:

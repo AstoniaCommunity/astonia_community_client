@@ -23,7 +23,8 @@ Install [MSYS2](https://www.msys2.org/). It comes with three shells, launch the 
 Install dependencies:
 ```bash
 pacman -Syu
-pacman -Sy mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-SDL2 mingw-w64-clang-x86_64-libpng mingw-w64-clang-x86_64-SDL2_mixer mingw-w64-clang-x86_64-libzip mingw-w64-clang-x86_64-mimalloc make zip mingw-w64-clang-x86_64-dwarfstack mingw-w64-clang-x86_64-zig mingw-w64-clang-x86_64-rustup
+pacman -Sy mingw-w64-clang-x86_64-clang mingw-w64-clang-x86_64-libpng mingw-w64-clang-x86_64-libzip mingw-w64-clang-x86_64-mimalloc mingw-w64-clang-x86_64-cmake mingw-w64-clang-x86_64-ninja make zip mingw-w64-clang-x86_64-dwarfstack mingw-w64-clang-x86_64-zig mingw-w64-clang-x86_64-rustup
+make build-sdl3 build-sdl3-mixer
 rustup toolchain install stable-x86_64-pc-windows-gnullvm
 rustup default stable-x86_64-pc-windows-gnullvm
 ```
@@ -34,7 +35,8 @@ Install dependencies:
 
 **Arch Linux**
 ```bash
-sudo pacman -S base-devel sdl3 sdl2-compat sdl2_mixer libpng libzip zlib mimalloc zig rust
+sudo pacman -S base-devel sdl3-git sdl3_mixer-git libpng libzip zlib mimalloc zig rust
+# Or: make build-sdl3 build-sdl3-mixer
 ```
 
 **Debian/Ubuntu**
@@ -52,7 +54,7 @@ package.
 
 Note: Zig (optional) is not part of the official debian repositories. You can use an [unofficial repository](https://debian.griffo.io).
 
-_Or use Docker_ (no dependencies needed):
+**Or use Docker** (no dependencies needed):
 ```bash
 make docker-linux
 ```
@@ -100,7 +102,8 @@ xcode-select --install
 
 Install dependencies:
 ```bash
-brew install zig sdl2 sdl2_mixer libpng zlib libzip mimalloc rust
+brew install cmake ninja zig libpng zlib libzip mimalloc rust
+make build-sdl3 build-sdl3-mixer
 ```
 
 ## Commands
@@ -122,3 +125,11 @@ make lint       # Auto-fix code formatting
 make check      # Run all quality checks
 ```
 
+
+## Testing
+
+To run tests:
+
+```bash
+make test
+```

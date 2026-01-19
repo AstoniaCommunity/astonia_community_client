@@ -9,10 +9,12 @@
 
 #include "dll.h"
 #include "astonia_net.h"
-#include <SDL2/SDL_timer.h>
+#include <math.h>
 #include <time.h>
 #include <zlib.h>
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_timer.h>
 
 #include "astonia.h"
 #include "client/client.h"
@@ -29,7 +31,7 @@ static int rec_bytes = 0;
 static int sent_bytes = 0;
 static astonia_sock *sock = NULL;
 int sockstate = 0;
-static unsigned int socktime = 0;
+static Uint64 socktime = 0;
 time_t socktimeout = 0;
 int change_area = 0;
 int kicked_out = 0;
@@ -50,6 +52,8 @@ DLL_EXPORT int protocol_version = 0;
 uint32_t newmirror = 0;
 int lasttick; // ticks in inbuf
 static size_t lastticksize; // size inbuf must reach to get the last tick complete in the queue
+uint64_t last_tick_received_time = 0; // SDL_GetTicks() when last server tick batch was received
+uint64_t tick_receive_interval = 0; // Time between server tick batch arrivals (ms)
 
 static struct queue queue[Q_SIZE];
 int q_in, q_out, q_size;
@@ -78,8 +82,8 @@ DLL_EXPORT struct map map[MAPDX * MAPDY];
 DLL_EXPORT struct map map2[MAPDX * MAPDY];
 
 DLL_EXPORT uint16_t value[2][V_MAX];
-DLL_EXPORT uint32_t item[INVENTORYSIZE];
-DLL_EXPORT uint32_t item_flags[INVENTORYSIZE];
+DLL_EXPORT uint32_t item[MAX_INVENTORYSIZE];
+DLL_EXPORT uint32_t item_flags[MAX_INVENTORYSIZE];
 DLL_EXPORT stat_t hp;
 DLL_EXPORT stat_t mana;
 DLL_EXPORT stat_t rage;
@@ -98,9 +102,9 @@ DLL_EXPORT unsigned char ueffect[MAXEF];
 DLL_EXPORT int con_type;
 DLL_EXPORT char con_name[80];
 DLL_EXPORT int con_cnt;
-DLL_EXPORT uint32_t container[CONTAINERSIZE];
-DLL_EXPORT uint32_t price[CONTAINERSIZE];
-DLL_EXPORT uint32_t itemprice[CONTAINERSIZE];
+DLL_EXPORT uint32_t container[MAX_CONTAINERSIZE];
+DLL_EXPORT uint32_t price[MAX_CONTAINERSIZE];
+DLL_EXPORT uint32_t itemprice[MAX_CONTAINERSIZE];
 DLL_EXPORT uint32_t cprice;
 
 DLL_EXPORT uint32_t lookinv[12];
@@ -115,6 +119,9 @@ DLL_EXPORT int pspeed = 0; // 0=normal   1=fast      2=stealth     - like the se
 int may_teleport[64 + 32];
 
 DLL_EXPORT int frames_per_second = TICKS;
+
+DLL_EXPORT int _inventorysize = V3_INVENTORYSIZE;
+DLL_EXPORT int _containersize = V3_CONTAINERSIZE;
 
 // Unaligned load/store helpers
 DLL_EXPORT void client_send(void *buf, size_t len)
@@ -194,6 +201,7 @@ void bzero_client(int part)
 		    pent_str[6][0] = 0;
 
 		bzero(may_teleport, sizeof(may_teleport));
+		bzero(otext, sizeof(otext));
 
 		amod_areachange();
 		minimap_clear();
@@ -432,6 +440,7 @@ int poll_network(void)
 	rec_bytes += n;
 
 	// count ticks
+	int ticks_this_poll = 0;
 	while (1) {
 		if (inused >= lastticksize + 1 && *(inbuf + lastticksize) & 0x40) {
 			lastticksize += 1 + (*(inbuf + lastticksize) & 0x3F);
@@ -442,6 +451,16 @@ int poll_network(void)
 		}
 
 		lasttick++;
+		ticks_this_poll++;
+	}
+
+	// Update tick timing once per poll that received ticks (not per individual tick)
+	if (ticks_this_poll > 0) {
+		uint64_t now = SDL_GetTicks();
+		if (last_tick_received_time > 0) {
+			tick_receive_interval = now - last_tick_received_time;
+		}
+		last_tick_received_time = now;
 	}
 
 	return 0;
@@ -554,6 +573,7 @@ int do_tick(void)
 		q_out = (q_out + 1) % Q_SIZE;
 		q_size--;
 		hover_capture_tick();
+		sound_fade_tick();
 
 		// increase tick
 		tick++;
@@ -598,4 +618,10 @@ DLL_EXPORT map_index_t mapmn(unsigned int x, unsigned int y)
 		return MAXMN;
 	}
 	return x + y * MAPDX;
+}
+
+void set_v35_inventory(void)
+{
+	_inventorysize = V35_INVENTORYSIZE;
+	_containersize = V35_CONTAINERSIZE;
 }
