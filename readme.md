@@ -44,10 +44,10 @@ sudo apt install libpng-dev libzip-dev libmimalloc-dev rustup git git-lfs
 
 The libsdl3-mixer package is not part of the stable debian repository and must be compiled from source.
 
-One of possible solution is:
-    - Download source package ```libsdl3``` from testing (forky), compile and install ```libsdl3-0```,
-```libsdl3-dev``` packags.
-    - Dowload source paskage ```libsdl3-mixer``` package , compile and install ```libsdl3-mixer-dev```
+One way of adding the necessary package to the system is as follows:
+
+ + Download source package 'libsdl3' from testing (forky), compile and install 'libsdl3-0' and 'libsdl3-dev' packages.
+ + Download source package 'libsdl3-mixer' package , compile and install 'libsdl3-mixer-dev'
 package.    
 
 Note: Zig (optional) is not part of the official debian repositories. You can use an [unofficial repository](https://debian.griffo.io).
