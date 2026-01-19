@@ -11,9 +11,12 @@ DLL_EXPORT void amod_init(void);
 DLL_EXPORT void amod_exit(void);
 DLL_EXPORT char *amod_version(void);
 DLL_EXPORT void amod_gamestart(void);
+DLL_EXPORT void amod_sprite_config(void);
+DLL_EXPORT void amod_areachange(void);
 DLL_EXPORT void amod_frame(void);
 DLL_EXPORT void amod_tick(void);
 DLL_EXPORT void amod_mouse_move(int x, int y);
+DLL_EXPORT void amod_mouse_capture(int onoff);
 DLL_EXPORT void amod_update_hover_texts(void);
 
 // the following functions should return 1 if they process the event and want the client
@@ -73,6 +76,32 @@ DLL_IMPORT int level2exp(int level);
 DLL_IMPORT int mil_rank(int exp);
 // client / server communication
 DLL_IMPORT void client_send(void *buf, size_t len);
+
+// Sound functions
+// Sounds loaded from: sx_mod.zip > sx_patch.zip > sx.zip
+// Example: sound_load("weather/rain_loop.ogg")
+DLL_IMPORT int sound_load(const char *path);
+DLL_IMPORT void sound_unload(int handle);
+
+/* Playback */
+DLL_IMPORT int sound_play(int handle, float volume);
+DLL_IMPORT int sound_play_loop(int handle, float volume);
+DLL_IMPORT void sound_stop(int channel);
+DLL_IMPORT void sound_stop_all(void);
+
+/* Volume control */
+DLL_IMPORT void sound_set_volume(int channel, float volume);
+DLL_IMPORT void sound_fade(int channel, float target, int duration);
+DLL_IMPORT float sound_get_master_volume(void);
+
+/* Query */
+DLL_IMPORT int sound_is_playing(int channel);
+DLL_IMPORT int sound_is_enabled(void);
+
+// Sprite config - load custom variants in amod_sprite_config()
+DLL_IMPORT int sprite_config_load_characters(const char *path);
+DLL_IMPORT int sprite_config_load_animated(const char *path);
+DLL_IMPORT int sprite_config_load_metadata(const char *path);
 
 
 // ---------- Client exported data structures -------------

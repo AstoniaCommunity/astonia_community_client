@@ -573,6 +573,7 @@ int do_tick(void)
 		q_out = (q_out + 1) % Q_SIZE;
 		q_size--;
 		hover_capture_tick();
+		sound_fade_tick();
 
 		// increase tick
 		tick++;

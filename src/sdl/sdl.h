@@ -51,6 +51,32 @@ int init_sound(void);
 void sound_exit(void);
 void play_sound(unsigned int nr, int vol, int p);
 
+// Mod sound API
+// Sounds loaded from: sx_mod.zip > sx_patch.zip > sx.zip
+
+/* Sound loading - path is relative within zip (e.g., "weather/rain.ogg") */
+int sound_load(const char *path);
+void sound_unload(int handle);
+
+/* Playback */
+int sound_play(int handle, float volume);
+int sound_play_loop(int handle, float volume);
+void sound_stop(int channel);
+void sound_stop_all(void);
+
+/* Volume control */
+void sound_set_volume(int channel, float volume);
+void sound_fade(int channel, float target, int duration);
+float sound_get_master_volume(void);
+
+/* Query */
+int sound_is_playing(int channel);
+int sound_is_enabled(void);
+
+/* Internal - called by game tick */
+void sound_fade_tick(void);
+void sound_cleanup_mod_sounds(void);
+
 void sdl_bargraph_add(int dx, unsigned char *data, int val);
 void sdl_bargraph(int sx, int sy, int dx, unsigned char *data, int x_offset, int y_offset);
 bool sdl_has_focus(void);
