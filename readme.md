@@ -39,8 +39,17 @@ sudo pacman -S base-devel sdl3 sdl2-compat sdl2_mixer libpng libzip zlib mimallo
 
 **Debian/Ubuntu**
 ```
-sudo apt install libsdl3-dev libsdl2-compat-dev libsdl2-mixer libpng-dev libzip-dev libmimalloc-dev rustup git git-lfs
+sudo apt install libpng-dev libzip-dev libmimalloc-dev rustup git git-lfs
 ```
+
+The libsdl3-mixer package is not part of the stable debian repository and must be compiled from source.
+
+One of possible solution is:
+    - Download source package ```libsdl3``` from testing (forky), compile and install ```libsdl3-0```,
+```libsdl3-dev``` packags.
+    - Dowload source paskage ```libsdl3-mixer``` package , compile and install ```libsdl3-mixer-dev```
+package.    
+
 Note: Zig (optional) is not part of the official debian repositories. You can use an [unofficial repository](https://debian.griffo.io).
 
 _Or use Docker_ (no dependencies needed):
