@@ -10,7 +10,7 @@
 #define INVDX      4
 #define INVDY      (__invdy)
 #define CONDX      4
-#define CONDY      4
+#define CONDY      (__invdy)
 #define SKLDY      (__skldy)
 #define SKLWIDTH   145
 #define LINEHEIGHT 10
