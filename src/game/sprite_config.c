@@ -579,7 +579,7 @@ void sprite_config_shutdown(void)
 	}
 }
 
-int sprite_config_load_characters(const char *path)
+DLL_EXPORT int sprite_config_load_characters(const char *path)
 {
 	if (init_tables() < 0) {
 		return -1;
@@ -622,7 +622,7 @@ int sprite_config_load_characters(const char *path)
 	return count;
 }
 
-int sprite_config_load_animated(const char *path)
+DLL_EXPORT int sprite_config_load_animated(const char *path)
 {
 	if (init_tables() < 0) {
 		return -1;
@@ -1166,7 +1166,7 @@ static int parse_sprite_metadata(cJSON *item, SpriteMetadata *m)
 	return 0;
 }
 
-int sprite_config_load_metadata(const char *path)
+DLL_EXPORT int sprite_config_load_metadata(const char *path)
 {
 	if (init_metadata_table() < 0) {
 		return -1;

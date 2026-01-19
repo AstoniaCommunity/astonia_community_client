@@ -175,7 +175,7 @@ void sprite_config_shutdown(void);
  * path: Path to JSON file
  * Returns: Number of variants loaded, or -1 on error
  */
-int sprite_config_load_characters(const char *path);
+DLL_EXPORT int sprite_config_load_characters(const char *path);
 
 /*
  * Load animated variants from a JSON file.
@@ -184,7 +184,7 @@ int sprite_config_load_characters(const char *path);
  * path: Path to JSON file
  * Returns: Number of variants loaded, or -1 on error
  */
-int sprite_config_load_animated(const char *path);
+DLL_EXPORT int sprite_config_load_animated(const char *path);
 
 /*
  * Load variants from a JSON buffer (for future server-sent config).
@@ -260,7 +260,7 @@ void sprite_config_get_stats(size_t *char_count, size_t *anim_count);
  * path: Path to JSON file
  * Returns: Number of metadata entries loaded, or -1 on error
  */
-int sprite_config_load_metadata(const char *path);
+DLL_EXPORT int sprite_config_load_metadata(const char *path);
 
 /*
  * Look up sprite metadata by ID.
