@@ -2,6 +2,9 @@
  * Part of Astonia Client (c) Daniel Brockhaus. Please read license.txt.
  */
 
+#include <stdint.h>
+#include <string.h>
+
 #ifndef min
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #endif
