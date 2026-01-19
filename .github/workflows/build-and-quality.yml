@@ -275,6 +275,18 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
+      - name: Upload Mod SDK (Linux headers)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod-sdk-linux
+          path: |
+            src/amod/amod.h
+            src/amod/amod_structs.h
+            src/dll.h
+            src/astonia.h
+          retention-days: 30
+          if-no-files-found: error
+
   build-windows:
     needs: build-sdl3-windows
     name: Build Windows
@@ -338,6 +350,20 @@ jobs:
           path: |
             bin/moac.exe
             bin/astonia_net.dll
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Upload Mod SDK (Windows)
+        uses: actions/upload-artifact@v4
+        with:
+          name: mod-sdk-windows
+          path: |
+            lib/moac.a
+            lib/moac.lib
+            src/amod/amod.h
+            src/amod/amod_structs.h
+            src/dll.h
+            src/astonia.h
           retention-days: 30
           if-no-files-found: error
 

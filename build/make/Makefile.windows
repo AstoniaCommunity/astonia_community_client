@@ -250,13 +250,16 @@ OBJS	=		src/gui/gui_core.o src/gui/gui_input.o src/gui/gui_display.o src/gui/gui
 			src/game/version.o\
 			src/lib/cjson/cJSON.o
 
-bin/moac.exe lib/moac.a:	verify-sdl3-mixer $(OBJS) $(ASTONIA_NET_LIB)
+bin/moac.exe lib/moac.a lib/moac.lib:	verify-sdl3-mixer $(OBJS) $(ASTONIA_NET_LIB)
 			$(CC) $(LDFLAGS) -Wl,--out-implib,lib/moac.a -o bin/moac.exe $(OBJS) $(ASTONIA_NET_LIB) $(LIBS)
+			@echo "Creating MSVC-compatible import library..."
+			@cp lib/moac.a lib/moac.lib
 			@echo "Copying Rust DLL to bin directory..."
 			@cp $(ASTONIA_NET_DIR)/target/$(ASTONIA_NET_TGT)/release/astonia_net.dll bin/ || { echo "Failed to copy DLL"; exit 1; }
 			@echo "Build completed successfully!"
 			@echo "Output: bin/moac.exe, bin/astonia_net.dll"
-			@ls -lh bin/moac.exe bin/astonia_net.dll
+			@echo "Import libraries: lib/moac.a (GCC/Clang), lib/moac.lib (MSVC)"
+			@ls -lh bin/moac.exe bin/astonia_net.dll lib/moac.a lib/moac.lib
 
 bin/moac_dbg.exe lib/moac_dbg.a:	$(OBJS) $(ASTONIA_NET_LIB)
 			$(CC) $(LDFLAGS_CONSOLE) -Wl,--out-implib,lib/moac_dbg.a -o bin/moac_dbg.exe $(OBJS) $(ASTONIA_NET_LIB) $(LIBS)
