@@ -229,7 +229,6 @@ uint64_t gui_time_network = 0;
 uint64_t gui_frametime = 0;
 uint64_t gui_ticktime = 0;
 
-#define MAXHELP   24
 #define MAXQUEST2 10
 
 // Forward declarations for functions in other GUI modules

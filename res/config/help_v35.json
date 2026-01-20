@@ -1,0 +1,495 @@
+{
+  "fast_help": [
+    "Walk: LEFT-CLICK",
+    "Look on Ground:  RIGHT-CLICK",
+    "Take/Drop/Use: SHIFT LEFT-CLICK",
+    "Look at Item: SHIFT RIGHT-CLICK",
+    "Attack/Give: CTRL LEFT-CLICK",
+    "Look at Character: CTRL RIGHT-CLICK",
+    "Use Item in Inventory: LEFT-CLICK or F1...F4",
+    "Fast/Normal/Stealth: F5/F6/F7",
+    "Scroll Chat Window: PAGE-UP/PAGE-DOWN",
+    "Repeat last Tell: TAB",
+    "Close Help: F11",
+    "Show Walls: F8",
+    "Quit Game: F12 - preferably on blue square",
+    "Assign Wheel Button: Use Wheel",
+    "",
+    "Click the button in the lower right corner to see the full help index."
+  ],
+  "topics": [
+    {
+      "title": "Accounts",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Your account belongs to you only.  If you log in to other players' accounts, or if you let other players log in to your account, all accounts involved will be banned.  Any account that appears to be shared or traded will be banned permanently.  We reserve the right to cancel any account at any time. Be smart - protect your account!  If you have a question concerning your account or trouble with your account payments, please write {game_email_cash}."
+        },
+        {
+          "type": "text",
+          "text": "There are two types of accounts - free and premium.  Free accounts can be played by anyone.  Premium (paid) accounts offer several advantages, such as larger inventory, ability to use 2- and 3-stat items and preferred access if the server is busy."
+        }
+      ]
+    },
+    {
+      "title": "Alias commands",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Text phrases that you use repeatedly can be stored as Alias commands and retrieved with a few characters. You can store up to 32 alias commands. To store an alias command, you first have to pick a phrase to store, then give that phrase a name. The alias command for storing text is: /alias <alias phrase name> <phrase>"
+        },
+        {
+          "type": "text",
+          "text": "For example, to get the phrase, \"Let's go penting today!\", whenever you type p1, you'd type: /alias p1 Let's go penting today!"
+        },
+        {
+          "type": "text",
+          "text": "To delete an alias, first type: /alias to bring up your list of aliases.  Choose which alias you want to delete, then type:  /alias <name of alias>."
+        }
+      ]
+    },
+    {
+      "title": "Banking",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Money and items can be stored in a depot (item storage locker) at the Imperial Bank.  All characters on your account share the same bank depot and you can access your depot at any bank.  SHIFT + LEFT CLICK on the wood cabinet in any bank to access your depot.  Only gold coins can be deposited with the bank or in your depot - silver coins cannot be deposited.  To quickly sort items in your depot, type:  /sortdepot.  Talk to the Banker to get more information about banking."
+        }
+      ]
+    },
+    {
+      "title": "Base/Mod Values",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "All your attributes and skills show two values:  the first one is the base value (it shows how much you have raised it); the second is the modified (mod) value.  The mod value consists of the base value, plus bonuses from your base attributes and special items.  No skill or spell values can be raised through items by more than 50% of its base value."
+        }
+      ]
+    },
+    {
+      "title": "Chat and Channels",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Everything you hear and say is displayed in the chat window at the bottom of your screen.  To talk to a character standing next to you, just type what you'd like to say and hit ENTER.  To say something in the general chat channel (the \"Gossip\" channel) which will be heard by all other players, type:  /c2 <your message> and hit ENTER.  Use the PAGE UP and PAGE DOWN keys on your keyboard to scroll the chat window up and down.  To see a list of channels in the game, type:  /channels.  To join a channel, type:  /join <channel number>.  To leave a channel, type:  /leave <channel number>.  Spamming, offensive language, and disruptive chatter is not allowed.  To send a message to a particular player, type:  /tell <player name> and then your message.  Nobody else will hear what you said."
+        }
+      ]
+    },
+    {
+      "title": "Clans",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "There is detailed information about clans in the Game Manual at {game_url}. To see a list of clans in the game, type: /clan."
+        },
+        {
+          "type": "text",
+          "text": "A player can join a clan at any time, provided that the player has not joined a clan within the last 3 days and/or the player has not left or been fired from a clan within the last 12 hours."
+        }
+      ]
+    },
+    {
+      "title": "Colors",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "All characters enter the game with a set of default colors for their clothing and hair, but you can change the color of your character's shirt, pants/skirt, and hair/cap if you choose."
+        },
+        {
+          "type": "text",
+          "text": "Matte Colors.  Use the Color Toolbox in the game to choose matte colors.  Type:  /col1  to bring up the Color Toolbox.  From left to right, the three circles at the bottom represent shirt color, pants/skirt color, and hair/cap color.  Click on a circle, then move the color bars to find a color that you like.  The model in the box displays your color choices.  Click the Exit button to exit the Color Toolbox."
+        },
+        {
+          "type": "text",
+          "text": "Glossy Colors.  To make glossy colors, you use a command typed into the chat area instead of using the Color Toolbox.  Like mixing paints, the number values you choose (between 1-31) for the red (R), green (G), and blue (B) amounts determine how much of each is mixed in.  Adding an extra 31 to the red (R) value makes the color combination you have chosen a glossy color."
+        }
+      ]
+    },
+    {
+      "title": "Colors 2",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "When typing the command, you first start by hitting the spacebar on your keyboard once, then  typing one of these commands:  "
+        },
+        {
+          "type": "text",
+          "text": "/col1 <R><G><B> shirt color"
+        },
+        {
+          "type": "text",
+          "text": "/col2 <R><G><B> pants/skirt/cape color"
+        },
+        {
+          "type": "text",
+          "text": "/col3 <R><G><B> hair/cap color"
+        },
+        {
+          "type": "text",
+          "text": "Example:  to make your pants a glossy green color, you would hit the spacebar once, then type:  /col2 32 31 1.  To make your hair/cap a glossy yellow, hit the spacebar once then type:  /col3 62 31 1.  Black is 1 1 1 and white is 31 31 31.  There is no glossy black color.  If you are having trouble with the command, make sure you have hit the spacebar on your keyboard once before typing in the command.  The command will not work without a space in front of it.  Try experimenting with different color combinations to see what colors you can develop!"
+        }
+      ]
+    },
+    {
+      "title": "Commands",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Type: /help to see a list of all available commands.  You can type:  /status  to see a list of optional toggle commands that may aid your character's performance."
+        }
+      ]
+    },
+    {
+      "title": "Complains/Harassment",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "If you feel another player's behavior is disrupting the game, you can type:  /complain <player name><reason>  This command sends a screenshot of the disruptive chat to Game Admin.  The <reason> portion of the command is for you to enter your own comments regarding the situation. Please be aware that only the last 80 lines of text are sent and that each server-change (teleport) erases this buffer.  You can also type:  /ignore <name>  to ignore the things a player is saying."
+        }
+      ]
+    },
+    {
+      "title": "Dying",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "When you die, you will suddenly find yourself on a blue square - the last blue square you stepped on.  If you did not have a 'save', then your corpse will be at the place where you died and all the items from your Inventory will be with your corpse. You have 30 minutes to make it back to your corpse to get these items. After 30 minutes, your corpse disappears, along with your inventory items.  You are the only one allowed access to your corpse to retrieve items."
+        }
+      ]
+    },
+    {
+      "title": "Enhanced Items",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "An Enhanced Item has 4 qualities:"
+        },
+        {
+          "type": "text",
+          "text": "Strength - The health of the item. This will drop over time due to combat and can be brought back up by using silver units and gold units (not coins)."
+        },
+        {
+          "type": "text",
+          "text": "Complexity - The health (Strength) of an item at 100% effectivity. A lower complexity means less silver units or gold units have to be used to repair it."
+        },
+        {
+          "type": "text",
+          "text": "Quality - The overall quality of an item. A high Quality means a lower cost of repairing the item."
+        },
+        {
+          "type": "text",
+          "text": "Effectivity - The health of the item in percentages. As this drops the bonus from the item will drop. A +10 item with 50% effectivity will give only a +5 bonus. With 120% effectivity the same item will give a +12 bonus. Use silver units to get up to 105%, gold units up to 120%."
+        }
+      ]
+    },
+    {
+      "title": "Enhancing Equipment",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Orbs can be used to further enhance equipment that already have bonuses. For example, a Magic Shield +1 ring has a bonus; a plain ring does not and cannot be enhanced. To enhance an item with a bonus, you will need stones and an orb. Stones are found on corpses of monsters in the Pentagram Quest(tm) - the monster corpses won't disappear if there is an item, including stones, left behind on their corpse, so be sure to check all non-disappearing corpses! Stones (earth, fire, ice, and hell), increase the strength and complexity of an orb."
+        },
+        {
+          "type": "text",
+          "text": "In your inventory, SHIFT + LEFT CLICK the piece of equipment you wish to enhance and move it over the top of the orb, then release the SHIFT key and LEFT CLICK the piece on the orb. If there is enough Strength on the orb, the piece will be enhanced by 1. If there is not enough Strength on the orb, you will get a text message telling you how much is needed to enhance the item. RIGHT click on orbs and stones to read about them."
+        }
+      ]
+    },
+    {
+      "title": "Fighting",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "To attack somebody, place your cursor over the character you'd like to attack, and then hit CTRL + LEFT CLICK."
+        }
+      ]
+    },
+    {
+      "title": "Game Moderators",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "The Game Moderators are members of Admin who help keep the in-game playing field running smoothly.  Admin can be recognized by their name being in capital letters (i.e. 'COLOMAN' is a member of Admin, 'Coloman' is not).  Admin help keep the peace, answer questions, and can punish unruly players (if needed)."
+        }
+      ]
+    },
+    {
+      "title": "Gold",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Gold and silver are the monetary units used in the game.  To give money to another person, place your cursor over your gold (bottom of your screen), LEFT CLICK, and slowly drag your mouse upwards until you have the amount on your cursor that you want.  Then, let your cursor rest on the person you wish to give the money to, and hit CTRL + LEFT CLICK."
+        }
+      ]
+    },
+    {
+      "title": "Items",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "To use or pick up items around you, put your cursor over the item and hit SHIFT + LEFT CLICK.  To use an item in your Inventory, LEFT CLICK on it.  To give an item to another character, take the item by using SHIFT + LEFT CLICK, then pull it over the other character and hit CTRL + LEFT CLICK.  To loot the corpses of slain enemies, place your cursor over the body and hit SHIFT + LEFT CLICK."
+        },
+        {
+          "type": "text",
+          "text": "Some items can only be worn by mages, warriors, or seyans.  For example, a mage cannot use a sword and a warrior cannot use a staff.  If you cannot equip an item it may be because your class of character cannot wear that particular item, or because of level/skill restrictions on that item.  RIGHT click on the item to read more about it."
+        }
+      ]
+    },
+    {
+      "title": "Karma",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Karma is a measurement of how well a player has obeyed game rules. When you receive a Punishment, you lose karma. All players enter the game with 0 karma. If you receive a Level 1 punishment, for example, your karma will drop to -1. Please review the Laws, Rules, and Regulations section in the Game Manual to familiarize yourself with the punishment system."
+        }
+      ]
+    },
+    {
+      "title": "Leaving the game",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "To leave the game, step on one of the blue tile rest areas and hit F12. You can also hit F12 when not on a blue tile, but your character will stay in that same spot for five minutes and risks being attacked."
+        }
+      ]
+    },
+    {
+      "title": "Light",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Torches provide the main source of light in the game.  To use a torch, equip it, then LEFT CLICK on it to light it.  It is a good idea to carry extras with you at all times."
+        }
+      ]
+    },
+    {
+      "title": "Looking at characters/items",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "To look at a character, place your cursor over him and hit CTRL + RIGHT CLICK.  To look at an item around you, place your cursor over the item and hit  SHIFT + RIGHT CLICK.  To look at an item in your Equipment/Inventory areas or in a shop window, (place your cursor over the item and) RIGHT CLICK."
+        }
+      ]
+    },
+    {
+      "title": "Mirrors",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Each area can have up to 26 mirrors (servers), to allow more players to be online at once.  Your mirror number determines which mirror you use.  You can see which mirror you are currently on by \"looking\" at yourself (place your cursor over yourself and hit CTRL + RIGHT CLICK).  If you would like to meet a player on a different mirror, go to a teleport station, click on the corresponding mirror number (M1 to M26) and teleport to the area that the other player is in.  You have to teleport, even if the other player is in the same area."
+        }
+      ]
+    },
+    {
+      "title": "Navigational Directions",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Compass directions (North, East, South, West) are the same in the game as in real life.  North, for example, would be 'up' (the top of your screen).  East would be to the direct right of your screen."
+        }
+      ]
+    },
+    {
+      "title": "Negative Experience",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "When you die, you lose experience points. Too many deaths can result in Negative Experience. Once this Negative Experience is made up, then experience points obtained will once again count towards leveling."
+        }
+      ]
+    },
+    {
+      "title": "Orbs",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "An Orb has the same 3 qualities as a Stone:"
+        },
+        {
+          "type": "text",
+          "text": "Strength - Used to determine if a piece of equipment can be enhanced or not. The amount it takes to enhance the item is added to the equipment and subtracted from the Orb."
+        },
+        {
+          "type": "text",
+          "text": "Complexity - A certain amount will be added to the equipment when an Orb is used. The formula is: (str / quality) * 100 = complexity added"
+        },
+        {
+          "type": "text",
+          "text": "Quality - A percentage showing strength compared to complexity. The higher the percentage the better."
+        }
+      ]
+    },
+    {
+      "title": "The Pentagram Quest(tm)",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "The Pentagram Quest(tm) is a game that all players (from about level 10 and up) can play together.  It's an ongoing game that takes place in \"the pents\" - a large, cavernous area partitioned off according to player levels.  The walls and floors of this area are covered with \"stars\" (pentagrams) and the object of the game is to touch as many pentagrams as possible as you fight off the evil demons that inhabit the area.  Once a randomly chosen number of pentagrams have been touched, the pents are \"solved\", and you receive experience points for the pentagrams you touched. The entrances to the Pentagram Quest  are southeast of blue squares in Aston - be sure to SHIFT + RIGHT CLICK on the doors to determine which level area is right for you!"
+        }
+      ]
+    },
+    {
+      "title": "Punishments",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Punishments range from a temporary ban to complete deletion of a player's account.  Please review the Terms section in the Game Manual to familiarize yourself with the punishment system."
+        }
+      ]
+    },
+    {
+      "title": "Quests",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Your first quest will be to find Lydia, the daughter of Gwendylon the mage.  She will ask you to find a potion which was stolen the night before.  Lydia lives in the grey building across from the fortress (the place where you first arrived in the game)."
+        },
+        {
+          "type": "text",
+          "text": "NPCs (Non-Player Characters) give the quests in the game.  Even if you talked to an NPC before, talk to him again; he may tell you something new or give you another quest.  Say \"hi\" or <name> \"repeat\" to get an NPC to talk to you.   Be sure to step all the way into a room or area as you quest; monsters, chests, and doors may be hidden in the shadows.  Carry a torch to light your way, and always check the bodies of slain enemies (SHIFT + LEFT CLICK)."
+        },
+        {
+          "type": "text",
+          "text": "Repeating a quest is an excellent way to gain extra experience points.  Hit the F9 button to display a list of completed quests.  Click on 're-open' to do a quest over.  Each quest that can be re-opened shows the percentage of experience points you can get for that quest by doing the quest again.  Some quests cannot be repeated and there will be no Re-open option for those."
+        }
+      ]
+    },
+    {
+      "title": "Questions",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "If you have a question while in the game, you can always ask a Staffer. Staffers and other admin can be recognized by their name being in capital letters (i.e. \"COLOMAN\" is a member of Admin, \"Coloman\" is not).  For any other game related questions, please write to {game_email_main}."
+        }
+      ]
+    },
+    {
+      "title": "Reading books, signs, etc.",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "To read books, use SHIFT + LEFT CLICK.  To read signs, use SHIFT + RIGHT CLICK."
+        }
+      ]
+    },
+    {
+      "title": "Repairing Equipment",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Equipment will degrade over time, but only if actively used. Damage and wear affects both the Strength and Effectivity of equipment (RIGHT click on the piece to read about it).  All new items have a 110% Effectivity level. An item repaired with silver can be repaired up to 105% Effectivity, while an item repaired with gold can be repaired up to the maximum level of 120% Effectivity. The level of Effectivity of a piece also affects its bonus stats. For example, a +10 parry ring with 100% Effectivity will have a bonus of +10; the same ring at 50% Effectivity will have a bonus of +5."
+        },
+        {
+          "type": "text",
+          "text": "Silver will repair a piece up to 105%; gold can be used to repair it to a maximum Effectivity level of 120%."
+        },
+        {
+          "type": "text",
+          "text": "Strength determines how much silver or gold will be needed to repair the piece. For example, a +1 fire ring has a maximum Strength of 300 at 120% Effectivity. At 105% Effectivity, this ring has a Strength of 262. If a piece is at 60% Effectivity, the Strength is 150. Repairing with silver first, up to 105% Effectivity, you will need (262 - 150) = 112 silver. Once it's up to 105% Effectivity, then use gold to repair it up to 120%. For this you will need (300 - 262) = 38 gold."
+        }
+      ]
+    },
+    {
+      "title": "Saves",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "With each new level you obtain as you play, you also receive a Save. A Save is a gift from Ishtar: if you die, your items stay with you instead of having them left on your corpse, and you will not get negative experience. The maximum number of Saves that a player can have at any time is three."
+        }
+      ]
+    },
+    {
+      "title": "Scamming",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Most cases of scamming happen when players share passwords.  NEVER give your password to another player for any reason!  Make your passwords hard to guess by using a combination of numbers and letters.  Change your password often; go to {game_url}, then click on Account Management to change your password.  Always use an NPC Trader when trading with another player.  The NPC Trader can be found in most towns in or near the banks - he is a non-playing character that will handle the trade for both parties.  If a player does not want to use an NPC Trader for trading with you, then do not trade with him - he could potentially steal your items.  Do not put your items on the ground when trading with another player or you risk losing them.  Be wary of loaning your equipment to others - unfortunately, many never see their items again."
+        }
+      ]
+    },
+    {
+      "title": "Shops",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "To open a shop window with a merchant, type:  trade <merchant name>  When trading with a merchant, the items for sale are shown at the bottom-left of your screen (the view of your skills/stats is temporarily replaced by the shop window).  To read about the items, RIGHT CLICK on them.  To buy something, LEFT CLICK on it.  To sell an item from your inventory, LEFT CLICK on it."
+        }
+      ]
+    },
+    {
+      "title": "Skills/Stats",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "In your stats/skills window (bottom-left of your screen) you see red/blue lines below your skills. Blue indicates that you have enough experience points to raise the skill; red indicates that you don't have enough experience points. To raise a skill, CLICK on the blue orb next to the skill."
+        }
+      ]
+    },
+    {
+      "title": "Spells",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "To use a spell, hit ALT and the corresponding number of the spell that appears on your screen.  Mages - to cast the Heal spell on another player, rest your cursor on him and hit CTRL 7.  The Heal spell restores Hitpoints gradually over a period of time.  Warriors - hit ALT 8 to use Warcry."
+        }
+      ]
+    },
+    {
+      "title": "Stones",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "A Stone has 3 qualities:"
+        },
+        {
+          "type": "text",
+          "text": "Strength - This is added to an orb to make it stronger so it can be used to enhance equipment."
+        },
+        {
+          "type": "text",
+          "text": "Complexity - This is added to an orb and eventually determines how much it will cost to repair an item."
+        },
+        {
+          "type": "text",
+          "text": "Quality - A percentage showing strength compared to complexity. The higher the percentage the better."
+        }
+      ]
+    },
+    {
+      "title": "Tokens",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "You can pay for another player's account using the in-game payment system. After making the corresponding payment in your account management, you will receive a payment token.  Payment tokens are not 'items' in the game, like equipment or coins are, but are part of your /status listing.  You can see how many tokens you have by typing: /status.  You can then sell the payment token in game.  Any other form of payment (including cash, equipment trades, or items from other games) is illegal and may be punished.  Tokens can only be traded by using a Trader NPC in the game."
+        }
+      ]
+    },
+    {
+      "title": "Talking",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "Everything you hear and say is displayed in the chat window at the bottom of your screen.  To talk to a character standing next to you, just type what you'd like to say and hit ENTER.  To say something in the general chat channel (the \"Gossip\" channel) which will be heard by all other players, type:  /c2 <your message> and hit ENTER.  Use the PAGE-UP and PAGE-DOWN keys on your keyboard to scroll the chat window up and down."
+        }
+      ]
+    },
+    {
+      "title": "Transport System",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "You will find Teleport Stations, relics of the ancient culture, all over the world.  SHIFT + LEFT CLICK on the Teleport Station to see a map of all Teleport Stations.  CLICK on the destination of your choice.  You will only be able to teleport to a destination that you have reached at least once before by foot.  Touch any new Teleport Station on your way so that you can teleport there in times to come."
+        }
+      ]
+    },
+    {
+      "title": "Walking",
+      "blocks": [
+        {
+          "type": "text",
+          "text": "To walk, move your cursor to the place where you'd like to go, then LEFT CLICK on your destination."
+        }
+      ]
+    }
+  ]
+}

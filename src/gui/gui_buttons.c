@@ -17,7 +17,6 @@
 #include "sdl/sdl.h"
 #include "modder/modder.h"
 
-#define MAXHELP   24
 #define MAXQUEST2 10
 
 // Forward declarations for functions used by exec_cmd
@@ -328,15 +327,35 @@ static void detect_hover_target(void)
 		if (mousex >= dotx(DOT_HLP) && mousex <= dotx(DOT_HL2) && mousey >= doty(DOT_HLP) && mousey <= doty(DOT_HL2)) {
 			butsel = BUT_HELP_MISC;
 
-			if (display_help == 1 && mousex >= dotx(DOT_HLP) + 7 && mousex <= dotx(DOT_HLP) + 136 &&
-			    mousey >= 198 + doty(DOT_HLP) && mousey <= 198 + doty(DOT_HLP) + 12 * 10) {
-				helpsel = (mousey - (198 + doty(DOT_HLP))) / 10 + 2;
-				if (mousex > dotx(DOT_HLP) + 110) {
-					helpsel += 12;
-				}
+			if (display_help == 2) {
+				if (help_index_count > 0) {
+					int start_x = dotx(DOT_HLP) + 10;
+					int start_y = doty(DOT_HLP) + HELP_PAGE_MARGIN_TOP;
+					int content_bottom = doty(DOT_HL2) - HELP_PAGE_MARGIN_BOTTOM;
+					int rows;
+					int columns = 2;
+					int max_entries;
+					int visible;
+					int title_height = render_text_break_length(0, 0, HELP_TEXT_WIDTH, whitecolor, 0, "Help Index");
 
-				if (helpsel < 2 || helpsel > MAXHELP) {
-					helpsel = -1;
+					start_y += title_height + HELP_INDEX_TITLE_SPACING;
+					rows = (content_bottom - start_y) / HELP_INDEX_ROW_HEIGHT;
+					if (rows < 1) {
+						rows = 1;
+					}
+					max_entries = rows * columns;
+					visible = min(help_index_count, max_entries);
+
+					if (mousex >= start_x && mousex < start_x + HELP_INDEX_COL_WIDTH * columns && mousey >= start_y &&
+					    mousey < start_y + rows * HELP_INDEX_ROW_HEIGHT) {
+						int col = (mousex - start_x) / HELP_INDEX_COL_WIDTH;
+						int row = (mousey - start_y) / HELP_INDEX_ROW_HEIGHT;
+						int entry = row + col * rows;
+
+						if (entry >= 0 && entry < visible) {
+							helpsel = help_index_page_for_entry(entry);
+						}
+					}
 				}
 			}
 
@@ -728,7 +747,7 @@ void exec_cmd(int cmd, int a)
 	case CMD_HELP_NEXT:
 		if (display_help) {
 			display_help++;
-			if (display_help > MAXHELP) {
+			if (display_help > help_page_count) {
 				display_help = 1;
 			}
 		}
@@ -743,7 +762,7 @@ void exec_cmd(int cmd, int a)
 		if (display_help) {
 			display_help--;
 			if (display_help < 1) {
-				display_help = MAXHELP;
+				display_help = help_page_count;
 			}
 		}
 		if (display_quest) {
@@ -758,7 +777,7 @@ void exec_cmd(int cmd, int a)
 		display_quest = 0;
 		return;
 	case CMD_HELP_MISC:
-		if (helpsel > 0 && helpsel <= MAXHELP && display_help) {
+		if (helpsel > 0 && helpsel <= help_page_count && display_help) {
 			display_help = helpsel;
 		}
 		if (questsel != -1) {

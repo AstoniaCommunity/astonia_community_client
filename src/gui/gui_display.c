@@ -6,6 +6,7 @@
  */
 
 #include <inttypes.h>
+#include <string.h>
 #include <time.h>
 #include <SDL3/SDL.h>
 
@@ -16,6 +17,7 @@
 #include "game/game.h"
 #include "sdl/sdl.h"
 #include "modder/modder.h"
+#include "lib/cjson/cJSON.h"
 
 void display_helpandquest(void)
 {
@@ -480,484 +482,458 @@ void update_ui_layout(void)
 	set_button_flags();
 }
 
+typedef enum HelpBlockType {
+	HELP_BLOCK_TITLE = 0,
+	HELP_BLOCK_TEXT = 1,
+} HelpBlockType;
+
+typedef struct HelpBlock {
+	HelpBlockType type;
+	char *text;
+} HelpBlock;
+
+typedef struct HelpTopic {
+	char *title;
+	HelpBlock *blocks;
+	int block_count;
+} HelpTopic;
+
+static HelpTopic *help_topics = NULL;
+static int help_topic_count = 0;
+static int *help_topic_pages = NULL;
+static char **help_fast_help = NULL;
+static int help_fast_help_count = 0;
+static char **help_index_titles = NULL;
+static int *help_index_pages = NULL;
+int help_page_count = 2;
+int help_index_count = 0;
+
+static char *help_load_file(const char *path, size_t *out_len)
+{
+	FILE *f = fopen(path, "rb");
+	if (!f) {
+		return NULL;
+	}
+
+	fseek(f, 0, SEEK_END);
+	long len = ftell(f);
+	fseek(f, 0, SEEK_SET);
+
+	if (len <= 0) {
+		fclose(f);
+		return NULL;
+	}
+
+	char *buf = xmalloc((size_t)len + 1, MEM_TEMP);
+	if (!buf) {
+		fclose(f);
+		return NULL;
+	}
+
+	size_t read = fread(buf, 1, (size_t)len, f);
+	fclose(f);
+
+	buf[read] = '\0';
+	if (out_len) {
+		*out_len = read;
+	}
+
+	return buf;
+}
+
+static void help_format_text(const char *in, char *out, size_t out_size)
+{
+	size_t out_len = 0;
+	int i;
+
+	struct {
+		const char *token;
+		const char *value;
+	} replacements[] = {
+	    {"{game_url}", game_url ? game_url : ""},
+	    {"{game_email_cash}", game_email_cash ? game_email_cash : ""},
+	    {"{game_email_main}", game_email_main ? game_email_main : ""},
+	};
+
+	if (!in || !out || out_size == 0) {
+		return;
+	}
+
+	for (i = 0; in[i] && out_len + 1 < out_size;) {
+		int replaced = 0;
+		int r;
+
+		for (r = 0; r < (int)(sizeof(replacements) / sizeof(replacements[0])); r++) {
+			size_t token_len = strlen(replacements[r].token);
+			if (strncmp(&in[i], replacements[r].token, token_len) == 0) {
+				size_t value_len = strlen(replacements[r].value);
+				size_t copy_len = min(value_len, out_size - 1 - out_len);
+				if (copy_len > 0) {
+					memcpy(out + out_len, replacements[r].value, copy_len);
+					out_len += copy_len;
+				}
+				i += (int)token_len;
+				replaced = 1;
+				break;
+			}
+		}
+		if (!replaced) {
+			out[out_len++] = in[i++];
+		}
+	}
+
+	out[out_len] = '\0';
+}
+
+static int help_text_height(const char *text, unsigned short color)
+{
+	char buf[4096];
+
+	help_format_text(text, buf, sizeof(buf));
+	return render_text_break_length(0, 0, HELP_TEXT_WIDTH, color, 0, buf);
+}
+
+static void help_truncate_index_title(const char *text, char *out, size_t out_size, int max_width)
+{
+	size_t n = 0;
+	int ellipsis_width;
+	int full_width;
+	int truncated = 0;
+
+	if (!text || !out || out_size == 0) {
+		return;
+	}
+
+	full_width = render_text_length(0, text);
+	if (full_width > max_width) {
+		truncated = 1;
+		ellipsis_width = render_text_length(0, "...");
+		if (max_width > ellipsis_width) {
+			max_width -= ellipsis_width;
+		}
+	}
+
+	while (text[n] && n + 1 < out_size) {
+		int width = render_text_len(0, text, (int)(n + 1));
+		if (width > max_width) {
+			break;
+		}
+		n++;
+	}
+
+	memcpy(out, text, n);
+	out[n] = '\0';
+
+	if (truncated && n + 3 < out_size) {
+		strncat(out, "...", out_size - n - 1);
+	}
+}
+
+static int help_topic_height(const HelpTopic *topic)
+{
+	int i;
+	int height = 0;
+
+	if (!topic || !topic->title) {
+		return 0;
+	}
+
+	height += help_text_height(topic->title, whitecolor) + HELP_TITLE_SPACING;
+
+	for (i = 0; i < topic->block_count; i++) {
+		unsigned short color = topic->blocks[i].type == HELP_BLOCK_TITLE ? whitecolor : graycolor;
+		int spacing = topic->blocks[i].type == HELP_BLOCK_TITLE ? HELP_TITLE_SPACING : HELP_PARAGRAPH_SPACING;
+
+		height += help_text_height(topic->blocks[i].text, color) + spacing;
+	}
+
+	return height;
+}
+
+static void help_build_pages(void)
+{
+	int i;
+	int start_y = doty(DOT_HLP) + HELP_PAGE_MARGIN_TOP;
+	int content_bottom = doty(DOT_HL2) - HELP_PAGE_MARGIN_BOTTOM;
+	int y = start_y;
+	int page = 0;
+	int pages_for_topics = 0;
+
+	if (help_topic_count > 0) {
+		help_topic_pages = xmalloc(sizeof(*help_topic_pages) * (size_t)help_topic_count, MEM_GUI);
+	}
+
+	for (i = 0; i < help_topic_count; i++) {
+		int height = help_topic_height(&help_topics[i]);
+
+		if (y != start_y && y + height > content_bottom) {
+			page++;
+			y = start_y;
+		}
+
+		help_topic_pages[i] = page;
+		y += height;
+	}
+
+	if (help_topic_count > 0) {
+		pages_for_topics = page + 1;
+	}
+
+	help_page_count = 2 + pages_for_topics;
+	if (help_page_count < 2) {
+		help_page_count = 2;
+	}
+
+	help_index_count = help_topic_count;
+	if (help_index_count > 0) {
+		help_index_titles = xmalloc(sizeof(*help_index_titles) * (size_t)help_index_count, MEM_GUI);
+		help_index_pages = xmalloc(sizeof(*help_index_pages) * (size_t)help_index_count, MEM_GUI);
+		for (i = 0; i < help_topic_count; i++) {
+			help_index_titles[i] = help_topics[i].title;
+			help_index_pages[i] = 3 + help_topic_pages[i];
+		}
+	}
+}
+
+static int help_load_from_json(const char *json_str, const char *source_name)
+{
+	cJSON *root = cJSON_Parse(json_str);
+	if (!root) {
+		warn("help: Failed to parse %s: %s", source_name, cJSON_GetErrorPtr());
+		return -1;
+	}
+
+	cJSON *fast_help = cJSON_GetObjectItem(root, "fast_help");
+	if (fast_help && cJSON_IsArray(fast_help)) {
+		int count = cJSON_GetArraySize(fast_help);
+		int i;
+
+		if (count > 0) {
+			help_fast_help = xmalloc(sizeof(*help_fast_help) * (size_t)count, MEM_GUI);
+			help_fast_help_count = 0;
+			for (i = 0; i < count; i++) {
+				cJSON *item = cJSON_GetArrayItem(fast_help, i);
+				if (item && cJSON_IsString(item)) {
+					help_fast_help[help_fast_help_count++] = xstrdup(item->valuestring, MEM_GUI);
+				}
+			}
+		}
+	}
+
+	cJSON *topics = cJSON_GetObjectItem(root, "topics");
+	if (topics && cJSON_IsArray(topics)) {
+		int count = cJSON_GetArraySize(topics);
+		int i;
+		int valid = 0;
+
+		for (i = 0; i < count; i++) {
+			cJSON *item = cJSON_GetArrayItem(topics, i);
+			cJSON *title = item ? cJSON_GetObjectItem(item, "title") : NULL;
+			if (item && cJSON_IsObject(item) && title && cJSON_IsString(title)) {
+				valid++;
+			}
+		}
+
+		if (valid > 0) {
+			help_topics = xmalloc(sizeof(*help_topics) * (size_t)valid, MEM_GUI);
+			memset(help_topics, 0, sizeof(*help_topics) * (size_t)valid);
+			help_topic_count = 0;
+			for (i = 0; i < count; i++) {
+				cJSON *item = cJSON_GetArrayItem(topics, i);
+				cJSON *title = item ? cJSON_GetObjectItem(item, "title") : NULL;
+				cJSON *blocks = item ? cJSON_GetObjectItem(item, "blocks") : NULL;
+				int block_count = 0;
+				int b;
+
+				if (!item || !cJSON_IsObject(item) || !title || !cJSON_IsString(title)) {
+					continue;
+				}
+
+				help_topics[help_topic_count].title = xstrdup(title->valuestring, MEM_GUI);
+
+				if (blocks && cJSON_IsArray(blocks)) {
+					int total = cJSON_GetArraySize(blocks);
+					for (b = 0; b < total; b++) {
+						cJSON *block = cJSON_GetArrayItem(blocks, b);
+						cJSON *text = NULL;
+						if (block && cJSON_IsString(block)) {
+							text = block;
+						} else if (block && cJSON_IsObject(block)) {
+							text = cJSON_GetObjectItem(block, "text");
+						}
+						if (text && cJSON_IsString(text)) {
+							block_count++;
+						}
+					}
+
+					if (block_count > 0) {
+						help_topics[help_topic_count].blocks =
+						    xmalloc(sizeof(*help_topics[help_topic_count].blocks) * (size_t)block_count, MEM_GUI);
+						help_topics[help_topic_count].block_count = 0;
+						for (b = 0; b < total; b++) {
+							cJSON *block = cJSON_GetArrayItem(blocks, b);
+							cJSON *type = NULL;
+							cJSON *text = NULL;
+							HelpBlockType block_type = HELP_BLOCK_TEXT;
+
+							if (block && cJSON_IsString(block)) {
+								text = block;
+							} else if (block && cJSON_IsObject(block)) {
+								type = cJSON_GetObjectItem(block, "type");
+								text = cJSON_GetObjectItem(block, "text");
+							}
+
+							if (!text || !cJSON_IsString(text)) {
+								continue;
+							}
+
+							if (type && cJSON_IsString(type) && strcmp(type->valuestring, "title") == 0) {
+								block_type = HELP_BLOCK_TITLE;
+							}
+
+							help_topics[help_topic_count].blocks[help_topics[help_topic_count].block_count].type =
+							    block_type;
+							help_topics[help_topic_count].blocks[help_topics[help_topic_count].block_count].text =
+							    xstrdup(text->valuestring, MEM_GUI);
+							help_topics[help_topic_count].block_count++;
+						}
+					}
+				}
+
+				help_topic_count++;
+			}
+		}
+	}
+
+	cJSON_Delete(root);
+
+	help_build_pages();
+	return 0;
+}
+
+static void help_set_fallback(const char *path)
+{
+	HelpTopic *topic;
+	HelpBlock *block;
+	char buf[256];
+
+	snprintf(buf, sizeof(buf), "Help data missing: %s", path ? path : "unknown");
+
+	help_topics = xmalloc(sizeof(*help_topics), MEM_GUI);
+	memset(help_topics, 0, sizeof(*help_topics));
+	help_topic_count = 1;
+	topic = &help_topics[0];
+	topic->title = xstrdup("Help", MEM_GUI);
+	topic->blocks = xmalloc(sizeof(*topic->blocks), MEM_GUI);
+	topic->block_count = 1;
+	block = &topic->blocks[0];
+	block->type = HELP_BLOCK_TEXT;
+	block->text = xstrdup(buf, MEM_GUI);
+
+	help_build_pages();
+}
+
+void help_init(void)
+{
+	char path[64];
+	char *json;
+
+	snprintf(path, sizeof(path), "res/config/help_v%d.json", sv_ver);
+	json = help_load_file(path, NULL);
+	if (!json) {
+		warn("help: Failed to read %s", path);
+		help_set_fallback(path);
+		return;
+	}
+
+	if (help_load_from_json(json, path) < 0) {
+		help_set_fallback(path);
+	}
+
+	xfree(json);
+}
+
+int help_index_page_for_entry(int entry)
+{
+	if (entry < 0 || entry >= help_index_count || !help_index_pages) {
+		return 0;
+	}
+	return help_index_pages[entry];
+}
+
 DLL_EXPORT int _do_display_help(int nr)
 {
-	int x = dotx(DOT_HLP) + 10, y = doty(DOT_HLP) + 8, oldy;
+	int x = dotx(DOT_HLP) + 10;
+	int y = doty(DOT_HLP) + HELP_PAGE_MARGIN_TOP;
+	int content_right = x + HELP_TEXT_WIDTH;
+	int content_bottom = doty(DOT_HL2) - HELP_PAGE_MARGIN_BOTTOM;
+	int i, b;
 
-	if (sv_ver == 35) {
-		return render_text_break(
-		           x, y, x + 192, whitecolor, 0, "V3.5 Help not implemented, awaiting help system rework.") +
-		       15;
+	if (nr < 1 || nr > help_page_count) {
+		nr = 1;
 	}
 
-	switch (nr) {
-	case 1:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Help Index");
-		y += 15;
+	if (nr == 1) {
+		y = render_text_break(x, y, content_right, whitecolor, 0, "Fast Help");
+		y += HELP_FAST_HELP_TITLE_SPACING;
+		for (i = 0; i < help_fast_help_count; i++) {
+			char buf[4096];
 
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Fast Help");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Walk: LEFT-CLICK");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Look on Ground:  RIGHT-CLICK");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Take/Drop/Use: SHIFT LEFT-CLICK");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Look at Item: SHIFT RIGHT-CLICK");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Attack/Give: CTRL LEFT-CLICK");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Look at Character: CTRL RIGHT-CLICK");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Use Item in Inventory: LEFT-CLICK or F1...F4");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Fast/Normal/Stealth: F5/F6/F7");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Scroll Chat Window: PAGE-UP/PAGE-DOWN");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Repeat last Tell: TAB");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Close Help: F11");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Show Walls: F8");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Quit Game: F12 - preferably on blue square");
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Assign Wheel Button: Use Wheel");
-		y += 10;
-
-		oldy = y;
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* A");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* A");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* B");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* C");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* C");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* C");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* D");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* E");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* F");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* G");
-		y = render_text_break(x, y, x + 192, lightbluecolor, 0, "* I");
-		render_text_break(x, y, x + 192, lightbluecolor, 0, "* K");
-
-		y = oldy;
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* L");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* M");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* N");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* P");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* Q");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* R");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* S");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* S");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* S");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* T");
-		y = render_text_break(x + 100, y, x + 192, lightbluecolor, 0, "* W");
-		break;
-
-	case 2:
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Accounts");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "It is your responsibility to store your account in a safe place. If someone steals or messes with your "
-		    "account, you're still responsible. If you manage to lose your account, it is lost. If you lose your "
-		    "password, the only thing we can do is send it to your account's e-mail address. If that e-mail address "
-		    "turns out to be wrong or doesn't exist, there is nothing more we can do for you.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Account Payments");
-		y += 5;
-		y = render_text_break_fmt(x, y, x + 192, graycolor, 0,
-		    "If you are having trouble with your account payments, or if you have questions concerning account "
-		    "payments, please write %s.",
-		    game_email_cash);
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Account Sharing");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "When you share accounts with another player, you are risking the security of your game characters and "
-		    "their equipment.  In most cases of account sharing, characters are stripped of their equipment and their "
-		    "game gold by the one(s) that the account is being shared with.  Characters can end up locked or banned "
-		    "from the game, or with negative leveling experience.  Be wise, don't share!");
-		y += 10;
-		break;
-	case 3:
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Alias commands");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Text phrases that you use repeatedly can be stored as Alias commands and retrieved with a few characters. "
-		    "You can store up to 32 alias commands. To store an alias command, you first have to pick a phrase to "
-		    "store, then give that phrase a name. The alias command for storing text is: /alias <alias phrase name> "
-		    "<phrase>");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "For example, to get the phrase, \"Let's go penting today!\", whenever you type p1, you'd type: /alias p1 "
-		    "Let's go penting today!");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "To delete an alias, first type: /alias to bring up your list of aliases.  Choose which alias you want to "
-		    "delete, then type:  /alias <name of alias>.");
-		y += 10;
-		break;
-
-	case 4:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Banking");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Money and items can be stored in the Imperial Bank.  You have one account per character, and you can "
-		    "access your account at any bank.  SHIFT + LEFT CLICK on the cabinet in the bank to access your Depot "
-		    "(item storage locker).  Only gold coins can be deposited in your account or depot - silver coins cannot "
-		    "be deposited.  Talk to the banker to get more information about banking.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Base/Mod Values");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "All your attributes and skills show two values:  the first one is the base value (it shows how much you "
-		    "have raised it); the second is the modified (mod) value.  It consists of the base value, plus bonuses "
-		    "from your base attributes and special items.  No skill or spell values can be raised through items by "
-		    "more than 50% of its base value.");
-		y += 10;
-		break;
-	case 5:
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Chat and Channels");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Everything you hear and say is displayed in the chat window at the bottom of your screen.  To talk to a "
-		    "character standing next to you, just type what you'd like to say and hit ENTER.  To say something in the "
-		    "general chat channel (the \"Gossip\" channel) which will be heard by all other players, type:  /c2 <your "
-		    "message> and hit ENTER.  Use the PAGE UP and PAGE DOWN keys on your keyboard to scroll the chat window up "
-		    "and down.  To see a list of channels in the game, type:  /channels.  To join a channel, type:  /join "
-		    "<channel number>.  To leave a channel, type:  /leave <channel number>.  Spamming, offensive language, and "
-		    "disruptive chatter is not allowed.  To send a message to a particular player, type:  /tell <player name> "
-		    "and then your message.  Nobody else will hear what you said.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Clans");
-		y += 5;
-		y = render_text_break_fmt(x, y, x + 192, graycolor, 0,
-		    "There is detailed information about clans in the Game Manual at %s. To see a list of clans in the game, "
-		    "type: /clan.",
-		    game_url);
-		y += 10;
-		break;
-
-	case 6:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Colors");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "All characters enter the game with a set of default colors for their clothing and hair, but you can "
-		    "change the color of your character's shirt, pants/skirt, and hair/cap if you choose.");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Matte Colors.  Use the Color Toolbox in the game to choose matte colors.  Type:  /col1  to bring up the "
-		    "Color Toolbox.  From left to right, the three circles at the bottom represent shirt color, pants/skirt "
-		    "color, and hair/cap color.  Click on a circle, then move the color bars to find a color that you like.  "
-		    "The model in the box displays your color choices.  Click the Exit button to exit the Color Toolbox.");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Glossy Colors.  To make glossy colors, you use a command typed into the chat area instead of using the "
-		    "Color Toolbox.  Like mixing paints, the number values you choose (between 1-31) for the red (R), green "
-		    "(G), and blue (B) amounts determine how much of each is mixed in.  Adding an extra 31 to the red (R) "
-		    "value makes the color combination you have chosen a glossy color.");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "When typing the command, you first start by hitting the spacebar on your keyboard once, then  typing one "
-		    "of these commands:  ");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0, "/col1 <R><G><B> shirt color");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0, "/col2 <R><G><B> pants/skirt/cape color");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0, "/col3 <R><G><B> hair/cap color");
-		y += 10;
-		break;
-	case 7:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Commands");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Type: /help to see a list of all available commands.  You can type:  /status  to see a list of optional "
-		    "toggle commands that may aid your character's performance.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Complains/Harassment");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "If another player harasses you,  type:  /complain <player><reason>  This command sends a screenshot of "
-		    "your chat window to Game Management.  Replace <player> with the name of the player bothering you.  The "
-		    "<reason> portion of the command is for you to enter your own comments regarding the situation. Please be "
-		    "aware that only the last 80 lines of text are sent and that each server-change (teleport) erases this "
-		    "buffer.  You can also type:  /ignore <name>  to ignore the things that player is saying to you.");
-		y += 10;
-		break;
-	case 8:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Dying");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "When you die, you will suddenly find yourself on a blue square - the last blue square that you stepped "
-		    "on.  You may see a message displayed on your screen telling you the name and level of the enemy that "
-		    "killed you.  If you were not saved, then your corpse will be at the place where you died and all of your "
-		    "items from your Equipment area and your Inventory will still be on your corpse. You have 30 minutes to "
-		    "make it back to your corpse to get these items. After 30 minutes, your corpse disappears, along with your "
-		    "items.");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0, "Allowing Access to Your Corpse:");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "You can allow another player to retrieve your items from your corpse by typing: /allow <player name> "
-		    "Quest items and keys can only be retrieved from a corpse by the one who has died, even if you /allow "
-		    "someone to access to your corpse.");
-		y += 10;
-		break;
-
-	case 9:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Enhancing Equipment");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Enhancing equipment is silver plating and/or gold plating a piece of equipment to make it stronger and "
-		    "more valuable.  To silver/gold plate an item, you will need silver/gold nuggets from the mines.  You must "
-		    "silver plate an item before you can gold plate it.  Silver adds +1 to all the stat(s) of an item;  for "
-		    "example, if you have a +2 parry sword, after silvering it you will have a +3 parry sword.  Gold plating "
-		    "then adds another +1 to all stat(s).  Once you have gold plated an item, you can only enhance it further "
-		    "by using orbs and/or welds.  To figure how much silver/gold you need for enhancing an item, the formula "
-		    "is:  (highest stat on item + 1) x 100 = amount of silver/gold needed. Silvering/guilding will add a level "
-		    "to weapons/armors: lvl 20 sword will become lvl 30 sword after silvering etc.");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Silvering/guilding an item will also increase its level requirement.  For example, a level 20 sword will "
-		    "then become a level 30 sword.");
-		y += 10;
-		break;
-	case 10:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Fighting");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "To attack somebody, place your cursor over the character you'd like to attack, and then hit CTRL + LEFT "
-		    "CLICK.");
-		y += 10;
-		break;
-	case 11:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Gold");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Gold and silver are the monetary units used in the game.  To give money to another person, place your "
-		    "cursor over your gold (bottom of your screen), LEFT CLICK, and slowly drag your mouse upwards until you "
-		    "have the amount on your cursor that you want.  Then, let your cursor rest on the person you wish to give "
-		    "the money to, and hit CTRL + LEFT CLICK.");
-		y += 10;
-		break;
-	case 12:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Items");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "To use or pick up items around you, put your cursor over the item and hit SHIFT + LEFT CLICK.  To use an "
-		    "item in your Inventory, LEFT CLICK on it.  To give an item to another character, take the item by using "
-		    "SHIFT + LEFT CLICK, then pull it over the other character and hit CTRL + LEFT CLICK.  To loot the corpses "
-		    "of slain enemies, place your cursor over the body and hit SHIFT + LEFT CLICK.");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Some items have level restrictions and/or skill restrictions.  Some items can only be worn by mages, "
-		    "warriors, or seyans.  For example, a mage cannot use a sword and a warrior cannot use a staff.  If you "
-		    "cannot equip an item it may be because your class of character cannot wear that particular item, or "
-		    "because of level/skill restrictions on that item.  RIGHT click on the item to read more about it.");
-		y += 10;
-		break;
-	case 13:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Karma");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Karma is a measurement of how well a player has obeyed game rules. When you receive a Punishment, you "
-		    "lose karma. All players enter the game with 0 karma. If you receive a Level 1 punishment, for example, "
-		    "your karma will drop to -1. Please review the Laws, Rules, and Regulations section in the Game Manual to "
-		    "familiarize yourself with the punishment system.");
-		y += 10;
-		break;
-	case 14:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Leaving the game");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "To leave the game, step on one of the blue tile rest areas and hit F12. You can also hit F12 when not on "
-		    "a blue tile, but your character will stay in that same spot for five minutes and risks being attacked.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Light");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Torches provide the main source of light in the game.  To use a torch, equip it, then LEFT CLICK on it to "
-		    "light it.  It is a good idea to carry extras with you at all times.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Looking at characters/items");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "To look at a character, place your cursor over him and hit CTRL + RIGHT CLICK.  To look at an item around "
-		    "you, place your cursor over the item and hit  SHIFT + RIGHT CLICK.  To look at an item in your "
-		    "Equipment/Inventory areas or in a shop window, (place your cursor over the item and) RIGHT CLICK.");
-		y += 10;
-		break;
-	case 15:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Mirrors");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Each area can have up to 26 mirrors (servers), to allow more players to be online at once.  Your mirror "
-		    "number determines which mirror you use.  You can see which mirror you are currently on by \"looking\" at "
-		    "yourself (place your cursor over yourself and hit CTRL + RIGHT CLICK).  If you would like to meet a "
-		    "player on a different mirror, go to a teleport station, click on the corresponding mirror number (M1 to "
-		    "M26) and teleport to the area that the other player is in.  You have to teleport, even if the other "
-		    "player is in the same area.");
-		y += 10;
-		break;
-	case 16:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Navigational Directions");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Compass directions (North, East, South, West) are the same in the game as in real life.  North, for "
-		    "example, would be 'up' (the top of your screen).  East would be to the direct right of your screen.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Negative Experience");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "When you die, you lose experience points. Too many deaths can result in Negative Experience. Once this "
-		    "Negative Experience is made up, then experience points obtained will once again count towards leveling.");
-		y += 10;
-		break;
-	case 17:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Player Killing");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "A PKer (Player Killer) is one that has chosen to kill other PKers - which also means that he can be "
-		    "killed by other PKers too.  If you are killed, the items in your Equipment area and your Inventory can be "
-		    "taken by the one who killed you.  You must be level 10 or higher and have a paid account to become a "
-		    "PKer.  To enable your PK status, type:  /playerkiller.  To attack someone who is a playerkiller and "
-		    "within your level range, type:  /hate <name> To disable your PK status, you must wait four (4) weeks "
-		    "since you last killed someone, then type:  /playerkiller");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "The Pentagram Quest");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "The Pentagram Quest is a game that all players (from about level 10 and up) can play together.  It's an "
-		    "ongoing game that takes place in \"the pents\" - a large, cavernous area partitioned off according to "
-		    "player levels.  The walls and floors of this area are covered with \"stars\" (pentagrams) and the object "
-		    "of the game is to touch as many pentagrams as possible as you fight off the evil demons that inhabit the "
-		    "area.  Once a randomly chosen number of pentagrams have been touched, the pents are \"solved\", and you "
-		    "receive experience points for the pentagrams you touched. The entrances to the Pentagram Quest  are "
-		    "southeast of blue squares in Aston - be sure to SHIFT + RIGHT CLICK on the doors to determine which level "
-		    "area is right for you!");
-		y += 10;
-		break;
-	case 18:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Quests");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Your first quest will be to find Lydia, the daughter of Gwendylon the mage.  She will ask you to find a "
-		    "potion which was stolen the night before.  Lydia lives in the grey building across from the fortress (the "
-		    "place where you first arrived in the game).");
-		y += 10;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "NPCs (Non-Player Characters) give the quests in the game.  Even if you talked to an NPC before, talk to "
-		    "him again; he may tell you something new or give you another quest.  Say \"hi\" or <name> \"repeat\" to "
-		    "get an NPC to talk to you.   Be sure to step all the way into a room or area as you quest; monsters, "
-		    "chests, and doors may be hidden in the shadows.  Carry a torch to light your way, and always check the "
-		    "bodies of slain enemies (SHIFT + LEFT CLICK).");
-		y += 10;
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Questions");
-		y += 5;
-		y = render_text_break_fmt(x, y, x + 192, graycolor, 0,
-		    "If you have a question while in the game, you can always ask a Staffer. Staffers and other admin can be "
-		    "recognized by their name being in capital letters (i.e. \"COLOMAN\" is a member of Admin, \"Coloman\" is "
-		    "not).  For any other game related questions, please write to %s.",
-		    game_email_main);
-		y += 10;
-		break;
-	case 19:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Reading books, signs, etc.");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "To read books, use SHIFT + LEFT CLICK.  To read signs, use SHIFT + RIGHT CLICK.");
-		y += 10;
-		break;
-	case 20:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Saves");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "With each new level you obtain as you play, you also receive a Save. A Save is a gift from Ishtar: if you "
-		    "die, your items stay with you instead of having them left on your corpse, and you will not get negative "
-		    "experience. The maximum number of Saves that a player can have at any time is 10.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Scamming");
-		y += 5;
-		y = render_text_break_fmt(x, y, x + 192, graycolor, 0,
-		    "Most cases of scamming happen when players share passwords.  NEVER give your password to another player "
-		    "for any reason!  Make your passwords hard to guess by using a combination of numbers and letters.  Change "
-		    "your password often; go to %s, then click on Account Management to change your password.  Always use an "
-		    "NPC Trader when trading with another player.  The NPC Trader can be found in most towns in or near the "
-		    "banks - he is a non-playing character that will handle the trade for both parties.  If a player does not "
-		    "want to use an NPC Trader for trading with you, then do not trade with him - he could potentially steal "
-		    "your items.  Do not put your items on the ground when trading with another player or you risk losing "
-		    "them.  Be wary of loaning your equipment to others - unfortunately, many never see their items again.  "
-		    "Players are able to perform welding in the game, but welds are very valuable and should not be traded "
-		    "away too early.  Hold on to your welds until you learn more about the game!",
-		    game_url);
-		y += 10;
-		break;
-
-	case 21:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Shops");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "To open a shop window with a merchant, type:  trade <merchant name>  When trading with a merchant, the "
-		    "items for sale are shown at the bottom-left of your screen (the view of your skills/stats is temporarily "
-		    "replaced by the shop window).  To read about the items, RIGHT CLICK on them.  To buy something, LEFT "
-		    "CLICK on it.  To sell an item from your inventory, LEFT CLICK on it.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Skills/Stats");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "In your stats/skills window (bottom-left of your screen) you see red/blue lines below your skills. Blue "
-		    "indicates that you have enough experience points to raise the skill; red indicates that you don't have "
-		    "enough experience points. To raise a skill, CLICK on the blue orb next to the skill.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Spells");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "To use a spell, hit ALT and the corresponding number of the spell that appears on your screen.  Mages - "
-		    "to cast the Bless spell on another player, rest your cursor on him and hit CTRL 6.  The Bless spell "
-		    "raises base attributes (Wisdom, Intuition, Agility, Strength) by 1/4 modified bless value (rounded down), "
-		    "but by no more than 50%.  Warriors - hit ALT 8 to use Warcry.");
-		y += 10;
-		break;
-	case 22:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Staffers");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Staffers are members of Game Management that help keep the in-game playing field running smoothly.  "
-		    "Staffers and other admin can be recognized by their name being in capital letters (i.e. \"COLOMAN\" is a "
-		    "member of Admin, \"Coloman\" is not).  Staffers help keep the peace, answer questions, and can give out "
-		    "karma (if needed) to unruly players.");
-		y += 10;
-		break;
-	case 23:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Talking");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "Everything you hear and say is displayed in the chat window at the bottom of your screen.  To talk to a "
-		    "character standing next to you, just type what you'd like to say and hit ENTER.  To say something in the "
-		    "general chat channel (the \"Gossip\" channel) which will be heard by all other players, type:  /c2 <your "
-		    "message> and hit ENTER.  Use the PAGE-UP and PAGE-DOWN keys on your keyboard to scroll the chat window up "
-		    "and down.");
-		y += 10;
-
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Transport System");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "You will find Teleport Stations, relics of the ancient culture, all over the world.  SHIFT + LEFT CLICK "
-		    "on the Teleport Station to see a map of all Teleport Stations.  CLICK on the destination of your choice.  "
-		    "You will only be able to teleport to a destination that you have reached at least once before by foot.  "
-		    "Touch any new Teleport Station on your way so that you can teleport there in times to come.");
-		y += 10;
-		break;
-	case 24:
-		y = render_text_break(x, y, x + 192, whitecolor, 0, "Walking");
-		y += 5;
-		y = render_text_break(x, y, x + 192, graycolor, 0,
-		    "To walk, move your cursor to the place where you'd like to go, then LEFT CLICK on your destination.");
-		y += 10;
-		break;
+			help_format_text(help_fast_help[i], buf, sizeof(buf));
+			y = render_text_break(x, y, content_right, graycolor, 0, buf);
+		}
+		return y;
 	}
+
+	if (nr == 2) {
+		int start_y;
+		int rows;
+		int columns = 2;
+		int max_entries;
+		int visible;
+
+		y = render_text_break(x, y, content_right, whitecolor, 0, "Help Index");
+		y += HELP_INDEX_TITLE_SPACING;
+		start_y = y;
+		rows = (content_bottom - start_y) / HELP_INDEX_ROW_HEIGHT;
+		if (rows < 1) {
+			rows = 1;
+		}
+		max_entries = rows * columns;
+		visible = min(help_index_count, max_entries);
+
+		for (i = 0; i < visible; i++) {
+			int col = i / rows;
+			int row = i % rows;
+			int tx = x + col * HELP_INDEX_COL_WIDTH;
+			int ty = start_y + row * HELP_INDEX_ROW_HEIGHT;
+			char label[128];
+
+			help_truncate_index_title(help_index_titles[i], label, sizeof(label), HELP_INDEX_COL_WIDTH - 16);
+			render_text(tx, ty, lightbluecolor, 0, label);
+		}
+		return y;
+	}
+
+	for (i = 0; i < help_topic_count; i++) {
+		if (!help_topic_pages || help_topic_pages[i] != nr - 3) {
+			continue;
+		}
+
+		y = render_text_break(x, y, content_right, whitecolor, 0, help_topics[i].title);
+		y += HELP_TITLE_SPACING;
+
+		for (b = 0; b < help_topics[i].block_count; b++) {
+			char buf[4096];
+			HelpBlock *block = &help_topics[i].blocks[b];
+			unsigned short color = block->type == HELP_BLOCK_TITLE ? whitecolor : graycolor;
+			int spacing = block->type == HELP_BLOCK_TITLE ? HELP_TITLE_SPACING : HELP_PARAGRAPH_SPACING;
+
+			help_format_text(block->text, buf, sizeof(buf));
+			y = render_text_break(x, y, content_right, color, 0, buf);
+			y += spacing;
+		}
+	}
+
 	return y;
 }

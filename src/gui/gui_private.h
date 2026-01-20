@@ -409,6 +409,22 @@ void display_wheel(void);
 void display(void);
 void update_ui_layout(void);
 
+// Help data (loaded from JSON)
+#define HELP_TEXT_WIDTH              192
+#define HELP_INDEX_COL_WIDTH         100
+#define HELP_INDEX_ROW_HEIGHT        10
+#define HELP_PAGE_MARGIN_TOP         8
+#define HELP_PAGE_MARGIN_BOTTOM      20
+#define HELP_INDEX_TITLE_SPACING     10
+#define HELP_FAST_HELP_TITLE_SPACING 5
+#define HELP_TITLE_SPACING           5
+#define HELP_PARAGRAPH_SPACING       10
+
+extern int help_page_count;
+extern int help_index_count;
+
+int help_index_page_for_entry(int entry);
+
 // From gui_map.c (already declared in gui.h but repeated here for clarity)
 // void set_mapoff(int cx, int cy, int mdx, int mdy);
 // void set_mapadd(int dx, int dy);

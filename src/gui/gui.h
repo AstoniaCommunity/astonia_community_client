@@ -78,6 +78,7 @@ void hover_invalidate_con(int slot);
 extern int (*do_display_random)(void);
 DLL_EXPORT int _do_display_random(void);
 
+void help_init(void);
 extern int (*do_display_help)(int);
 DLL_EXPORT int _do_display_help(int nr);
 

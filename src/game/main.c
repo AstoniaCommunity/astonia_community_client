@@ -671,6 +671,7 @@ int main(int argc, char *argv[])
 	}
 
 	main_init();
+	help_init();
 	update_user_keys();
 
 	main_loop();
