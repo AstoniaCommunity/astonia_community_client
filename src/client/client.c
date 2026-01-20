@@ -58,8 +58,6 @@ uint64_t tick_receive_interval = 0; // Time between server tick batch arrivals (
 static struct queue queue[Q_SIZE];
 int q_in, q_out, q_size;
 
-double server_cycles;
-
 static size_t ticksize;
 static size_t inused;
 static size_t indone;
@@ -142,8 +140,6 @@ void bzero_client(int part)
 
 		bzero(queue, sizeof(queue));
 		q_in = q_out = q_size = 0;
-
-		server_cycles = 0;
 
 		zsinit = 0;
 		bzero(&zs, sizeof(zs));

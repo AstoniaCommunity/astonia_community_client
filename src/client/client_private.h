@@ -34,16 +34,16 @@
 #define SV_GOLD             30
 #define SV_LOOKINV          31
 #define SV_ITEMPRICE        32
-#define SV_CYCLES           33
+#define SV__FREE_FOR_USE1__ 33
 #define SV_CEFFECT          34
 #define SV_UEFFECT          35
 #define SV_REALTIME         36
 #define SV_SPEEDMODE        37
-#define SV_FIGHTMODE        38 // unused in vanilla server
+#define SV__FREE_FOR_USE2__ 38
 #define SV_CONTYPE          39
 #define SV_CONNAME          40
-#define SV_LS               41
-#define SV_CAT              42
+#define SV__FREE_FOR_USE3__ 41
+#define SV__FREE_FOR_USE4__ 42
 #define SV_LOGINDONE        43
 #define SV_SPECIAL          44
 #define SV_TELEPORT         45

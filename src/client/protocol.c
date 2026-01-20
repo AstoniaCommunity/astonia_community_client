@@ -352,9 +352,6 @@ static void sv_speedmode(unsigned char *buf)
 	pspeed = buf[1];
 }
 
-// unused in vanilla server
-static void sv_fightmode(unsigned char *buf __attribute__((unused))) {}
-
 static void sv_setcitem(unsigned char *buf)
 {
 	csprite = load_u32(buf + 1);
@@ -882,15 +879,6 @@ static void sv_mil_exp(unsigned char *buf)
 	mil_exp = load_ulong(buf + 1);
 }
 
-static void sv_cycles(unsigned char *buf)
-{
-	uint32_t c;
-
-	c = load_ulong(buf + 1);
-
-	server_cycles = server_cycles * 0.99 + (double)c * 0.01;
-}
-
 static void sv_lookinv(unsigned char *buf)
 {
 	int n;
@@ -1176,10 +1164,6 @@ void process(unsigned char *buf, int size)
 				sv_lookinv(buf);
 				len = 17 + 12 * 4;
 				break;
-			case SV_CYCLES:
-				sv_cycles(buf);
-				len = 5;
-				break;
 			case SV_CEFFECT:
 				len = sv_ceffect(buf);
 				break;
@@ -1200,10 +1184,6 @@ void process(unsigned char *buf, int size)
 
 			case SV_SPEEDMODE:
 				sv_speedmode(buf);
-				len = 2;
-				break;
-			case SV_FIGHTMODE:
-				sv_fightmode(buf);
 				len = 2;
 				break;
 			case SV_LOGINDONE:
@@ -1423,9 +1403,6 @@ uint32_t prefetch(unsigned char *buf, int size)
 			case SV_LOOKINV:
 				len = 17 + 12 * 4;
 				break;
-			case SV_CYCLES:
-				len = 5;
-				break;
 			case SV_CEFFECT:
 				len = svl_ceffect(buf);
 				break;
@@ -1440,9 +1417,6 @@ uint32_t prefetch(unsigned char *buf, int size)
 				len = 5;
 				break;
 			case SV_SPEEDMODE:
-				len = 2;
-				break;
-			case SV_FIGHTMODE:
 				len = 2;
 				break;
 			case SV_LOGINDONE:
