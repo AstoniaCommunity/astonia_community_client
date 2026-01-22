@@ -595,7 +595,7 @@ static MIX_Audio *try_load_sound_from_zip(zip_t *zip_archive, const char *path)
  * @param path   Path to sound file within zip (e.g., "weather/rain_loop.ogg")
  * @return       Sound handle (>0) on success, 0 on failure
  */
-int sound_load(const char *path)
+DLL_EXPORT int sound_load(const char *path)
 {
 	MIX_Audio *audio = NULL;
 
@@ -649,7 +649,7 @@ int sound_load(const char *path)
  * Unload a previously loaded sound.
  * @param handle Sound handle from sound_load()
  */
-void sound_unload(int handle)
+DLL_EXPORT void sound_unload(int handle)
 {
 	if (handle < 1 || handle >= MAX_MOD_SOUNDS) {
 		return;
@@ -759,7 +759,7 @@ static int sound_play_internal(int handle, float volume, int loop)
  * @param volume  Volume level (0.0 = silent, 1.0 = full)
  * @return        Channel ID (>0) for controlling playback, 0 on failure
  */
-int sound_play(int handle, float volume)
+DLL_EXPORT int sound_play(int handle, float volume)
 {
 	return sound_play_internal(handle, volume, 0);
 }
@@ -770,7 +770,7 @@ int sound_play(int handle, float volume)
  * @param volume  Volume level (0.0 = silent, 1.0 = full)
  * @return        Channel ID (>0) for controlling playback, 0 on failure
  */
-int sound_play_loop(int handle, float volume)
+DLL_EXPORT int sound_play_loop(int handle, float volume)
 {
 	return sound_play_internal(handle, volume, -1);
 }
@@ -779,7 +779,7 @@ int sound_play_loop(int handle, float volume)
  * Stop a playing sound.
  * @param channel Channel ID from sound_play() or sound_play_loop()
  */
-void sound_stop(int channel)
+DLL_EXPORT void sound_stop(int channel)
 {
 	int ch_idx = channel - 1; // Convert to 0-based
 
@@ -800,7 +800,7 @@ void sound_stop(int channel)
 /**
  * Stop all sounds on all channels.
  */
-void sound_stop_all(void)
+DLL_EXPORT void sound_stop_all(void)
 {
 	for (int i = 0; i < MAX_SOUND_CHANNELS; i++) {
 		if (channel_states[i].in_use) {
@@ -814,7 +814,7 @@ void sound_stop_all(void)
  * @param channel Channel ID from sound_play()
  * @param volume  Volume level (0.0 = silent, 1.0 = full)
  */
-void sound_set_volume(int channel, float volume)
+DLL_EXPORT void sound_set_volume(int channel, float volume)
 {
 	int ch_idx = channel - 1;
 
@@ -853,7 +853,7 @@ void sound_set_volume(int channel, float volume)
  * @param target    Target volume (0.0 = silent, 1.0 = full)
  * @param duration  Fade duration in milliseconds
  */
-void sound_fade(int channel, float target, int duration)
+DLL_EXPORT void sound_fade(int channel, float target, int duration)
 {
 	int ch_idx = channel - 1;
 
@@ -940,7 +940,7 @@ void sound_fade_tick(void)
  * Get the master sound effects volume (from user settings).
  * @return Volume multiplier (0.0 to 1.0)
  */
-float sound_get_master_volume(void)
+DLL_EXPORT float sound_get_master_volume(void)
 {
 	// sound_volume is 0-128 where 128 is full volume
 	// Note: The original code interprets this as a negative offset,
@@ -959,7 +959,7 @@ float sound_get_master_volume(void)
  * @param channel Channel ID from sound_play()
  * @return        1 if playing, 0 if stopped/invalid
  */
-int sound_is_playing(int channel)
+DLL_EXPORT int sound_is_playing(int channel)
 {
 	int ch_idx = channel - 1;
 
@@ -987,7 +987,7 @@ int sound_is_playing(int channel)
  * Check if sound is enabled in user settings.
  * @return 1 if sound enabled, 0 if disabled
  */
-int sound_is_enabled(void)
+DLL_EXPORT int sound_is_enabled(void)
 {
 	return (game_options & GO_SOUND) ? 1 : 0;
 }

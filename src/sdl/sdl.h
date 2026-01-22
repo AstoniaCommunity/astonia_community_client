@@ -55,23 +55,23 @@ void play_sound(unsigned int nr, int vol, int p);
 // Sounds loaded from: sx_mod.zip > sx_patch.zip > sx.zip
 
 /* Sound loading - path is relative within zip (e.g., "weather/rain.ogg") */
-int sound_load(const char *path);
-void sound_unload(int handle);
+DLL_EXPORT int sound_load(const char *path);
+DLL_EXPORT void sound_unload(int handle);
 
 /* Playback */
-int sound_play(int handle, float volume);
-int sound_play_loop(int handle, float volume);
-void sound_stop(int channel);
-void sound_stop_all(void);
+DLL_EXPORT int sound_play(int handle, float volume);
+DLL_EXPORT int sound_play_loop(int handle, float volume);
+DLL_EXPORT void sound_stop(int channel);
+DLL_EXPORT void sound_stop_all(void);
 
 /* Volume control */
-void sound_set_volume(int channel, float volume);
-void sound_fade(int channel, float target, int duration);
-float sound_get_master_volume(void);
+DLL_EXPORT void sound_set_volume(int channel, float volume);
+DLL_EXPORT void sound_fade(int channel, float target, int duration);
+DLL_EXPORT float sound_get_master_volume(void);
 
 /* Query */
-int sound_is_playing(int channel);
-int sound_is_enabled(void);
+DLL_EXPORT int sound_is_playing(int channel);
+DLL_EXPORT int sound_is_enabled(void);
 
 /* Internal - called by game tick */
 void sound_fade_tick(void);
