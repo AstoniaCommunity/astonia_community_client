@@ -45,6 +45,7 @@
 #define BUT_HELP_PREV  74
 #define BUT_HELP_MISC  75
 #define BUT_HELP_CLOSE 76
+#define BUT_HELP_INDEX 102
 #define BUT_EXIT       77
 #define BUT_HELP       78
 #define BUT_NOLOOK     79
@@ -61,8 +62,9 @@
 #define BUT_ACT_END 100
 
 #define BUT_WEA_LCK 101
+// BUT_HELP_INDEX is 102
 
-#define MAX_BUT 102
+#define MAX_BUT 103
 
 #define BUTF_NOHIT    (1 << 1) // button is ignored int hit processing
 #define BUTF_CAPTURE  (1 << 2) // button captures mouse on lclick
@@ -182,7 +184,8 @@
 #define CMD_ACTION_LOCK 79
 #define CMD_ACTION_OPEN 80
 
-#define CMD_WEAR_LOCK 81
+#define CMD_WEAR_LOCK  81
+#define CMD_HELP_INDEX 82
 
 #define STV_EMPTYLINE  -1
 #define STV_JUSTAVALUE -2 // value is in curr

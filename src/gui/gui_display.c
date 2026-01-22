@@ -21,7 +21,10 @@
 
 void display_helpandquest(void)
 {
-	if (display_help || display_quest) {
+	if (display_help) {
+		render_sprite(opt_sprite(990), dotx(DOT_HLP), doty(DOT_HLP), RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
+	}
+	if (display_quest) {
 		render_sprite(opt_sprite(995), dotx(DOT_HLP), doty(DOT_HLP), RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
 	}
 

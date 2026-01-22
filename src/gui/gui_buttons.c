@@ -244,6 +244,7 @@ static void set_cmd_cursor(int cmd)
 	case CMD_HELP_NEXT:
 	case CMD_HELP_PREV:
 	case CMD_HELP_CLOSE:
+	case CMD_HELP_INDEX:
 		cursor = SDL_CUR_c_use;
 		break;
 
@@ -373,13 +374,28 @@ static void detect_hover_target(void)
 				}
 			}
 		}
-		if (mousex >= dotx(DOT_HLP) + 177 && mousex <= dotx(DOT_HLP) + 196 && mousey >= doty(DOT_HL2) - 20 &&
-		    mousey <= doty(DOT_HL2) - 10) {
-			butsel = BUT_HELP_PREV;
-		}
-		if (mousex >= dotx(DOT_HLP) + 200 && mousex <= dotx(DOT_HLP) + 219 && mousey >= doty(DOT_HL2) - 20 &&
-		    mousey <= doty(DOT_HL2) - 10) {
-			butsel = BUT_HELP_NEXT;
+		if (display_help) {
+			if (mousex >= dotx(DOT_HLP) + 135 && mousex <= dotx(DOT_HLP) + 156 && mousey >= doty(DOT_HL2) - 18 &&
+			    mousey <= doty(DOT_HL2) - 7) {
+				butsel = BUT_HELP_PREV;
+			}
+			if (mousex >= dotx(DOT_HLP) + 159 && mousex <= dotx(DOT_HLP) + 194 && mousey >= doty(DOT_HL2) - 18 &&
+			    mousey <= doty(DOT_HL2) - 7) {
+				butsel = BUT_HELP_INDEX;
+			}
+			if (mousex >= dotx(DOT_HLP) + 197 && mousex <= dotx(DOT_HLP) + 218 && mousey >= doty(DOT_HL2) - 18 &&
+			    mousey <= doty(DOT_HL2) - 7) {
+				butsel = BUT_HELP_NEXT;
+			}
+		} else {
+			if (mousex >= dotx(DOT_HLP) + 177 && mousex <= dotx(DOT_HLP) + 196 && mousey >= doty(DOT_HL2) - 18 &&
+			    mousey <= doty(DOT_HL2) - 7) {
+				butsel = BUT_HELP_PREV;
+			}
+			if (mousex >= dotx(DOT_HLP) + 200 && mousex <= dotx(DOT_HLP) + 219 && mousey >= doty(DOT_HL2) - 18 &&
+			    mousey <= doty(DOT_HL2) - 7) {
+				butsel = BUT_HELP_NEXT;
+			}
 		}
 		if (mousex >= dotx(DOT_HLP) + 211 && mousex <= dotx(DOT_HLP) + 224 && mousey >= doty(DOT_HLP) + 2 &&
 		    mousey <= doty(DOT_HLP) + 12) {
@@ -758,6 +774,11 @@ void exec_cmd(int cmd, int a)
 			}
 		}
 		return;
+	case CMD_HELP_INDEX:
+		if (display_help) {
+			display_help = 2;
+		}
+		return;
 	case CMD_HELP_PREV:
 		if (display_help) {
 			display_help--;
@@ -1112,6 +1133,9 @@ void handle_special_buttons_logic(void)
 		}
 		if (butsel == BUT_HELP_PREV) {
 			lcmd = CMD_HELP_PREV;
+		}
+		if (butsel == BUT_HELP_INDEX) {
+			lcmd = CMD_HELP_INDEX;
 		}
 		if (butsel == BUT_HELP_NEXT) {
 			lcmd = CMD_HELP_NEXT;
