@@ -39,6 +39,7 @@ ENV EXTRA_ARCH_FLAGS="$(cat /extra_arch)"
 
 # Install build dependencies
 # Use --needed to avoid trying to reinstall packages at exact versions that may no longer exist
+# Note: libvorbis and libogg are required BEFORE sdl3_mixer-git so it builds with OGG support
 RUN pacman -S --noconfirm --needed --ask=4 --overwrite="*" \
       base-devel \
       clang \
@@ -57,6 +58,8 @@ RUN pacman -S --noconfirm --needed --ask=4 --overwrite="*" \
       unzip \
       cmake \
       ninja \
+      libvorbis \
+      libogg \
     && pacman -Scc --noconfirm
 
 # Install Rust

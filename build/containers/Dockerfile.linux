@@ -17,6 +17,7 @@ RUN pacman-key --init && \
     pacman -Syyu --noconfirm --needed --ask=4 --overwrite="*"
 
 # Install basic dependencies and development tools
+# Note: libvorbis and libogg are required BEFORE sdl3_mixer-git so it builds with OGG support
 RUN pacman -S --noconfirm --needed --ask=4 --overwrite="*" \
     curl \
     wget \
@@ -29,6 +30,8 @@ RUN pacman -S --noconfirm --needed --ask=4 --overwrite="*" \
     unzip \
     cmake \
     ninja \
+    libvorbis \
+    libogg \
     && pacman -Scc --noconfirm
 
 # Install Rust
