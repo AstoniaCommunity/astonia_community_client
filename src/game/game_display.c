@@ -1199,20 +1199,35 @@ void display_game_map(struct map *cmap)
 				continue;
 			}
 
+			// Apply shaded lighting from adjacent tiles for smooth lighting transitions
+			// Use center tile lighting as fallback if neighbor is invalid or not visible
+			// Left lighting (mn[3])
+			mna = quick[i].mn[3];
+			dl->renderfx.ll =
+			    (char)((mna > 0 && mna < MAPDX * MAPDY && (cmap[mna].flags & CMF_VISIBLE) && cmap[mna].rlight)
+			               ? cmap[mna].rlight
+			               : light);
 
-#if 0
-	        // Disabled shaded lighting for items. It is often wrong and needs re-doing
-	        if ((mna=quick[i].mn[3])!=0 && (cmap[mna].rlight)) dl->renderfx.ll=cmap[mna].rlight;
-	        else dl->renderfx.ll=light;
-	        if ((mna=quick[i].mn[5])!=0 && (cmap[mna].rlight)) dl->renderfx.rl=cmap[mna].rlight;
-	        else dl->renderfx.rl=light;
-	        if ((mna=quick[i].mn[1])!=0 && (cmap[mna].rlight)) dl->renderfx.ul=cmap[mna].rlight;
-	        else dl->renderfx.ul=light;
-	        if ((mna=quick[i].mn[7])!=0 && (cmap[mna].rlight)) dl->renderfx.dl=cmap[mna].rlight;
-	        else dl->renderfx.dl=light;
-#else
-			dl->renderfx.ll = dl->renderfx.rl = dl->renderfx.ul = dl->renderfx.dl = dl->renderfx.ml;
-#endif
+			// Right lighting (mn[5])
+			mna = quick[i].mn[5];
+			dl->renderfx.rl =
+			    (char)((mna > 0 && mna < MAPDX * MAPDY && (cmap[mna].flags & CMF_VISIBLE) && cmap[mna].rlight)
+			               ? cmap[mna].rlight
+			               : light);
+
+			// Upper lighting (mn[1])
+			mna = quick[i].mn[1];
+			dl->renderfx.ul =
+			    (char)((mna > 0 && mna < MAPDX * MAPDY && (cmap[mna].flags & CMF_VISIBLE) && cmap[mna].rlight)
+			               ? cmap[mna].rlight
+			               : light);
+
+			// Down lighting (mn[7])
+			mna = quick[i].mn[7];
+			dl->renderfx.dl =
+			    (char)((mna > 0 && mna < MAPDX * MAPDY && (cmap[mna].flags & CMF_VISIBLE) && cmap[mna].rlight)
+			               ? cmap[mna].rlight
+			               : light);
 
 			dl->h += heightadd - 8;
 			dl->renderfx.scale = cmap[mn].ri.scale;

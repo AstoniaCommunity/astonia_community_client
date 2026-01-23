@@ -985,119 +985,62 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 					irgb = sdl_colorbalance(
 					    irgb, (char)st->cr, (char)st->cg, (char)st->cb, (char)st->light, (char)st->sat);
 				}
-				if (st->shine) {
-					irgb = sdl_shine_pix(irgb, st->shine);
-				}
 
+				// Apply shaded lighting using sprite-relative coordinates
+				// This creates smooth lighting transitions based on adjacent tile lighting
 				if (st->ll != st->ml || st->rl != st->ml || st->ul != st->ml || st->dl != st->ml) {
 					int r, g, b, a;
-					int r1 = 0, r2 = 0, r3 = 0, r4 = 0, r5 = 0;
-					int g1 = 0, g2 = 0, g3 = 0, g4 = 0, g5 = 0;
-					int b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0;
-					int v1, v2, v3, v4, v5 = 0;
-					int div;
+					int sprite_w = st->xres * sdl_scale;
+					int sprite_h = st->yres * sdl_scale;
+					int half_w = sprite_w / 2;
+					int half_h = sprite_h / 2;
 
+					// Calculate weights based on position relative to sprite center
+					// Each direction gets more weight the closer the pixel is to that edge
+					int wl = (x < half_w) ? (half_w - x) : 0; // left weight
+					int wr = (x >= half_w) ? (x - half_w) : 0; // right weight
+					int wu = (y < half_h) ? (half_h - y) : 0; // up weight
+					int wd = (y >= half_h) ? (y - half_h) : 0; // down weight
+					int wm = half_w + half_h - (wl + wr + wu + wd) / 2; // center weight
 
-					if (y < 10 * sdl_scale + (20 * sdl_scale - abs(20 * sdl_scale - x)) / 2) {
-						// This part calculates a floor tile, or the top of a wall tile
-						if (x / 2 < 20 * sdl_scale - y) {
-							v2 = -(x / 2 - (20 * sdl_scale - y));
-							r2 = IGET_R(sdl_light(st->ll, irgb));
-							g2 = IGET_G(sdl_light(st->ll, irgb));
-							b2 = IGET_B(sdl_light(st->ll, irgb));
-						} else {
-							v2 = 0;
-						}
-						if (x / 2 > 20 * sdl_scale - y) {
-							v3 = (x / 2 - (20 * sdl_scale - y));
-							r3 = IGET_R(sdl_light(st->rl, irgb));
-							g3 = IGET_G(sdl_light(st->rl, irgb));
-							b3 = IGET_B(sdl_light(st->rl, irgb));
-						} else {
-							v3 = 0;
-						}
-						if (x / 2 > y) {
-							v4 = (x / 2 - y);
-							r4 = IGET_R(sdl_light(st->ul, irgb));
-							g4 = IGET_G(sdl_light(st->ul, irgb));
-							b4 = IGET_B(sdl_light(st->ul, irgb));
-						} else {
-							v4 = 0;
-						}
-						if (x / 2 < y) {
-							v5 = -(x / 2 - y);
-							r5 = IGET_R(sdl_light(st->dl, irgb));
-							g5 = IGET_G(sdl_light(st->dl, irgb));
-							b5 = IGET_B(sdl_light(st->dl, irgb));
-						} else {
-							v5 = 0;
-						}
-
-						v1 = 20 * sdl_scale - (v2 + v3 + v4 + v5);
-						r1 = IGET_R(sdl_light(st->ml, irgb));
-						g1 = IGET_G(sdl_light(st->ml, irgb));
-						b1 = IGET_B(sdl_light(st->ml, irgb));
-					} else {
-						// This is for the lower part (left side and front as seen on the screen)
-						if (x < 10 * sdl_scale) {
-							v2 = (10 * sdl_scale - x) * 2 - 2;
-							r2 = IGET_R(sdl_light(st->ll, irgb));
-							g2 = IGET_G(sdl_light(st->ll, irgb));
-							b2 = IGET_B(sdl_light(st->ll, irgb));
-						} else {
-							v2 = 0;
-						}
-						if (x > 10 * sdl_scale && x < 20 * sdl_scale) {
-							v3 = (x - 10 * sdl_scale) * 2 - 2;
-							r3 = IGET_R(sdl_light(st->rl, irgb));
-							g3 = IGET_G(sdl_light(st->rl, irgb));
-							b3 = IGET_B(sdl_light(st->rl, irgb));
-						} else {
-							v3 = 0;
-						}
-						if (x > 20 * sdl_scale && x < 30 * sdl_scale) {
-							v5 = (10 * sdl_scale - (x - 20 * sdl_scale)) * 2 - 2;
-							r5 = IGET_R(sdl_light(st->dl, irgb));
-							g5 = IGET_G(sdl_light(st->dl, irgb));
-							b5 = IGET_B(sdl_light(st->dl, irgb));
-						} else {
-							v5 = 0;
-						}
-						if (x > 30 * sdl_scale) {
-							if (x < 40 * sdl_scale) {
-								v4 = (x - 30 * sdl_scale) * 2 - 2;
-							} else {
-								v4 = 0;
-							}
-							r4 = IGET_R(sdl_light(st->ul, irgb));
-							g4 = IGET_G(sdl_light(st->ul, irgb));
-							b4 = IGET_B(sdl_light(st->ul, irgb));
-						} else {
-							v4 = 0;
-						}
-
-						v1 = 20 * sdl_scale - (v2 + v3 + v4 + v5) / 2;
-						r1 = IGET_R(sdl_light(st->ml, irgb));
-						g1 = IGET_G(sdl_light(st->ml, irgb));
-						b1 = IGET_B(sdl_light(st->ml, irgb));
+					// Ensure center weight is positive
+					if (wm < half_w / 2) {
+						wm = half_w / 2;
 					}
 
-					div = v1 + v2 + v3 + v4 + v5;
+					int div = wm + wl + wr + wu + wd;
 
 					if (div == 0) {
 						a = 0;
 						r = g = b = 0;
 					} else {
-						a = IGET_A(irgb);
-						r = (r1 * v1 + r2 * v2 + r3 * v3 + r4 * v4 + r5 * v5) / div;
-						g = (g1 * v1 + g2 * v2 + g3 * v3 + g4 * v4 + g5 * v5) / div;
-						b = (b1 * v1 + b2 * v2 + b3 * v3 + b4 * v4 + b5 * v5) / div;
+						uint32_t lit_m = sdl_light(st->ml, irgb);
+						uint32_t lit_l = sdl_light(st->ll, irgb);
+						uint32_t lit_r = sdl_light(st->rl, irgb);
+						uint32_t lit_u = sdl_light(st->ul, irgb);
+						uint32_t lit_d = sdl_light(st->dl, irgb);
+
+						a = (int)IGET_A(irgb);
+						r = (int)(((int)IGET_R(lit_m) * wm + (int)IGET_R(lit_l) * wl + (int)IGET_R(lit_r) * wr +
+						              (int)IGET_R(lit_u) * wu + (int)IGET_R(lit_d) * wd) /
+						          div);
+						g = (int)(((int)IGET_G(lit_m) * wm + (int)IGET_G(lit_l) * wl + (int)IGET_G(lit_r) * wr +
+						              (int)IGET_G(lit_u) * wu + (int)IGET_G(lit_d) * wd) /
+						          div);
+						b = (int)(((int)IGET_B(lit_m) * wm + (int)IGET_B(lit_l) * wl + (int)IGET_B(lit_r) * wr +
+						              (int)IGET_B(lit_u) * wu + (int)IGET_B(lit_d) * wd) /
+						          div);
 					}
 
 					irgb = IRGBA(r, g, b, a);
 
 				} else {
 					irgb = sdl_light(st->ml, irgb);
+				}
+
+				// Apply shine after lighting to get uniform highlight effect
+				if (st->shine) {
+					irgb = sdl_shine_pix(irgb, st->shine);
 				}
 
 				if (sink) {

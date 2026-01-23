@@ -66,9 +66,9 @@ void set_map_lights(struct map *cmap)
 					cmap[mn].rlight = (char)min((unsigned)cmap[mn].rlight, cmap[quick[i].mn[8]].flags & CMF_LIGHT);
 				}
 
+				// If still no lighting from neighbors, treat as fully dark (14) not invisible
 				if (cmap[mn].rlight == 15) {
-					cmap[mn].rlight = 0;
-					continue;
+					cmap[mn].rlight = 14;
 				}
 			}
 
