@@ -1,0 +1,30 @@
+{
+  "coords": [
+    { "idx": 0, "x": 133, "y": 229, "comment": "Cameron" },
+    { "idx": 1, "x": -1, "y": -1, "comment": "" },
+    { "idx": 2, "x": 143, "y": 206, "comment": "Aston" },
+    { "idx": 3, "x": 370, "y": 191, "comment": "Tribe of the Isara" },
+    { "idx": 4, "x": 370, "y": 179, "comment": "Tribe of the Cerasa" },
+    { "idx": 5, "x": 370, "y": 167, "comment": "Cerasa Maze" },
+    { "idx": 6, "x": 370, "y": 155, "comment": "Cerasa Tunnels" },
+    { "idx": 7, "x": 370, "y": 143, "comment": "Zalina Entrance" },
+    { "idx": 8, "x": 370, "y": 131, "comment": "Tribe of the Zalina" },
+    { "idx": 9, "x": 130, "y": 123, "comment": "Teufelheim" },
+    { "idx": 10, "x": -1, "y": -1, "comment": "(Aston 2)" },
+    { "idx": 11, "x": -1, "y": -1, "comment": "" },
+    { "idx": 12, "x": 458, "y": 108, "comment": "Ice 8" },
+    { "idx": 13, "x": 458, "y": 96, "comment": "Ice 7" },
+    { "idx": 14, "x": 458, "y": 84, "comment": "Ice 6" },
+    { "idx": 15, "x": 458, "y": 72, "comment": "Ice 5" },
+    { "idx": 16, "x": 458, "y": 60, "comment": "Ice 4" },
+    { "idx": 17, "x": 225, "y": 123, "comment": "Nomad Plains" },
+    { "idx": 18, "x": -1, "y": -1, "comment": "" },
+    { "idx": 19, "x": -1, "y": -1, "comment": "" },
+    { "idx": 20, "x": 162, "y": 180, "comment": "Forest" },
+    { "idx": 21, "x": 164, "y": 167, "comment": "Exkordon" },
+    { "idx": 22, "x": 194, "y": 146, "comment": "Brannington" },
+    { "idx": 23, "x": 174, "y": 115, "comment": "Grimroot" },
+    { "idx": 24, "x": 139, "y": 149, "comment": "Caligar" },
+    { "idx": 25, "x": 205, "y": 132, "comment": "Arkhata" }
+  ]
+}

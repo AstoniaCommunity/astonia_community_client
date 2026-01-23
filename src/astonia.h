@@ -178,6 +178,7 @@ void *xrealloc(void *ptr, size_t size, uint8_t ID);
 void *xrecalloc(void *ptr, size_t size, uint8_t ID);
 void xfree(void *ptr);
 char *xstrdup(const char *src, uint8_t ID);
+char *load_ascii_file(const char *filename, uint8_t ID);
 
 unsigned long long get_total_system_memory(void);
 size_t get_memory_usage(void);

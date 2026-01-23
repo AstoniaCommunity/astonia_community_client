@@ -35,7 +35,6 @@
 void xlog(FILE *logfp, char *format, ...) __attribute__((format(printf, 2, 3)));
 void addlinesep(void);
 int rread(FILE *fp, void *ptr, size_t size);
-char *load_ascii_file(char *filename, uint8_t ID);
 void rrandomize(void);
 void display_usage(void);
 int parse_args(int argc, char *argv[]);
@@ -198,7 +197,7 @@ int rread(FILE *fp, void *ptr, size_t size)
 	return 0;
 }
 
-char *load_ascii_file(char *filename, uint8_t ID)
+char *load_ascii_file(const char *filename, uint8_t ID)
 {
 	FILE *fp;
 	size_t size;
@@ -620,6 +619,7 @@ int main(int argc, char *argv[])
 	register_crash_handler();
 #endif
 
+	teleport_init();
 	amod_init();
 	sprite_config_init();
 	amod_sprite_config();

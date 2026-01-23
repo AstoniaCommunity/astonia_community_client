@@ -511,39 +511,6 @@ static int *help_index_pages = NULL;
 int help_page_count = 2;
 int help_index_count = 0;
 
-static char *help_load_file(const char *path, size_t *out_len)
-{
-	FILE *f = fopen(path, "rb");
-	if (!f) {
-		return NULL;
-	}
-
-	fseek(f, 0, SEEK_END);
-	long len = ftell(f);
-	fseek(f, 0, SEEK_SET);
-
-	if (len <= 0) {
-		fclose(f);
-		return NULL;
-	}
-
-	char *buf = xmalloc((size_t)len + 1, MEM_TEMP);
-	if (!buf) {
-		fclose(f);
-		return NULL;
-	}
-
-	size_t read = fread(buf, 1, (size_t)len, f);
-	fclose(f);
-
-	buf[read] = '\0';
-	if (out_len) {
-		*out_len = read;
-	}
-
-	return buf;
-}
-
 static void help_format_text(const char *in, char *out, size_t out_size)
 {
 	size_t out_len = 0;
@@ -842,7 +809,7 @@ void help_init(void)
 	char *json;
 
 	snprintf(path, sizeof(path), "res/config/help_v%d.json", sv_ver);
-	json = help_load_file(path, NULL);
+	json = load_ascii_file(path, MEM_TEMP);
 	if (!json) {
 		warn("help: Failed to read %s", path);
 		help_set_fallback(path);
