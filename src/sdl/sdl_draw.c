@@ -394,6 +394,163 @@ void sdl_pixel(int x, int y, unsigned short color, int x_offset, int y_offset)
 	SDL_RenderPoints(sdlren, pt, i);
 }
 
+void sdl_pretty_pixel(int x, int y, unsigned short color, int x_offset, int y_offset)
+{
+	int r, g, b;
+	float px, py;
+	SDL_FPoint pt[16];
+
+	r = R16TO32(color);
+	g = G16TO32(color);
+	b = B16TO32(color);
+
+	px = (float)((x + x_offset) * sdl_scale);
+	py = (float)((y + y_offset) * sdl_scale);
+
+	switch (sdl_scale) {
+	case 1:
+		SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)255);
+		SDL_RenderPoint(sdlren, px, py);
+		break;
+	case 2:
+		SDL_SetRenderDrawColor(sdlren, (Uint8)min(r + 64, 255), (Uint8)min(g + 64, 255), (Uint8)min(b + 64, 255), 255);
+		SDL_RenderPoint(sdlren, px, py);
+
+		pt[0].x = px + 1.0f;
+		pt[0].y = py;
+
+		pt[1].x = px;
+		pt[1].y = py + 1.0f;
+
+		pt[2].x = px - 1.0f;
+		pt[2].y = py;
+
+		pt[3].x = px;
+		pt[3].y = py - 1.0f;
+
+		SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)128);
+		SDL_RenderPoints(sdlren, pt, 4);
+
+		pt[0].x = px + 2.0f;
+		pt[0].y = py;
+
+		pt[1].x = px;
+		pt[1].y = py + 2.0f;
+
+		pt[2].x = px - 2.0f;
+		pt[2].y = py;
+
+		pt[3].x = px;
+		pt[3].y = py - 2.0f;
+
+		pt[4].x = px + 1.0f;
+		pt[4].y = py + 1.0f;
+
+		pt[5].x = px + 1.0f;
+		pt[5].y = py - 1.0f;
+
+		pt[6].x = px - 1.0f;
+		pt[6].y = py + 1.0f;
+
+		pt[7].x = px - 1.0f;
+		pt[7].y = py - 1.0f;
+
+		SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)64);
+		SDL_RenderPoints(sdlren, pt, 8);
+		break;
+	case 3:
+	case 4:
+		SDL_SetRenderDrawColor(sdlren, (Uint8)min(r + 64, 255), (Uint8)min(g + 64, 255), (Uint8)min(b + 64, 255), 255);
+		SDL_RenderPoint(sdlren, px, py);
+
+		pt[0].x = px + 1.0f;
+		pt[0].y = py;
+
+		pt[1].x = px;
+		pt[1].y = py + 1.0f;
+
+		pt[2].x = px - 1.0f;
+		pt[2].y = py;
+
+		pt[3].x = px;
+		pt[3].y = py - 1.0f;
+
+		SDL_SetRenderDrawColor(sdlren, (Uint8)min(r + 32, 255), (Uint8)min(g + 32, 255), (Uint8)min(b + 32, 255),
+		    sdl_scale == 4 ? 192 : 128);
+		SDL_RenderPoints(sdlren, pt, 4);
+
+		pt[0].x = px + 2.0f;
+		pt[0].y = py;
+
+		pt[1].x = px;
+		pt[1].y = py + 2.0f;
+
+		pt[2].x = px - 2.0f;
+		pt[2].y = py;
+
+		pt[3].x = px;
+		pt[3].y = py - 2.0f;
+
+		pt[4].x = px + 1.0f;
+		pt[4].y = py + 1.0f;
+
+		pt[5].x = px + 1.0f;
+		pt[5].y = py - 1.0f;
+
+		pt[6].x = px - 1.0f;
+		pt[6].y = py + 1.0f;
+
+		pt[7].x = px - 1.0f;
+		pt[7].y = py - 1.0f;
+
+		SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)sdl_scale == 4 ? 128 : 64);
+		SDL_RenderPoints(sdlren, pt, 8);
+
+		pt[0].x = px + 3.0f;
+		pt[0].y = py;
+
+		pt[1].x = px;
+		pt[1].y = py + 3.0f;
+
+		pt[2].x = px - 3.0f;
+		pt[2].y = py;
+
+		pt[3].x = px;
+		pt[3].y = py - 3.0f;
+
+		pt[4].x = px + 2.0f;
+		pt[4].y = py + 1.0f;
+
+		pt[5].x = px + 2.0f;
+		pt[5].y = py - 1.0f;
+
+		pt[6].x = px - 2.0f;
+		pt[6].y = py + 1.0f;
+
+		pt[7].x = px - 2.0f;
+		pt[7].y = py - 1.0f;
+
+		pt[8].x = px + 1.0f;
+		pt[8].y = py + 2.0f;
+
+		pt[9].x = px + 1.0f;
+		pt[9].y = py - 2.0f;
+
+		pt[10].x = px - 1.0f;
+		pt[10].y = py + 2.0f;
+
+		pt[11].x = px - 1.0f;
+		pt[11].y = py - 2.0f;
+
+		SDL_SetRenderDrawColor(sdlren, (Uint8)r, (Uint8)g, (Uint8)b, (Uint8)sdl_scale == 4 ? 64 : 32);
+		SDL_RenderPoints(sdlren, pt, 12);
+		break;
+	default:
+		warn("unsupported scale %d in sdl_pixel()", sdl_scale);
+		return;
+	}
+}
+
 void sdl_line(int fx, int fy, int tx, int ty, unsigned short color, int clipsx, int clipsy, int clipex, int clipey,
     int x_offset, int y_offset)
 {
