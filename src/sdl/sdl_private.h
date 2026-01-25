@@ -244,7 +244,6 @@ void sdl_dump_spritecache(void);
 // ============================================================================
 uint32_t mix_argb(uint32_t c1, uint32_t c2, float w1, float w2);
 void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale);
-void sdl_premulti(uint32_t *pixel, int xres, int yres, int scale);
 void png_helper_read(png_structp ps, png_bytep buf, png_size_t len);
 int sdl_load_image_png_(struct sdl_image *si, char *filename, zip_t *zip);
 int sdl_load_image_png(struct sdl_image *si, char *filename, zip_t *zip, int smoothify);
