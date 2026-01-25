@@ -101,6 +101,7 @@ int sdl_drawtext(int sx, int sy, unsigned short int color, int flags, const char
     int clipsx, int clipsy, int clipex, int clipey, int x_offset, int y_offset);
 // Basic drawing primitives
 void sdl_pixel(int x, int y, unsigned short color, int x_offset, int y_offset);
+void sdl_pretty_pixel(int x, int y, unsigned short color, int x_offset, int y_offset);
 void sdl_pixel_alpha(int x, int y, unsigned short color, unsigned char alpha, int x_offset, int y_offset);
 void sdl_line(int fx, int fy, int tx, int ty, unsigned short color, int clipsx, int clipsy, int clipex, int clipey,
     int x_offset, int y_offset);
