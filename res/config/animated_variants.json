@@ -49,7 +49,12 @@
     {
       "id": 11127,
       "comment": "lab5_regen",
-      "base_sprite": 11127
+      "base_sprite": 11127,
+      "animation": {
+        "type": "bidirectional",
+        "frames": 16,
+        "divisor": 4
+      }
     },
     {
       "id": 11139,
@@ -1530,22 +1535,42 @@
     {
       "id": 20388,
       "comment": "dungeon_walllight_se_on",
-      "base_sprite": 20388
+      "base_sprite": 20388,
+      "animation": {
+        "type": "bidirectional",
+        "frames": 16,
+        "divisor": 10
+      }
     },
     {
       "id": 20397,
       "comment": "dungeon_walllight_sw_on",
-      "base_sprite": 20397
+      "base_sprite": 20397,
+      "animation": {
+        "type": "bidirectional",
+        "frames": 16,
+        "divisor": 10
+      }
     },
     {
       "id": 20406,
       "comment": "dungeon_walllight_nw_on",
-      "base_sprite": 20406
+      "base_sprite": 20406,
+      "animation": {
+        "type": "bidirectional",
+        "frames": 16,
+        "divisor": 10
+      }
     },
     {
       "id": 20415,
       "comment": "dungeon_walllight_ne_on",
-      "base_sprite": 20415
+      "base_sprite": 20415,
+      "animation": {
+        "type": "bidirectional",
+        "frames": 16,
+        "divisor": 10
+      }
     },
     {
       "id": 20797,
@@ -1905,11 +1930,21 @@
     },
     {
       "id": 50289,
-      "base_sprite": 50289
+      "base_sprite": 50289,
+      "animation": {
+        "type": "bidirectional",
+        "frames": 16,
+        "divisor": 2
+      }
     },
     {
       "id": 50297,
-      "base_sprite": 50297
+      "base_sprite": 50297,
+      "animation": {
+        "type": "bidirectional",
+        "frames": 16,
+        "divisor": 2
+      }
     },
     {
       "id": 51085,
@@ -1924,12 +1959,6 @@
         "period": 61,
         "divisor": 2,
         "offset": 10
-      },
-      "light_pulse": {
-        "max": 30,
-        "period": 61,
-        "divisor": 2,
-        "offset": 0
       }
     },
     {
@@ -1945,12 +1974,6 @@
         "period": 61,
         "divisor": 2,
         "offset": 10
-      },
-      "light_pulse": {
-        "max": 30,
-        "period": 61,
-        "divisor": 2,
-        "offset": 0
       }
     },
     {
@@ -1992,7 +2015,12 @@
     {
       "id": 51625,
       "comment": "glowing steel door",
-      "base_sprite": 51625
+      "base_sprite": 51625,
+      "animation": {
+        "type": "bidirectional",
+        "frames": 10,
+        "divisor": 2
+      }
     },
     {
       "id": 51632,
@@ -2003,7 +2031,12 @@
     },
     {
       "id": 56002,
-      "base_sprite": 56002
+      "base_sprite": 56002,
+      "animation": {
+        "type": "bidirectional",
+        "frames": 8,
+        "divisor": 2
+      }
     },
     {
       "id": 59000,
@@ -2157,12 +2190,7 @@
     {
       "id": 59029,
       "comment": "edemon loader ground red",
-      "base_sprite": 14248,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 3
-      },
+      "base_sprite": 59029,
       "c2": 16384
     },
     {
@@ -3267,52 +3295,26 @@
     {
       "id": 59195,
       "base_sprite": 51085,
-      "shine": 5,
-      "light_pulse": {
-        "max": 30,
-        "period": 61,
-        "divisor": 3,
-        "offset": 0
-      }
+      "shine": 5
     },
     {
       "id": 59196,
-      "base_sprite": 51110,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 3
-      },
+      "base_sprite": 59196,
       "c2": 512
     },
     {
       "id": 59197,
-      "base_sprite": 51110,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 3
-      },
+      "base_sprite": 59197,
       "c2": 16768
     },
     {
       "id": 59198,
-      "base_sprite": 51110,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 3
-      },
+      "base_sprite": 59198,
       "c2": 16384
     },
     {
       "id": 59199,
-      "base_sprite": 51110,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 3
-      },
+      "base_sprite": 59199,
       "c2": 16
     },
     {
@@ -5455,7 +5457,12 @@
     {
       "id": 59494,
       "comment": "green mr_wall_torch_ds",
-      "base_sprite": 59494,
+      "base_sprite": 20044,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
       "cr": -100,
       "cg": 50,
       "light": -20
@@ -5463,7 +5470,12 @@
     {
       "id": 59495,
       "comment": "green mr_wall_torch_ls",
-      "base_sprite": 59495,
+      "base_sprite": 20054,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
       "cr": -100,
       "cg": 50,
       "light": -20
@@ -5471,7 +5483,12 @@
     {
       "id": 59496,
       "comment": "green mr_wall_torch_lh",
-      "base_sprite": 59496,
+      "base_sprite": 20064,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
       "cr": -100,
       "cg": 50,
       "light": -20
@@ -5479,7 +5496,12 @@
     {
       "id": 59497,
       "comment": "green mr_wall_torch_dh",
-      "base_sprite": 59497,
+      "base_sprite": 20074,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
       "cr": -100,
       "cg": 50,
       "light": -20
@@ -5589,7 +5611,12 @@
     {
       "id": 59515,
       "comment": "red mr_wall_torch_ds",
-      "base_sprite": 59515,
+      "base_sprite": 20044,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
       "cr": 50,
       "cg": -50,
       "light": -20
@@ -5597,7 +5624,12 @@
     {
       "id": 59516,
       "comment": "red mr_wall_torch_ls",
-      "base_sprite": 59516,
+      "base_sprite": 20054,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
       "cr": 50,
       "cg": -50,
       "light": -20
@@ -5605,7 +5637,12 @@
     {
       "id": 59517,
       "comment": "red mr_wall_torch_lh",
-      "base_sprite": 59517,
+      "base_sprite": 20064,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
       "cr": 50,
       "cg": -50,
       "light": -20
@@ -5613,7 +5650,12 @@
     {
       "id": 59518,
       "comment": "red mr_wall_torch_dh",
-      "base_sprite": 59518,
+      "base_sprite": 20074,
+      "animation": {
+        "type": "position_cycle",
+        "frames": 8,
+        "divisor": 4
+      },
       "cr": 50,
       "cg": -50,
       "light": -20
@@ -6510,12 +6552,7 @@
     },
     {
       "id": 59665,
-      "base_sprite": 51110,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 3
-      },
+      "base_sprite": 59665,
       "c2": 16920
     },
     {
@@ -7005,12 +7042,7 @@
     {
       "id": 59730,
       "comment": "blue mr_wall_torch_ds",
-      "base_sprite": 20044,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 4
-      },
+      "base_sprite": 59730,
       "cb": 50,
       "light": -20,
       "saturation": 20
@@ -7018,12 +7050,7 @@
     {
       "id": 59731,
       "comment": "blue mr_wall_torch_ls",
-      "base_sprite": 20054,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 4
-      },
+      "base_sprite": 59731,
       "cb": 50,
       "light": -20,
       "saturation": 20
@@ -7031,12 +7058,7 @@
     {
       "id": 59732,
       "comment": "blue mr_wall_torch_lh",
-      "base_sprite": 20064,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 4
-      },
+      "base_sprite": 59732,
       "cb": 50,
       "light": -20,
       "saturation": 20
@@ -7044,12 +7066,7 @@
     {
       "id": 59733,
       "comment": "blue mr_wall_torch_dh",
-      "base_sprite": 20074,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 4
-      },
+      "base_sprite": 59733,
       "cb": 50,
       "light": -20,
       "saturation": 20
@@ -7057,12 +7074,7 @@
     {
       "id": 59734,
       "comment": "blue mr_wall_torch_ds",
-      "base_sprite": 20044,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 4
-      },
+      "base_sprite": 59734,
       "cb": 30,
       "light": 20,
       "saturation": 20
@@ -7070,12 +7082,7 @@
     {
       "id": 59735,
       "comment": "blue mr_wall_torch_ls",
-      "base_sprite": 20054,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 4
-      },
+      "base_sprite": 59735,
       "cb": 30,
       "light": 20,
       "saturation": 20
@@ -7083,12 +7090,7 @@
     {
       "id": 59736,
       "comment": "blue mr_wall_torch_lh",
-      "base_sprite": 20064,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 4
-      },
+      "base_sprite": 59736,
       "cb": 30,
       "light": 20,
       "saturation": 20
@@ -7096,12 +7098,7 @@
     {
       "id": 59737,
       "comment": "blue mr_wall_torch_dh",
-      "base_sprite": 20074,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 4
-      },
+      "base_sprite": 59737,
       "cb": 30,
       "light": 20,
       "saturation": 20
@@ -7500,12 +7497,7 @@
     },
     {
       "id": 59798,
-      "base_sprite": 10004,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 2
-      },
+      "base_sprite": 59798,
       "cr": -100,
       "cg": 100,
       "light": -20
@@ -7519,12 +7511,7 @@
     },
     {
       "id": 59800,
-      "base_sprite": 10004,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 2
-      },
+      "base_sprite": 59800,
       "cr": -100,
       "cb": 100,
       "light": -20
@@ -7539,23 +7526,13 @@
     {
       "id": 59802,
       "comment": "sewer outlet",
-      "base_sprite": 22500,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 2
-      },
+      "base_sprite": 59802,
       "c3": 4288
     },
     {
       "id": 59803,
       "comment": "sewer ground",
-      "base_sprite": 22508,
-      "animation": {
-        "type": "position_cycle",
-        "frames": 8,
-        "divisor": 2
-      },
+      "base_sprite": 59803,
       "c3": 4288
     },
     {

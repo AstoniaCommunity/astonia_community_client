@@ -321,20 +321,28 @@ def extract_animated_variant(case_id, body):
     has_position = re.search(pos_pattern, body) is not None
 
     # Pattern 0a: Offset formula: sprite = sprite + A - B; (no animation, just remap)
-    # e.g., sprite = sprite + 14060 - 59163; means base_sprite = case_id + (14060 - 59163)
+    # e.g., sprite = sprite + 14060 - 59163; means base_sprite = case_id + (A - B)
     offset_plus_minus = re.search(
         r'sprite\s*=\s*sprite\s*\+\s*(\d+)\s*-\s*(\d+)\s*;',
         body
     )
 
-    # Pattern 0b: Offset formula: sprite = sprite - A + B;
-    # e.g., sprite = sprite - 59002 + 14330; means base_sprite = case_id - 59002 + 14330
+    # Pattern 0b: Offset formula with animation: sprite = sprite - A + B + (animation) % frames;
+    # e.g., sprite = sprite - 59495 + 20054 + (...) % 8; means base_sprite = B, frames = 8
+    # Uses re.DOTALL to handle multiline formulas
+    offset_minus_plus_anim = re.search(
+        r'sprite\s*=\s*sprite\s*-\s*\d+\s*\+\s*(\d+)\s*\+[\s\S]*?%\s*(\d+)',
+        body
+    )
+
+    # Pattern 0c: Offset formula: sprite = sprite - A + B; (no animation)
+    # e.g., sprite = sprite - 59002 + 14330; means base_sprite = case_id - A + B
     offset_minus_plus = re.search(
         r'sprite\s*=\s*sprite\s*-\s*(\d+)\s*\+\s*(\d+)\s*;',
         body
     )
 
-    # Pattern 0c: Pseudo sprite formula: sprite = BASE + (sprite - OFFSET);
+    # Pattern 0d: Pseudo sprite formula: sprite = BASE + (sprite - OFFSET);
     # e.g., sprite = 11020 + (sprite - 60000); means base_sprite = 11020 + (case_id - 60000)
     # This handles pseudo sprites that remap to a different sprite range
     pseudo_sprite_match = re.search(
@@ -349,13 +357,33 @@ def extract_animated_variant(case_id, body):
     )
 
     # Pattern 2: sprite = sprite + (...) % frames (base is same as case id)
+    # Handles (unsigned int) casts and multiline
     sprite_plus_match = re.search(
-        r'sprite\s*=\s*sprite\s*\+.*?%\s*(\d+)',
+        r'sprite\s*=\s*sprite\s*\+[\s\S]*?%\s*(\d+)',
         body
     )
 
     # Pattern 3: Direct assignment sprite = NUMBER
     direct_match = re.search(r'sprite\s*=\s*(\d+)\s*;', body)
+
+    # Pattern 4: Bidirectional animation (ping-pong)
+    # e.g., help = (attick/4) % 16; if (help < 8) sprite += help; else sprite += 15 - help;
+    bidirectional_match = re.search(
+        r'help\s*[<>]=?\s*(\d+)[\s\S]*?sprite\s*=\s*sprite\s*\+[\s\S]*?(\d+)\s*-\s*help',
+        body
+    )
+    # Also check for: help > N ... help = M - help pattern (alternative bidirectional)
+    if not bidirectional_match:
+        bidirectional_match = re.search(
+            r'help\s*>\s*(\d+)[\s\S]*?help\s*=\s*(\d+)\s*-\s*help',
+            body
+        )
+    # Also check for: sprite = CASE_ID + N - help (bidirectional on literal base)
+    if not bidirectional_match:
+        bidirectional_match = re.search(
+            r'help\s*>\s*(\d+)[\s\S]*?sprite\s*=\s*\d+\s*\+\s*(\d+)\s*-.*?help',
+            body
+        )
 
     # Extract animation divisor (handles both "attick / N" and "(attick) / N")
     divisor_match = re.search(r'\(?attick\)?\s*/\s*(\d+)', body)
@@ -366,6 +394,15 @@ def extract_animated_variant(case_id, body):
         a = int(offset_plus_minus.group(1))
         b = int(offset_plus_minus.group(2))
         variant["base_sprite"] = case_id + a - b
+    elif offset_minus_plus_anim:
+        # sprite = sprite - A + B + (animation) % frames → base = B, with animation
+        variant["base_sprite"] = int(offset_minus_plus_anim.group(1))
+        frames = int(offset_minus_plus_anim.group(2))
+        variant["animation"] = {
+            "type": "position_cycle" if has_position else "cycle",
+            "frames": frames,
+            "divisor": divisor
+        }
     elif offset_minus_plus:
         # sprite = sprite - A + B → base = case_id - A + B
         a = int(offset_minus_plus.group(1))
@@ -396,6 +433,16 @@ def extract_animated_variant(case_id, body):
     elif direct_match:
         # Direct sprite assignment (possibly a remap)
         variant["base_sprite"] = int(direct_match.group(1))
+    elif bidirectional_match:
+        # Bidirectional (ping-pong) animation: sprite bounces between 0 and N
+        variant["base_sprite"] = case_id
+        # Extract frames from the pattern (e.g., "15 - help" means 16 frames total)
+        max_frame = int(bidirectional_match.group(2))
+        variant["animation"] = {
+            "type": "bidirectional",
+            "frames": max_frame + 1,
+            "divisor": divisor
+        }
     else:
         # No clear sprite assignment - use case_id as base
         variant["base_sprite"] = case_id
@@ -404,9 +451,9 @@ def extract_animated_variant(case_id, body):
     extract_static_values(variant, body)
 
     # Check for pulsing color animation: c2 = IRGB(r, g, abs(X - (attick % Y)) [/ div] [+ offset]);
-    # Simple pattern: c2 = IRGB(0, 0, abs(31 - (attick % 63)));
+    # Handles optional (int) cast: c2 = IRGB(0, 0, abs(31 - (int)(attick % 63)));
     pulse_match = re.search(
-        r'(c[123])\s*=\s*IRGB\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*abs\s*\(\s*(\d+)\s*-\s*\(\s*attick\s*%\s*(\d+)\s*\)\s*\)'
+        r'(c[123])\s*=\s*IRGB\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*abs\s*\(\s*(\d+)\s*-\s*(?:\(int\))?\s*\(\s*attick\s*%\s*(\d+)\s*\)\s*\)'
         r'(?:\s*/\s*(\d+))?(?:\s*\+\s*(\d+))?\s*\)',
         body
     )
