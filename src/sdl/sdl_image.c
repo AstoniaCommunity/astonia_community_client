@@ -91,12 +91,12 @@ void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale __attribute__(
 				c2 = pixel[x + y * xres + 2]; // top right
 				c3 = pixel[x + y * xres + xres * 2]; // bottom left
 				c4 = pixel[x + y * xres + 2 + xres * 2]; // bottom right
-
-				// don't interpolate with very transparent pixels
+#if 0 // we really only want this for wall tiles
+      // don't interpolate with very transparent pixels
 				if (IGET_A(c1) < 64 || IGET_A(c2) < 64 || IGET_A(c3) < 64 || IGET_A(c4) < 64) {
 					continue;
 				}
-
+#endif
 				pixel[x + y * xres + 1] = mix_argb(c1, c2, 0.5f, 0.5f);
 				pixel[x + y * xres + xres] = mix_argb(c1, c3, 0.5f, 0.5f);
 				pixel[x + y * xres + 1 + xres] =
@@ -111,12 +111,12 @@ void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale __attribute__(
 				c2 = pixel[x + y * xres + 3]; // top right
 				c3 = pixel[x + y * xres + xres * 3]; // bottom left
 				c4 = pixel[x + y * xres + 3 + xres * 3]; // bottom right
-
-				// don't interpolate with very transparent pixels
+#if 0 // we really only want this for wall tiles
+      // don't interpolate with very transparent pixels
 				if (IGET_A(c1) < 64 || IGET_A(c2) < 64 || IGET_A(c3) < 64 || IGET_A(c4) < 64) {
 					continue;
 				}
-
+#endif
 				pixel[x + y * xres + 1] = mix_argb(c1, c2, 0.667f, 0.333f);
 				pixel[x + y * xres + 2] = mix_argb(c1, c2, 0.333f, 0.667f);
 
@@ -142,12 +142,12 @@ void sdl_smoothify(uint32_t *pixel, int xres, int yres, int scale __attribute__(
 				c2 = pixel[x + y * xres + 4]; // top right
 				c3 = pixel[x + y * xres + xres * 4]; // bottom left
 				c4 = pixel[x + y * xres + 4 + xres * 4]; // bottom right
-
-				// don't interpolate with very transparent pixels
+#if 0 // we really only want this for wall tiles
+      // don't interpolate with very transparent pixels
 				if (IGET_A(c1) < 64 || IGET_A(c2) < 64 || IGET_A(c3) < 64 || IGET_A(c4) < 64) {
 					continue;
 				}
-
+#endif
 				pixel[x + y * xres + 1] = mix_argb(c1, c2, 0.75f, 0.25f);
 				pixel[x + y * xres + 2] = mix_argb(c1, c2, 0.5f, 0.5f);
 				pixel[x + y * xres + 3] = mix_argb(c1, c2, 0.25f, 0.75f);
