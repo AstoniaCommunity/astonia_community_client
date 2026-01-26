@@ -351,9 +351,11 @@ def extract_animated_variant(case_id, body):
     )
 
     # Pattern 1: sprite = BASE + (...) % frames (with base number)
+    # Use re.DOTALL to handle multiline formulas (e.g., sprite = 20044 + (...\n...) % 8)
     anim_match = re.search(
         r'sprite\s*=\s*(\d+)\s*\+.*?%\s*(\d+)',
-        body
+        body,
+        re.DOTALL
     )
 
     # Pattern 2: sprite = sprite + (...) % frames (base is same as case id)
@@ -476,8 +478,9 @@ def extract_animated_variant(case_id, body):
         }
 
     # Check for pulsing light: light = abs(X - (attick % Y)) [/ div] [+ offset];
+    # Handle optional (int) cast: light = abs(30 - (int)(attick % 61)) / 2;
     light_pulse_match = re.search(
-        r'light\s*=\s*abs\s*\(\s*(\d+)\s*-\s*\(\s*attick\s*%\s*(\d+)\s*\)\s*\)'
+        r'light\s*=\s*abs\s*\(\s*(\d+)\s*-\s*(?:\(int\))?\s*\(\s*attick\s*%\s*(\d+)\s*\)\s*\)'
         r'(?:\s*/\s*(\d+))?(?:\s*\+\s*(\d+))?',
         body
     )
