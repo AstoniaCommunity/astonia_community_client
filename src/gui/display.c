@@ -853,8 +853,8 @@ void display_selfspells(void)
 				    997, dotx(DOT_SSP) + 1 * 10, doty(DOT_SSP) + step, RENDERFX_NORMAL_LIGHT, RENDER_ALIGN_NORMAL);
 				render_pop_clip();
 				sprintf(hover_freeze_text, "Freeze: %us to go", (ceffect[nr].freeze.stop - tick) / 24);
-				break;
 			}
+			break;
 		case 14: {
 			int step = 50 - 50 * (int)(ceffect[nr].potion.stop - tick) /
 			                    (int)(ceffect[nr].potion.stop - ceffect[nr].potion.start);
