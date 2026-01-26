@@ -32,6 +32,10 @@ static uint32_t mapix2[MINIMAP * MINIMAP * 4];
 #define MAXSAVEMAP 100
 static int mapnr = -1;
 
+static int map_managed = 0; // map managed 0 = we're guessing. map managed 1 = the server will send us area changes.
+static int map_area = 0;
+static int map_server = 0;
+
 SDL_Texture *maptex1 = NULL, *maptex2 = NULL;
 
 void minimap_init(void)
@@ -136,14 +140,14 @@ void minimap_update(void)
 			}
 		}
 	}
-	if (rewrite_cnt > 8) {
+	if (rewrite_cnt > 8 && !map_managed) {
 		memset(_mmap, 0, sizeof(_mmap));
 		update1 = update2 = 1;
 		note("MAP CHANGED: %d", rewrite_cnt);
 	}
 	if (mapnr == -1 && update3) {
 		update3 = 0;
-		if (game_options & GO_MAPSAVE) {
+		if (!map_managed && (game_options & GO_MAPSAVE)) {
 			mapnr = map_load();
 		}
 	}
@@ -308,12 +312,19 @@ void display_minimap(void)
 	}
 }
 
+static void minimap_clearonly(void)
+{
+	memset(_mmap, 0, sizeof(_mmap));
+	update1 = update2 = update3 = 1;
+}
+
 void minimap_clear(void)
 {
 	if (game_options & GO_MAPSAVE) {
 		map_save();
 	}
 	mapnr = -1;
+	map_area = 0;
 	memset(_mmap, 0, sizeof(_mmap));
 	update1 = update2 = update3 = 1;
 }
@@ -334,16 +345,24 @@ static char *mapname(int i)
 {
 	static char filename[MAX_PATH];
 
-	if (localdata) {
-		sprintf(filename, "%smap%03d.dat", localdata, i);
+	if (map_managed) {
+		if (localdata) {
+			sprintf(filename, "%smMap%d_%d.dat", localdata, map_server, map_area);
+		} else {
+			sprintf(filename, "bin/data/mMap%d_%d.dat", map_server, map_area);
+		}
 	} else {
-		sprintf(filename, "bin/data/map%03d.dat", i);
+		if (localdata) {
+			sprintf(filename, "%smap%03d.dat", localdata, i);
+		} else {
+			sprintf(filename, "bin/data/map%03d.dat", i);
+		}
 	}
 
 	return filename;
 }
 
-static void map_save(void)
+static void map_save_unmanaged(void)
 {
 	FILE *fp;
 	int i, cnt;
@@ -385,6 +404,33 @@ static void map_save(void)
 	if (fp) {
 		fwrite(_mmap, sizeof(_mmap), 1, fp);
 		fclose(fp);
+	}
+}
+
+static void map_save_managed(void)
+{
+	FILE *fp;
+	char *filename;
+
+	if (!map_area) {
+		return;
+	}
+
+	filename = mapname(42);
+	note("saving area map to %s", filename);
+	fp = fopen(filename, "wb");
+	if (fp) {
+		fwrite(_mmap, sizeof(_mmap), 1, fp);
+		fclose(fp);
+	}
+}
+
+static void map_save(void)
+{
+	if (map_managed) {
+		map_save_managed();
+	} else {
+		map_save_unmanaged();
 	}
 }
 
@@ -436,7 +482,7 @@ static void map_merge(unsigned char *xmap, const unsigned char *tmap)
 	}
 }
 
-static int map_load(void)
+static int map_load_unmanaged(void)
 {
 	FILE *fp;
 	int i, hit, besti = -1, besthit = 0;
@@ -477,6 +523,37 @@ static int map_load(void)
 	}
 
 	return -1;
+}
+
+static int map_load_managed(void)
+{
+	FILE *fp;
+	char *filename;
+
+	if (!map_area) {
+		return 0;
+	}
+
+	filename = mapname(42);
+	note("loading area map from %s", filename);
+
+	fp = fopen(filename, "rb");
+	if (!fp) {
+		return 1;
+	}
+	fread(_mmap, sizeof(_mmap), 1, fp);
+	fclose(fp);
+
+	return 1;
+}
+
+static int map_load(void)
+{
+	if (map_managed) {
+		return map_load_managed();
+	} else {
+		return map_load_unmanaged();
+	}
 }
 
 void minimap_compact(void)
@@ -523,5 +600,23 @@ void minimap_compact(void)
 				note("merged map %d into map %d", j, i);
 			}
 		}
+	}
+}
+
+void minimap_areainfo(int cmd, int areaID, int server_key)
+{
+	map_managed = 1;
+
+	if (!cmd) {
+		if (map_area) {
+			map_save();
+		}
+
+		map_area = areaID;
+		map_server = server_key;
+
+		map_load();
+	} else {
+		minimap_clearonly();
 	}
 }

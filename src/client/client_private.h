@@ -34,7 +34,7 @@
 #define SV_GOLD             30
 #define SV_LOOKINV          31
 #define SV_ITEMPRICE        32
-#define SV__FREE_FOR_USE1__ 33
+#define SV_AREAINFO         33
 #define SV_CEFFECT          34
 #define SV_UEFFECT          35
 #define SV_REALTIME         36

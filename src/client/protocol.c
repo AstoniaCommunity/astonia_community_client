@@ -893,6 +893,17 @@ static void sv_lookinv(unsigned char *buf)
 	show_look = 1;
 }
 
+static void sv_areainfo(unsigned char *buf)
+{
+	int areaID, cmd, server_key;
+
+	cmd = load_u16(buf + 1);
+	areaID = load_u16(buf + 3);
+	server_key = load_u16(buf + 5);
+
+	minimap_areainfo(cmd, areaID, server_key);
+}
+
 static void sv_server(unsigned char *buf)
 {
 	change_area = 1;
@@ -1000,7 +1011,7 @@ static void sv_unique(unsigned char *buf)
 void sv_protocol(unsigned char *buf)
 {
 	protocol_version = buf[1];
-	// note("Astonia Protocol Version %d established!",protocol_version);
+	note("Astonia Protocol Version %d established!", protocol_version);
 }
 
 void process(unsigned char *buf, int size)
@@ -1163,6 +1174,10 @@ void process(unsigned char *buf, int size)
 			case SV_LOOKINV:
 				sv_lookinv(buf);
 				len = 17 + 12 * 4;
+				break;
+			case SV_AREAINFO:
+				sv_areainfo(buf);
+				len = 7;
 				break;
 			case SV_CEFFECT:
 				len = sv_ceffect(buf);
@@ -1402,6 +1417,9 @@ uint32_t prefetch(unsigned char *buf, int size)
 				break;
 			case SV_LOOKINV:
 				len = 17 + 12 * 4;
+				break;
+			case SV_AREAINFO:
+				len = 7;
 				break;
 			case SV_CEFFECT:
 				len = svl_ceffect(buf);

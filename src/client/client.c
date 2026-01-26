@@ -25,6 +25,8 @@
 #include "modder/modder.h"
 #include "protocol.h"
 
+#define CLIENT_PROTOCOL_VERSION 2
+
 unsigned int display_gfx = 0;
 uint32_t display_time = 0;
 static int rec_bytes = 0;
@@ -366,7 +368,7 @@ int poll_network(void)
 		decrypt(username, tmp);
 		astonia_net_send(sock, tmp, 16);
 
-		store_u32(tmp, 0x8fd46100 | 0x01); // magic code + version 1
+		store_u32(tmp, 0x8fd46100 | CLIENT_PROTOCOL_VERSION); // magic code + version
 		astonia_net_send(sock, tmp, 4);
 		send_info(sock);
 
