@@ -1,0 +1,22 @@
+{
+  "coords": [
+    { "type": 1, "x": 122, "y": 183, "desc": "James" },
+    { "type": 1, "x": 126, "y": 179, "desc": "Rest Area" },
+    { "type": 1, "x": 111, "y": 146, "desc": "Gwendylon's Tower" },
+    { "type": 2, "x": 108, "y": 126, "desc": "Nook" },
+    { "type": 1, "x": 100, "y": 129, "desc": "Lydia" },
+    { "type": 2, "x": 100, "y": 119, "desc": "Gwendylon" },
+    { "type": 1, "x":  91, "y": 156, "desc": "Thieves' House" },
+    { "type": 2, "x": 134, "y": 139, "desc": "Yoakin" },
+    { "type": 2, "x": 130, "y":  94, "desc": "Tavern with Guiwynn, Reskin, Terion and Logain" },
+    { "type": 2, "x": 139, "y":  75, "desc": "Teleport for Quick Travel" },
+    { "type": 2, "x": 164, "y":  88, "desc": "Mad Knights" },
+    { "type": 2, "x": 153, "y": 103, "desc": "Mad Mages" },
+    { "type": 2, "x": 146, "y": 157, "desc": "Skelly I" },
+    { "type": 2, "x":  89, "y":  84, "desc": "Skelly II" },
+    { "type": 1, "x":   3, "y":  24, "desc": "To Aston" },
+    { "type": 2, "x": 142, "y": 138, "desc": "Skelly V" },
+    { "type": 2, "x": 138, "y": 136, "desc": "Skelly III" },
+    { "type": 2, "x": 112, "y": 107, "desc": "Skelly IV" }
+  ]
+}
