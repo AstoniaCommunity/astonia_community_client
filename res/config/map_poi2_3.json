@@ -1,0 +1,23 @@
+{
+  "coords": [
+    { "type": 1, "x":  53, "y": 126, "desc": "To Mines" },
+    { "type": 1, "x":  66, "y": 120, "desc": "To Random Dungeon" },
+    { "type": 1, "x": 198, "y":  88, "desc": "To Swamp" },
+    { "type": 1, "x": 198, "y": 132, "desc": "Park" },
+    { "type": 1, "x": 229, "y": 168, "desc": "To Pentagram Quest and Earth Underground" },
+    { "type": 1, "x": 251, "y": 241, "desc": "To Cameron" },
+    { "type": 2, "x": 212, "y": 240, "desc": "Seymour" },
+    { "type": 2, "x": 194, "y": 250, "desc": "Loisan's House" },
+    { "type": 2, "x": 138, "y": 250, "desc": "To Imperial Commander" },
+    { "type": 1, "x": 127, "y": 238, "desc": "University" },
+    { "type": 1, "x": 178, "y": 200, "desc": "Gatekeeper and Labyrinth" },
+    { "type": 1, "x": 172, "y": 174, "desc": "Governor" },
+    { "type": 1, "x": 144, "y": 238, "desc": "Clubmaster" },
+    { "type": 2, "x": 131, "y": 127, "desc": "Carlos" },
+    { "type": 2, "x": 181, "y": 174, "desc": "Gerassimo" },
+    { "type": 2, "x": 165, "y": 207, "desc": "Kelly" },
+    { "type": 2, "x": 167, "y": 216, "desc": "Ruby" },
+    { "type": 2, "x": 169, "y": 232, "desc": "Sir Thomas" },
+    { "type": 2, "x": 154, "y": 233, "desc": "Sir Jones" }
+  ]
+}

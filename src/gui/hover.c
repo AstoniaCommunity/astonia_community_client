@@ -93,6 +93,7 @@ void display_mouseover(void)
 	} else if (capbut == -1) {
 		SDL_ShowCursor();
 	}
+	minimap_display_hover(mousex, mousey);
 }
 
 #define MAXVALID (TICKS * 60 * 2)

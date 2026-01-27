@@ -514,6 +514,7 @@ void minimap_toggle(void);
 void minimap_hide(void);
 void display_minimap(void);
 void minimap_update(void);
+void minimap_display_hover(int x, int y);
 void dots_update(void);
 void display_action_lock(void);
 void display_action_open(void);
