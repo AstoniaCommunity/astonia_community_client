@@ -32,13 +32,29 @@ rustup default stable-x86_64-pc-windows-gnullvm
 ### Linux
 
 Install dependencies:
+
+**Arch Linux**
 ```bash
 sudo pacman -S base-devel sdl3-git sdl3_mixer-git libpng libzip zlib mimalloc zig rust
 # Or: make build-sdl3 build-sdl3-mixer
 ```
 
+**Debian/Ubuntu**
+```
+sudo apt install libpng-dev libzip-dev libmimalloc-dev rustup git git-lfs
+```
 
-Or use Docker (no dependencies needed):
+The libsdl3-mixer package is not part of the stable debian repository and must be compiled from source.
+
+One way of adding the necessary package to the system is as follows:
+
+ + Download source package 'libsdl3' from testing (forky), compile and install 'libsdl3-0' and 'libsdl3-dev' packages.
+ + Download source package 'libsdl3-mixer' package , compile and install 'libsdl3-mixer-dev'
+package.    
+
+Note: Zig (optional) is not part of the official debian repositories. You can use an [unofficial repository](https://debian.griffo.io).
+
+**Or use Docker** (no dependencies needed):
 ```bash
 make docker-linux
 ```
@@ -54,11 +70,14 @@ make appimage
 This creates `astonia-client.AppImage` which bundles all dependencies (including SDL3) and works on any modern Linux distribution without installation.
 
 **Requirements**: FUSE2 must be installed to run AppImages. Most distributions include it by default, but if needed:
-```bash
-# Arch Linux
-sudo pacman -S fuse2
 
-# Ubuntu/Debian
+**Arch Linux**
+```bash
+sudo pacman -S fuse2
+```
+
+**Ubuntu/Debian**
+```
 sudo apt install libfuse2
 ```
 
