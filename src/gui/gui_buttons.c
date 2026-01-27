@@ -1062,7 +1062,8 @@ void calculate_lcmd_logic(void)
 		if (chrsel != MAXMN && !vk_item && vk_char && !csprite) {
 			lcmd = CMD_CHR_ATTACK;
 		}
-		if (chrsel != MAXMN && !vk_item && vk_char && csprite) {
+		// Only set Give if we haven't already set Use With (Use With trumps Give)
+		if (chrsel != MAXMN && !vk_item && vk_char && csprite && lcmd != CMD_ITM_USE_WITH) {
 			lcmd = CMD_CHR_GIVE;
 		}
 	}
