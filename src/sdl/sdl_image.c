@@ -605,37 +605,48 @@ int sdl_load_image_png(struct sdl_image *si, char *filename, zip_t *zip, int smo
 
 int do_smoothify(int sprite)
 {
-	// TODO: add more to this list
-	if (sprite >= 50 && sprite <= 56) {
-		return 0;
+	// Tile sprites should NOT be smoothified (to avoid edge artifacts)
+	// These are floor and wall tiles that tile seamlessly
+	if (sprite >= 1 && sprite <= 100) {
+		return 0; // Basic floor/wall tiles
 	}
-	if (sprite > 0 && sprite <= 1000) {
-		return 1; // GUI
+	if (sprite >= 5000 && sprite < 6000) {
+		return 0; // Extended tile set
 	}
-	if (sprite >= 10000 && sprite < 11000) {
-		return 1; // items
+	if (sprite >= 50000 && sprite < 51000) {
+		return 0; // Special tiles (terrain, water, etc)
 	}
-	if (sprite >= 11000 && sprite < 12000) {
-		return 1; // coffin, berries, farn, ...
-	}
-	if (sprite >= 13000 && sprite < 14000) {
-		return 1; // bones and towers, ...
-	}
-	if (sprite >= 16000 && sprite < 17000) {
-		return 1; // cameron doors, carts, ...
-	}
-	if (sprite >= 20025 && sprite < 20034) {
-		return 1; // torches
-	}
-	if (sprite >= 20042 && sprite < 20082) {
-		return 1; // torches
-	}
-	if (sprite >= 20086 && sprite < 20119) {
-		return 1; // chests, chairs
+	if (sprite >= 60000 && sprite < 61000) {
+		return 0; // Additional tile variations
 	}
 
+	// Non-tile sprites SHOULD be smoothified (upscaling looks good)
+	if (sprite > 100 && sprite <= 1000) {
+		return 1; // GUI elements
+	}
+	if (sprite >= 10000 && sprite < 11000) {
+		return 1; // Items
+	}
+	if (sprite >= 11000 && sprite < 12000) {
+		return 1; // Coffin, berries, farn, ...
+	}
+	if (sprite >= 13000 && sprite < 14000) {
+		return 1; // Bones and towers, ...
+	}
+	if (sprite >= 16000 && sprite < 17000) {
+		return 1; // Cameron doors, carts, ...
+	}
+	if (sprite >= 20025 && sprite < 20034) {
+		return 1; // Torches
+	}
+	if (sprite >= 20042 && sprite < 20082) {
+		return 1; // More torches
+	}
+	if (sprite >= 20086 && sprite < 20119) {
+		return 1; // Chests, chairs
+	}
 	if (sprite >= 100000) {
-		return 1; // all character sprites
+		return 1; // All character sprites
 	}
 
 	return 0;
