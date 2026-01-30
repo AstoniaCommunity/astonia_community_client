@@ -350,6 +350,16 @@ void minimap_clear(void)
 	update1 = update2 = update3 = 1;
 }
 
+static void minimap_reveal(int x, int y)
+{
+	if (x < 0 || x >= MAXMAP || y < 0 || y >= MAXMAP) {
+		return;
+	}
+
+	_mmap[x + y * MAXMAP] = MAPPIX_EMPTY;
+	update1 = update2 = update3 = 1;
+}
+
 void minimap_toggle(void)
 {
 	visible = (visible + 1) % 4;
@@ -624,19 +634,24 @@ void minimap_compact(void)
 	}
 }
 
-void minimap_areainfo(int cmd, int areaID, int server_key)
+#define AIC_SETID  0
+#define AIC_CLEAR  1
+#define AIC_REVEAL 2
+
+void minimap_areainfo(int cmd, int opt1, int opt2)
 {
 	int cnt;
 
 	map_managed = 1;
 
-	if (!cmd) {
+	switch (cmd) {
+	case AIC_SETID:
 		if (map_area) {
 			map_save();
 		}
 
-		map_area = areaID;
-		map_server = server_key;
+		map_area = opt1;
+		map_server = opt2;
 
 		map_load();
 		cnt = map_poi_load();
@@ -644,8 +659,13 @@ void minimap_areainfo(int cmd, int areaID, int server_key)
 		if (cnt) {
 			map_update_poi();
 		}
-	} else {
+		break;
+	case AIC_CLEAR:
 		minimap_clearonly();
+		break;
+	case AIC_REVEAL:
+		minimap_reveal(opt1, opt2);
+		break;
 	}
 }
 

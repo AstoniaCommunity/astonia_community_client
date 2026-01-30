@@ -895,13 +895,13 @@ static void sv_lookinv(unsigned char *buf)
 
 static void sv_areainfo(unsigned char *buf)
 {
-	int areaID, cmd, server_key;
+	int cmd, opt1, opt2;
 
 	cmd = load_u16(buf + 1);
-	areaID = load_u16(buf + 3);
-	server_key = load_u16(buf + 5);
+	opt1 = load_u16(buf + 3);
+	opt2 = load_u16(buf + 5);
 
-	minimap_areainfo(cmd, areaID, server_key);
+	minimap_areainfo(cmd, opt1, opt2);
 }
 
 static void sv_server(unsigned char *buf)

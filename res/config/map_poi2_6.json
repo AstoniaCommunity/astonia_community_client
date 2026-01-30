@@ -1,0 +1,10 @@
+{
+  "coords": [
+    { "type": 2, "x": 139, "y": 134, "desc": "Outpost A" },
+    { "type": 2, "x": 233, "y": 180, "desc": "Outpost B" },
+    { "type": 2, "x": 117, "y": 151, "desc": "To Enemy Forces" },
+    { "type": 2, "x":  52, "y": 173, "desc": "Gate" },
+    { "type": 2, "x":  55, "y": 183, "desc": "Research Lab" },
+    { "type": 2, "x":  91, "y": 190, "desc": "To Research Area" }
+  ]
+}
