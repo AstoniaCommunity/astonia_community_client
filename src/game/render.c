@@ -1188,7 +1188,7 @@ static void render_draw_rain_pix(int x, int y, int nr, int color, int front)
 		return;
 	}
 
-	sdl_pixel(x, y, (unsigned short)color, x_offset, y_offset);
+	sdl_rain_pixel(x, y, (unsigned short)color, x_offset, y_offset);
 }
 
 static void init_bless(void)
