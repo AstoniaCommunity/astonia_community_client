@@ -462,7 +462,7 @@ static void detect_hover_target(void)
 	// hit map
 	if (!hitsel[0] && butsel == -1 && mousex >= dotx(DOT_MTL) && mousey >= doty(DOT_MTL) && doty(DOT_MBR) &&
 	    mousey < doty(DOT_MBR)) {
-		if (action_ovr == 13) {
+		if (action_ovr == ACTION_LOOK) {
 			itmsel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, 3);
 			if (itmsel == MAXMN) {
 				chrsel = get_near_char(mousex, mousey, 3);
@@ -471,10 +471,11 @@ static void detect_hover_target(void)
 				mapsel = get_near_ground(mousex, mousey);
 			}
 		} else {
-			if (vk_char || (action_ovr != -1 && (action_ovr != 11 || csprite) && action_ovr != 2)) {
+			if (vk_char || (action_ovr != ACTION_NONE && (action_ovr != ACTION_TAKEGIVE || csprite) &&
+			                   action_ovr != ACTION_LBALL)) { // FIXME: Why L'Ball?
 				chrsel = get_near_char(mousex, mousey, vk_char ? MAPDX : 3);
 			}
-			if (chrsel == MAXMN && (vk_item || action_ovr == 11)) {
+			if (chrsel == MAXMN && (vk_item || action_ovr == ACTION_TAKEGIVE)) {
 				itmsel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, csprite ? 0 : MAPDX);
 			}
 			if (chrsel == MAXMN && itmsel == MAXMN && !vk_char && (!vk_item || csprite)) {
@@ -520,7 +521,7 @@ void exec_cmd(int cmd, int a)
 {
 	int offset = 100, clan_bound = 16;
 
-	action_ovr = -1;
+	action_ovr = ACTION_NONE;
 	context_key_reset();
 
 	switch (cmd) {
@@ -898,39 +899,39 @@ void cmd_action(void)
 	}
 
 	switch (actsel) {
-	case 0:
-	case 1:
-	case 2:
-	case 11:
-	case 13:
+	case ACTION_ATTACK:
+	case ACTION_FIREBALL:
+	case ACTION_LBALL:
+	case ACTION_TAKEGIVE:
+	case ACTION_LOOK:
 		action_ovr = actsel;
 		break;
 
-	case 3:
+	case ACTION_FLASH:
 		cmd_some_spell(CL_FLASH, 0, 0, map[plrmn].cn);
 		break;
-	case 4:
+	case ACTION_FREEZE:
 		cmd_some_spell(CL_FREEZE, 0, 0, map[plrmn].cn);
 		break;
-	case 5:
+	case ACTION_SHIELD:
 		cmd_some_spell(CL_MAGICSHIELD, 0, 0, map[plrmn].cn);
 		break;
-	case 6:
+	case ACTION_BLESS:
 		cmd_some_spell(CL_BLESS, 0, 0, map[plrmn].cn);
 		break;
-	case 7:
+	case ACTION_HEAL:
 		cmd_some_spell(CL_HEAL, 0, 0, map[plrmn].cn);
 		break;
-	case 8:
+	case ACTION_WARCRY:
 		cmd_some_spell(CL_WARCRY, 0, 0, map[plrmn].cn);
 		break;
-	case 9:
+	case ACTION_PULSE:
 		cmd_some_spell(CL_PULSE, 0, 0, map[plrmn].cn);
 		break;
-	case 10:
+	case ACTION_FIRERING:
 		cmd_some_spell(CL_FIREBALL, 0, 0, map[plrmn].cn);
 		break;
-	case 12:
+	case ACTION_MAP:
 		minimap_toggle();
 		break;
 	}
@@ -1009,14 +1010,14 @@ void calculate_lcmd_logic(void)
 		return;
 	}
 
-	if (action_ovr != -1) {
+	if (action_ovr != ACTION_NONE) {
 		if (action_ovr == 0 && chrsel != MAXMN) {
 			lcmd = CMD_CHR_ATTACK;
-		} else if (action_ovr == 1 && chrsel != MAXMN) {
+		} else if (action_ovr == ACTION_FIREBALL && chrsel != MAXMN) {
 			lcmd = CMD_CHR_CAST_L;
-		} else if (action_ovr == 2) {
+		} else if (action_ovr == ACTION_LBALL) {
 			lcmd = CMD_MAP_CAST_R;
-		} else if (action_ovr == 11) {
+		} else if (action_ovr == ACTION_TAKEGIVE) {
 			if (itmsel != MAXMN) {
 				if (map[itmsel].flags & CMF_TAKE) { // take needs to come first as dropped items can be usable
 					lcmd = CMD_ITM_TAKE;
@@ -1032,7 +1033,7 @@ void calculate_lcmd_logic(void)
 			} else if (mapsel != MAXMN && csprite) {
 				lcmd = CMD_MAP_DROP;
 			}
-		} else if (action_ovr == 13) {
+		} else if (action_ovr == ACTION_LOOK) {
 			if (itmsel != MAXMN) {
 				lcmd = CMD_ITM_LOOK;
 			} else if (chrsel != MAXMN) {
@@ -1174,7 +1175,7 @@ void handle_special_buttons_logic(void)
 void calculate_rcmd_logic(void)
 {
 	rcmd = CMD_NONE;
-	if (action_ovr == -1) {
+	if (action_ovr == ACTION_NONE) {
 		skl_look_sel = get_skl_look(mousex, mousey);
 		if (con_cnt == 0 && skl_look_sel != -1) {
 			rcmd = CMD_SKL_LOOK;

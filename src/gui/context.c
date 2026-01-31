@@ -464,40 +464,39 @@ void context_keydown(SDL_Keycode key)
 	}
 
 	switch (action_key2slot(key)) {
-	case 0:
+	case ACTION_ATTACK:
 		lcmd_override = CMD_CHR_ATTACK;
 		break;
-	case 1:
+	case ACTION_FIREBALL:
 		lcmd_override = CMD_CHR_CAST_L;
 		break;
-	case 2:
+	case ACTION_LBALL:
 		lcmd_override = CMD_CHR_CAST_R;
 		break;
-	case 6:
-	case 7:
+	case ACTION_BLESS:
+	case ACTION_HEAL:
 		lcmd_override = CMD_CHR_CAST_K;
 		break;
-	case 11:
+	case ACTION_TAKEGIVE:
 		lcmd_override = CMD_ITM_USE;
 		break;
-	case 13:
+	case ACTION_LOOK:
 		lcmd_override = CMD_ITM_LOOK;
 		break;
-
-	case 101:
+	case 100 + ACTION_FIREBALL:
 		lcmd_override = CMD_MAP_CAST_L;
 		break;
-	case 102:
+	case 100 + ACTION_LBALL:
 		lcmd_override = CMD_MAP_CAST_R;
 		break;
-	case 103:
-	case 104:
-	case 105:
-	case 106:
-	case 107:
-	case 108:
-	case 109:
-	case 110:
+	case 100 + ACTION_FLASH:
+	case 100 + ACTION_FREEZE:
+	case 100 + ACTION_SHIELD:
+	case 100 + ACTION_BLESS:
+	case 100 + ACTION_HEAL:
+	case 100 + ACTION_WARCRY:
+	case 100 + ACTION_PULSE:
+	case 100 + ACTION_FIRERING:
 		lcmd_override = CMD_SLF_CAST_K;
 		break;
 	}
@@ -622,32 +621,32 @@ void context_keyup(SDL_Keycode key)
 	}
 
 	switch (action_key2slot(key)) {
-	case 0:
+	case ACTION_ATTACK:
 		if (csel != MAXMN) {
 			cmd_kill(map[csel].cn);
 		}
 		break;
-	case 1:
+	case ACTION_FIREBALL:
 		if (csel != MAXMN) {
 			cmd_some_spell(CL_FIREBALL, 0, 0, map[csel].cn);
 		}
 		break;
-	case 2:
+	case ACTION_LBALL:
 		if (csel != MAXMN) {
 			cmd_some_spell(CL_BALL, 0, 0, map[csel].cn);
 		}
 		break;
-	case 6:
+	case ACTION_BLESS:
 		if (csel != MAXMN) {
 			cmd_some_spell(CL_BLESS, 0, 0, map[csel].cn);
 		}
 		break;
-	case 7:
+	case ACTION_HEAL:
 		if (csel != MAXMN) {
 			cmd_some_spell(CL_HEAL, 0, 0, map[csel].cn);
 		}
 		break;
-	case 11:
+	case ACTION_TAKEGIVE:
 		if (csprite) {
 			if (csel != MAXMN) {
 				cmd_give(map[csel].cn);
@@ -668,7 +667,7 @@ void context_keyup(SDL_Keycode key)
 			}
 		}
 		break;
-	case 13:
+	case ACTION_LOOK:
 		if (isel != MAXMN) {
 			cmd_look_item(
 			    originx - (int)(MAPDX / 2U) + (int)(isel % MAPDX), originy - (int)(MAPDY / 2U) + (int)(isel / MAPDX));
@@ -680,43 +679,43 @@ void context_keyup(SDL_Keycode key)
 		}
 		break;
 
-	case 101:
+	case 100 + ACTION_FIREBALL:
 		if (msel != MAXMN) {
 			cmd_some_spell(CL_FIREBALL, originx - (int)(MAPDX / 2U) + (int)(msel % MAPDX),
 			    originy - (int)(MAPDY / 2U) + (int)(msel / MAPDX), 0);
 		}
 		break;
-	case 102:
+	case 100 + ACTION_LBALL:
 		if (msel != MAXMN) {
 			cmd_some_spell(CL_BALL, originx - (int)(MAPDX / 2U) + (int)(msel % MAPDX),
 			    originy - (int)(MAPDY / 2U) + (int)(msel / MAPDX), 0);
 		}
 		break;
-	case 103:
+	case 100 + ACTION_FLASH:
 		cmd_some_spell(CL_FLASH, 0, 0, map[plrmn].cn);
 		break;
-	case 104:
+	case 100 + ACTION_FREEZE:
 		cmd_some_spell(CL_FREEZE, 0, 0, map[plrmn].cn);
 		break;
-	case 105:
+	case 100 + ACTION_SHIELD:
 		cmd_some_spell(CL_MAGICSHIELD, 0, 0, map[plrmn].cn);
 		break;
-	case 106:
+	case 100 + ACTION_BLESS:
 		cmd_some_spell(CL_BLESS, 0, 0, map[plrmn].cn);
 		break;
-	case 107:
+	case 100 + ACTION_HEAL:
 		cmd_some_spell(CL_HEAL, 0, 0, map[plrmn].cn);
 		break;
-	case 108:
+	case 100 + ACTION_WARCRY:
 		cmd_some_spell(CL_WARCRY, 0, 0, map[plrmn].cn);
 		break;
-	case 109:
+	case 100 + ACTION_PULSE:
 		cmd_some_spell(CL_PULSE, 0, 0, map[plrmn].cn);
 		break;
-	case 110:
+	case 100 + ACTION_FIRERING:
 		cmd_some_spell(CL_FIREBALL, 0, 0, map[plrmn].cn);
 		break;
-	case 112:
+	case 100 + ACTION_MAP:
 		minimap_toggle();
 		break;
 	}

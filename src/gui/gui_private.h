@@ -283,6 +283,23 @@ extern int questsel;
 extern int colsel;
 extern int actsel;
 extern int skl_look_sel;
+
+#define ACTION_NONE     -1
+#define ACTION_ATTACK   0
+#define ACTION_FIREBALL 1
+#define ACTION_LBALL    2
+#define ACTION_FLASH    3
+#define ACTION_FREEZE   4
+#define ACTION_SHIELD   5
+#define ACTION_BLESS    6
+#define ACTION_HEAL     7
+#define ACTION_WARCRY   8
+#define ACTION_PULSE    9
+#define ACTION_FIRERING 10
+#define ACTION_TAKEGIVE 11
+#define ACTION_MAP      12
+#define ACTION_LOOK     13
+
 extern int action_ovr; // action bar overrides other functions
 
 DLL_EXPORT extern int weatab[12];

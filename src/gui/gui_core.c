@@ -191,7 +191,7 @@ int actsel;
 int skl_look_sel;
 int last_right_click_invsel = -1;
 
-int action_ovr = -1;
+int action_ovr = ACTION_NONE;
 
 int capbut = -1; // the button capturing the mouse
 

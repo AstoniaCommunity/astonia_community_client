@@ -40,7 +40,7 @@ void gui_sdl_keyproc(SDL_Keycode wparam)
 		display_quest = 0;
 		show_color = 0;
 		context_key_reset();
-		action_ovr = -1;
+		action_ovr = ACTION_NONE;
 		minimap_hide();
 		if (context_key_enabled()) {
 			cmd_reset();

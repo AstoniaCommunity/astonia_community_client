@@ -1187,20 +1187,20 @@ void actions_loaded(void)
 		}
 	}
 
-	action_row[0][3] = ' ';
-	action_row[0][4] = ' ';
-	action_row[0][5] = ' ';
+	action_row[0][ACTION_FLASH] = ' ';
+	action_row[0][ACTION_FREEZE] = ' ';
+	action_row[0][ACTION_SHIELD] = ' ';
 	if (sv_ver == 35) {
-		action_row[0][6] = ' ';
+		action_row[0][ACTION_BLESS] = ' ';
 	}
-	action_row[0][8] = ' ';
-	action_row[0][9] = ' ';
-	action_row[0][10] = ' ';
-	action_row[0][12] = ' ';
+	action_row[0][ACTION_WARCRY] = ' ';
+	action_row[0][ACTION_PULSE] = ' ';
+	action_row[0][ACTION_FIRERING] = ' ';
+	action_row[0][ACTION_MAP] = ' ';
 
-	action_row[1][0] = ' ';
-	action_row[1][11] = ' ';
-	action_row[1][13] = ' ';
+	action_row[1][ACTION_ATTACK] = ' ';
+	action_row[1][ACTION_TAKEGIVE] = ' ';
+	action_row[1][ACTION_LOOK] = ' ';
 }
 
 int16_t has_action_skill(int i)
