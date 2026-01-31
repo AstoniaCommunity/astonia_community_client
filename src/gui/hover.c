@@ -349,19 +349,19 @@ static void display_hover_update(void)
 	}
 }
 
-uint16_t tactics2melee(int val)
+int16_t tactics2melee(int val)
 {
-	return (uint16_t)((float)val * 0.375f);
+	return (int16_t)((float)val * 0.375f);
 }
 
-uint16_t tactics2immune(int val)
+int16_t tactics2immune(int val)
 {
-	return (uint16_t)((float)val * 0.125f);
+	return (int16_t)((float)val * 0.125f);
 }
 
-uint16_t tactics2spell(int val)
+int16_t tactics2spell(int val)
 {
-	return (uint16_t)((float)val * 0.125f);
+	return (int16_t)((float)val * 0.125f);
 }
 
 static char *v3_basename(int v)
@@ -436,8 +436,8 @@ static void display_hover_skill_v3(void)
 		int base = 0, cap = 0, raisecost = 0, unused = -1;
 		int equip_bonus = 0, next_raise_cost = 0;
 		float exp_percentage = 0.0f;
-		uint16_t offense = 0, defense = 0, speed = 0, armor = 0, weapon = 0;
-		uint16_t immune = 0, spells = 0, tactics = 0, athlete = 0;
+		int16_t offense = 0, defense = 0, speed = 0, armor = 0, weapon = 0;
+		int16_t immune = 0, spells = 0, tactics = 0, athlete = 0;
 
 		int v = skltab[sklsel2 + skloff].v;
 		if (v < 0 || v >= *game_v_max) {
@@ -488,10 +488,10 @@ static void display_hover_skill_v3(void)
 			defense = value[0][v];
 			height += 20;
 		} else if (v == V3_ATTACK) {
-			offense = (uint16_t)(value[0][v] * 2);
+			offense = (int16_t)(value[0][v] * 2);
 			height += 10;
 		} else if (v == V3_PARRY) {
-			defense = (uint16_t)(value[0][v] * 2);
+			defense = (int16_t)(value[0][v] * 2);
 			height += 10;
 		} else if (v == V3_TACTICS) {
 			offense = tactics2melee(value[0][v]);
@@ -503,11 +503,11 @@ static void display_hover_skill_v3(void)
 			}
 			height += 30;
 		} else if (v == V3_SPEEDSKILL) {
-			speed = (uint16_t)(value[0][v] / 2);
+			speed = (int16_t)(value[0][v] / 2);
 			height += 10;
 		} else if (v == V3_BODYCONTROL) {
-			armor = (uint16_t)(value[0][v] * 5);
-			weapon = (uint16_t)(value[0][v] / 4);
+			armor = (int16_t)(value[0][v] * 5);
+			weapon = (int16_t)(value[0][v] / 4);
 			height += 20;
 		} else if (value[0][V3_TACTICS] && (v == V3_PULSE || v == V3_WARCRY || v == V3_HEAL || v == V3_FREEZE ||
 		                                       v == V3_FLASH || v == V3_FIREBALL)) {
@@ -535,7 +535,7 @@ static void display_hover_skill_v3(void)
 			case V3_FLASH:
 			case V3_FIREBALL:
 			case V3_PULSE:
-				armor = (uint16_t)((float)value[0][v] / 8.0f * 17.5f);
+				armor = (int16_t)((float)value[0][v] / 8.0f * 17.5f);
 				height += 10;
 				break;
 			}

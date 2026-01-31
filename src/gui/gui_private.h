@@ -458,9 +458,9 @@ void display_rage(void);
 void display_game_special(void);
 
 // hover.c
-uint16_t tactics2melee(int val);
-uint16_t tactics2immune(int val);
-uint16_t tactics2spell(int val);
+int16_t tactics2melee(int val);
+int16_t tactics2immune(int val);
+int16_t tactics2spell(int val);
 
 int do_display_questlog(int nr);
 void display_action(void);
@@ -505,7 +505,7 @@ DLL_EXPORT extern char hover_time_text[];
 
 int action_key2slot(SDL_Keycode key);
 SDL_Keycode action_slot2key(int slot);
-uint16_t has_action_skill(int i);
+int16_t has_action_skill(int i);
 void action_set_key(int slot, SDL_Keycode key);
 void context_action_enable(int onoff);
 

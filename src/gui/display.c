@@ -1203,7 +1203,7 @@ void actions_loaded(void)
 	action_row[1][13] = ' ';
 }
 
-uint16_t has_action_skill(int i)
+int16_t has_action_skill(int i)
 {
 	if (action_skill[i] == -1) {
 		return 1;

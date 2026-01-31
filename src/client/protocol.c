@@ -280,7 +280,7 @@ static void sv_setval(unsigned char *buf, int nr)
 	}
 
 	if (nr != 0 || n != sv_val(V_PROFESSION)) {
-		value[nr][n] = load_u16(buf + 2);
+		value[nr][n] = load_i16(buf + 2);
 	}
 
 	update_skltab = 1;
@@ -969,7 +969,7 @@ static void sv_teleport(unsigned char *buf)
 static void sv_prof(unsigned char *buf)
 {
 	int n, pmax;
-	uint16_t cnt = 0;
+	int16_t cnt = 0;
 
 	if (sv_ver == 35) {
 		pmax = P35_MAX;

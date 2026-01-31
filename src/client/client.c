@@ -81,7 +81,7 @@ DLL_EXPORT uint16_t originy;
 DLL_EXPORT struct map map[MAPDX * MAPDY];
 DLL_EXPORT struct map map2[MAPDX * MAPDY];
 
-DLL_EXPORT uint16_t value[2][V_MAX];
+DLL_EXPORT int16_t value[2][V_MAX];
 DLL_EXPORT uint32_t item[MAX_INVENTORYSIZE];
 DLL_EXPORT uint32_t item_flags[MAX_INVENTORYSIZE];
 DLL_EXPORT stat_t hp;
