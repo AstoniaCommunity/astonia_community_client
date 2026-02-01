@@ -603,12 +603,31 @@ int sdl_load_image_png(struct sdl_image *si, char *filename, zip_t *zip, int smo
 	return 0;
 }
 
+static int is_dropalpha_sprite(int sprite)
+{
+	if (sprite >= 16310 && sprite <= 16315) {
+		return 1;
+	}
+	if (sprite >= 16332 && sprite <= 16341) {
+		return 1;
+	}
+	if (sprite >= 21286 && sprite <= 21301) {
+		return 1;
+	}
+	return 0;
+}
+
 int do_smoothify(int sprite)
 {
 	// TODO: add more to this list
 	if (sprite >= 50 && sprite <= 56) {
 		return 0;
 	}
+
+	if (is_dropalpha_sprite(sprite)) {
+		return 0;
+	}
+
 	if (sprite > 0 && sprite <= 1000) {
 		return 1; // GUI
 	}
@@ -622,6 +641,18 @@ int do_smoothify(int sprite)
 		return 1; // bones and towers, ...
 	}
 	if (sprite >= 16000 && sprite < 17000) {
+		if (sprite >= 16138 && sprite <= 16149) {
+			return 0;
+		}
+		if (sprite >= 16175 && sprite <= 16186) {
+			return 0;
+		}
+		if (sprite >= 16304 && sprite <= 16309) {
+			return 0;
+		}
+		if (sprite >= 16390 && sprite <= 16405) {
+			return 0;
+		}
 		return 1; // cameron doors, carts, ...
 	}
 	if (sprite >= 20025 && sprite < 20034) {
@@ -804,7 +835,7 @@ retry:
 void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 {
 	SDL_Texture *texture;
-	int x, y, scale, sink;
+	int x, y, scale, sink, dropalpha = 0;
 	double ix, iy, low_x, low_y, high_x, high_y, dbr, dbg, dbb, dba;
 	uint32_t irgb;
 #ifdef DEVELOPER
@@ -821,6 +852,15 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 	// this was originally done during loading from PAKs.
 	if (st->sprite >= 160000 && st->sprite < 170000) {
 		scale = (uint8_t)(scale * 0.88);
+	}
+	if (st->sprite >= 114000 && st->sprite < 115000) { // also scale down nomad
+		scale = (uint8_t)(scale * 0.75);
+	}
+	if (st->sprite >= 129000 && st->sprite < 131000) { // and earth demon and ratling
+		scale = (uint8_t)(scale * 0.75);
+	}
+	if (is_dropalpha_sprite((int)st->sprite)) {
+		dropalpha = 1;
 	}
 
 	if (scale != 100) {
@@ -968,6 +1008,12 @@ void sdl_make(struct sdl_texture *st, struct sdl_image *si, int preload)
 				}
 				if (st->shine) {
 					irgb = sdl_shine_pix(irgb, st->shine);
+				}
+
+				if (dropalpha) {
+					if (IGET_A(irgb) < 255) {
+						irgb = 0;
+					}
 				}
 
 				if (st->ll != st->ml || st->rl != st->ml || st->ul != st->ml || st->dl != st->ml) {
