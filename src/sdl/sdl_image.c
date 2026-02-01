@@ -619,6 +619,9 @@ int do_smoothify(int sprite)
 		return 1; // coffin, berries, farn, ...
 	}
 	if (sprite >= 13000 && sprite < 14000) {
+		if (sprite >= 13154 && sprite <= 13162) {
+			return 0;
+		}
 		return 1; // bones and towers, ...
 	}
 	if (sprite >= 16000 && sprite < 17000) {
