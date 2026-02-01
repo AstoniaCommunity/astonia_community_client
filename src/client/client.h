@@ -465,8 +465,8 @@ struct client_info {
 	struct client_surface surface[CL_MAX_SURFACE];
 };
 
-DLL_EXPORT extern struct map map[MAPDX * MAPDY];
-DLL_EXPORT extern struct map map2[MAPDX * MAPDY];
+DLL_EXPORT extern struct map map[(DISTMAX * 2 + 1) * (DISTMAX * 2 + 1)];
+DLL_EXPORT extern struct map map2[(DISTMAX * 2 + 1) * (DISTMAX * 2 + 1)];
 
 DLL_EXPORT extern uint16_t value[2][V_MAX];
 DLL_EXPORT extern int *game_v_max;

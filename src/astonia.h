@@ -45,9 +45,11 @@ typedef int32_t svval_t; // skill index, server side (V3_HP, V3_BLESS *or* V35_H
 #define MPT    (1000 / TICKS) // milliseconds per tick
 #define MPF    (1000 / FRAMES) // milliseconds per frame
 
-#define DIST ((unsigned int)25)
-#define FDX  40 // width of a map tile
-#define FDY  20 // height of a map tile
+extern DLL_EXPORT unsigned int _client_dist;
+#define DIST    (_client_dist)
+#define DISTMAX (40u)
+#define FDX     40 // width of a map tile
+#define FDY     20 // height of a map tile
 
 #define XRES  800
 #define YRES  (__yres)

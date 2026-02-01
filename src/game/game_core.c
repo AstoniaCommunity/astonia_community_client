@@ -355,7 +355,7 @@ void make_quick(int game, int mcx, int mcy)
 	unsigned int dist = DIST;
 
 	if (game) {
-		set_mapoff(mcx, mcy, MAPDX, MAPDY);
+		set_mapoff(mcx, mcy, (int)MAPDX, (int)MAPDY);
 		set_mapadd(0, 0);
 	}
 

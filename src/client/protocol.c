@@ -1008,9 +1008,19 @@ static void sv_unique(unsigned char *buf)
 	}
 }
 
+void init_game(int mcx, int mcy);
+void exit_game(void);
+
 void sv_protocol(unsigned char *buf)
 {
 	protocol_version = buf[1];
+	if (protocol_version >= 3) {
+		_client_dist = 40;
+	} else {
+		_client_dist = 25;
+	}
+	exit_game();
+	init_game(dotx(DOT_MCT), doty(DOT_MCT));
 	note("Astonia Protocol Version %d established!", protocol_version);
 }
 
@@ -1242,7 +1252,6 @@ void process(unsigned char *buf, int size)
 				len = 101 + sizeof(struct shrine_ppd);
 				break;
 			case SV_PROTOCOL:
-				sv_protocol(buf);
 				len = 2;
 				break;
 
@@ -1468,6 +1477,7 @@ uint32_t prefetch(unsigned char *buf, int size)
 				len = 101 + sizeof(struct shrine_ppd);
 				break;
 			case SV_PROTOCOL:
+				sv_protocol(buf);
 				len = 2;
 				break;
 

@@ -25,7 +25,7 @@
 #include "modder/modder.h"
 #include "protocol.h"
 
-#define CLIENT_PROTOCOL_VERSION 2
+#define CLIENT_PROTOCOL_VERSION 3
 
 unsigned int display_gfx = 0;
 uint32_t display_time = 0;
@@ -78,8 +78,8 @@ DLL_EXPORT unsigned int csprite; // and sprite
 
 DLL_EXPORT uint16_t originx;
 DLL_EXPORT uint16_t originy;
-DLL_EXPORT struct map map[MAPDX * MAPDY];
-DLL_EXPORT struct map map2[MAPDX * MAPDY];
+DLL_EXPORT struct map map[(DISTMAX * 2 + 1) * (DISTMAX * 2 + 1)];
+DLL_EXPORT struct map map2[(DISTMAX * 2 + 1) * (DISTMAX * 2 + 1)];
 
 DLL_EXPORT uint16_t value[2][V_MAX];
 DLL_EXPORT uint32_t item[MAX_INVENTORYSIZE];
@@ -122,6 +122,7 @@ DLL_EXPORT int frames_per_second = TICKS;
 
 DLL_EXPORT int _inventorysize = V3_INVENTORYSIZE;
 DLL_EXPORT int _containersize = V3_CONTAINERSIZE;
+DLL_EXPORT unsigned int _client_dist = 25;
 
 // Unaligned load/store helpers
 DLL_EXPORT void client_send(void *buf, size_t len)

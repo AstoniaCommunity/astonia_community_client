@@ -21,7 +21,7 @@
 #include "modder/modder.h"
 
 static int c_on = 0, c_x, c_y, d_y, ori_x, ori_y;
-static size_t csel = MAXMN, isel = MAXMN, msel = MAXMN;
+static size_t csel = -1ull, isel = -1ull, msel = -1ull;
 
 #define MAXLINE    20
 #define MAXLEN     120
@@ -608,7 +608,7 @@ void context_keyup(SDL_Keycode key)
 		return;
 	}
 
-	if (actsel != MAXMN && !act_lck) {
+	if (actsel != (int)MAXMN && !act_lck) {
 		action_set_key(actsel, key);
 		return;
 	}

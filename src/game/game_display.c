@@ -182,13 +182,13 @@ static void display_game_spells(void)
 					mapx = (int)((int)ceffect[nr].strike.x - (int)originx + (int)DIST);
 					mapy = (int)((int)ceffect[nr].strike.y - (int)originy + (int)DIST);
 					if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
-						mna = MAXMN;
+						mna = (int)MAXMN;
 					} else {
 						mna = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
 					}
 					mtos((unsigned int)mapx, (unsigned int)mapy, &x1, &y1);
 
-					if (mna == MAXMN ||
+					if (mna == (int)MAXMN ||
 					    map[mna].cn == 0) { // no char or out of bounds, so source should be a lightning ball
 						h1 = 20;
 					} else { // so i guess we spell from a char (use the flying ball as source)
@@ -372,13 +372,13 @@ static void display_game_spells(void)
 					mapx = (int)((int)ceffect[nr].pulseback.x - (int)originx + (int)DIST);
 					mapy = (int)((int)ceffect[nr].pulseback.y - (int)originy + (int)DIST);
 					if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
-						mna = MAXMN;
+						mna = (int)MAXMN;
 					} else {
 						mna = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
 					}
 					mtos((unsigned int)mapx, (unsigned int)mapy, &x1, &y1);
 
-					if (mna == MAXMN ||
+					if (mna == (int)MAXMN ||
 					    map[mna].cn == 0) { // no char or out of bounds, so source should be a lightning ball
 						h1 = 20;
 					} else { // so i guess we spell from a char (use the flying ball as source)
@@ -451,11 +451,11 @@ static void display_game_spells2(void)
 
 			stom(x, y, &mapx, &mapy);
 			if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
-				mn = MAXMN;
+				mn = (int)MAXMN;
 			} else {
 				mn = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
 			}
-			if (mn == MAXMN || !map[mn].rlight) {
+			if (mn == (int)MAXMN || !map[mn].rlight) {
 				break;
 			}
 
@@ -479,11 +479,11 @@ static void display_game_spells2(void)
 
 			stom(x, y, &mapx, &mapy);
 			if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
-				mn = MAXMN;
+				mn = (int)MAXMN;
 			} else {
 				mn = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
 			}
-			if (mn == MAXMN || !map[mn].rlight) {
+			if (mn == (int)MAXMN || !map[mn].rlight) {
 				break;
 			}
 
@@ -515,11 +515,11 @@ static void display_game_spells2(void)
 
 			stom(x, y, &mapx, &mapy);
 			if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
-				mn = MAXMN;
+				mn = (int)MAXMN;
 			} else {
 				mn = (int)mapmn((unsigned int)mapx, (unsigned int)mapy);
 			}
-			if (mn == MAXMN || !map[mn].rlight) {
+			if (mn == (int)MAXMN || !map[mn].rlight) {
 				break;
 			}
 

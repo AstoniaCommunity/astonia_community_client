@@ -49,7 +49,7 @@ static void random_dungeon_tracker(void)
 	sm->fsprite = (char *)&map->fsprite - (char *)&map->isprite;
 
 	sm->offX = sizeof(map[0]);
-	sm->offY = MAPDY;
+	sm->offY = (int)MAPDY;
 }
 
 int sharedmem_init(void)
