@@ -217,8 +217,8 @@ DLL_IMPORT uint16_t acty;
 // --- Map Data ---
 DLL_IMPORT uint16_t originx;
 DLL_IMPORT uint16_t originy;
-DLL_IMPORT struct map map[MAPDX * MAPDY];
-DLL_IMPORT struct map map2[MAPDX * MAPDY];
+DLL_IMPORT struct map map[(DISTMAX * 2 + 1) * (DISTMAX * 2 + 1)];
+DLL_IMPORT struct map map2[(DISTMAX * 2 + 1) * (DISTMAX * 2 + 1)];
 
 // --- Character Stats ---
 DLL_IMPORT uint16_t value[2][V_MAX];

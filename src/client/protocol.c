@@ -1013,15 +1013,26 @@ void exit_game(void);
 
 void sv_protocol(unsigned char *buf)
 {
+	int reset = 0;
+
 	protocol_version = buf[1];
+
 	if (protocol_version >= 3) {
-		_client_dist = 40;
+		if (_client_dist != 40) {
+			_client_dist = 40;
+			reset = 1;
+		}
 	} else {
-		_client_dist = 25;
+		if (_client_dist != 25) {
+			_client_dist = 25;
+			reset = 1;
+		}
 	}
-	exit_game();
-	init_game(dotx(DOT_MCT), doty(DOT_MCT));
-	note("Astonia Protocol Version %d established!", protocol_version);
+	if (reset) {
+		exit_game();
+		init_game(dotx(DOT_MCT), doty(DOT_MCT));
+		note("Astonia Protocol Version %d established, engine reset.", protocol_version);
+	}
 }
 
 void process(unsigned char *buf, int size)

@@ -15,6 +15,8 @@
 
 #include "game/sprite_config.h"
 
+unsigned int _client_dist;
+
 /* ========== Stub implementations for standalone testing ========== */
 #include <stdint.h>
 
@@ -41,6 +43,18 @@ int note(const char *format, ...)
 	(void)format;
 	/* Silent in tests */
 	return 0;
+}
+
+int warn(const char *format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	fprintf(stderr, "WARN: ");
+	vfprintf(stderr, format, args);
+	fprintf(stderr, "\n");
+	va_end(args);
+	exit(1);
+	return 0; /* Never reached */
 }
 
 int fail(const char *format, ...)
