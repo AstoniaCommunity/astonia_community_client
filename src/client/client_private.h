@@ -82,7 +82,7 @@
 #define Q_SIZE 16
 
 struct queue {
-	unsigned char buf[16384];
+	unsigned char buf[65536];
 	int size;
 };
 

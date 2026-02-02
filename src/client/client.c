@@ -438,10 +438,18 @@ int poll_network(void)
 	inused += (size_t)n;
 	rec_bytes += n;
 
-	// count ticks
 	int ticks_this_poll = 0;
 	while (1) {
-		if (inused >= lastticksize + 1 && *(inbuf + lastticksize) & 0x40) {
+		if (inused >= lastticksize + 2 && *(inbuf + lastticksize) == 0xFF && *(inbuf + lastticksize + 1) == 0xFF) {
+			if (inused < lastticksize + 4) {
+				break; // we have the magic key, but not the length
+			}
+			lastticksize += 4 + net_read16(inbuf + lastticksize + 2);
+		} else if (inused == lastticksize + 1 && *(inbuf + lastticksize) == 0xFF) {
+			// if, for some reason, we only get the starting 0xff but nothing more, we need to wait for the next byte
+			// so we break here, until we have it.
+			break;
+		} else if (inused >= lastticksize + 1 && *(inbuf + lastticksize) & 0x40) {
 			lastticksize += 1 + (*(inbuf + lastticksize) & 0x3F);
 		} else if (inused >= lastticksize + 2) {
 			lastticksize += 2 + (net_read16(inbuf + lastticksize) & 0x3FFF);
@@ -490,7 +498,7 @@ static void auto_tick(struct map *cmap)
 tick_t next_tick(void)
 {
 	size_t tick_sz;
-	int size, ret;
+	int size, ret, compress = 0;
 	tick_t attick;
 
 	// no room for next tick, leave it in in-queue
@@ -499,24 +507,43 @@ tick_t next_tick(void)
 	}
 
 	// do we have a new tick
-	if (inused >= 1 && (*(inbuf) & 0x40)) {
+	if (inused >= 2 && (*(inbuf) == 0xFF) &&
+	    (*(inbuf) == 0xFF)) { // new big tick: starts with 255,255,len1,len2,content...
+		if (inused < 4) {
+			return 0; // we have the 255,255 but not the length
+		}
+		tick_sz = 4 + (net_read16(inbuf + 2));
+		if (inused < tick_sz) { // we have key and length but not the content
+			return 0;
+		}
+		indone = 4;
+	} else if (inused >= 1 && (*(inbuf) == 0xFF) &&
+	           inused < 2) { // this migth be a big tick, but we won't know until we have two bytes at least
+		return 0; // so try again later
+	} else if (inused >= 1 && (*(inbuf) & 0x40)) { // bit 14 set signifies a small (<64 bytes) tick
 		tick_sz = 1 + (*(inbuf) & 0x3F);
 		if (inused < tick_sz) {
 			return 0;
 		}
 		indone = 1;
-	} else if (inused >= 2 && !(*(inbuf) & 0x40)) {
+		if (*inbuf & 0x80) {
+			compress = 1;
+		}
+	} else if (inused >= 2 && !(*(inbuf) & 0x40)) { // "normal" tick, up to 16382 bytes
 		tick_sz = 2 + (net_read16(inbuf) & 0x3FFF);
 		if (inused < tick_sz) {
 			return 0;
 		}
 		indone = 2;
+		if (*inbuf & 0x80) {
+			compress = 1;
+		}
 	} else {
 		return 0;
 	}
 
 	// decompress
-	if (*inbuf & 0x80) {
+	if (compress) {
 		zs.next_in = inbuf + indone;
 		zs.avail_in = (unsigned int)(tick_sz - indone);
 
@@ -531,7 +558,8 @@ tick_t next_tick(void)
 		}
 
 		if (zs.avail_in) {
-			warn("HELP (%d)\n", zs.avail_in);
+			warn("Decompress has left over input. This isn't supposed to happen (%d)!\n", zs.avail_in);
+			quit = 1;
 			return 0;
 		}
 
@@ -540,6 +568,8 @@ tick_t next_tick(void)
 		size = (int)(tick_sz - indone);
 		memcpy(queue[q_in].buf, inbuf + indone, (size_t)size);
 	}
+
+
 	queue[q_in].size = size;
 
 	auto_tick(map2);
