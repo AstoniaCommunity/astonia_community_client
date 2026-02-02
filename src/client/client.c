@@ -508,7 +508,7 @@ tick_t next_tick(void)
 
 	// do we have a new tick
 	if (inused >= 2 && (*(inbuf) == 0xFF) &&
-	    (*(inbuf) == 0xFF)) { // new big tick: starts with 255,255,len1,len2,content...
+	    (*(inbuf + 1) == 0xFF)) { // new big tick: starts with 255,255,len1,len2,content...
 		if (inused < 4) {
 			return 0; // we have the 255,255 but not the length
 		}
