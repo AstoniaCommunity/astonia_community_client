@@ -69,9 +69,10 @@ DLL_EXPORT size_t get_near_ground(int x, int y)
 	return mapmn(ux, uy);
 }
 
-DLL_EXPORT map_index_t get_near_item(int x, int y, unsigned int flag, unsigned int looksize)
+// find the closest character or item (depending on flags)
+map_index_t get_near_ex(int x, int y, unsigned int flags, unsigned int looksize)
 {
-	int mapx, mapy, scrx, scry;
+	int mapx, mapy, scrx, scry, found;
 	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u;
 	map_index_t mn, nearest = MAXMN;
 	double dist, nearestdist = 100000000;
@@ -95,14 +96,23 @@ DLL_EXPORT map_index_t get_near_item(int x, int y, unsigned int flag, unsigned i
 	for (mapy_u = sy; mapy_u <= ey; mapy_u++) {
 		for (mapx_u = sx; mapx_u <= ex; mapx_u++) {
 			mn = mapmn(mapx_u, mapy_u);
+			found = 0;
 
 			if (!(map[mn].rlight)) {
 				continue;
 			}
-			if (!(map[mn].flags & flag)) {
-				continue;
+
+			if ((flags & NEAR_ITEM) && (map[mn].flags & flags) && map[mn].isprite) {
+				found = 1;
 			}
-			if (!(map[mn].isprite)) {
+
+			if ((flags & NEAR_CHAR) && map[mn].csprite) {
+				if (!(flags & NEAR_NOTSELF) || mn != MAPDX * MAPDY / 2) {
+					found = 1;
+				}
+			}
+
+			if (!found) {
 				continue;
 			}
 
@@ -120,59 +130,12 @@ DLL_EXPORT map_index_t get_near_item(int x, int y, unsigned int flag, unsigned i
 	return nearest;
 }
 
+DLL_EXPORT map_index_t get_near_item(int x, int y, unsigned int flag, unsigned int looksize)
+{
+	return get_near_ex(x, y, flag | NEAR_ITEM, looksize);
+}
+
 DLL_EXPORT map_index_t get_near_char(int x, int y, unsigned int looksize)
 {
-	int mapx, mapy, scrx, scry;
-	unsigned int ux, uy, sx, sy, ex, ey, mapx_u, mapy_u;
-	map_index_t mn, nearest = MAXMN;
-	double dist, nearestdist = 100000000;
-
-	if (!stom(mousex, mousey, &mapx, &mapy)) {
-		return MAXMN;
-	}
-
-	if (mapx < 0 || mapy < 0 || mapx >= (int)MAPDX || mapy >= (int)MAPDY) {
-		return MAXMN;
-	}
-
-	ux = (unsigned int)mapx;
-	uy = (unsigned int)mapy;
-
-	mn = mapmn(ux, uy);
-	if (mn == MAPDX * MAPDY / 2) {
-		return mn;
-	}
-
-	sx = (ux > looksize) ? (ux - looksize) : 0U;
-	sy = (uy > looksize) ? (uy - looksize) : 0U;
-	ex = min(MAPDX - 1, ux + looksize);
-	ey = min(MAPDY - 1, uy + looksize);
-
-	for (mapy_u = sy; mapy_u <= ey; mapy_u++) {
-		for (mapx_u = sx; mapx_u <= ex; mapx_u++) {
-			mn = mapmn(mapx_u, mapy_u);
-
-			if (context_key_enabled() && mn == MAPDX * MAPDY / 2) {
-				continue;
-			}
-
-			if (!(map[mn].rlight)) {
-				continue;
-			}
-			if (!(map[mn].csprite)) {
-				continue;
-			}
-
-			mtos(mapx_u, mapy_u, &scrx, &scry);
-
-			dist = (x - scrx) * (x - scrx) + (y - scry) * (y - scry);
-
-			if (dist < nearestdist) {
-				nearestdist = dist;
-				nearest = mn;
-			}
-		}
-	}
-
-	return nearest;
+	return get_near_ex(x, y, NEAR_CHAR | NEAR_NOTSELF, looksize);
 }

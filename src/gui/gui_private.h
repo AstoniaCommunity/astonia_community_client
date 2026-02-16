@@ -492,6 +492,11 @@ void cmd_color(int nr);
 void cmd_reset(void);
 void cmd_proc(int key);
 
+#define NEAR_ITEM    1024
+#define NEAR_CHAR    2048
+#define NEAR_NOTSELF 4096
+map_index_t get_near_ex(int x, int y, unsigned int flags, unsigned int looksize);
+
 DLL_EXPORT size_t get_near_char(int x, int y, unsigned int looksize);
 DLL_EXPORT size_t get_near_item(int x, int y, unsigned int flag, unsigned int looksize);
 DLL_EXPORT size_t get_near_ground(int x, int y);

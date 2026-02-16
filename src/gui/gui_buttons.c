@@ -463,25 +463,63 @@ static void detect_hover_target(void)
 	if (!hitsel[0] && butsel == -1 && mousex >= dotx(DOT_MTL) && mousey >= doty(DOT_MTL) && doty(DOT_MBR) &&
 	    mousey < doty(DOT_MBR)) {
 		if (action_ovr == ACTION_LOOK) {
-			itmsel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, 3);
-			if (itmsel == MAXMN) {
-				chrsel = get_near_char(mousex, mousey, 3);
-			}
-			if (itmsel == MAXMN && chrsel == MAXMN) {
+			map_index_t tmp = get_near_ex(mousex, mousey, CMF_USE | CMF_TAKE | NEAR_ITEM | NEAR_CHAR, 5);
+			if (tmp != MAXMN) {
+				if (map[tmp].csprite) {
+					chrsel = tmp;
+				} else {
+					itmsel = tmp;
+				}
+			} else {
 				mapsel = get_near_ground(mousex, mousey);
 			}
 		} else {
-			if (vk_char || (action_ovr != ACTION_NONE && (action_ovr != ACTION_TAKEGIVE || csprite) &&
-			                   action_ovr != ACTION_LBALL)) { // FIXME: Why L'Ball?
-				chrsel = get_near_char(mousex, mousey, vk_char ? MAPDX : 3);
+			// old style interface (shift/ctrl) first
+			if (vk_char) {
+				chrsel = get_near_char(mousex, mousey, MAPDX);
 			}
-			if (chrsel == MAXMN && (vk_item || action_ovr == ACTION_TAKEGIVE)) {
-				itmsel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, csprite ? 0 : MAPDX);
+			if (chrsel == MAXMN && vk_item) {
+				if (csprite) {
+					itmsel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, 0);
+				} else {
+					itmsel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, MAPDX);
+				}
 			}
+
+			// then active action bar slots and ground
+			if (chrsel == MAXMN && itmsel == MAXMN) {
+				unsigned int flags = 0;
+
+				if (action_ovr != ACTION_NONE && (action_ovr != ACTION_TAKEGIVE || csprite) &&
+				    action_ovr !=
+				        ACTION_LBALL) { // We exclude l'ball because it is usually aimed at the ground, not a character
+					flags |= NEAR_CHAR;
+					if (action_ovr == ACTION_ATTACK) {
+						flags |= NEAR_NOTSELF;
+					}
+				}
+
+				if (action_ovr == ACTION_TAKEGIVE) {
+					flags |= NEAR_ITEM;
+				}
+				map_index_t tmp;
+				if (csprite) {
+					tmp = get_near_ex(mousex, mousey, CMF_USE | CMF_TAKE | flags | NEAR_NOTSELF, 2);
+				} else {
+					tmp = get_near_ex(mousex, mousey, CMF_USE | CMF_TAKE | flags, 5);
+				}
+				if (tmp != MAXMN) {
+					if (map[tmp].csprite) {
+						chrsel = tmp;
+					} else {
+						itmsel = tmp;
+					}
+				}
+			}
+
 			if (chrsel == MAXMN && itmsel == MAXMN && !vk_char && (!vk_item || csprite)) {
 				mapsel = get_near_ground(mousex, mousey);
 			}
-
 			if (mapsel != MAXMN || itmsel != MAXMN || chrsel != MAXMN) {
 				butsel = BUT_MAP;
 			}

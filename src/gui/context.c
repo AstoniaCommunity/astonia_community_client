@@ -514,6 +514,8 @@ int context_key_set_cmd(void)
 		return 0;
 	}
 
+	chrsel = itmsel = mapsel = MAXMN;
+
 	switch (lcmd_override) {
 	case CMD_CHR_ATTACK:
 	case CMD_CHR_CAST_L:
@@ -528,41 +530,43 @@ int context_key_set_cmd(void)
 
 	case CMD_ITM_LOOK:
 	case CMD_CHR_LOOK:
-	case CMD_MAP_LOOK:
-		itmsel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, 3);
-		lcmd_override = CMD_ITM_LOOK;
-		if (itmsel == MAXMN) {
-			chrsel = get_near_char(mousex, mousey, 3);
-			lcmd_override = CMD_CHR_LOOK;
-		}
-		if (itmsel == MAXMN && chrsel == MAXMN) {
+	case CMD_MAP_LOOK: {
+		map_index_t tmp = get_near_ex(mousex, mousey, CMF_USE | CMF_TAKE | NEAR_ITEM | NEAR_CHAR, 5);
+		if (tmp != MAXMN) {
+			if (map[tmp].csprite) {
+				chrsel = tmp;
+				lcmd_override = CMD_CHR_LOOK;
+			} else {
+				itmsel = tmp;
+				lcmd_override = CMD_ITM_LOOK;
+			}
+		} else {
 			mapsel = get_near_ground(mousex, mousey);
 			lcmd_override = CMD_MAP_LOOK;
 		}
 		break;
-
+	}
 	case CMD_ITM_USE:
 	case CMD_ITM_USE_WITH:
 	case CMD_ITM_TAKE:
 	case CMD_CHR_GIVE:
 	case CMD_MAP_DROP:
-		chrsel = get_near_char(mousex, mousey, 3);
-		itmsel = get_near_item(mousex, mousey, CMF_TAKE | CMF_USE, csprite ? 0 : 3);
-		mapsel = get_near_ground(mousex, mousey);
-		if (csprite) {
-			if (chrsel != MAXMN) {
-				itmsel = MAXMN;
-				lcmd_override = CMD_CHR_GIVE;
-			} else if (itmsel != MAXMN) {
-				if (map[itmsel].flags & CMF_USE) {
-					lcmd_override = CMD_ITM_USE_WITH;
+		if (csprite) { // give, use with or drop
+			map_index_t tmp = get_near_ex(mousex, mousey, CMF_USE | CMF_TAKE | NEAR_ITEM | NEAR_CHAR | NEAR_NOTSELF, 2);
+			if (tmp != MAXMN) {
+				if (map[tmp].csprite) {
+					chrsel = tmp;
+					lcmd_override = CMD_CHR_GIVE;
 				} else {
-					itmsel = MAXMN;
+					itmsel = tmp;
+					lcmd_override = CMD_ITM_USE_WITH;
 				}
-			} else if (mapsel != MAXMN) {
+			} else {
+				mapsel = get_near_ground(mousex, mousey);
 				lcmd_override = CMD_MAP_DROP;
 			}
-		} else {
+		} else { // take or use
+			itmsel = get_near_item(mousex, mousey, CMF_TAKE | CMF_USE, 5);
 			if (itmsel != MAXMN) {
 				if (map[itmsel].flags & CMF_TAKE) {
 					lcmd_override = CMD_ITM_TAKE;
@@ -572,7 +576,6 @@ int context_key_set_cmd(void)
 					itmsel = MAXMN;
 				}
 			}
-			chrsel = MAXMN;
 		}
 		break;
 	}
@@ -613,9 +616,9 @@ void context_keyup(SDL_Keycode key)
 	}
 
 	if (mousex >= dotx(DOT_MTL) && mousey >= doty(DOT_MTL) && mousex < dotx(DOT_MBR) && mousey < doty(DOT_MBR)) {
-		csel = get_near_char(mousex, mousey, 3);
-		isel = get_near_item(mousex, mousey, CMF_USE | CMF_TAKE, csprite ? 0 : 3);
-		msel = get_near_ground(mousex, mousey);
+		csel = chrsel;
+		isel = itmsel;
+		msel = mapsel;
 	} else {
 		csel = isel = msel = MAXMN;
 	}

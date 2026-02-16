@@ -191,6 +191,8 @@ int actsel;
 int skl_look_sel;
 int last_right_click_invsel = -1;
 
+// action_ovr is set while an action bar slot is active
+// (i.e. player has clickling on the attack-button and is now choosing a target).
 int action_ovr = ACTION_NONE;
 
 int capbut = -1; // the button capturing the mouse
