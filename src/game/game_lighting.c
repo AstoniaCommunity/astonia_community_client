@@ -24,6 +24,8 @@ void set_map_lights(struct map *cmap)
 	for (i = 0; i < maxquick; i++) {
 		mn = quick[i].mn[4];
 
+		cmap[mn].mmf = 0;
+
 		if (!(cmap[mn].flags & CMF_VISIBLE)) {
 			cmap[mn].rlight = 0;
 			continue;
@@ -36,7 +38,6 @@ void set_map_lights(struct map *cmap)
 			cmap[mn].rlight = max(0, cmap[mn].rlight);
 			cmap[mn].rlight = min(14, cmap[mn].rlight);
 		}
-		cmap[mn].mmf = 0;
 
 		if (cmap[mn].rlight == 15) {
 			if (cmap[quick[i].mn[1]].flags & CMF_VISIBLE) {
