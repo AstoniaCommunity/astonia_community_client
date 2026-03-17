@@ -151,7 +151,7 @@ int hover_capture_text(char *line)
 		if (last_invsel >= 1000) {
 			last_invsel = last_invsel % 1000 + _inventorysize;
 		}
-		if (last_invsel < 0 || last_invsel > _inventorysize * 2) {
+		if (last_invsel < 0 || last_invsel > _inventorysize + _containersize) {
 			last_invsel = capture = last_look = 0;
 			return 1;
 		}
@@ -222,7 +222,7 @@ void hover_invalidate_inv_delayed(int slot)
 
 void hover_invalidate_con(int slot)
 {
-	if (slot < 0 || slot >= _inventorysize) {
+	if (slot < 0 || slot >= _containersize) {
 		return;
 	}
 	hi[slot + _inventorysize].valid_till = 0;
