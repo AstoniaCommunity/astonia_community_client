@@ -185,14 +185,10 @@ clean:
 	-rm -rf distrib
 	-rm -f linux_client.tar.gz
 
-# Prepare distribution staging directory
+# Prepare distribution staging directory (bundles shared library dependencies)
 distrib-stage:
 	@echo "Preparing Linux distribution staging..."
-	@mkdir -p distrib/linux_client
-	@echo "Copying binaries and resources..."
-	@cp -r bin distrib/linux_client/
-	@cp -r res distrib/linux_client/
-	@echo "Linux distribution staging complete: distrib/linux_client/"
+	@bash build/tools/package_linux.sh
 
 # Legacy target for local development (creates archive)
 distrib: distrib-stage
