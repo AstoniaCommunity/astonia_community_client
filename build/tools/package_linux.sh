@@ -103,10 +103,6 @@ SYSTEM_LIB_PATTERNS=(
     'libpipewire.*\.so'
     'libspa.*\.so'
 
-    # Crypto/SSL (security-sensitive, must come from system)
-    'libssl\.so'
-    'libcrypto\.so'
-
     # System services
     'libdbus.*\.so'
     'libudev\.so'

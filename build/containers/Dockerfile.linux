@@ -73,7 +73,7 @@ rm -f build.zig\n\
 \n\
 # Copy required shared libraries into bin/ for portable deployment\n\
 # The binary already has $ORIGIN rpath set, so it will find .so files next to itself\n\
-for lib in libSDL3.so libSDL3_mixer.so libmimalloc.so; do\n\
+for lib in libSDL3.so libSDL3_mixer.so libmimalloc.so libz.so libpng.so libpng16.so libzip.so; do\n\
     for dir in /usr/lib /usr/local/lib; do\n\
         if [ -f "$dir/$lib" ]; then\n\
             cp -L "$dir/$lib"* /app/bin/ 2>/dev/null || true\n\
