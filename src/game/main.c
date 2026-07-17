@@ -404,6 +404,7 @@ int parse_args(int argc, char *argv[])
 				} else {
 					frames_per_second = (int)f;
 				}
+				frames_per_second_auto = 0; // explicit -k overrides the refresh-rate default
 			}
 			break;
 		case 't':

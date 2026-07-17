@@ -248,6 +248,18 @@ DLL_EXPORT int _no_lighting_sprite(unsigned int sprite);
 struct map;
 int get_sink(map_index_t mn, struct map *cmap);
 
+// Screen pixel offset of a walking character for a (possibly fractional) step.
+// fstep = step + sub-tick fraction, in [0, duration]. Rounds to the nearest
+// pixel; used by the smooth camera to interpolate the player's own offset.
+void camera_walk_offset(int dir, int action, int duration, double fstep, int *dx, int *dy);
+
+// Smooth camera, non-player characters: interpolate every visible walking char's
+// own xadd/yadd by the sub-tick fraction so their sprites and nameplates glide.
+// The player (map center) is handled by the caller and skipped here. Apply wraps
+// display_game(); restore undoes it right after so picking stays on integers.
+void smoothcam_chars_apply(double frac);
+void smoothcam_chars_restore(void);
+
 void list_mem(void);
 
 void display_game(void);

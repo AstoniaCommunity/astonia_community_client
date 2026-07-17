@@ -142,6 +142,9 @@ extern DLL_EXPORT unsigned int _client_dist;
 DLL_EXPORT extern int __yres;
 extern int quit;
 DLL_EXPORT extern int frames_per_second;
+// 1 until the player passes -k; sdl_init then auto-defaults frames_per_second to
+// the monitor refresh rate so smooth camera has sub-tick frames to interpolate.
+extern int frames_per_second_auto;
 extern char *localdata;
 
 #define GO_DARK       (1ull << 0) // Dark GUI by Tegra
@@ -164,6 +167,7 @@ extern char *localdata;
 #define GO_LOWLIGHT   (1ull << 17) // Simplify Light calculations for slow CPUs
 #define GO_NOMAP      (1ull << 18) // Disable minimap completely
 #define GO_WHEELSPEED (1ull << 19) // Mouse wheel toggles movement speed (fast/normal/stealth)
+#define GO_SMOOTHCAM  (1ull << 20) // Interpolate camera between ticks for smoother scrolling at high FPS
 
 #define GO_NOTSET (1ull << 63) // No -o given on command line
 

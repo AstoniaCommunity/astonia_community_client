@@ -370,6 +370,7 @@ extern int nextframe, nexttick;
 extern uint64_t gui_time_network;
 extern uint64_t gui_frametime;
 extern uint64_t gui_ticktime;
+extern uint64_t gui_last_tick_time;
 DLL_EXPORT extern int game_slowdown;
 
 // Platform-specific GUI functions

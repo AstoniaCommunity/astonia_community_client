@@ -230,6 +230,7 @@ int nextframe, nexttick;
 uint64_t gui_time_network = 0;
 uint64_t gui_frametime = 0;
 uint64_t gui_ticktime = 0;
+uint64_t gui_last_tick_time = 0; // wall-clock ms of the last do_tick(); smooth camera interpolates from here
 
 #define MAXQUEST2 10
 
@@ -368,6 +369,7 @@ int main_loop(void)
 				do_one_tick = 1;
 				gui_ticktime = SDL_GetTicks() - gui_last_tick;
 				gui_last_tick = SDL_GetTicks();
+				gui_last_tick_time = gui_last_tick;
 				do_tick();
 				ltick++;
 
