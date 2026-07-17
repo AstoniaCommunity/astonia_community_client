@@ -62,6 +62,8 @@ void warn(const char *format, ...)
 int quit = 0;
 uint64_t game_options = 0;
 char *localdata = NULL;
+int frames_per_second = 24; // == TICKS; sdl_init() reads/sets these for the smooth-camera FPS default
+int frames_per_second_auto = 1;
 int xmemcheck_failed = 0;
 
 // SDL worker thread globals (defined in sdl_core.c, not here)
