@@ -119,6 +119,7 @@ DLL_EXPORT int pspeed = 0; // 0=normal   1=fast      2=stealth     - like the se
 int may_teleport[64 + 32];
 
 DLL_EXPORT int frames_per_second = TICKS;
+int frames_per_second_auto = 1;
 
 DLL_EXPORT int _inventorysize = V3_INVENTORYSIZE;
 DLL_EXPORT int _containersize = V3_CONTAINERSIZE;

@@ -130,6 +130,115 @@ void dx_copysprite_emerald(int scrx, int scry, int emx, int emy)
 
 size_t get_memory_usage(void);
 
+// --- smooth camera ----------------------------------------------------------
+// Between the 24 Hz game ticks, slide the world by the sub-tick fraction of each
+// character's current walk step so motion looks fluid at higher frame rates.
+//
+// Two parts, both keyed off the same tick fraction:
+//  - The player drives the camera. Its interpolated offset goes into
+//    mapaddx/mapaddy - the common base every world draw derives from (tiles,
+//    sprites, names, effects) - so the whole scene scrolls as one, and the
+//    player's own center offset is advanced by the same amount so it (and its
+//    attached effects) stays pinned dead center.
+//  - Every other visible walking character has its own xadd/yadd interpolated
+//    (smoothcam_chars_apply, game_display.c) so enemies chasing you glide
+//    instead of stepping once per tick - even while you stand still.
+//
+// Everything is restored right after the world is drawn, so picking/mouseover
+// keep using the integer tick positions. This must run after set_cmd_states()
+// has set mapaddx and the map offsets for the current tick, and wrap only
+// display_game(). No-op unless GO_SMOOTHCAM is set and the display runs faster
+// than the tick rate; then rendering is byte-for-byte identical to before.
+static int sc_active = 0;
+static int sc_player = 0;
+static int sc_saved_mapaddx, sc_saved_mapaddy;
+static char sc_saved_xadd, sc_saved_yadd;
+
+static void smoothcam_begin(void)
+{
+	map_index_t cn;
+	double frac;
+
+	sc_active = 0;
+	sc_player = 0;
+
+	if (!(game_options & GO_SMOOTHCAM) || frames_per_second <= TICKS || sockstate != 4) {
+		return;
+	}
+
+	// how far we are into the current tick. Use the scheduler's actual interval
+	// (gui_last_tick_time .. nexttick) rather than the nominal 1000/TICKS: client
+	// ticks are network-paced and rarely land exactly 24 Hz apart, and that
+	// mismatch shows up as residual per-tick jitter - most visible on two things
+	// moving toward each other. Clamp so we never extrapolate past the next tick.
+	{
+		uint32_t t_last = (uint32_t)gui_last_tick_time;
+		int32_t span = (int32_t)((uint32_t)nexttick - t_last);
+		int32_t into = (int32_t)((uint32_t)SDL_GetTicks() - t_last);
+
+		if (span < 1) {
+			frac = (double)into / (1000.0 / TICKS); // scheduler span unusable - fall back to nominal
+		} else {
+			frac = (double)into / (double)span;
+		}
+	}
+	if (frac < 0.0) {
+		frac = 0.0;
+	} else if (frac > 1.0) {
+		frac = 1.0;
+	}
+
+	cn = mapmn(MAPDX / 2, MAPDY / 2);
+
+	// player: interpolate its offset and scroll the camera to follow, keeping it
+	// dead center. Only when the player itself is walking.
+	if (map[cn].duration && map[cn].action == 1) {
+		int pxf, pyf, dx, dy;
+
+		camera_walk_offset(map[cn].dir, map[cn].action, map[cn].duration, (double)map[cn].step + frac, &pxf, &pyf);
+		dx = pxf - map[cn].xadd;
+		dy = pyf - map[cn].yadd;
+
+		sc_saved_mapaddx = mapaddx;
+		sc_saved_mapaddy = mapaddy;
+		sc_saved_xadd = map[cn].xadd;
+		sc_saved_yadd = map[cn].yadd;
+
+		mapaddx -= dx;
+		mapaddy -= dy;
+		map[cn].xadd = (char)pxf;
+		map[cn].yadd = (char)pyf;
+
+		sc_player = 1;
+	}
+
+	// every other visible walking character glides on its own sub-tick offset
+	smoothcam_chars_apply(frac);
+
+	sc_active = 1;
+}
+
+static void smoothcam_end(void)
+{
+	map_index_t cn;
+
+	if (!sc_active) {
+		return;
+	}
+
+	if (sc_player) {
+		cn = mapmn(MAPDX / 2, MAPDY / 2);
+		mapaddx = sc_saved_mapaddx;
+		mapaddy = sc_saved_mapaddy;
+		map[cn].xadd = sc_saved_xadd;
+		map[cn].yadd = sc_saved_yadd;
+		sc_player = 0;
+	}
+
+	smoothcam_chars_restore();
+	sc_active = 0;
+}
+
 void display(void)
 {
 	extern long long sdl_time_make, sdl_time_tex, sdl_time_tex_main, sdl_time_text, sdl_time_blit;
@@ -188,7 +297,9 @@ void display(void)
 
 	render_push_clip();
 	render_more_clip(dotx(DOT_MTL), doty(DOT_MTL), dotx(DOT_MBR), doty(DOT_MBR));
+	smoothcam_begin();
 	display_game();
+	smoothcam_end();
 	render_pop_clip();
 
 	display_screen();

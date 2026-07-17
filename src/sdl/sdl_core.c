@@ -85,7 +85,7 @@ void sdl_dump(FILE *fp)
 	fprintf(fp, "\n");
 }
 
-#define GO_DEFAULTS (GO_CONTEXT | GO_ACTION | GO_BIGBAR | GO_PREDICT | GO_SHORT | GO_MAPSAVE)
+#define GO_DEFAULTS (GO_CONTEXT | GO_ACTION | GO_BIGBAR | GO_PREDICT | GO_SHORT | GO_MAPSAVE | GO_SMOOTHCAM)
 
 // #define GO_DEFAULTS (GO_CONTEXT|GO_ACTION|GO_BIGBAR|GO_PREDICT|GO_SHORT|GO_MAPSAVE|GO_NOMAP)
 
@@ -127,6 +127,15 @@ int sdl_init(int width, int height, char *title, int monitor)
 		fail("SDL_GetCurrentDisplayMode Error: %s", SDL_GetError());
 		SDL_Quit();
 		return 0;
+	}
+
+	// Unless the player forced a rate with -k, default to the monitor refresh
+	// rate so smooth camera has sub-tick frames to interpolate (vsync caps us
+	// there anyway). Fall back to 60 if the refresh rate is unknown or not above
+	// the tick rate.
+	if (frames_per_second_auto) {
+		int hz = (int)(DM->refresh_rate + 0.5f);
+		frames_per_second = (hz > TICKS) ? hz : 60;
 	}
 
 	if (!width || !height) {

@@ -9,6 +9,7 @@
  */
 
 #include <stdint.h>
+#include <math.h>
 
 #include "astonia.h"
 #include "game/game.h"
@@ -300,12 +301,27 @@ DLL_EXPORT int _get_player_sprite(int nr, int zdir, int action, int step, int du
 	return base;
 }
 
+// Per-direction unit step of a walking character, in half-tile units. A full
+// step spans 20 px horizontally and 10 px vertically (see _trans_csprite and
+// camera_walk_offset).
+static const int dirxadd[8] = {+1, 0, -1, -2, -1, 0, +1, +2};
+static const int diryadd[8] = {+1, +2, +1, 0, -1, -2, -1, 0};
+
+void camera_walk_offset(int dir, int action, int duration, double fstep, int *dx, int *dy)
+{
+	if (duration && action == 1 && dir >= 1 && dir <= 8) {
+		*dx = (int)lround(20.0 * fstep * dirxadd[dir - 1] / duration);
+		*dy = (int)lround(10.0 * fstep * diryadd[dir - 1] / duration);
+	} else {
+		*dx = 0;
+		*dy = 0;
+	}
+}
+
 void (*trans_csprite)(map_index_t mn, struct map *cmap, tick_t attick) = _trans_csprite;
 
 DLL_EXPORT void _trans_csprite(map_index_t mn, struct map *cmap, tick_t attick)
 {
-	int dirxadd[8] = {+1, 0, -1, -2, -1, 0, +1, +2};
-	int diryadd[8] = {+1, +2, +1, 0, -1, -2, -1, 0};
 	unsigned int csprite;
 	int scale, cr, cg, cb, light, sat, c1, c2, c3, shine;
 

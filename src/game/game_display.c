@@ -1451,6 +1451,60 @@ static void display_otext(void)
 	}
 }
 
+// Sub-tick interpolation of every visible walking character's own walk offset,
+// so their sprites and nameplates (both read map[mn].xadd/yadd) glide at high
+// frame rates instead of stepping once per 24 Hz tick. The player (map center)
+// is handled by the caller - it also drives the camera - so we skip that cell.
+// Sized to the maximum possible map so the save list can never overflow.
+#define SC_MAXCELLS ((DISTMAX * 2 + 1) * (DISTMAX * 2 + 1))
+
+static struct {
+	map_index_t mn;
+	char xadd, yadd;
+} sc_char_saved[SC_MAXCELLS];
+
+static int sc_char_nsaved = 0;
+
+void smoothcam_chars_apply(double frac)
+{
+	map_index_t cn = mapmn(MAPDX / 2, MAPDY / 2);
+	int i, pxf, pyf;
+
+	sc_char_nsaved = 0;
+
+	for (i = 0; i < maxquick; i++) {
+		map_index_t mn = quick[i].mn[4];
+
+		if (mn == cn) {
+			continue; // player: handled by the caller (drives the camera)
+		}
+		if (!map[mn].duration || map[mn].action != 1) {
+			continue; // not walking - nothing to smooth
+		}
+
+		camera_walk_offset(map[mn].dir, map[mn].action, map[mn].duration, (double)map[mn].step + frac, &pxf, &pyf);
+
+		sc_char_saved[sc_char_nsaved].mn = mn;
+		sc_char_saved[sc_char_nsaved].xadd = map[mn].xadd;
+		sc_char_saved[sc_char_nsaved].yadd = map[mn].yadd;
+		sc_char_nsaved++;
+
+		map[mn].xadd = (char)pxf;
+		map[mn].yadd = (char)pyf;
+	}
+}
+
+void smoothcam_chars_restore(void)
+{
+	int i;
+
+	for (i = 0; i < sc_char_nsaved; i++) {
+		map[sc_char_saved[i].mn].xadd = sc_char_saved[i].xadd;
+		map[sc_char_saved[i].mn].yadd = sc_char_saved[i].yadd;
+	}
+	sc_char_nsaved = 0;
+}
+
 void display_game(void)
 {
 	display_game_spells();
