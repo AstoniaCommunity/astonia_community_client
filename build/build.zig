@@ -180,10 +180,10 @@ pub fn build(b: *std.Build) void {
     addSearchPathsForWindowsTarget(b, exe, tgt, host);
 
     if (tgt.os.tag == .windows) {
-        exe.addCSourceFiles(.{ .files = common_sources, .flags = win_cflags });
-        exe.addCSourceFiles(.{ .files = win_sources, .flags = win_cflags });
+        exe.root_module.addCSourceFiles(.{ .files = common_sources, .flags = win_cflags });
+        exe.root_module.addCSourceFiles(.{ .files = win_sources, .flags = win_cflags });
     } else {
-        exe.addCSourceFiles(.{ .files = common_sources, .flags = base_cflags });
+        exe.root_module.addCSourceFiles(.{ .files = common_sources, .flags = base_cflags });
     }
 
     const pic_cflags = &.{
@@ -213,12 +213,12 @@ pub fn build(b: *std.Build) void {
     };
 
     if (tgt.os.tag == .linux) {
-        exe.addCSourceFiles(.{
+        exe.root_module.addCSourceFiles(.{
             .files = linux_sources,
             .flags = pic_cflags,
         });
     } else if (tgt.os.tag == .macos) {
-        exe.addCSourceFiles(.{
+        exe.root_module.addCSourceFiles(.{
             .files = macos_sources,
             .flags = pic_cflags,
         });
@@ -226,13 +226,13 @@ pub fn build(b: *std.Build) void {
 
     // Allow __DATE__/__TIME__ (warning rather than error)
     if (tgt.os.tag == .windows) {
-        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-Dmain=SDL_main", "-DSTORE_UNIQUE", "-DENABLE_CRASH_HANDLER", "-DENABLE_SHAREDMEM", "-DENABLE_DRAGHACK", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
+        exe.root_module.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-Dmain=SDL_main", "-DSTORE_UNIQUE", "-DENABLE_CRASH_HANDLER", "-DENABLE_SHAREDMEM", "-DENABLE_DRAGHACK", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
     } else {
-        exe.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
+        exe.root_module.addCSourceFile(.{ .file = b.path("src/game/version.c"), .flags = &.{ "-Wno-error=date-time", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
     }
 
     // cJSON library (third-party, relaxed warning flags)
-    exe.addCSourceFile(.{ .file = b.path("src/lib/cjson/cJSON.c"), .flags = &.{ "-O3", "-fPIC", "-fno-omit-frame-pointer", "-fvisibility=hidden", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
+    exe.root_module.addCSourceFile(.{ .file = b.path("src/lib/cjson/cJSON.c"), .flags = &.{ "-O3", "-fPIC", "-fno-omit-frame-pointer", "-fvisibility=hidden", "-DUSE_MIMALLOC=1", "-DSDL_FUNCTION_POINTER_IS_VOID_POINTER" } });
 
     exe.root_module.addIncludePath(b.path(include_root));
     exe.root_module.addIncludePath(b.path(src_root));
@@ -258,7 +258,7 @@ pub fn build(b: *std.Build) void {
         exe.step.dependOn(&copy_lib.step);
 
         // Link using relative path - this links by name, not absolute path
-        exe.addObjectFile(.{ .cwd_relative = lib_copy_path });
+        exe.root_module.addObjectFile(.{ .cwd_relative = lib_copy_path });
 
         // Set RPATH so it can find the library at runtime
         // macOS uses @loader_path, Linux uses $ORIGIN
@@ -276,15 +276,15 @@ pub fn build(b: *std.Build) void {
         // Export symbols for amod to link against (equivalent to -rdynamic)
         exe.rdynamic = true;
     } else if (tgt.os.tag == .windows) {
-        exe.addLibraryPath(b.path(rust_out_dir));
-        exe.linkSystemLibrary("astonia_net");
+        exe.root_module.addLibraryPath(b.path(rust_out_dir));
+        exe.root_module.linkSystemLibrary("astonia_net", .{});
     }
 
     if (tgt.os.tag == .windows) {
         const res = b.pathJoin(&.{ "src", "game", "resource.o" });
         const windres = b.addSystemCommand(&.{ "windres", "-F", "pe-x86-64", "src/game/resource.rc", res });
         exe.step.dependOn(&windres.step);
-        exe.addObjectFile(b.path(res));
+        exe.root_module.addObjectFile(b.path(res));
         exe.subsystem = .Windows;
         exe.generated_implib = b.allocator.create(std.Build.GeneratedFile) catch unreachable;
         exe.generated_implib.?.* = .{
@@ -322,9 +322,9 @@ pub fn build(b: *std.Build) void {
 
     // Link amod against the main executable to resolve symbols
     if (tgt.os.tag == .windows) {
-        amod.addCSourceFile(.{ .file = b.path("src/amod/amod.c"), .flags = win_cflags });
+        amod.root_module.addCSourceFile(.{ .file = b.path("src/amod/amod.c"), .flags = win_cflags });
     } else {
-        amod.addCSourceFile(.{ .file = b.path("src/amod/amod.c"), .flags = base_cflags });
+        amod.root_module.addCSourceFile(.{ .file = b.path("src/amod/amod.c"), .flags = base_cflags });
     }
     amod.root_module.addIncludePath(b.path(include_root));
     amod.root_module.addIncludePath(b.path(src_root));
@@ -337,7 +337,7 @@ pub fn build(b: *std.Build) void {
     // Link amod against the main executable to resolve symbols
     if (tgt.os.tag == .windows) {
         // Windows: links against the import library (moac.lib)
-        amod.addObjectFile(.{ .generated = .{ .file = exe.generated_implib.? } });
+        amod.root_module.addObjectFile(.{ .generated = .{ .file = exe.generated_implib.? } });
         amod.step.dependOn(&exe.step);
         b.installArtifact(amod);
     } else if (tgt.os.tag == .macos) {
@@ -406,6 +406,7 @@ fn findSystemLibrary(
     target: std.Target,
 ) ![]const u8 {
     const gpa = b.allocator;
+    const io = b.graph.io;
 
     const extensions = if (target.os.tag == .windows)
         &[_][]const u8{ ".dll.a", ".a" }
@@ -413,7 +414,7 @@ fn findSystemLibrary(
         &[_][]const u8{ ".so", ".a" };
 
     const search_paths = blk: {
-        if (b.graph.env_map.get("LIBRARY_PATH")) |lib_path| {
+        if (b.graph.environ_map.get("LIBRARY_PATH")) |lib_path| {
             const separator: u8 = if (target.os.tag == .windows) ';' else ':';
             var path_count: usize = 1;
             for (lib_path) |c| {
@@ -463,7 +464,7 @@ fn findSystemLibrary(
 
             const full_path = try std.fs.path.join(gpa, &.{ search_path, filename });
 
-            std.fs.accessAbsolute(full_path, .{}) catch {
+            std.Io.Dir.cwd().access(io, full_path, .{}) catch {
                 gpa.free(full_path);
                 continue;
             };
@@ -487,11 +488,11 @@ fn linkSystemLibraryPreferDynamic(
     const lib_path = findSystemLibrary(b, lib_name, target) catch |err| {
         std.debug.print("Warning: Could not find library '{s}': {s}\n", .{ lib_name, @errorName(err) });
         std.debug.print("Falling back to standard linkSystemLibrary\n", .{});
-        step.linkSystemLibrary(lib_name);
+        step.root_module.linkSystemLibrary(lib_name, .{});
         return;
     };
 
-    step.addObjectFile(.{ .cwd_relative = lib_path });
+    step.root_module.addObjectFile(.{ .cwd_relative = lib_path });
 }
 
 fn rustTripleFor(t: std.Target) []const u8 {
@@ -532,7 +533,7 @@ fn addSearchPathsForWindowsTarget(
         a.root_module.addIncludePath(.{ .cwd_relative = inc });
         a.root_module.addIncludePath(.{ .cwd_relative = inc_sdl3 });
         a.root_module.addIncludePath(.{ .cwd_relative = inc_png });
-        a.addLibraryPath(.{ .cwd_relative = lib });
+        a.root_module.addLibraryPath(.{ .cwd_relative = lib });
     } else if (host_target.os.tag == .linux) {
         // Cross-compiling from Linux to Windows
         const clang_prefix = "/clang64";
@@ -541,6 +542,6 @@ fn addSearchPathsForWindowsTarget(
         const lib = std.fs.path.join(gpa, &.{ clang_prefix, "lib" }) catch unreachable;
 
         a.root_module.addIncludePath(.{ .cwd_relative = incl });
-        a.addLibraryPath(.{ .cwd_relative = lib });
+        a.root_module.addLibraryPath(.{ .cwd_relative = lib });
     }
 }
