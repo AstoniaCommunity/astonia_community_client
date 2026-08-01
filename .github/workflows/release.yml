@@ -270,34 +270,16 @@ jobs:
           strip bin/moac
           strip bin/libastonia_net.so
 
-      - name: Collect Binaries (Linux)
-        run: |
-          mkdir -p binaries
-          cp bin/moac binaries/
-          cp bin/libastonia_net.so binaries/
-          cp -L /usr/local/lib/libSDL3.so.0 binaries/ 2>/dev/null || \
-            cp -L /tmp/sdl3-install/lib/libSDL3.so.0 binaries/ || true
-          cp -L /usr/local/lib/libSDL3_mixer.so.0 binaries/ 2>/dev/null || \
-            cp -L /tmp/sdl3-install/lib/libSDL3_mixer.so.0 binaries/ || true
-          echo "=== Linux Binaries ==="
-          ls -la binaries/
+      - name: Prepare distribution staging
+        run: make distrib-stage
 
       - name: Upload Binaries (Linux)
         uses: actions/upload-artifact@v4
         with:
           name: linux-binaries
-          path: binaries/
+          path: distrib/linux_client/bin/
           retention-days: 7
-
-      - name: Prepare distribution staging
-        run: make distrib-stage
-
-      - name: Upload distribution staging
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-staging
-          path: distrib/linux_client/
-          retention-days: 7
+          overwrite: true
 
   build-windows-release:
     needs: build-sdl3-windows
@@ -369,19 +351,13 @@ jobs:
       - name: Prepare distribution staging
         run: make distrib-stage
 
-      - name: Upload distribution staging
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-staging
-          path: distrib/windows_client/
-          retention-days: 7
-
       - name: Upload Binaries (Windows)
         uses: actions/upload-artifact@v4
         with:
           name: windows-binaries
           path: distrib/windows_client/bin/
           retention-days: 7
+          overwrite: true
 
       - name: Upload Mod SDK (Windows)
         uses: actions/upload-artifact@v4
@@ -598,17 +574,22 @@ jobs:
       contents: write
 
     steps:
-      - name: Download Linux staging
-        uses: actions/download-artifact@v4
+      - name: Checkout code
+        uses: actions/checkout@v6
         with:
-          name: linux-staging
-          path: linux_client
+          lfs: true
 
-      - name: Download Windows staging
+      - name: Download Linux Binaries
         uses: actions/download-artifact@v4
         with:
-          name: windows-staging
-          path: windows_client
+          name: linux-binaries
+          path: linux_client/bin
+
+      - name: Download Windows Binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-binaries
+          path: windows_client/bin
 
       - name: Download macOS DMG
         uses: actions/download-artifact@v4
@@ -627,18 +608,6 @@ jobs:
           name: mod-sdk-windows
           path: mod-sdk
 
-      - name: Download Linux Binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: linux-binaries
-          path: linux-binaries
-
-      - name: Download Windows Binaries
-        uses: actions/download-artifact@v4
-        with:
-          name: windows-binaries
-          path: windows-binaries
-
       - name: Download macOS Binaries
         uses: actions/download-artifact@v4
         with:
@@ -651,13 +620,20 @@ jobs:
       - name: Rename AppImage to match convention
         run: mv astonia-client.AppImage client-linux.AppImage
 
+      - name: Assemble full distributions
+        run: |
+          cp -r res linux_client/res
+          cp -r res windows_client/res
+          cp eula.txt license.txt linux_client/ 2>/dev/null || true
+          cp eula.txt create_shortcut.bat windows_client/ 2>/dev/null || true
+
       - name: Create distribution archives
         run: |
           tar czf client-linux.tar.gz linux_client
           zip -q -r client-windows.zip windows_client
           zip -q -r mod-sdk.zip mod-sdk
-          tar czf client-linux-binaries.tar.gz -C linux-binaries .
-          cd windows-binaries && zip -q -r ../client-windows-binaries.zip . && cd ..
+          tar czf client-linux-binaries.tar.gz -C linux_client/bin .
+          cd windows_client/bin && zip -q -r ../../client-windows-binaries.zip . && cd ../..
           tar czf client-macos-binaries.tar.gz -C macos-binaries .
 
       - name: Generate checksums
