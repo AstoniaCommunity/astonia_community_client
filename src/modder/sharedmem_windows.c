@@ -22,10 +22,9 @@ struct sharedmem {
 	signed char mana; // Signed to preserve -1 sentinel
 
 	char *base;
-	ptrdiff_t key, isprite; // Pointer offsets
-	int offX, offY;
-	int flags, fsprite;
-	char swapped;
+	int key, isprite, offX, offY;
+    int flags, fsprite;
+    char swapped;
 } __attribute__((packed));
 
 static struct sharedmem *sm;
@@ -35,16 +34,17 @@ static void random_dungeon_tracker(void)
 {
 	sm->base = (char *)GetModuleHandle(NULL);
 
-	// cppcheck-suppress comparePointers
-	if ((char *)&originx < (char *)&originy) {
-		sm->key = (char *)&originx - sm->base;
+	if ((uintptr_t)&originx < (uintptr_t)&originy) {
+		sm->key = (int)((char *)&originx - sm->base)
 		sm->swapped = 0;
 	} else {
-		sm->key = (char *)&originy - sm->base;
+		sm->key = (int)((char *)&originy - sm->base)
 		sm->swapped = 1;
 	}
-
-	sm->isprite = (char *)&map[MAXMN / 2] - sm->base + (char *)&map->isprite - (char *)&map;
+	sm->key += 4 //Address shift due to readers expecting int while codebase was changed to uint16_t 
+	// (dirty hack to not have to recompile RDTracker and other tools. MAY BREAK UNEXPECTEDLY)
+		
+	sm->isprite = (int)((char *)&map[MAXMN / 2] - (char *)sm->base + (char *)&map->isprite - (char *)&map);
 	sm->flags = (char *)&map->flags - (char *)&map->isprite;
 	sm->fsprite = (char *)&map->fsprite - (char *)&map->isprite;
 
