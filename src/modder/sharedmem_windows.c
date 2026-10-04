@@ -35,13 +35,13 @@ static void random_dungeon_tracker(void)
 	sm->base = (char *)GetModuleHandle(NULL);
 
 	if ((uintptr_t)&originx < (uintptr_t)&originy) {
-		sm->key = (int)((char *)&originx - sm->base)
+		sm->key = (int)((char *)&originx - sm->base);
 		sm->swapped = 0;
 	} else {
-		sm->key = (int)((char *)&originy - sm->base)
+		sm->key = (int)((char *)&originy - sm->base);
 		sm->swapped = 1;
 	}
-	sm->key += 4 //Address shift due to readers expecting int while codebase was changed to uint16_t 
+	sm->key += 4; //Address shift due to readers expecting int while codebase was changed to uint16_t 
 	// (dirty hack to not have to recompile RDTracker and other tools. MAY BREAK UNEXPECTEDLY)
 		
 	sm->isprite = (int)((char *)&map[MAXMN / 2] - (char *)sm->base + (char *)&map->isprite - (char *)&map);
