@@ -23,8 +23,8 @@ struct sharedmem {
 
 	char *base;
 	int key, isprite, offX, offY;
-    int flags, fsprite;
-    char swapped;
+	int flags, fsprite;
+	char swapped;
 } __attribute__((packed));
 
 static struct sharedmem *sm;
@@ -41,9 +41,10 @@ static void random_dungeon_tracker(void)
 		sm->key = (int)((char *)&originy - sm->base);
 		sm->swapped = 1;
 	}
-	sm->key += 4; //Address shift due to readers expecting int while codebase was changed to uint16_t 
-	// (dirty hack to not have to recompile RDTracker and other tools. MAY BREAK UNEXPECTEDLY)
-		
+	sm->key += 4; // Address shift due to readers expecting int while codebase was changed to uint16_t
+	// (dirty hack to not have to recompile other tools. MAY BREAK UNEXPECTEDLY. rdtracker 2.4.2 and below have a
+	// breaking BUG)
+
 	sm->isprite = (int)((char *)&map[MAXMN / 2] - (char *)sm->base + (char *)&map->isprite - (char *)&map);
 	sm->flags = (char *)&map->flags - (char *)&map->isprite;
 	sm->fsprite = (char *)&map->fsprite - (char *)&map->isprite;
