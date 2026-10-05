@@ -50,7 +50,9 @@ USE_MIMALLOC ?= 1
 
 CFLAGS=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
 CFLAGS_PIC=$(OPT) $(DEBUG) $(WARNING_FLAGS) $(DEVELOPER_FLAGS) -fPIC -fno-omit-frame-pointer -fvisibility=hidden $(SDL_CFLAGS) $(EXTRA_ARCH_FLAGS) -Iinclude -Isrc -DUSE_MIMALLOC=$(USE_MIMALLOC) -DSDL_FUNCTION_POINTER_IS_VOID_POINTER
-LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,-rpath,\$$ORIGIN
+# DT_RPATH (not RUNPATH) so the bundled libraries' own dependencies (e.g. libzip -> libbz2)
+# are also resolved next to the binary, not only moac's direct ones.
+LDFLAGS=$(OPT) $(DEBUG) -rdynamic -Wl,--disable-new-dtags,-rpath,\$$ORIGIN
 
 SDL_LIBS=$(shell pkg-config sdl3 --libs)
 LIBS = -lz -lpng -lzip $(SDL_LIBS) -lSDL3_mixer -lm
