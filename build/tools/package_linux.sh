@@ -36,6 +36,7 @@ DIST_RES_DIR="$DIST_DIR/linux_client/res"
 #   - GPU/graphics drivers (hardware-specific)
 #   - Audio backends (system-specific)
 #   - System services (D-Bus, udev, systemd)
+#   - OpenSSL (should receive security updates from the system)
 #
 # Everything NOT in this list gets bundled.
 # ---------------------------------------------------------------------------
@@ -119,6 +120,10 @@ SYSTEM_LIB_PATTERNS=(
     'libblkid\.so'
     'libselinux\.so'
     'libcap\.so'
+
+    # OpenSSL (security-sensitive, must track the system's updates)
+    'libssl\.so'
+    'libcrypto\.so'
 )
 
 # ---------------------------------------------------------------------------
