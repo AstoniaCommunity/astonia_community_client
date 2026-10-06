@@ -120,6 +120,9 @@ bin/moac:	$(OBJS) $(ASTONIA_NET_LIB)
 		cp $(ASTONIA_NET_LIB) bin/
 		$(CC) $(LDFLAGS) -o bin/moac $(OBJS) $(SDL_LIBS) $(LIBS) -Lbin -lastonia_net
 
+.PHONY: realease
+release: bin/moac
+
 $(ASTONIA_NET_LIB):
 		rustup target add $(ASTONIA_NET_TGT)
 		cd $(ASTONIA_NET_DIR) && cargo build --release --target $(ASTONIA_NET_TGT)
